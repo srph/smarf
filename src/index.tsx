@@ -160,6 +160,7 @@ const CategoryHeadingInfo = styled.div`
 const CategoryHeadingDragIcon = styled.div`
   margin-right: 16px;
   color: ${theme.colors.neutral[400]};
+  cursor: grabbing;
 `
 
 const CategoryHeadingTitle = styled.h4`
