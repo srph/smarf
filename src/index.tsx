@@ -340,6 +340,7 @@ const NavLogoImage = styled.img`
 
 const NavLogoText = styled.h1`
   margin: 0;
+  text-transform: uppercase;
   font-size: ${theme.fontSizes.lg};
 `
 
