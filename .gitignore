@@ -4,3 +4,4 @@ Thumbs.db
 dist
 .cache
 .env
+.parcel-cache
