@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { theme } from '../../theme'
+import { Icon } from '../Icon'
 
 interface Props {
   variant: 'primary'
@@ -10,7 +11,11 @@ interface Props {
 const Button: React.FC<Props> = ({ children, icon }) => {
   return (
     <Element>
-      {icon ? <Icon>{icon}</Icon> : null}
+      {icon ? (
+        <IconContainer>
+          <Icon name={icon} />
+        </IconContainer>
+      ) : null}
       <span>{children}</span>
     </Element>
   )
@@ -20,7 +25,6 @@ const Element = styled.div`
   display: inline-flex;
   align-items: center;
   padding: 8px;
-  width: 100%;
   color: ${theme.colors.neutral[50]};
   background: ${theme.colors.indigo[400]};
   font-size: ${theme.fontSizes.md}px;
@@ -36,9 +40,8 @@ const Element = styled.div`
   }
 `
 
-const Icon = styled.div`
+const IconContainer = styled.div`
   margin-right: 8px;
-  font-size: ${theme.fontSizes.sm}px;
   color: ${theme.colors.indigo[200]};
 `
 
