@@ -4,7 +4,7 @@ import { theme } from '../../theme'
 import { Icon } from '../Icon'
 
 interface Props {
-  variant: 'primary'
+  variant?: 'primary'
   icon?: string
 }
 

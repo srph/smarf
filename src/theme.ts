@@ -45,5 +45,9 @@ export const theme = {
     blue: {
       500: '#0094FF'
     }
+  },
+
+  zIndex: {
+    heroSelector: 1000
   }
 }
