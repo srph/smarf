@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import styled, { createGlobalStyle } from 'styled-components'
 import 'modern-normalize/modern-normalize.css'
 import { theme } from './theme'
-import { Avatar, Button, Container, Icon } from './components'
+import { Avatar, Button, Container, Icon, PlainButton } from './components'
 import logo from '../public/images/logo.png'
 import avatar from '../public/images/avatar.png'
 import hero from '../public/images/hero.png'
@@ -166,10 +166,102 @@ const App = () => {
         </Container>
       </ToolbarContainer>
 
+      <EditPopoverContainer>
+        <Container>
+          <EditPopover>
+            <EditPopoverClose>
+              <PlainButton type="button">
+                <Icon name="x" />
+              </PlainButton>
+            </EditPopoverClose>
+
+            <EditPopoverContent>
+              <EditPopoverLabel>Name</EditPopoverLabel>
+
+              <InputGroup>
+                <InputGroupElement type="text" placeholder="Enter name..." />
+                <InputGroupButtonContainer>
+                  <InputGroupButton>
+                    <Icon name="check" />
+                  </InputGroupButton>
+                </InputGroupButtonContainer>
+              </InputGroup>
+            </EditPopoverContent>
+          </EditPopover>
+        </Container>
+      </EditPopoverContainer>
+
       <GlobalStyle />
     </>
   )
 }
+
+const EditPopoverContainer = styled.div`
+  position: fixed;
+  bottom: 90px;
+  left: 0;
+  right: 0;
+  z-index: ${theme.zIndex.editPopover};
+`
+
+const EditPopover = styled.div`
+  display: flex;
+  position: relative;
+`
+
+const EditPopoverClose = styled.div`
+  position: absolute;
+  top: -32px;
+  right: 0;
+  color: ${theme.colors.neutral[500]};
+`
+
+const EditPopoverContent = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 16px;
+  background: ${theme.colors.neutral[900]};
+  border: 1px solid ${theme.colors.neutral[700]};
+  border-radius: 4px;
+`
+
+const EditPopoverLabel = styled.label`
+  margin-right: 16px;
+`
+
+const InputGroup = styled.div`
+  display: flex;
+  align-items: center;
+  background: ${theme.colors.neutral[900]};
+  border: 1px solid ${theme.colors.neutral[700]};
+  border-radius: 4px;
+
+  &:hover,
+  &:focus-within {
+    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
+  }
+`
+
+const InputGroupElement = styled.input`
+  display: block;
+  padding: 12px;
+  background: transparent;
+  border: 0;
+  outline: 0;
+`
+
+const InputGroupButtonContainer = styled.div`
+  padding: 4px;
+`
+
+const InputGroupButton = styled.div`
+  display: inline-block;
+  padding: 4px;
+  background: ${theme.colors.neutral[500]};
+  border-radius: 4px;
+  cursor: pointer;
+`
 
 const HeroSelector = styled.div`
   position: absolute;
@@ -269,7 +361,16 @@ const Input = styled.input`
   color: ${theme.colors.text};
   background: ${theme.colors.neutral[900]};
   border-radius: 4px;
-  border: 1px solid ${theme.colors.neutral[600]};
+  border: 1px solid ${theme.colors.neutral[700]};
+
+  &:hover,
+  &:focus {
+    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
+  }
+
+  &:focus {
+    outline: 0;
+  }
 `
 
 const NewCategory = styled.button`
