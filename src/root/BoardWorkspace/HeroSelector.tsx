@@ -37,7 +37,7 @@ const HeroSelector: React.FC = () => {
 
       <HeroSelectorHeading>
         <HeroSelectorHeadingText>Select Hero</HeroSelectorHeadingText>
-        <SearchInput type="text" />
+        <SearchInput />
       </HeroSelectorHeading>
 
       <HeroSelectorContent>
