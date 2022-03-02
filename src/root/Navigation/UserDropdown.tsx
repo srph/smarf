@@ -75,8 +75,14 @@ const LinkItem = styled.a`
   display: flex;
   align-items: center;
   padding: 16px;
+  background: transparent;
   text-decoration: none;
   cursor: pointer;
+  transition: 200ms background ease;
+
+  &:hover {
+    background: ${theme.colors.neutral[700]};
+  }
 
   &:not(:last-child) {
     border-bottom: 1px solid ${theme.colors.neutral[700]};
