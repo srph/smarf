@@ -57,6 +57,8 @@ const NavLogoImage = styled.img`
 const NavLogoText = styled.h1`
   margin: 0;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 800;
   font-size: ${theme.fontSizes.lg};
 `
 
