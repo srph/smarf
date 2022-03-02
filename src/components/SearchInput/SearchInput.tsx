@@ -17,7 +17,7 @@ const SearchInput: React.FC<Props> = ({ value, onChange }) => {
     <Container>
       <Input value={value} onChange={handleChange} placeholder="Search..." />
       <SearchIcon>
-        <Icon name="search" />
+        <Icon name="search" width={16} />
       </SearchIcon>
     </Container>
   )
