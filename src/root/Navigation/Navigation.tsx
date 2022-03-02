@@ -4,6 +4,7 @@ import { theme } from '~/src/theme'
 import { Avatar, Button, Container, PlainButton } from '~/src/components'
 import logo from '~/src/public/images/logo.png'
 import avatar from '~/src/public/images/avatar.png'
+import { UserDropdown } from './UserDropdown'
 
 const Navigation: React.FC = () => {
   return (
@@ -25,6 +26,8 @@ const Navigation: React.FC = () => {
             </PlainButton>
           </NavMenu>
         </NavContainer>
+
+        <UserDropdown />
       </Container>
     </Nav>
   )

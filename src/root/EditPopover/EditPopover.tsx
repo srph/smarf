@@ -7,7 +7,7 @@ const EditPopover: React.FC = () => {
   return (
     <EditPopoverContainer>
       <Container>
-        <EditPopover>
+        <EditPopoverInner>
           <EditPopoverClose>
             <PlainButton type="button">
               <Icon name="x" />
@@ -26,7 +26,7 @@ const EditPopover: React.FC = () => {
               </InputGroupButtonContainer>
             </InputGroup>
           </EditPopoverContent>
-        </EditPopover>
+        </EditPopoverInner>
       </Container>
     </EditPopoverContainer>
   )
