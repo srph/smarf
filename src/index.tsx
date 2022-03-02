@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import styled, { createGlobalStyle } from 'styled-components'
 import 'modern-normalize/modern-normalize.css'
 import { theme } from './theme'
-import { Avatar, Button, Container, Icon, PlainButton } from './components'
+import { Avatar, Button, Container, Icon, SearchInput, PlainButton } from './components'
 import logo from '../public/images/logo.png'
 import avatar from '../public/images/avatar.png'
 import hero from '../public/images/hero.png'
@@ -63,7 +63,7 @@ const App = () => {
 
             <HeroSelectorHeading>
               <HeroSelectorHeadingText>Select Hero</HeroSelectorHeadingText>
-              <Input type="text" placeholder="Search..." />
+              <SearchInput type="text" />
             </HeroSelectorHeading>
 
             <HeroSelectorContent>
@@ -352,25 +352,6 @@ const HeroSelectorItemButton = styled.button`
 const HeroSelectorItemImg = styled.img`
   width: 40px;
   height: 50px;
-`
-
-const Input = styled.input`
-  display: block;
-  width: 240px;
-  padding: 8px;
-  color: ${theme.colors.text};
-  background: ${theme.colors.neutral[900]};
-  border-radius: 4px;
-  border: 1px solid ${theme.colors.neutral[700]};
-
-  &:hover,
-  &:focus {
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-
-  &:focus {
-    outline: 0;
-  }
 `
 
 const NewCategory = styled.button`
