@@ -48,7 +48,8 @@ export const theme = {
   },
 
   zIndex: {
-    heroSelector: 1000,
-    editPopover: 1000
+    editPopover: 1000,
+    userDropdown: 1100,
+    heroSelector: 1200
   }
 }

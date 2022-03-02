@@ -48,6 +48,7 @@ const Container = styled.div`
   width: 240px;
   border-radius: 4px;
   border: 1px solid ${theme.colors.neutral[700]};
+  z-index: ${theme.zIndex.userDropdown};
 `
 
 const Heading = styled.div`
