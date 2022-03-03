@@ -24,17 +24,17 @@ const HeroSelector: React.FC<Props> = ({ onSelectHero }) => {
       </HeroSelectorHeading>
 
       <HeroSelectorContent>
-        {heroAttributeGroups.map((group) => (
-          <React.Fragment key={group.id}>
+        {heroAttributeGroups.map((attribute) => (
+          <React.Fragment key={attribute.id}>
             <HeroSelectorGroupHeading>
-              <HeroSelectorGroupHeadingIcon>
-                <Icon name="translate" />
+              <HeroSelectorGroupHeadingIcon bg={getAttributeIconColor(attribute.name)}>
+                <Icon name={getAttributeIcon(attribute.name)} />
               </HeroSelectorGroupHeadingIcon>
-              <HeroSelectorGroupHeadingText>{group.name}</HeroSelectorGroupHeadingText>
+              <HeroSelectorGroupHeadingText>{attribute.name}</HeroSelectorGroupHeadingText>
             </HeroSelectorGroupHeading>
 
             <HeroSelectorGroupList>
-              {group.heroes.map((hero) => (
+              {attribute.heroes.map((hero) => (
                 <HeroSelectorItem key={hero.id}>
                   <HeroSelectorItemButton type="button" onClick={() => onSelectHero(hero)}>
                     <HeroSelectorItemImg src={hero.thumbnail} />
@@ -47,6 +47,32 @@ const HeroSelector: React.FC<Props> = ({ onSelectHero }) => {
       </HeroSelectorContent>
     </HeroSelectorContainer>
   )
+}
+
+const getAttributeIconColor = (name: string) => {
+  switch (name) {
+    case 'Strength':
+      return theme.colors.red[500]
+    case 'Agility':
+      return theme.colors.green[500]
+    case 'Intelligence':
+      return theme.colors.blue[500]
+    default:
+      return theme.colors.neutral[500]
+  }
+}
+
+const getAttributeIcon = (name: string) => {
+  switch (name) {
+    case 'Strength':
+      return 'fire'
+    case 'Agility':
+      return 'lightning-bolt'
+    case 'Intelligence':
+      return 'academic-cap'
+    default:
+      return 'lightning-bolt'
+  }
 }
 
 const HeroSelectorContainer = styled.div`
@@ -98,7 +124,7 @@ const HeroSelectorGroupHeading = styled.div`
 const HeroSelectorGroupHeadingIcon = styled.div`
   padding: 4px;
   margin-right: 12px;
-  background: ${theme.colors.neutral[500]};
+  background: ${(props) => props.bg};
   border-radius: 4px;
 `
 

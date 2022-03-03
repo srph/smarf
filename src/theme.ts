@@ -44,6 +44,10 @@ export const theme = {
 
     blue: {
       500: '#0094FF'
+    },
+
+    red: {
+      500: '#ef4444'
     }
   },
 
