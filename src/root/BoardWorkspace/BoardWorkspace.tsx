@@ -119,7 +119,7 @@ const CategoryBody = styled.div`
 `
 
 const CategoryHero = styled.div`
-  padding: 0 8px;
+  padding: 8px;
 `
 
 const CategoryHeroImage = styled.img`

@@ -116,6 +116,7 @@ const ToolbarContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 24px;
+  z-index: ${theme.zIndex.boardToolbar};
 `
 
 const Toolbar = styled.div`
