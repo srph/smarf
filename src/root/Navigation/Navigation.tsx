@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Avatar, Button, Container, PlainButton } from '~/src/components'
@@ -7,6 +7,8 @@ import avatar from '~/src/public/images/avatar.png'
 import { UserDropdown } from './UserDropdown'
 
 const Navigation: React.FC = () => {
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
+
   return (
     <Nav>
       <Container>
@@ -21,13 +23,13 @@ const Navigation: React.FC = () => {
               <Button icon="view-grid-add">New Board</Button>
             </NavMenuSection>
 
-            <PlainButton>
+            <PlainButton onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}>
               <Avatar src={avatar} size="lg"></Avatar>
             </PlainButton>
           </NavMenu>
         </NavContainer>
 
-        <UserDropdown />
+        {isUserDropdownOpen && <UserDropdown />}
       </Container>
     </Nav>
   )

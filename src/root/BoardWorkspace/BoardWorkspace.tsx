@@ -54,7 +54,7 @@ const BoardWorkspace: React.FC = () => {
                     </SortableContext>
 
                     <NewHeroContainer>
-                      <NewHero>
+                      <NewHero onClick={() => setIsHeroSelectorOpen(true)}>
                         <NewCategoryIcon>
                           <Icon name="plus-circle" width={48} />
                         </NewCategoryIcon>
@@ -70,6 +70,7 @@ const BoardWorkspace: React.FC = () => {
                   selectedHeroes={category.heroes}
                   onSelectHero={(hero: Hero) => {
                     addHero(category.id, hero)
+                    setIsHeroSelectorOpen(false)
                   }}
                 />
               )}
