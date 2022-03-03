@@ -1,16 +1,26 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Icon, SearchInput } from '~/src/components'
-import { Hero } from '~/src/types/api'
+import { Hero, ID } from '~/src/types/api'
 import { useBoardWorkspace } from '~/src/root/contexts'
 
 interface Props {
+  selectedHeroes: Hero[]
   onSelectHero: (hero: Hero) => void
 }
 
-const HeroSelector: React.FC<Props> = ({ onSelectHero }) => {
+type SelectedHeroMap = Record<ID, boolean>
+
+const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero }) => {
   const { heroAttributeGroups } = useBoardWorkspace()
+
+  const selectedHeroesMap: SelectedHeroMap = useMemo(() => {
+    return selectedHeroes.reduce((heroes, hero) => {
+      heroes[hero.id] = true
+      return heroes
+    }, {})
+  }, [selectedHeroes])
 
   return (
     <HeroSelectorContainer>
@@ -36,7 +46,10 @@ const HeroSelector: React.FC<Props> = ({ onSelectHero }) => {
             <HeroSelectorGroupList>
               {attribute.heroes.map((hero) => (
                 <HeroSelectorItem key={hero.id}>
-                  <HeroSelectorItemButton type="button" onClick={() => onSelectHero(hero)}>
+                  <HeroSelectorItemButton
+                    type="button"
+                    onClick={() => onSelectHero(hero)}
+                    disabled={selectedHeroesMap[hero.id]}>
                     <HeroSelectorItemImg src={hero.thumbnail} />
                   </HeroSelectorItemButton>
                 </HeroSelectorItem>
@@ -155,9 +168,14 @@ const HeroSelectorItemButton = styled.button`
   border: 2px solid transparent;
   cursor: pointer;
 
-  &:hover,
-  &:focus {
+  &:hover:not(:disabled),
+  &:focus:not(:disabled) {
     border-color: ${theme.colors.blue[500]};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 `
 

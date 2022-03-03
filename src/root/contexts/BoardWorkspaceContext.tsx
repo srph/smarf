@@ -2,19 +2,22 @@ import React, { createContext, useContext, useState } from 'react'
 import { ID, Board, Hero, HeroAttributeGroup } from '~/src/types/api'
 import immer from 'immer'
 import heroThumbnail from '~/src/public/images/hero.png'
+import { arraySwap } from '@dnd-kit/sortable'
 
 interface BoardWorkspaceContextType {
   heroes: Hero[]
   heroAttributeGroups: HeroAttributeGroup[]
   board: Board
   addHero: (categoryId: ID, hero: Hero) => void
+  moveHero: (event) => void
 }
 
 const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   heroes: [],
   heroAttributeGroups: [],
   board: {},
-  addHero: () => {}
+  addHero: () => {},
+  moveHero: () => {}
 })
 
 const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
@@ -63,13 +66,26 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
+  const moveHero = (event) => {
+    setBoard(
+      immer(board, (draft) => {
+        const category = draft.categories[0]
+        const { active, over } = event
+        const oldIndex = category.heroes.findIndex((hero) => hero.id === active.id)
+        const newIndex = category.heroes.findIndex((hero) => hero.id === over.id)
+        category.heroes = arraySwap(category.heroes, oldIndex, newIndex)
+      })
+    )
+  }
+
   return (
     <BoardWorkspaceContext.Provider
       value={{
         heroes,
         heroAttributeGroups,
         board,
-        addHero
+        addHero,
+        moveHero
       }}>
       {children}
     </BoardWorkspaceContext.Provider>
