@@ -2,32 +2,15 @@ import React from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Icon, SearchInput } from '~/src/components'
-import hero from '~/src/public/images/hero.png'
+import { Hero } from '~/src/types/api'
+import { useBoardWorkspace } from '~/src/root/contexts'
 
-const HeroSelector: React.FC = () => {
-  const heroes = Array.from({ length: 30 }).map((_, i) => ({
-    id: i,
-    thumbnail: hero,
-    name: 'Wind Runner'
-  }))
+interface Props {
+  onSelectHero: (hero: Hero) => void
+}
 
-  const groups = [
-    {
-      id: 1,
-      title: 'Strength',
-      heroes
-    },
-    {
-      id: 2,
-      title: 'Agility',
-      heroes
-    },
-    {
-      id: 3,
-      title: 'Intelligence',
-      heroes
-    }
-  ]
+const HeroSelector: React.FC<Props> = ({ onSelectHero }) => {
+  const { heroAttributeGroups } = useBoardWorkspace()
 
   return (
     <HeroSelectorContainer>
@@ -41,19 +24,19 @@ const HeroSelector: React.FC = () => {
       </HeroSelectorHeading>
 
       <HeroSelectorContent>
-        {groups.map((group) => (
+        {heroAttributeGroups.map((group) => (
           <React.Fragment key={group.id}>
             <HeroSelectorGroupHeading>
               <HeroSelectorGroupHeadingIcon>
                 <Icon name="translate" />
               </HeroSelectorGroupHeadingIcon>
-              <HeroSelectorGroupHeadingText>{group.title}</HeroSelectorGroupHeadingText>
+              <HeroSelectorGroupHeadingText>{group.name}</HeroSelectorGroupHeadingText>
             </HeroSelectorGroupHeading>
 
             <HeroSelectorGroupList>
               {group.heroes.map((hero) => (
                 <HeroSelectorItem key={hero.id}>
-                  <HeroSelectorItemButton type="button">
+                  <HeroSelectorItemButton type="button" onClick={() => onSelectHero(hero)}>
                     <HeroSelectorItemImg src={hero.thumbnail} />
                   </HeroSelectorItemButton>
                 </HeroSelectorItem>

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { createGlobalStyle } from 'styled-components'
 import 'modern-normalize/modern-normalize.css'
 
+import { BoardWorkspaceContextProvider } from './root/contexts'
 import { EditPopover } from './root/EditPopover'
 import { BoardWorkspace } from './root/BoardWorkspace'
 import { Navigation } from './root/Navigation'
@@ -13,9 +14,13 @@ const App = () => {
   return (
     <>
       <Navigation />
-      <BoardWorkspace />
-      <Toolbar />
-      <EditPopover />
+
+      <BoardWorkspaceContextProvider>
+        <BoardWorkspace />
+        <Toolbar />
+        <EditPopover />
+      </BoardWorkspaceContextProvider>
+
       <GlobalStyle />
     </>
   )
