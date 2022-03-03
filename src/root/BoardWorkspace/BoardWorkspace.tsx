@@ -12,7 +12,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable'
 
 const BoardWorkspace: React.FC = () => {
-  const { board, addHero, moveHero } = useBoardWorkspace()
+  const { board, addHero, moveHero, deleteCategory } = useBoardWorkspace()
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(true)
 
   const sensors = useSensors(
@@ -33,7 +33,7 @@ const BoardWorkspace: React.FC = () => {
           return (
             <React.Fragment key={category.id}>
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <div>
+                <Category>
                   <CategoryHeading>
                     <CategoryHeadingInfo>
                       <CategoryHeadingDragIcon>
@@ -41,6 +41,12 @@ const BoardWorkspace: React.FC = () => {
                       </CategoryHeadingDragIcon>
                       <CategoryHeadingTitle>{category.name}</CategoryHeadingTitle>
                     </CategoryHeadingInfo>
+
+                    <div>
+                      <CategoryRemove onClick={() => deleteCategory(category)}>
+                        <Icon name="trash" />
+                      </CategoryRemove>
+                    </div>
                   </CategoryHeading>
 
                   <CategoryBody>
@@ -62,7 +68,7 @@ const BoardWorkspace: React.FC = () => {
                       </NewHero>
                     </NewHeroContainer>
                   </CategoryBody>
-                </div>
+                </Category>
               </DndContext>
 
               {isHeroSelectorOpen && (
@@ -122,6 +128,10 @@ const Workspace = styled.div`
   z-index: ${theme.zIndex.boardWorkspace};
 `
 
+const Category = styled.div`
+  display: inline-block;
+`
+
 const CategoryHeading = styled.div`
   display: flex;
   align-items: center;
@@ -143,6 +153,25 @@ const CategoryHeadingDragIcon = styled.div`
 const CategoryHeadingTitle = styled.h4`
   margin: 0;
   font-size: ${theme.fontSizes.md};
+`
+
+const CategoryRemove = styled.button`
+  display: inline-block;
+  padding: 8px;
+  color: ${theme.colors.neutral[400]};
+  background: ${theme.colors.neutral[700]};
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
+  }
+
+  &:focus {
+    outline: 0;
+  }
 `
 
 const CategoryBody = styled.div`

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
-import { ID, Board, Hero, HeroAttributeGroup } from '~/src/types/api'
+import { ID, Board, Hero, HeroAttributeGroup, Category } from '~/src/types/api'
 import immer from 'immer'
 import heroThumbnail from '~/src/public/images/hero.png'
 import { arraySwap } from '@dnd-kit/sortable'
@@ -14,6 +14,7 @@ interface BoardWorkspaceContextType {
   addHero: (categoryId: ID, hero: Hero) => void
   moveHero: (event) => void
   addCategory: () => void
+  deleteCategory: (category: Category) => void
 }
 
 const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
@@ -24,7 +25,8 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   setIsEditing: () => {},
   addHero: () => {},
   moveHero: () => {},
-  addCategory: () => {}
+  addCategory: () => {},
+  deleteCategory: (category: Category) => {}
 })
 
 const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
@@ -101,6 +103,15 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
+  const deleteCategory = (category) => {
+    setBoard(
+      immer(board, (draft) => {
+        const categoryId = category.id
+        draft.categories = draft.categories.filter((category) => category.id !== categoryId)
+      })
+    )
+  }
+
   return (
     <BoardWorkspaceContext.Provider
       value={{
@@ -111,7 +122,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         setIsEditing,
         addHero,
         moveHero,
-        addCategory
+        addCategory,
+        deleteCategory
       }}>
       {children}
     </BoardWorkspaceContext.Provider>
