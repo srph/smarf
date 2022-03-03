@@ -2,8 +2,11 @@ import React from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Button, Container, Icon } from '~/src/components'
+import { useBoardWorkspace } from '~/src/root/contexts'
 
 const ToolbarComponent: React.FC = () => {
+  const { isEditing, setIsEditing } = useBoardWorkspace()
+
   return (
     <ToolbarContainer>
       <Container>
@@ -35,7 +38,7 @@ const ToolbarComponent: React.FC = () => {
             <Button icon="plus-circle">New Category</Button>
 
             <IconGroup>
-              <IconGroupButton>
+              <IconGroupButton onClick={() => setIsEditing(!isEditing)}>
                 <Icon name="pencil" />
               </IconGroupButton>
 

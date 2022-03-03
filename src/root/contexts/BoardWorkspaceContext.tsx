@@ -8,6 +8,8 @@ interface BoardWorkspaceContextType {
   heroes: Hero[]
   heroAttributeGroups: HeroAttributeGroup[]
   board: Board
+  isEditing: boolean
+  setIsEditing: (isEditing: boolean) => void
   addHero: (categoryId: ID, hero: Hero) => void
   moveHero: (event) => void
 }
@@ -16,6 +18,8 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   heroes: [],
   heroAttributeGroups: [],
   board: {},
+  isEditing: false,
+  setIsEditing: () => {},
   addHero: () => {},
   moveHero: () => {}
 })
@@ -44,6 +48,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       heroes
     }
   ]
+
+  const [isEditing, setIsEditing] = useState(false)
 
   const [board, setBoard] = useState<Board>({
     id: 1,
@@ -84,6 +90,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         heroes,
         heroAttributeGroups,
         board,
+        isEditing,
+        setIsEditing,
         addHero,
         moveHero
       }}>

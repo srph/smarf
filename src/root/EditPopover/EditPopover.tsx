@@ -1,20 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Container, PlainButton, Icon } from '~/src/components'
+import { useBoardWorkspace } from '~/src/root/contexts'
 
 const EditPopover: React.FC = () => {
+  const { isEditing, setIsEditing } = useBoardWorkspace()
+
+  const handleClose = () => {
+    setIsEditing(false)
+  }
+
+  const handleSubmit = () => {
+    setIsEditing(false)
+  }
+
+  if (!isEditing) {
+    return null
+  }
+
   return (
     <EditPopoverContainer>
       <Container>
         <EditPopoverInner>
           <EditPopoverClose>
-            <PlainButton type="button">
+            <PlainButton type="button" onClick={handleClose}>
               <Icon name="x" />
             </PlainButton>
           </EditPopoverClose>
 
-          <EditPopoverContent>
+          <EditPopoverContent onSubmit={handleSubmit}>
             <EditPopoverLabel>Name</EditPopoverLabel>
 
             <InputGroup>
@@ -52,9 +67,10 @@ const EditPopoverClose = styled.div`
   color: ${theme.colors.neutral[500]};
 `
 
-const EditPopoverContent = styled.div`
+const EditPopoverContent = styled.form`
   display: flex;
   align-items: center;
+  margin: 0;
   margin-left: auto;
   padding: 16px;
   background: ${theme.colors.neutral[900]};
