@@ -8,11 +8,12 @@ import { useBoardWorkspace } from '~/src/root/contexts'
 interface Props {
   selectedHeroes: Hero[]
   onSelectHero: (hero: Hero) => void
+  onClose: () => void
 }
 
 type SelectedHeroMap = Record<ID, boolean>
 
-const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero }) => {
+const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }) => {
   const { heroAttributeGroups } = useBoardWorkspace()
 
   const selectedHeroesMap: SelectedHeroMap = useMemo(() => {
@@ -24,7 +25,7 @@ const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero }) => {
 
   return (
     <HeroSelectorContainer>
-      <HeroSelectorClose>
+      <HeroSelectorClose onClick={onClose}>
         <Icon name="x" />
       </HeroSelectorClose>
 

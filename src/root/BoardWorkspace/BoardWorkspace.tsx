@@ -72,6 +72,9 @@ const BoardWorkspace: React.FC = () => {
                     addHero(category.id, hero)
                     setIsHeroSelectorOpen(false)
                   }}
+                  onClose={() => {
+                    setIsHeroSelectorOpen(false)
+                  }}
                 />
               )}
             </React.Fragment>
