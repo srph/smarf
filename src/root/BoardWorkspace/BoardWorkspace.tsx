@@ -264,9 +264,7 @@ const BoardWorkspace: React.FC = () => {
                   </CategoryHeading>
 
                   <CategoryBody>
-                    <SortableContext
-                      items={category.heroes.map((hero) => hero.pivot.id)}
-                      strategy={rectSortingStrategy}>
+                    <SortableContext items={items[category.id]} strategy={rectSortingStrategy}>
                       {category.heroes.map((hero) => (
                         <CategoryHero key={hero.pivot.id} hero={hero} />
                       ))}

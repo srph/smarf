@@ -80,6 +80,15 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           { ...heroes[1], pivot: { id: uuid() } },
           { ...heroes[2], pivot: { id: uuid() } }
         ]
+      },
+      {
+        id: uuid(),
+        name: 'Mid Farming',
+        heroes: [
+          { ...heroes[0], pivot: { id: uuid() } },
+          { ...heroes[1], pivot: { id: uuid() } },
+          { ...heroes[2], pivot: { id: uuid() } }
+        ]
       }
     ]
   }))
