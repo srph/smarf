@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ButtonHTMLAttributes } from 'react'
 import styled from 'styled-components'
 import { theme } from '../../theme'
 import { Icon } from '../Icon'
@@ -6,11 +6,13 @@ import { Icon } from '../Icon'
 interface Props {
   variant?: 'primary'
   icon?: string
+  type?: 'button' | 'submit'
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
-const Button: React.FC<Props> = ({ children, icon }) => {
+const Button: React.FC<Props> = ({ children, icon, type = 'button', onClick }) => {
   return (
-    <Element>
+    <Element type={type} onClick={onClick}>
       {icon ? (
         <IconContainer>
           <Icon name={icon} />

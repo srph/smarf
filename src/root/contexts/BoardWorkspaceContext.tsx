@@ -3,6 +3,7 @@ import { ID, Board, Hero, HeroAttributeGroup } from '~/src/types/api'
 import immer from 'immer'
 import heroThumbnail from '~/src/public/images/hero.png'
 import { arraySwap } from '@dnd-kit/sortable'
+import { v4 as uuid } from 'uuid'
 
 interface BoardWorkspaceContextType {
   heroes: Hero[]
@@ -12,6 +13,7 @@ interface BoardWorkspaceContextType {
   setIsEditing: (isEditing: boolean) => void
   addHero: (categoryId: ID, hero: Hero) => void
   moveHero: (event) => void
+  addCategory: () => void
 }
 
 const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
@@ -21,7 +23,8 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   isEditing: false,
   setIsEditing: () => {},
   addHero: () => {},
-  moveHero: () => {}
+  moveHero: () => {},
+  addCategory: () => {}
 })
 
 const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
@@ -84,6 +87,20 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
+  const addCategory = () => {
+    setBoard(
+      immer(board, (draft) => {
+        const category = {
+          id: uuid(),
+          name: 'Untitled',
+          heroes: []
+        }
+
+        draft.categories.push(category)
+      })
+    )
+  }
+
   return (
     <BoardWorkspaceContext.Provider
       value={{
@@ -93,7 +110,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         isEditing,
         setIsEditing,
         addHero,
-        moveHero
+        moveHero,
+        addCategory
       }}>
       {children}
     </BoardWorkspaceContext.Provider>
