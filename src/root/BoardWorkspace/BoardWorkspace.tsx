@@ -157,12 +157,15 @@ const CategoryHeadingTitle = styled.h4`
 
 const CategoryRemove = styled.button`
   display: inline-block;
-  padding: 8px;
+  padding: 4px;
+  font-size: 12px;
   color: ${theme.colors.neutral[400]};
   background: ${theme.colors.neutral[700]};
   border: 0;
   border-radius: 4px;
   cursor: pointer;
+  opacity: 0;
+  transition: 200ms opacity ease;
 
   &:hover,
   &:focus {
@@ -171,6 +174,10 @@ const CategoryRemove = styled.button`
 
   &:focus {
     outline: 0;
+  }
+
+  ${Category}:hover & {
+    opacity: 1;
   }
 `
 
