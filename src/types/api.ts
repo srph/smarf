@@ -1,9 +1,13 @@
-export type ID = string | number
+export type ID = string
 
 export interface Hero {
   id: ID
   name: string
   thumbnail: string
+}
+
+export type HeroCategoryPivot = Hero & {
+  pivot: { id: ID }
 }
 
 export interface HeroAttributeGroup {
@@ -15,7 +19,7 @@ export interface HeroAttributeGroup {
 export interface Category {
   id: ID
   name: string
-  heroes: Hero[]
+  heroes: HeroCategoryPivot[]
 }
 
 export interface Board {

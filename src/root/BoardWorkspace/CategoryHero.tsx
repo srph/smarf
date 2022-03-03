@@ -2,15 +2,15 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { useSortable } from '@dnd-kit/sortable'
-import { Hero } from '~/src/types/api'
+import { HeroCategoryPivot } from '~/src/types/api'
 import { CSS } from '@dnd-kit/utilities'
 
 interface Props {
-  hero: Hero
+  hero: HeroCategoryPivot
 }
 
 const CategoryHero: React.FC<Props> = ({ hero }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: hero.id })
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: hero.pivot.id })
 
   const style = {
     transform: CSS.Transform.toString(transform),
