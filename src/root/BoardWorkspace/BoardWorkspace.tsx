@@ -84,6 +84,7 @@ const Workspace = styled.div`
   position: relative;
   padding-top: 24px;
   padding-bottom: 320px;
+  z-index: ${theme.zIndex.boardWorkspace};
 `
 
 const CategoryHeading = styled.div`

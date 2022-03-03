@@ -48,6 +48,7 @@ export const theme = {
   },
 
   zIndex: {
+    boardWorkspace: 900,
     editPopover: 1000,
     userDropdown: 1100,
     heroSelector: 1200

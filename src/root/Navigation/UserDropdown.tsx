@@ -46,6 +46,7 @@ const Container = styled.div`
   right: 0;
   top: 120px;
   width: 240px;
+  background: ${theme.colors.neutral[900]};
   border-radius: 4px;
   border: 1px solid ${theme.colors.neutral[700]};
   z-index: ${theme.zIndex.userDropdown};
