@@ -10,6 +10,7 @@ interface Props {
 }
 
 const CategoryBody: React.FC<Props> = ({ category, children }) => {
+  // This is important to allow an item to be dropped to an empty category
   const { setNodeRef } = useDroppable({
     id: category.id
   })
