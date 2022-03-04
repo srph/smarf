@@ -83,7 +83,7 @@ const BoardWorkspace: React.FC = () => {
                         <CategoryHero key={hero.pivot.id} hero={hero} />
                       ))}
                     </SortableContext>
-                    q
+
                     <NewHeroContainer>
                       <NewHero onClick={() => setIsHeroSelectorOpen(true)}>
                         <NewCategoryIcon>
