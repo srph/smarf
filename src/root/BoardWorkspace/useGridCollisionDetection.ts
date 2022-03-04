@@ -145,6 +145,8 @@ function useGridCollisionDetection<T>(
     })
   }
 
+  // Responsible for moving an item from array to array
+  // when a user drags an item over to another container
   const onDragOver = ({ active, over }: DragOverEvent) => {
     const overId = over?.id
 
@@ -194,6 +196,7 @@ function useGridCollisionDetection<T>(
     )
   }
 
+  // Responsible for moving an item in the same container
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     const activeContainer = findContainer(active.id)
 
