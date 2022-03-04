@@ -15,7 +15,11 @@ const CategoryBody: React.FC<Props> = ({ category, children }) => {
     id: category.id
   })
 
-  return <Body ref={setNodeRef}>{children}</Body>
+  return (
+    <Body ref={setNodeRef} width={category.width} height={category.height}>
+      {children}
+    </Body>
+  )
 }
 
 const Body = styled.div`
@@ -24,6 +28,8 @@ const Body = styled.div`
   padding: 16px 8px;
   background: ${theme.colors.neutral[800]};
   border-radius: 4px;
+
+  width: ${(props) => props.width}px;
 `
 
 export { CategoryBody }

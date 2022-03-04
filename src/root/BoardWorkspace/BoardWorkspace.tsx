@@ -14,6 +14,10 @@ import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, arra
 
 import { useGridCollisionDetection } from './useGridCollisionDetection'
 
+import { CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/root/constants'
+
+// Board functionality
+// -
 const BoardWorkspace: React.FC = () => {
   const { board, addHero, moveHero, deleteCategory } = useBoardWorkspace()
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(true)
@@ -47,14 +51,14 @@ const BoardWorkspace: React.FC = () => {
           {board.categories.map((category) => {
             return (
               <React.Fragment key={category.id}>
-                <Category>
+                <CategoryContainer x={category.x_position} y={category.y_position}>
                   <CategoryHeading>
                     <CategoryHeadingInfo>
                       <CategoryHeadingDragIcon>
                         <Icon name="arrows-expand" />
                       </CategoryHeadingDragIcon>
                       <CategoryHeadingTitle>
-                        {category.name} ({category.id})
+                        {category.name} ({category.width} x {category.height})
                       </CategoryHeadingTitle>
                     </CategoryHeadingInfo>
 
@@ -70,7 +74,7 @@ const BoardWorkspace: React.FC = () => {
                       items={category.heroes.map((hero) => hero.pivot.id)}
                       strategy={rectSortingStrategy}>
                       {category.heroes.map((hero) => (
-                        <CategoryHero key={hero.pivot.id} hero={hero} />
+                        <CategoryHero key={hero.pivot.id} category={category} hero={hero} />
                       ))}
                     </SortableContext>
 
@@ -83,7 +87,7 @@ const BoardWorkspace: React.FC = () => {
                       </NewHero>
                     </NewHeroContainer>
                   </CategoryBody>
-                </Category>
+                </CategoryContainer>
 
                 {isHeroSelectorOpen && (
                   <HeroSelector
@@ -108,6 +112,7 @@ const BoardWorkspace: React.FC = () => {
 
 const NewHeroContainer = styled.div`
   padding: 8px;
+  flex-shrink: 0;
 `
 
 const NewHero = styled.button`
@@ -116,8 +121,8 @@ const NewHero = styled.button`
   align-items: center;
   justify-content: center;
   padding: 8px;
-  width: 240px;
-  height: 300px;
+  width: ${CATEGORY_HERO_WIDTH}px;
+  height: ${CATEGORY_HERO_HEIGHT}px;
   background: ${theme.colors.neutral[700]};
   border: 2px dashed ${theme.colors.neutral[500]};
   border-radius: 4px;
@@ -143,8 +148,11 @@ const Workspace = styled.div`
   z-index: ${theme.zIndex.boardWorkspace};
 `
 
-const Category = styled.div`
+const CategoryContainer = styled.div`
   display: inline-block;
+  position: absolute;
+  left: ${(props) => props.x}px;
+  top: ${(props) => props.y}px;
 `
 
 const CategoryHeading = styled.div`
@@ -191,7 +199,7 @@ const CategoryRemove = styled.button`
     outline: 0;
   }
 
-  ${Category}:hover & {
+  ${CategoryContainer}:hover & {
     opacity: 1;
   }
 `

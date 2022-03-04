@@ -5,6 +5,20 @@ import heroThumbnail from '~/src/public/images/hero.png'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
 import { CustomGridCollisionDetectionEvent } from '~/src/root/BoardWorkspace/useGridCollisionDetection'
+import {
+  CATEGORY_HERO_WIDTH,
+  CATEGORY_ROW_HEIGHT,
+  CATEGORY_BODY_INITIAL_HEIGHT,
+  CATEGORY_BODY_INITIAL_WIDTH,
+  CATEGORY_SPACING
+} from '~/src/root/constants'
+
+interface BoardWorkspaceCategoryMoveEvent {
+  x: number
+  y: number
+  width: number
+  height: number
+}
 
 interface BoardWorkspaceContextType {
   heroes: Hero[]
@@ -15,6 +29,7 @@ interface BoardWorkspaceContextType {
   addHero: (category: Category, hero: Hero) => void
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   addCategory: () => void
+  moveCategory: (category: Category, e: BoardWorkspaceCategoryMoveEvent) => void
   deleteCategory: (category: Category) => void
 }
 
@@ -75,7 +90,11 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           { ...heroes[0], pivot: { id: uuid() } },
           { ...heroes[1], pivot: { id: uuid() } },
           { ...heroes[2], pivot: { id: uuid() } }
-        ]
+        ],
+        x_position: 0,
+        y_position: 0,
+        width: CATEGORY_BODY_INITIAL_WIDTH,
+        height: CATEGORY_BODY_INITIAL_HEIGHT
       },
       {
         id: uuid(),
@@ -84,10 +103,22 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           { ...heroes[0], pivot: { id: uuid() } },
           { ...heroes[1], pivot: { id: uuid() } },
           { ...heroes[2], pivot: { id: uuid() } }
-        ]
+        ],
+        x_position: 0,
+        y_position: CATEGORY_BODY_INITIAL_HEIGHT + CATEGORY_SPACING,
+        width: CATEGORY_BODY_INITIAL_WIDTH,
+        height: CATEGORY_BODY_INITIAL_HEIGHT
       }
     ]
   }))
+
+  const shouldDecreaseHeight = (category: Category) => {
+    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + 2)) > 1
+  }
+
+  const shouldIncreaseHeight = (category: Category) => {
+    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + 2)) < 1
+  }
 
   const addHero = (category: Category, hero: Hero) => {
     setBoard(
@@ -98,6 +129,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           ...hero,
           pivot: { id: uuid() }
         })
+
+        if (shouldIncreaseHeight(category)) {
+          boardCategory.height += CATEGORY_ROW_HEIGHT
+        }
       })
     )
   }
@@ -116,20 +151,54 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           category.heroes = arrayMove(category.heroes, from.index, to.index)
         } else {
           const fromCategory = draft.categories.find((c) => c.id === from.container)
+
           const toCategory = draft.categories.find((c) => c.id === to.container)
+
+          // This is only used so we can accurately position the new category
+          // Let's increase the height of the new category if needed.
+
+          if (shouldDecreaseHeight(fromCategory)) {
+            fromCategory.height -= CATEGORY_ROW_HEIGHT
+          }
+
+          if (shouldIncreaseHeight(toCategory)) {
+            toCategory.height += CATEGORY_ROW_HEIGHT
+          }
+
           arrayTransfer(fromCategory.heroes, toCategory.heroes, from.index, to.index)
         }
       })
     )
   }
 
+  const moveCategory = (category, { x, y }) => {
+    setBoard(
+      immer(board, (draft) => {
+        const selectedCategory = draft.categories.find((c) => c.id === category.id)
+        selectedCategory.x_position = x
+        selectedCategory.y_position = y
+      })
+    )
+  }
+
   const addCategory = () => {
+    const lowestCategory = [...board.categories].sort((a, b) => {
+      return b.y_position - a.y_position
+    })[0]
+
+    // Bottom position + allowance
+    const yPosition = lowestCategory.y_position + lowestCategory.height + 96
+
     setBoard(
       immer(board, (draft) => {
         const category = {
           id: uuid(),
           name: 'Untitled',
-          heroes: []
+          heroes: [],
+          x_position: 0,
+          y_position: yPosition,
+          width: 600,
+          height: 300
         }
 
         draft.categories.push(category)
@@ -157,6 +226,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         addHero,
         moveHero,
         addCategory,
+        moveCategory,
         deleteCategory
       }}>
       {children}

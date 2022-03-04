@@ -20,6 +20,10 @@ export interface Category {
   id: ID
   name: string
   heroes: HeroCategoryPivot[]
+  x_position: number
+  y_position: number
+  width: number
+  height: number
 }
 
 export interface Board {
