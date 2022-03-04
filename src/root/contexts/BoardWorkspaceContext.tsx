@@ -187,7 +187,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     })[0]
 
     // Bottom position + allowance
-    const yPosition = lowestCategory.y_position + lowestCategory.height + 96
+    const yPosition = lowestCategory.y_position + lowestCategory.height + CATEGORY_SPACING
 
     setBoard(
       immer(board, (draft) => {
