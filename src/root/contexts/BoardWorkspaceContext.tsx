@@ -4,11 +4,7 @@ import immer from 'immer'
 import heroThumbnail from '~/src/public/images/hero.png'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
-
-interface HeroMovement {
-  category: Category
-  index: number
-}
+import { CustomGridCollisionDetectionEvent } from '~/src/root/BoardWorkspace/useGridCollisionDetection'
 
 interface BoardWorkspaceContextType {
   heroes: Hero[]
@@ -17,7 +13,7 @@ interface BoardWorkspaceContextType {
   isEditing: boolean
   setIsEditing: (isEditing: boolean) => void
   addHero: (category: Category, hero: Hero) => void
-  moveHero: (from: HeroMovement, to: HeroMovement) => void
+  moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   addCategory: () => void
   deleteCategory: (category: Category) => void
 }
@@ -107,21 +103,21 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   }
 
   // Mutably swap values array to array
-  function arrayTransfer(src, dest, start, end) {
-    const value = src.splice(start, 1)[0]
-    dest.splice(end, 0, value)
+  function arrayTransfer<T>(src: T[], dest: T[], from: number, to: number) {
+    const value = src.splice(from, 1)[0]
+    dest.splice(to, 0, value)
   }
 
-  const moveHero = (from: HeroMovement, to: HeroMovement) => {
+  const moveHero = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => {
     setBoard(
       immer(board, (draft) => {
-        if (from.category.id === to.category.id) {
-          const category = draft.categories.find((c) => c.id === to.category.id)
+        if (from.container === to.container) {
+          const category = draft.categories.find((c) => c.id === to.container)
           category.heroes = arrayMove(category.heroes, from.index, to.index)
         } else {
-          const fromCategory = draft.categories.find((c) => c.id === from.category.id)
-          const toCategory = draft.categories.find((c) => c.id === to.category.id)
-          arrayTransfer(fromCategory, toCategory, from.index, to.index)
+          const fromCategory = draft.categories.find((c) => c.id === from.container)
+          const toCategory = draft.categories.find((c) => c.id === to.container)
+          arrayTransfer(fromCategory.heroes, toCategory.heroes, from.index, to.index)
         }
       })
     )
