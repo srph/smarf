@@ -113,11 +113,13 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   }))
 
   const shouldDecreaseHeight = (category: Category) => {
-    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + 2)) > 1
+    const CATEGORY_BODY_PLACEHOLDERS = 2 // The "new" placeholder + new hero removed from the card
+    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + CATEGORY_BODY_PLACEHOLDERS)) > 1
   }
 
   const shouldIncreaseHeight = (category: Category) => {
-    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + 2)) < 1
+    const CATEGORY_BODY_PLACEHOLDERS = 2 // The "new" placeholder + new hero added to the card
+    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + CATEGORY_BODY_PLACEHOLDERS)) < 1
   }
 
   const addHero = (category: Category, hero: Hero) => {
