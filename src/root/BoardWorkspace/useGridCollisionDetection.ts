@@ -68,10 +68,20 @@ function useGridCollisionDetection<T>(
   const lastOverId = useRef<UniqueIdentifier | null>(null)
   const recentlyMovedToNewContainer = useRef<boolean>(false)
 
+  /**
+   * Custom collision detection strategy optimized for multiple containers
+   *
+   * - First, find any droppable containers intersecting with the pointer.
+   * - If there are none, find intersecting containers with the active draggable.
+   * - If there are no intersecting containers, return the last matched intersection
+   *
+   * @source https://github.com/clauderic/dnd-kit/blob/6f307806c09d4a1147073bf04f7cd15b7de721fc/stories/2%20-%20Presets/Sortable/MultipleContainers.tsx#L180-L187
+   */
   const collisionDetectionStrategy: CollisionDetection = useCallback(
     (args) => {
       // Start by finding any intersecting droppable
       const pointerIntersections = pointerWithin(args)
+
       const intersections =
         pointerIntersections.length > 0
           ? // If there are droppables intersecting with the pointer, return those
@@ -114,9 +124,13 @@ function useGridCollisionDetection<T>(
     [activeId, payload]
   )
 
-  const findContainer = (item: ID): ID => {
+  const findContainer = (id: ID): ID => {
+    // Check if the id is actually a container id
+    // Very important to allow dragOver to work when dragging an item into an empty sortable
+    if (id in payload) return id
+
     return containerIds.find((containerId) => {
-      return payload[containerId].includes(item)
+      return payload[containerId].includes(id)
     })
   }
 
@@ -133,7 +147,11 @@ function useGridCollisionDetection<T>(
 
   const onDragOver = ({ active, over }: DragOverEvent) => {
     const overId = over?.id
-    if (!overId) return
+
+    if (!overId) {
+      return
+    }
+
     const overContainer = findContainer(overId)
     const activeContainer = findContainer(active.id)
 
@@ -141,37 +159,39 @@ function useGridCollisionDetection<T>(
       return
     }
 
-    if (activeContainer !== overContainer) {
-      const activeItems = payload[activeContainer]
-      const overItems = payload[overContainer]
-      const overIndex = overItems.indexOf(overId)
-      const activeIndex = activeItems.indexOf(active.id)
+    if (activeContainer === overContainer) {
+      return
+    }
 
-      const isBelowOverItem =
-        over && active.rect.current.translated && active.rect.current.translated.top > over.rect.top + over.rect.height
+    const activeItems = payload[activeContainer]
+    const activeIndex = activeItems.indexOf(active.id)
+    const overItems = payload[overContainer]
+    const overIndex = overItems.indexOf(overId)
 
-      const modifier = isBelowOverItem ? 1 : 0
+    const isBelowOverItem =
+      over && active.rect.current.translated && active.rect.current.translated.top > over.rect.top + over.rect.height
 
-      const newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1
+    const modifier = isBelowOverItem ? 1 : 0
 
-      recentlyMovedToNewContainer.current = true
+    const newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1
 
-      setCurrentEvent({
+    recentlyMovedToNewContainer.current = true
+
+    setCurrentEvent({
+      container: overContainer,
+      index: newIndex
+    })
+
+    props.onChange(
+      {
+        container: activeContainer,
+        index: activeIndex
+      },
+      {
         container: overContainer,
         index: newIndex
-      })
-
-      props.onChange(
-        {
-          container: activeContainer,
-          index: activeIndex
-        },
-        {
-          container: overContainer,
-          index: newIndex
-        }
-      )
-    }
+      }
+    )
   }
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
@@ -199,7 +219,7 @@ function useGridCollisionDetection<T>(
       const activeIndex = payload[activeContainer].indexOf(activeId)
       const overIndex = payload[overContainer].indexOf(overId)
 
-      if (activeIndex !== overIndex) {
+      if (activeIndex === overIndex) {
         props.onChange(
           {
             container: activeContainer,

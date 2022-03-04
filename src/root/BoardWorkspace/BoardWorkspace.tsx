@@ -1,26 +1,14 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Container, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/root/contexts'
 import { HeroSelector } from './HeroSelector'
+import { CategoryBody } from './CategoryBody'
 import { CategoryHero } from './CategoryHero'
-import { Board, Category, Hero, HeroCategoryPivot, ID } from '~/src/types/api'
+import { Category, Hero } from '~/src/types/api'
 
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  UniqueIdentifier,
-  pointerWithin,
-  CollisionDetection,
-  rectIntersection,
-  getFirstCollision,
-  MeasuringStrategy
-} from '@dnd-kit/core'
+import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, MeasuringStrategy } from '@dnd-kit/core'
 
 import { SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 
@@ -65,7 +53,9 @@ const BoardWorkspace: React.FC = () => {
                       <CategoryHeadingDragIcon>
                         <Icon name="arrows-expand" />
                       </CategoryHeadingDragIcon>
-                      <CategoryHeadingTitle>{category.name}</CategoryHeadingTitle>
+                      <CategoryHeadingTitle>
+                        {category.name} ({category.id})
+                      </CategoryHeadingTitle>
                     </CategoryHeadingInfo>
 
                     <div>
@@ -75,7 +65,7 @@ const BoardWorkspace: React.FC = () => {
                     </div>
                   </CategoryHeading>
 
-                  <CategoryBody>
+                  <CategoryBody category={category}>
                     <SortableContext
                       items={category.heroes.map((hero) => hero.pivot.id)}
                       strategy={rectSortingStrategy}>
@@ -204,14 +194,6 @@ const CategoryRemove = styled.button`
   ${Category}:hover & {
     opacity: 1;
   }
-`
-
-const CategoryBody = styled.div`
-  display: inline-flex;
-  flex-wrap: wrap;
-  padding: 16px 8px;
-  background: ${theme.colors.neutral[800]};
-  border-radius: 4px;
 `
 
 export { BoardWorkspace }
