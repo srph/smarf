@@ -135,9 +135,13 @@ function useGridCollisionDetection<T>(
   }
 
   const onDragStart = ({ active }: DragStartEvent) => {
-    setActiveId(active.id)
+    // Avoid conflict with useDragContainer
+    // This means we're dragging a container, and we don't care about it
+    if (active.id in payload) return
 
     const activeContainer = findContainer(active.id)
+
+    setActiveId(active.id)
 
     setStartEvent({
       container: activeContainer,
@@ -148,6 +152,10 @@ function useGridCollisionDetection<T>(
   // Responsible for moving an item from array to array
   // when a user drags an item over to another container
   const onDragOver = ({ active, over }: DragOverEvent) => {
+    // Avoid conflict with useDragContainer
+    // This means we're dragging a container, and we don't care about it
+    if (!activeId) return
+
     const overId = over?.id
 
     if (!overId) {
@@ -198,6 +206,10 @@ function useGridCollisionDetection<T>(
 
   // Responsible for moving an item in the same container
   const onDragEnd = ({ active, over }: DragEndEvent) => {
+    // Avoid conflict with useDragContainer
+    // This means we're dragging a container, and we don't care about it
+    if (!activeId) return
+
     const activeContainer = findContainer(active.id)
 
     if (!activeContainer) {
@@ -242,6 +254,10 @@ function useGridCollisionDetection<T>(
   }
 
   const onDragCancel = () => {
+    // Avoid conflict with useDragContainer
+    // This means we're dragging a container, and we don't care about it
+    if (!activeId) return
+
     if (currentEvent && startEvent) {
       // Reset items to their original state in case items have been dragged across containers
       props.onChange(currentEvent, startEvent)

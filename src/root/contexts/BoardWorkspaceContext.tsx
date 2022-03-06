@@ -10,14 +10,16 @@ import {
   CATEGORY_ROW_HEIGHT,
   CATEGORY_BODY_INITIAL_HEIGHT,
   CATEGORY_BODY_INITIAL_WIDTH,
-  CATEGORY_SPACING
+  CATEGORY_SPACING,
+  CATEGORY_HERO_TOTAL_WIDTH,
+  CATEGORY_HERO_TOTAL_HEIGHT
 } from '~/src/root/constants'
 
 interface BoardWorkspaceCategoryMoveEvent {
   x: number
   y: number
-  width: number
-  height: number
+  // width: number
+  // height: number
 }
 
 interface BoardWorkspaceContextType {
@@ -29,7 +31,7 @@ interface BoardWorkspaceContextType {
   addHero: (category: Category, hero: Hero) => void
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   addCategory: () => void
-  moveCategory: (category: Category, e: BoardWorkspaceCategoryMoveEvent) => void
+  moveCategory: ({ container, translate }: { container: Category; translate: BoardWorkspaceCategoryMoveEvent }) => void
   deleteCategory: (category: Category) => void
 }
 
@@ -112,6 +114,12 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     ]
   }))
 
+  const shouldDecreaseWidth = (category: Category) => {
+    return true
+    const CATEGORY_BODY_PLACEHOLDERS = 2 // The "new" placeholder + new hero removed from the card
+    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + CATEGORY_BODY_PLACEHOLDERS)) > 1
+  }
+
   const shouldDecreaseHeight = (category: Category) => {
     const CATEGORY_BODY_PLACEHOLDERS = 2 // The "new" placeholder + new hero removed from the card
     return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + CATEGORY_BODY_PLACEHOLDERS)) > 1
@@ -163,6 +171,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
             fromCategory.height -= CATEGORY_ROW_HEIGHT
           }
 
+          if (shouldDecreaseWidth(fromCategory)) {
+            fromCategory.width -= CATEGORY_HERO_TOTAL_WIDTH
+          }
+
           if (shouldIncreaseHeight(toCategory)) {
             toCategory.height += CATEGORY_ROW_HEIGHT
           }
@@ -173,10 +185,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
-  const moveCategory = (category, { x, y }) => {
+  const moveCategory = ({ container, translate: { x, y } }) => {
     setBoard(
       immer(board, (draft) => {
-        const selectedCategory = draft.categories.find((c) => c.id === category.id)
+        const selectedCategory = draft.categories.find((c) => c.id === container.id)
         selectedCategory.x_position = x
         selectedCategory.y_position = y
       })
@@ -199,8 +211,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           heroes: [],
           x_position: 0,
           y_position: yPosition,
-          width: 600,
-          height: 300
+          width: CATEGORY_BODY_INITIAL_WIDTH,
+          height: CATEGORY_BODY_INITIAL_HEIGHT
         }
 
         draft.categories.push(category)
