@@ -111,7 +111,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           { ...heroes[2], pivot: { id: uuid() } }
         ],
         x_position: 0,
-        y_position: CATEGORY_BODY_INITIAL_HEIGHT + CATEGORY_SPACING,
+        y_position: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 }) + CATEGORY_SPACING,
         width: CATEGORY_BODY_INITIAL_WIDTH,
         height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 })
       }
