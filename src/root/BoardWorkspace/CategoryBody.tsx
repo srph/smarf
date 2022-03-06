@@ -39,7 +39,7 @@ const CategoryBody: React.FC<Props> = ({ category, translate }) => {
 
   return (
     <React.Fragment>
-      <CategoryContainer {...attributes} x={translate.x} y={translate.y}>
+      <CategoryContainer {...attributes} x={category.x_position} y={category.y_position}>
         <CategoryHeading>
           <CategoryHeadingInfo>
             <CategoryHeadingDragIcon ref={setDraggableNodeRef} {...listeners}>

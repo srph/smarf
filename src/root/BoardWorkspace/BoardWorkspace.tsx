@@ -24,7 +24,7 @@ const BoardWorkspace: React.FC = () => {
     onChange: moveHero
   })
 
-  const { translateMap, ...dragContainerEvents } = useDragContainer({
+  const dragContainerEvents = useDragContainer({
     containers: board.categories,
     getContainerId: (container) => container.id,
     getContainerPosition: (container) => {
@@ -53,7 +53,7 @@ const BoardWorkspace: React.FC = () => {
           }}
           {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
           {board.categories.map((category) => {
-            return <CategoryBody key={category.id} category={category} translate={translateMap[category.id]} />
+            return <CategoryBody key={category.id} category={category} />
           })}
         </DndContext>
       </Workspace>
