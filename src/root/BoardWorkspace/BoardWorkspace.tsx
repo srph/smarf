@@ -57,6 +57,7 @@ const BoardWorkspace: React.FC = () => {
           })}
         </DndContext>
       </Workspace>
+      <WorkspacePadding />
     </Container>
   )
 }
@@ -64,8 +65,12 @@ const BoardWorkspace: React.FC = () => {
 const Workspace = styled.div`
   position: relative;
   padding-top: 24px;
-  padding-bottom: 320px;
   z-index: ${theme.zIndex.boardWorkspace};
+`
+
+const WorkspacePadding = styled.div`
+  height: 400px;
+  pointer-events: none;
 `
 
 export { BoardWorkspace }

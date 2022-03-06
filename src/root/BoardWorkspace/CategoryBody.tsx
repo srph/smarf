@@ -16,10 +16,9 @@ import { CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/root/constants'
 
 interface Props {
   category: Category
-  translate: Translate
 }
 
-const CategoryBody: React.FC<Props> = ({ category, translate }) => {
+const CategoryBody: React.FC<Props> = ({ category }) => {
   const { addHero, deleteCategory } = useBoardWorkspace()
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
 
