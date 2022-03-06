@@ -14,7 +14,7 @@ import { Translate } from './useDragContainer'
 
 import { Resizable } from 're-resizable'
 
-import { CATEGORY_ROW_WIDTH, CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/root/constants'
+import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/root/constants'
 
 interface Props {
   category: Category
@@ -76,7 +76,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             bottomLeft: false,
             topLeft: false
           }}
-          minWidth={CATEGORY_ROW_WIDTH}
+          minWidth={CATEGORY_BODY_INITIAL_WIDTH}
           size={{ width: category.width, height: category.height }}
           onResize={handleResize}>
           <Body ref={setDroppableNodeRef} width={category.width}>
