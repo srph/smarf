@@ -36,7 +36,7 @@ const Navigation: React.FC = () => {
 }
 
 const Nav = styled.div`
-  border-bottom: 1px solid ${theme.colors.neutral[700]};
+  border-bottom: 1px solid ${theme.colors.neutral[800]};
 `
 
 const NavContainer = styled.div`
