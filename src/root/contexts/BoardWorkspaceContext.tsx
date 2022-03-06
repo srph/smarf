@@ -10,9 +10,7 @@ import {
   CATEGORY_ROW_HEIGHT,
   CATEGORY_BODY_INITIAL_HEIGHT,
   CATEGORY_BODY_INITIAL_WIDTH,
-  CATEGORY_SPACING,
-  CATEGORY_HERO_TOTAL_WIDTH,
-  CATEGORY_HERO_TOTAL_HEIGHT
+  CATEGORY_SPACING
 } from '~/src/root/constants'
 
 interface BoardWorkspaceCategoryMoveEvent {
@@ -81,6 +79,13 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
 
   const [isEditing, setIsEditing] = useState(false)
 
+  const getCategoryHeight = ({ categoryWidth, heroCount }: { categoryWidth: number; heroCount: number }) => {
+    const columnCount = heroCount + 1 // The "new" placeholder + new hero added to the card
+    const columnsPerRow = Math.floor(categoryWidth / CATEGORY_HERO_WIDTH)
+    const rowCount = Math.ceil(columnCount / columnsPerRow)
+    return CATEGORY_ROW_HEIGHT * rowCount
+  }
+
   const [board, setBoard] = useState<Board>(() => ({
     id: uuid(),
     name: 'v7.30 Patch',
@@ -96,7 +101,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         x_position: 0,
         y_position: 0,
         width: CATEGORY_BODY_INITIAL_WIDTH,
-        height: CATEGORY_BODY_INITIAL_HEIGHT
+        height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 })
       },
       {
         id: uuid(),
@@ -109,26 +114,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         x_position: 0,
         y_position: CATEGORY_BODY_INITIAL_HEIGHT + CATEGORY_SPACING,
         width: CATEGORY_BODY_INITIAL_WIDTH,
-        height: CATEGORY_BODY_INITIAL_HEIGHT
+        height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 })
       }
     ]
   }))
-
-  const shouldDecreaseWidth = (category: Category) => {
-    return true
-    const CATEGORY_BODY_PLACEHOLDERS = 2 // The "new" placeholder + new hero removed from the card
-    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + CATEGORY_BODY_PLACEHOLDERS)) > 1
-  }
-
-  const shouldDecreaseHeight = (category: Category) => {
-    const CATEGORY_BODY_PLACEHOLDERS = 2 // The "new" placeholder + new hero removed from the card
-    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + CATEGORY_BODY_PLACEHOLDERS)) > 1
-  }
-
-  const shouldIncreaseHeight = (category: Category) => {
-    const CATEGORY_BODY_PLACEHOLDERS = 2 // The "new" placeholder + new hero added to the card
-    return category.width / (CATEGORY_HERO_WIDTH * (category.heroes.length + CATEGORY_BODY_PLACEHOLDERS)) < 1
-  }
 
   const addHero = (category: Category, hero: Hero) => {
     setBoard(
@@ -140,9 +129,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           pivot: { id: uuid() }
         })
 
-        if (shouldIncreaseHeight(category)) {
-          boardCategory.height += CATEGORY_ROW_HEIGHT
-        }
+        boardCategory.height = getCategoryHeight({
+          categoryWidth: boardCategory.width,
+          heroCount: boardCategory.heroes.length + 1
+        })
       })
     )
   }
@@ -164,20 +154,15 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
 
           const toCategory = draft.categories.find((c) => c.id === to.container)
 
-          // This is only used so we can accurately position the new category
-          // Let's increase the height of the new category if needed.
+          fromCategory.height = getCategoryHeight({
+            categoryWidth: toCategory.width,
+            heroCount: toCategory.heroes.length - 1
+          })
 
-          if (shouldDecreaseHeight(fromCategory)) {
-            fromCategory.height -= CATEGORY_ROW_HEIGHT
-          }
-
-          if (shouldDecreaseWidth(fromCategory)) {
-            fromCategory.width -= CATEGORY_HERO_TOTAL_WIDTH
-          }
-
-          if (shouldIncreaseHeight(toCategory)) {
-            toCategory.height += CATEGORY_ROW_HEIGHT
-          }
+          toCategory.height = getCategoryHeight({
+            categoryWidth: toCategory.width,
+            heroCount: toCategory.heroes.length + 1
+          })
 
           arrayTransfer(fromCategory.heroes, toCategory.heroes, from.index, to.index)
         }
@@ -195,13 +180,17 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
+  const getCategoryBottom = (category: Category): number => {
+    return category.y_position + category.height
+  }
+
   const addCategory = () => {
     const lowestCategory = [...board.categories].sort((a, b) => {
-      return b.y_position - a.y_position
+      return getCategoryBottom(b) - getCategoryBottom(a)
     })[0]
 
     // Bottom position + allowance
-    const yPosition = lowestCategory.y_position + lowestCategory.height + CATEGORY_SPACING
+    const yPosition = getCategoryBottom(lowestCategory) + CATEGORY_SPACING
 
     setBoard(
       immer(board, (draft) => {
@@ -212,7 +201,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           x_position: 0,
           y_position: yPosition,
           width: CATEGORY_BODY_INITIAL_WIDTH,
-          height: CATEGORY_BODY_INITIAL_HEIGHT
+          height: getCategoryHeight({
+            categoryWidth: CATEGORY_BODY_INITIAL_WIDTH,
+            heroCount: 0
+          })
         }
 
         draft.categories.push(category)
