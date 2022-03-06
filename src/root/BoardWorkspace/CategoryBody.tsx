@@ -12,14 +12,16 @@ import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useBoardWorkspace } from '~/src/root/contexts'
 import { Translate } from './useDragContainer'
 
-import { CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/root/constants'
+import { Resizable } from 're-resizable'
+
+import { CATEGORY_ROW_WIDTH, CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/root/constants'
 
 interface Props {
   category: Category
 }
 
 const CategoryBody: React.FC<Props> = ({ category }) => {
-  const { addHero, deleteCategory } = useBoardWorkspace()
+  const { addHero, resizeCategory, deleteCategory } = useBoardWorkspace()
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
 
   // This is important to allow an item to be dropped to an empty category
@@ -35,6 +37,13 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
   } = useDraggable({
     id: category.id
   })
+
+  const handleResize = (e, dir, ref) => {
+    resizeCategory({
+      container: category,
+      width: ref.getBoundingClientRect().width
+    })
+  }
 
   return (
     <React.Fragment>
@@ -56,22 +65,37 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
           </div>
         </CategoryHeading>
 
-        <Body ref={setDroppableNodeRef} width={category.width}>
-          <SortableContext items={category.heroes.map((hero) => hero.pivot.id)} strategy={rectSortingStrategy}>
-            {category.heroes.map((hero) => (
-              <CategoryHero key={hero.pivot.id} category={category} hero={hero} />
-            ))}
-          </SortableContext>
+        <Resizable
+          enable={{
+            top: false,
+            right: !isDragging,
+            bottom: false,
+            left: !isDragging,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false
+          }}
+          minWidth={CATEGORY_ROW_WIDTH}
+          size={{ width: category.width, height: category.height }}
+          onResize={handleResize}>
+          <Body ref={setDroppableNodeRef} width={category.width}>
+            <SortableContext items={category.heroes.map((hero) => hero.pivot.id)} strategy={rectSortingStrategy}>
+              {category.heroes.map((hero) => (
+                <CategoryHero key={hero.pivot.id} category={category} hero={hero} />
+              ))}
+            </SortableContext>
 
-          <NewHeroContainer>
-            <NewHero onClick={() => setIsHeroSelectorOpen(true)}>
-              <NewCategoryIcon>
-                <Icon name="plus-circle" width={48} />
-              </NewCategoryIcon>
-              <NewCategoryText>New Hero</NewCategoryText>
-            </NewHero>
-          </NewHeroContainer>
-        </Body>
+            <NewHeroContainer>
+              <NewHero onClick={() => setIsHeroSelectorOpen(true)}>
+                <NewCategoryIcon>
+                  <Icon name="plus-circle" width={48} />
+                </NewCategoryIcon>
+                <NewCategoryText>New Hero</NewCategoryText>
+              </NewHero>
+            </NewHeroContainer>
+          </Body>
+        </Resizable>
       </CategoryContainer>
 
       {isHeroSelectorOpen && (

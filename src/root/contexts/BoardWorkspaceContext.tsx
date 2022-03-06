@@ -16,8 +16,6 @@ import {
 interface BoardWorkspaceCategoryMoveEvent {
   x: number
   y: number
-  // width: number
-  // height: number
 }
 
 interface BoardWorkspaceContextType {
@@ -30,6 +28,7 @@ interface BoardWorkspaceContextType {
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   addCategory: () => void
   moveCategory: ({ container, translate }: { container: Category; translate: BoardWorkspaceCategoryMoveEvent }) => void
+  resizeCategory: ({ container, width }: { container: Category; width: number }) => void
   deleteCategory: (category: Category) => void
 }
 
@@ -212,6 +211,15 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
+  const resizeCategory = ({ container, width }) => {
+    setBoard(
+      immer(board, (draft) => {
+        const boardCategory = draft.categories.find((category) => category.id === container.id)
+        boardCategory.width = width
+      })
+    )
+  }
+
   const deleteCategory = (category) => {
     setBoard(
       immer(board, (draft) => {
@@ -233,6 +241,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         moveHero,
         addCategory,
         moveCategory,
+        resizeCategory,
         deleteCategory
       }}>
       {children}
