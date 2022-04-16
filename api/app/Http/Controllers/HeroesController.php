@@ -8,7 +8,7 @@ class HeroesController extends Controller
 {
     public function store(Category $category) {
         $category->heroes()->attach(
-            $request->get('hero_id')
+            $request->get('hero_id'),
             ['order' => $request->get('order')]
         );
 
@@ -19,7 +19,7 @@ class HeroesController extends Controller
         $category->heroes()->updateExistingPivot(
             $request->get('hero_id'),
             ['order' => $request->get('order')]
-        )
+        );
 
         return $category;
     }

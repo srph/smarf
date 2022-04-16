@@ -3,31 +3,37 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Board;
 
 class BoardsController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         return request()->user()->boards;
     }
 
-    public function store() {
+    public function store()
+    {
         return Board::create([
             'name' => request()->get('name'),
             'categories' => request()->get('categories')
         ]);
     }
 
-    public function show(Board $board) {
+    public function show(Board $board)
+    {
         return $board->with('categories');
     }
 
-    public function update(Board $board) {
+    public function update(Board $board)
+    {
         return $board->update([
             'name' => request()->get('name')
-        ])
+        ]);
     }
 
-    public function destroy(Board $board) {
+    public function destroy(Board $board)
+    {
         return $board->delete();
     }
 }

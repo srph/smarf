@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
         $users = Hero::factory()->count(10)
             ->has(Board::factory()->count(10)->has(Category::factory()->count(2)));
 
-        Board::all()->each(function(Board $board) {
-            $board->categories->each(function(Category $category) {
+        Board::all()->each(function (Board $board) {
+            $board->categories->each(function (Category $category) {
                 $category->attach($heroes->random(3)->pluck('id')->toArray());
             });
         });

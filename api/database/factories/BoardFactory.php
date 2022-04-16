@@ -26,7 +26,6 @@ class BoardFactory extends Factory
     {
 
         return [
-            'id' => $this->faker->uuid(),
             'name' => $this->faker->name
         ];
     }

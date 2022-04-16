@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('category_hero', function(Blueprint $table) {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->uuid('category_id');
             $table->uuid('hero_id');
             $table->double('order');
