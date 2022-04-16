@@ -1,0 +1,7 @@
+ii  php-cli                              2:7.4+75                                    all          command-line interpreter for the PHP scripting language (default)
+ii  php-common                           2:75                                        all          Common files for PHP packages
+ii  php7.4-cli                           7.4.3-4ubuntu2.4                            amd64        command-line interpreter for the PHP scripting language
+ii  php7.4-common                        7.4.3-4ubuntu2.4                            amd64        documentation, examples and common module for PHP
+ii  php7.4-json                          7.4.3-4ubuntu2.4                            amd64        JSON module for PHP
+ii  php7.4-opcache                       7.4.3-4ubuntu2.4                            amd64        Zend OpCache module for PHP
+ii  php7.4-readline                      7.4.3-4ubuntu2.4                            amd64        readline module for PHP
