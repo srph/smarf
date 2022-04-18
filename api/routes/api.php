@@ -18,11 +18,16 @@ use App\Http\Controllers\HeroesController;
 |
 */
 
+Route::get('gm', fn () => \App\Models\User::all());
+
+Route::get('auth/login', [AuthController::class, 'login']);
+Route::get('heroes', [HeroesController::class, 'index']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum')->group(function() {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('/', [BoardsController::class, 'index']);
     Route::post('/', [BoardsController::class, 'store']);
     Route::get('{board}', [BoardsController::class, 'show']);
@@ -33,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::put('categories/{category}', [CategoriesController::class, 'update']);
     Route::delete('categories/{category}', [CategoriesController::class, 'destroy']);
 
-    Route::post('categories/{category}/heroes', [HeroesController::class, 'store']);
-    Route::put('categories/{category}/heroes/{hero}', [HeroesController::class, 'update']);
-    Route::delete('categories/{category}/heroes/{hero}', [HeroesController::class, 'destroy']);
+    Route::post('categories/{category}/heroes', [HeroesController::class, 'insert']);
+    Route::put('categories/{category}/heroes/{hero}', [HeroesController::class, 'reorder']);
+    Route::delete('categories/{category}/heroes/{hero}', [HeroesController::class, 'remove']);
 });

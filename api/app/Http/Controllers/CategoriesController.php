@@ -18,7 +18,9 @@ class CategoriesController extends Controller
             'height',
         ]);
 
-        return Category::create($inputs);
+        return response()->json([
+            'categories' => Category::create($inputs)
+        ]);
     }
 
     public function update(Category $category)
@@ -32,12 +34,16 @@ class CategoriesController extends Controller
             'height',
         ]);
 
-        return $category->update($inputs);
+        return response()->json([
+            'categories' => $category->update($inputs)
+        ]);
     }
 
     public function destroy(Category $category)
     {
         // @TODO: Truncate (?)
-        return $category->delete();
+        return response()->json([
+            'categories' => $category->delete()
+        ]);
     }
 }

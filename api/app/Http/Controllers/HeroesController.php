@@ -2,31 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+use App\Models\Hero;
+use App\Models\Category;
+use App\Http\Requests\InsertHeroRequest;
+use App\Http\Requests\ReorderHeroRequest;
 
 class HeroesController extends Controller
 {
-    public function store(Category $category) {
+    public function index()
+    {
+        return response()->json([
+            'heroes' => Hero::all()
+        ]);
+    }
+
+    /**
+     * Insert hero to a category
+     */
+    public function insert(InsertHeroRequest $request, Category $category)
+    {
         $category->heroes()->attach(
             $request->get('hero_id'),
-            ['order' => $request->get('order')]
+            // WARNING: We should probably make a trait for this haha
+            ['id' => Str::uuid()->toString(), 'order' => $request->get('order')]
         );
 
-        return $category;
+        return response()->json([
+            'category' => $category
+        ]);
     }
 
-    public function update(Category $category) {
-        $category->heroes()->updateExistingPivot(
-            $request->get('hero_id'),
-            ['order' => $request->get('order')]
-        );
+    /**
+     * Reorder a hero inside a category
+     */
+    public function reorder(ReorderHeroRequest $request, Hero $hero)
+    {
+        $hero->pivot->order = $request->input('order');
+        $hero->pivot->save();
 
-        return $category;
+        return response()->json([
+            'category' => $hero->category
+        ]);
     }
 
-    public function destroy(Category $category) {
-        return $category->heroes()->detach(
-            request()->get('hero_id');
-        );
+    /**
+     * Remove a hero from a category
+     */
+    public function remove(Category $category)
+    {
+        return response()->json([
+            'category' => $category->heroes()->detach(
+                request()->input('hero_id')
+            )
+        ]);
     }
 }

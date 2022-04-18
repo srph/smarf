@@ -36,6 +36,26 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+
+        $this->bindModels();
+    }
+
+    /**
+     * Bind models on boot-up for controllers to access
+     * 
+     * @return void
+     */
+    protected function bindModels()
+    {
+        Route::model('user', \App\Models\User::class);
+        Route::model('board', \App\Models\Board::class);
+        Route::model('category', \App\Models\Category::class);
+
+        // `hero` is implicitly the pivot id. We want those as we can have the same instance of hero in a category
+        Route::bind('hero', function ($value, $route) {
+            $category = \App\Models\Category::where('id', $route->parameter('category'))->first();
+            return $category->heroes()->wherePivot('id', $value)->firstOrFail();
+        });
     }
 
     /**
