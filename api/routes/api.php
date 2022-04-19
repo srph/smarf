@@ -28,17 +28,21 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/', [BoardsController::class, 'index']);
-    Route::post('/', [BoardsController::class, 'store']);
-    Route::get('{board}', [BoardsController::class, 'show']);
-    Route::put('{board}', [BoardsController::class, 'update']);
-    Route::delete('{board}', [BoardsController::class, 'destroy']);
+    Route::middleware('board.own')->group(function () {
+        Route::get('boards', [BoardsController::class, 'index']);
+        Route::post('boards', [BoardsController::class, 'store']);
+        Route::get('boards/{board}', [BoardsController::class, 'show']);
+        Route::put('boards/{board}', [BoardsController::class, 'update']);
+        Route::delete('boards/{board}', [BoardsController::class, 'destroy']);
+    });
 
-    Route::post('categories', [CategoriesController::class, 'store']);
-    Route::put('categories/{category}', [CategoriesController::class, 'update']);
-    Route::delete('categories/{category}', [CategoriesController::class, 'destroy']);
+    Route::middleware('category.own')->group(function () {
+        Route::post('categories', [CategoriesController::class, 'store']);
+        Route::put('categories/{category}', [CategoriesController::class, 'update']);
+        Route::delete('categories/{category}', [CategoriesController::class, 'destroy']);
 
-    Route::post('categories/{category}/heroes', [HeroesController::class, 'insert']);
-    Route::put('categories/{category}/heroes/{hero}', [HeroesController::class, 'reorder']);
-    Route::delete('categories/{category}/heroes/{hero}', [HeroesController::class, 'remove']);
+        Route::post('categories/{category}/heroes', [HeroesController::class, 'insert']);
+        Route::put('categories/{category}/heroes/{hero}', [HeroesController::class, 'reorder']);
+        Route::delete('categories/{category}/heroes/{hero}', [HeroesController::class, 'remove']);
+    });
 });

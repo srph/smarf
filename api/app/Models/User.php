@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Traits\Uuid;
+use App\Models\Board;
 
 class User extends Authenticatable
 {
@@ -56,6 +57,16 @@ class User extends Authenticatable
      * @var string
      */
     protected $keyType = 'string';
+
+    /**
+     * Check if user owns the board
+     * 
+     * @return boolean
+     */
+    public function ownsBoard(Board $board)
+    {
+        return $this->boards()->where('board_id', $board->id)->exists();
+    }
 
     public function boards()
     {
