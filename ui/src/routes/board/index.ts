@@ -1,0 +1,1 @@
+export { BoardRoute } from './BoardRoute'

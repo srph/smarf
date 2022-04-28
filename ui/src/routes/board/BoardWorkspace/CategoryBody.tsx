@@ -9,12 +9,12 @@ import { CategoryHero } from './CategoryHero'
 
 import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
-import { useBoardWorkspace } from '~/src/root/contexts'
+import { useBoardWorkspace } from '~/src/routes/board/contexts'
 import { Translate } from './useDragContainer'
 
 import { Resizable } from 're-resizable'
 
-import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/root/constants'
+import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/routes/board/constants'
 
 interface Props {
   category: Category

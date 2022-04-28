@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Icon, SearchInput } from '~/src/components'
 import { Hero, ID } from '~/src/types/api'
-import { useBoardWorkspace } from '~/src/root/contexts'
+import { useBoardWorkspace } from '~/src/routes/board/contexts'
 
 interface Props {
   selectedHeroes: Hero[]

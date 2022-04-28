@@ -3,23 +3,20 @@ import ReactDOM from 'react-dom'
 import { createGlobalStyle } from 'styled-components'
 import 'modern-normalize/modern-normalize.css'
 
-import { BoardWorkspaceContextProvider } from './root/contexts'
-import { EditPopover } from './root/EditPopover'
-import { BoardWorkspace } from './root/BoardWorkspace'
-import { Navigation } from './root/Navigation'
-import { Toolbar } from './root/Toolbar'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BoardRoute } from './routes/board'
+import { LoginRoute } from './routes/login'
 import { theme } from './theme'
 
 const App = () => {
   return (
     <>
-      <Navigation />
-
-      <BoardWorkspaceContextProvider>
-        <BoardWorkspace />
-        <Toolbar />
-        <EditPopover />
-      </BoardWorkspaceContextProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<BoardRoute />} />
+          <Route path="/login" element={<LoginRoute />} />
+        </Routes>
+      </BrowserRouter>
 
       <GlobalStyle />
     </>

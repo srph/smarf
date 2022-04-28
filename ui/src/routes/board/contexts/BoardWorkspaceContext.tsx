@@ -4,14 +4,13 @@ import immer from 'immer'
 import heroThumbnail from '~/src/public/images/hero.png'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
-import { CustomGridCollisionDetectionEvent } from '~/src/root/BoardWorkspace/useGridCollisionDetection'
+import { CustomGridCollisionDetectionEvent } from '~/src/routes/board/BoardWorkspace/useGridCollisionDetection'
 import {
   CATEGORY_HERO_WIDTH,
   CATEGORY_ROW_HEIGHT,
-  CATEGORY_BODY_INITIAL_HEIGHT,
   CATEGORY_BODY_INITIAL_WIDTH,
   CATEGORY_SPACING
-} from '~/src/root/constants'
+} from '~/src/routes/board/constants'
 
 interface BoardWorkspaceCategoryMoveEvent {
   x: number

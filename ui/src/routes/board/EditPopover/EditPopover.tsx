@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Container, PlainButton, Icon } from '~/src/components'
-import { useBoardWorkspace } from '~/src/root/contexts'
+import { useBoardWorkspace } from '~/src/routes/board/contexts'
 
 const EditPopover: React.FC = () => {
   const { isEditing, setIsEditing } = useBoardWorkspace()
