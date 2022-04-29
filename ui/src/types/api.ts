@@ -31,3 +31,9 @@ export interface Board {
   name: string
   categories: Category[]
 }
+
+export interface User {
+  id: ID
+  email: string
+  name: string
+}

@@ -1,0 +1,1 @@
+export { GuardedRoute } from './GuardedRoute'
