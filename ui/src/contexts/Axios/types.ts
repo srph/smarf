@@ -1,7 +1,7 @@
 import { AxiosRequestConfig as BaseAxiosRequestConfig, AxiosError as BaseAxiosError, AxiosResponse } from 'axios'
 
 export interface InterceptorFactory {
-  setup: (instance: any, auth: any) => any
+  setup: (auth: any) => any
 }
 
 export interface AxiosRequestConfig extends BaseAxiosRequestConfig {

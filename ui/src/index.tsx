@@ -5,6 +5,7 @@ import 'modern-normalize/modern-normalize.css'
 
 import { AuthUserProvider, AuthUserLoader } from '~/src/contexts/AuthUser'
 import { AxiosProvider } from '~/src/contexts/Axios'
+import { QueryProvider } from '~/src/contexts/Query'
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { GuardedRoute } from '~/src/components'
@@ -15,9 +16,9 @@ import { theme } from './theme'
 const App = () => {
   return (
     <>
-      <AuthUserProvider>
-        <AxiosProvider>
-          <AuthUserLoader>
+      <QueryProvider>
+        <AuthUserProvider>
+          <AxiosProvider>
             <BrowserRouter>
               <Routes>
                 <Route
@@ -38,9 +39,9 @@ const App = () => {
                 />
               </Routes>
             </BrowserRouter>
-          </AuthUserLoader>
-        </AxiosProvider>
-      </AuthUserProvider>
+          </AxiosProvider>
+        </AuthUserProvider>
+      </QueryProvider>
 
       <GlobalStyle />
     </>

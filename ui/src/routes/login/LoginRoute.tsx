@@ -1,10 +1,24 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Button, Input, Spacer, Logo } from '~/src/components'
 import { theme } from '~/src/theme'
 import bg from '~/src/public/images/login-bg.png'
 
+import { useAuthUser } from '~/src/contexts/AuthUser'
+import { useMutation } from '~/src/contexts/Query'
+
 const LoginRoute = () => {
+  const { login } = useAuthUser()
+
+  const [email, setEmail] = useState('')
+
+  const [password, setPassword] = useState('')
+
+  const handleSubmit = (evt: React.FormEvent) => {
+    evt.preventDefault()
+    login({ email, password })
+  }
+
   return (
     <Layout>
       <LayoutBg />
@@ -17,10 +31,10 @@ const LoginRoute = () => {
           <LayoutContentForm>
             <LayoutContentFormHeading>Hi there, welcome back!</LayoutContentFormHeading>
             <Spacer size={4} />
-            <form>
-              <Input label="Username" placeholder="your@email.com" />
+            <form onSubmit={handleSubmit}>
+              <Input label="Email" placeholder="your@email.com" value={email} onChange={setEmail} type="email" />
               <Spacer size={2} />
-              <Input label="Password" placeholder="Enter your password" />
+              <Input label="Password" placeholder="Enter your password" value={password} onChange={setPassword} />
               <Spacer size={4} />
               <Button block>Sign in</Button>
               <Spacer size={3} />

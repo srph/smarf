@@ -1,1 +1,2 @@
-export { AxiosProvider, useAxios, useRequest } from './AxiosProvider'
+export { axios } from './axios'
+export { AxiosProvider, useAxios } from './AxiosProvider'

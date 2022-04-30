@@ -2,9 +2,8 @@ import React, { useContext, useCallback } from 'react'
 import { useEffect, useState } from 'react'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 
-import axios, { AxiosInstance } from 'axios'
-import useSWR from 'swr'
-import { config } from '~/src/config'
+import { AxiosInstance } from 'axios'
+import { axios } from './axios'
 import { appInit } from './interceptor-app-init'
 import { oauthToken } from './interceptor-oauth-token'
 import { expiredToken } from './interceptor-expired-token'
@@ -18,74 +17,46 @@ const AxiosContext = React.createContext<ContextType>({
 })
 
 /**
- * Setup axios interceptors
+ * Setup axios interceptors to work with auth
  */
 const AxiosProvider: React.FC = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false)
 
-  const [instance, setInstance] = useState<AxiosInstance | null>()
-
   const auth = useAuthUser()
 
   useEffect(() => {
-    const instance = axios.create({
-      baseURL: config.api.baseUrl
-    })
-
     const requests = [appInit, oauthToken].map((interceptor) => {
-      return interceptor.setup(instance, auth)
+      return interceptor.setup(auth)
     })
 
     const responses = [expiredToken].map((interceptor) => {
-      return interceptor.setup(instance, auth)
+      return interceptor.setup(auth)
     })
-
-    setInstance(instance)
 
     setIsInitialized(true)
 
     return () => {
       requests.forEach((interceptor) => {
-        instance.interceptors.request.eject(interceptor)
+        axios.interceptors.request.eject(interceptor)
       })
 
       responses.forEach((interceptor) => {
-        instance.interceptors.response.eject(interceptor)
+        axios.interceptors.response.eject(interceptor)
       })
-
-      setInstance(null)
 
       setIsInitialized(false)
     }
   }, [auth.token])
 
-  return <AxiosContext.Provider value={{ axios: instance }}>{isInitialized ? children : null}</AxiosContext.Provider>
+  if (!isInitialized) {
+    return null
+  }
+
+  return <>{isInitialized ? children : null}</>
 }
 
 const useAxios = () => {
   return useContext(AxiosContext)
 }
 
-interface RequestOptions {
-  skip: false
-}
-
-const useRequest = (url, opts) => {
-  const { axios } = useAxios()
-
-  const fetcher = useCallback((resource) => {
-    console.log(resource)
-    return Promise.resolve('tite')
-    // return axios.get(resource).then(res => res.data)
-  }, [])
-
-  const { data, error } = useSWR(opts.skip ? null : url, fetcher)
-
-  return {
-    user: data,
-    isLoading: !error && !data,
-    isError: error
-  }
-}
-
-export { AxiosProvider, useAxios, useRequest }
+export { AxiosProvider, useAxios }
