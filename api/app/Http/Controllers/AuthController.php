@@ -20,4 +20,9 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
+
+    public function me()
+    {
+        return request()->user();
+    }
 }

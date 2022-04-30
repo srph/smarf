@@ -20,7 +20,8 @@ use App\Http\Controllers\HeroesController;
 
 Route::get('gm', fn () => \App\Models\User::all());
 
-Route::get('auth/login', [AuthController::class, 'login']);
+Route::get('auth/register', [AuthController::class, 'register']);
+Route::Get('auth/me', [AuthController::class, 'me'])
 Route::get('heroes', [HeroesController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
