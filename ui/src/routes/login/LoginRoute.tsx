@@ -36,7 +36,9 @@ const LoginRoute = () => {
               <Spacer size={2} />
               <Input label="Password" placeholder="Enter your password" value={password} onChange={setPassword} />
               <Spacer size={4} />
-              <Button block>Sign in</Button>
+              <Button type="submit" block>
+                Sign in
+              </Button>
               <Spacer size={3} />
               <SublinkContainer>
                 <Sublink href="/register">New? Create an account here →</Sublink>
