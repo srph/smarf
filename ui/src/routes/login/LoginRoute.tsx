@@ -4,6 +4,7 @@ import { Button, Input, Spacer, Logo } from '~/src/components'
 import { theme } from '~/src/theme'
 import bg from '~/src/public/images/login-bg.png'
 
+import { config } from '~/src/config'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 import { useMutation } from '~/src/contexts/Query'
 
@@ -16,7 +17,13 @@ const LoginRoute = () => {
 
   const handleSubmit = (evt: React.FormEvent) => {
     evt.preventDefault()
-    login({ email, password })
+    login({
+      username: email,
+      password,
+      client_id: config.oauth.clientId,
+      client_secret: config.oauth.clientSecret,
+      grant_type: 'password'
+    })
   }
 
   return (
@@ -34,7 +41,13 @@ const LoginRoute = () => {
             <form onSubmit={handleSubmit}>
               <Input label="Email" placeholder="your@email.com" value={email} onChange={setEmail} type="email" />
               <Spacer size={2} />
-              <Input label="Password" placeholder="Enter your password" value={password} onChange={setPassword} />
+              <Input
+                label="Password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={setPassword}
+                type="password"
+              />
               <Spacer size={4} />
               <Button type="submit" block>
                 Sign in

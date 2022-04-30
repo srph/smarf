@@ -4,15 +4,18 @@ import { useQuery, useMutation } from '~/src/contexts/Query'
 import { User } from '~/src/types/api'
 import { config } from '~/src/config'
 
-interface Credentials {
-  email: string
+interface OauthCredentials {
+  username: string
   password: string
+  client_id: string
+  client_secret: string
+  grant_type: string
 }
 
 interface ContextType {
   user: User | null
   token: string
-  login: (user: Credentials) => void
+  login: (user: OauthCredentials) => void
   logout: () => void
 }
 
@@ -24,19 +27,13 @@ const AuthUserProvider: React.FC = ({ children }) => {
   const [token, setToken] = useCookieState(config.oauth.cookieKey, '')
 
   const { isLoading } = useQuery('auth/me', {
-    enabled: !user && Boolean(token),
-    onSuccess: (data) => setUser(data),
-    queryKey: token
+    enabled: Boolean(token),
+    onSuccess: (data) => setUser(data)
   })
 
-  const { mutate: login } = useMutation<Credentials>('oauth/token', 'post', {
-    onMutate: () => {
-      console.log('MUTATE')
-    },
+  const { mutate: login } = useMutation<OauthCredentials>('oauth/token', 'post', {
     onSuccess: (data) => {
-      console.log(data)
-      // setUser(data)
-      // setToken()
+      setToken(data.access_token)
     },
     onError: () => {}
   })

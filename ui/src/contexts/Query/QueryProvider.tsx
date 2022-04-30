@@ -26,12 +26,8 @@ function useQuery<T = any>(url: string, opts: UseQueryOptions<T>) {
 type MutationOperation = 'post' | 'put'
 
 function useMutation<T = any, U = any>(url: string, operation: MutationOperation, opts: UseMutationOptions<T>) {
-  console.log('HI')
-
   const mutationFn = useCallback(
     (variables) => {
-      console.log('hi')
-
       return axios[operation](url, variables).then((res) => res.data)
     },
     [url, operation]

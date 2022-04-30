@@ -24,10 +24,11 @@ const Button: React.FC<Props> = ({ children, icon, type = 'button', onClick, blo
   )
 }
 
-const Element = styled.div<{ block?: boolean }>`
+const Element = styled.button<{ block?: boolean }>`
   display: ${(props) => (props.block ? 'flex' : 'inline-flex')};
   align-items: center;
   justify-content: center;
+  width: 100%;
   padding: 8px;
   color: ${theme.colors.neutral[50]};
   background: ${theme.colors.indigo[400]};
