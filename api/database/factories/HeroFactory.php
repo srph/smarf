@@ -16,7 +16,7 @@ class HeroFactory extends Factory
      * @var string
      */
     protected $model = Hero::class;
-    
+
     /**
      * Define the model's default state.
      *
@@ -25,8 +25,7 @@ class HeroFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->name,
-            'thumbnail' => 'thumbnail.jpeg',
+            'name' => $this->faker->name
         ];
     }
 }
