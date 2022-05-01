@@ -57,7 +57,7 @@ const BoardListProvider: React.FC = ({ children }) => {
     })
 
     const board = {
-      name: 'v7.30 Patch',
+      name: 'Untitled',
       categories: [
         {
           name: 'Mid Farming',
@@ -68,7 +68,7 @@ const BoardListProvider: React.FC = ({ children }) => {
           height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 })
         },
         {
-          name: 'Mid Farming',
+          name: 'Suntukan Offlane',
           heroes: initialHeroes,
           x_position: 0,
           y_position:
