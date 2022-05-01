@@ -14,6 +14,8 @@ import { GuardedRoute } from '~/src/components'
 import { BoardRoute } from './routes/board'
 import { LoginRoute } from './routes/login'
 import { LogoutRoute } from './routes/logout'
+import { AboutRoute } from './routes/about'
+import { AccountRoute } from './routes/account'
 import { theme } from './theme'
 
 const App = () => {
@@ -27,6 +29,33 @@ const App = () => {
                 <BoardListProvider>
                   <Routes>
                     <Route index element={<Navigate to="/boards/23c54ddc-7868-4917-b5e5-5fc1e2f37f5f" replace />} />
+
+                    <Route
+                      path="/account"
+                      element={
+                        <GuardedRoute type="auth">
+                          <AccountRoute />
+                        </GuardedRoute>
+                      }
+                    />
+
+                    <Route
+                      path="/about"
+                      element={
+                        <GuardedRoute type="auth">
+                          <AboutRoute />
+                        </GuardedRoute>
+                      }
+                    />
+
+                    <Route
+                      path="/boards/:boardId"
+                      element={
+                        <GuardedRoute type="auth">
+                          <BoardRoute />
+                        </GuardedRoute>
+                      }
+                    />
 
                     <Route
                       path="/boards/:boardId"

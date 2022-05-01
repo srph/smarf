@@ -1,0 +1,1 @@
+export { AboutRoute } from './AboutRoute'
