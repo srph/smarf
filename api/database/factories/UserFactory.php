@@ -39,4 +39,18 @@ class UserFactory extends Factory
             ];
         });
     }
+
+    /**
+     * Create the admin user
+     * 
+     * @return static
+     */
+    public function admin()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'email' => 'hi@admin.com'
+            ];
+        });
+    }
 }

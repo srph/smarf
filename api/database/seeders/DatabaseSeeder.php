@@ -37,9 +37,17 @@ class DatabaseSeeder extends Seeder
 
         $heroes = Hero::factory()->count(100)->create();
 
+        $userFactories = Board::factory()->count(10)->has(Category::factory()->count(2));
+
         User::factory()->count(10)
-            ->has(Board::factory()->count(10)->has(Category::factory()->count(2)))
+            ->has($userFactories)
             ->create();
+
+        User::factory()->count(1)
+            ->admin()
+            ->has($userFactories)
+            ->create();
+        
 
         Board::all()->each(function (Board $board) use ($heroes) {
             $board->categories->each(function (Category $category) use ($heroes) {
