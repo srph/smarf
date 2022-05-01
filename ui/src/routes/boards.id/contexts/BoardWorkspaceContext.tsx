@@ -3,13 +3,13 @@ import { Board, Hero, Category } from '~/src/types/api'
 import immer from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
-import { CustomGridCollisionDetectionEvent } from '~/src/routes/board/BoardWorkspace/useGridCollisionDetection'
+import { CustomGridCollisionDetectionEvent } from '~/src/routes/boards.id/BoardWorkspace/useGridCollisionDetection'
 import {
   CATEGORY_HERO_WIDTH,
   CATEGORY_ROW_HEIGHT,
   CATEGORY_BODY_INITIAL_WIDTH,
   CATEGORY_SPACING
-} from '~/src/routes/board/constants'
+} from '~/src/routes/boards.id/constants'
 import { useQuery } from '~/src/contexts/Query'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { useParams } from 'react-router-dom'

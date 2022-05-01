@@ -5,7 +5,7 @@ import { ImageAspectRatio } from '~/src/components'
 import { useSortable } from '@dnd-kit/sortable'
 import { Category, HeroCategoryPivot } from '~/src/types/api'
 import { CSS } from '@dnd-kit/utilities'
-import { CATEGORY_HERO_WIDTH } from '~/src/routes/board/constants'
+import { CATEGORY_HERO_WIDTH } from '~/src/routes/boards.id/constants'
 
 interface Props {
   category: Category

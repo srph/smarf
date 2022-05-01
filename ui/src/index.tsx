@@ -11,7 +11,7 @@ import { HeroListProvider } from '~/src/contexts/HeroList'
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { GuardedRoute } from '~/src/components'
-import { BoardRoute } from './routes/board'
+import { BoardsIdRoute } from './routes/boards.id'
 import { LoginRoute } from './routes/login'
 import { LogoutRoute } from './routes/logout'
 import { AboutRoute } from './routes/about'
@@ -47,21 +47,11 @@ const App = () => {
                         </GuardedRoute>
                       }
                     />
-
                     <Route
                       path="/boards/:boardId"
                       element={
                         <GuardedRoute type="auth">
-                          <BoardRoute />
-                        </GuardedRoute>
-                      }
-                    />
-
-                    <Route
-                      path="/boards/:boardId"
-                      element={
-                        <GuardedRoute type="auth">
-                          <BoardRoute />
+                          <BoardsIdRoute />
                         </GuardedRoute>
                       }
                     />

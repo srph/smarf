@@ -6,7 +6,7 @@ import { BoardWorkspace } from './BoardWorkspace'
 import { Navigation } from './Navigation'
 import { Toolbar } from './Toolbar'
 
-const BoardRoute = () => {
+const BoardsIdRoute = () => {
   return (
     <>
       <Navigation />
@@ -20,4 +20,4 @@ const BoardRoute = () => {
   )
 }
 
-export { BoardRoute }
+export { BoardsIdRoute }
