@@ -6,8 +6,9 @@ import 'modern-normalize/modern-normalize.css'
 import { AuthUserProvider } from '~/src/contexts/AuthUser'
 import { AxiosProvider } from '~/src/contexts/Axios'
 import { QueryProvider } from '~/src/contexts/Query'
+import { BoardListProvider } from '~/src/contexts/BoardList'
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { GuardedRoute } from '~/src/components'
 import { BoardRoute } from './routes/board'
 import { LoginRoute } from './routes/login'
@@ -21,27 +22,36 @@ const App = () => {
         <QueryProvider>
           <AuthUserProvider>
             <AxiosProvider>
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <GuardedRoute type="auth">
-                      <BoardRoute />
-                    </GuardedRoute>
-                  }
-                />
-                
-                <Route
-                  path="/login"
-                  element={
-                    <GuardedRoute type="guest">
-                      <LoginRoute />
-                    </GuardedRoute>
-                  }
-                />
+              <BoardListProvider>
+                <Routes>
+                  <Route
+                    path="/"
+                    element={
+                      <Navigate to="/boards/23c54ddc-7868-4917-b5e5-5fc1e2f37f5f" replace />
+                    }
+                  />
 
-                <Route path="/logout" element={<LogoutRoute />} />
-              </Routes>
+                  <Route
+                    path="/boards/{boardId}"
+                    element={
+                      <GuardedRoute type="auth">
+                        <BoardRoute />
+                      </GuardedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/login"
+                    element={
+                      <GuardedRoute type="guest">
+                        <LoginRoute />
+                      </GuardedRoute>
+                    }
+                  />
+
+                  <Route path="/logout" element={<LogoutRoute />} />
+                </Routes>
+              </BoardListProvider>
             </AxiosProvider>
           </AuthUserProvider>
         </QueryProvider>

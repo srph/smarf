@@ -3,9 +3,12 @@ import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Button, Container, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/board/contexts'
+import { useBoardList } from '~/src/contexts/BoardList'
 
 const ToolbarComponent: React.FC = () => {
-  const { isEditing, setIsEditing, addCategory } = useBoardWorkspace()
+  const { board, isEditing, setIsEditing, addCategory } = useBoardWorkspace()
+
+  const { boards, isLoading: isBoardsLoading } = useBoardList()
 
   return (
     <ToolbarContainer>
@@ -26,8 +29,17 @@ const ToolbarComponent: React.FC = () => {
             <SelectIcon>
               <Icon name="template" />
             </SelectIcon>
-            <Select>
-              <option>Kaldag v7.31</option>
+            <Select value={board.id}>
+              {isBoardsLoading ? (
+                <option>Loading boards...</option>
+              ) : (
+                boards.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                    {b.id === board.id ? ' (Selected)' : ''}
+                  </option>
+                ))
+              )}
             </Select>
             <SelectCaret>
               <Icon name="chevron-double-down" />

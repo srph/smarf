@@ -16,7 +16,7 @@ const QueryProvider: React.FC = ({ children }) => {
 }
 
 interface UseQueryOptions<T> extends UseOriginalQueryOptions<T> {
-  headers: Record<string, string>
+  headers?: Record<string, string>
 }
 
 function useQuery<T = any>(url: string, opts: UseQueryOptions<T>) {
