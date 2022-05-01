@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Icon, SearchInput } from '~/src/components'
 import { Hero, ID } from '~/src/types/api'
-import { useBoardWorkspace } from '~/src/routes/board/contexts'
+import { useHeroList } from '~/src/contexts/HeroList'
 
 interface Props {
   selectedHeroes: Hero[]
@@ -14,7 +14,7 @@ interface Props {
 type SelectedHeroMap = Record<ID, boolean>
 
 const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }) => {
-  const { heroAttributeGroups } = useBoardWorkspace()
+  const { heroAttributeGroups, isLoading } = useHeroList()
 
   const selectedHeroesMap: SelectedHeroMap = useMemo(() => {
     return selectedHeroes.reduce((heroes, hero) => {
@@ -22,6 +22,10 @@ const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }
       return heroes
     }, {})
   }, [selectedHeroes])
+
+  if (isLoading) {
+    return null
+  }
 
   return (
     <HeroSelectorContainer>

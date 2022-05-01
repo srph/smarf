@@ -8,12 +8,13 @@ interface Props {
   variant?: 'primary'
   icon?: string
   type?: 'button' | 'submit'
+  disabled?: boolean
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
-const Button: React.FC<Props> = ({ children, icon, type = 'button', onClick, block = false }) => {
+const Button: React.FC<Props> = ({ children, icon, type = 'button', onClick, block = false, disabled = false }) => {
   return (
-    <Element type={type} onClick={onClick} block={block}>
+    <Element type={type} onClick={onClick} block={block} disabled={disabled}>
       {icon ? (
         <IconContainer>
           <Icon name={icon} />

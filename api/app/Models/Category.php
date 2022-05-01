@@ -25,6 +25,20 @@ class Category extends Model
      */
     protected $keyType = 'string';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'board_id',
+        'name',
+        'x_position',
+        'y_position',
+        'width',
+        'height'
+    ];
+
     public function board()
     {
         return $this->belongsTo(Board::class);

@@ -4,9 +4,14 @@ import { theme } from '~/src/theme'
 import { Avatar, Button, Container, Logo, PlainButton } from '~/src/components'
 import avatar from '~/src/public/images/avatar.png'
 import { UserDropdown } from './UserDropdown'
+import { useBoardList } from '~/src/contexts/BoardList'
+import { useHeroList } from '~/src/contexts/HeroList'
 
 const Navigation: React.FC = () => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
+
+  const { createBoard, isBoardCreating } = useBoardList()
+  const { isLoading: isHeroListLoading } = useHeroList()
 
   return (
     <Nav>
@@ -16,7 +21,12 @@ const Navigation: React.FC = () => {
 
           <NavMenu>
             <NavMenuSection>
-              <Button icon="view-grid-add">New Board</Button>
+              <Button
+                icon="view-grid-add"
+                disabled={isBoardCreating || isHeroListLoading}
+                onClick={() => createBoard()}>
+                New Board
+              </Button>
             </NavMenuSection>
 
             <PlainButton onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}>

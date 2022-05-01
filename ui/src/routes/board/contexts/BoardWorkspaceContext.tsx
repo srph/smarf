@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useMemo } from 'react'
-import { ID, Board, Hero, HeroAttributeGroup, Category } from '~/src/types/api'
+import { Board, Hero, Category } from '~/src/types/api'
 import immer from 'immer'
-import heroThumbnail from '~/src/public/images/hero.png'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
 import { CustomGridCollisionDetectionEvent } from '~/src/routes/board/BoardWorkspace/useGridCollisionDetection'
@@ -12,6 +11,7 @@ import {
   CATEGORY_SPACING
 } from '~/src/routes/board/constants'
 import { useQuery } from '~/src/contexts/Query'
+import { useHeroList } from '~/src/contexts/HeroList'
 import { useParams } from 'react-router-dom'
 
 interface BoardWorkspaceCategoryMoveEvent {
@@ -20,8 +20,6 @@ interface BoardWorkspaceCategoryMoveEvent {
 }
 
 interface BoardWorkspaceContextType {
-  heroes: Hero[]
-  heroAttributeGroups: HeroAttributeGroup[]
   board: Board
   isEditing: boolean
   setIsEditing: (isEditing: boolean) => void
@@ -34,8 +32,6 @@ interface BoardWorkspaceContextType {
 }
 
 const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
-  heroes: [],
-  heroAttributeGroups: [],
   board: {},
   isEditing: false,
   setIsEditing: () => {},
@@ -46,36 +42,7 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
 })
 
 const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
-  const heroes = useMemo(
-    () =>
-      Array.from({ length: 30 }).map((_, i) => ({
-        id: uuid(),
-        thumbnail: heroThumbnail,
-        name: 'Wind Runner'
-      })),
-    []
-  )
-
-  const heroAttributeGroups: HeroAttributeGroup[] = useMemo(
-    () => [
-      {
-        id: uuid(),
-        name: 'Strength',
-        heroes
-      },
-      {
-        id: 2,
-        name: 'Agility',
-        heroes
-      },
-      {
-        id: 3,
-        name: 'Intelligence',
-        heroes
-      }
-    ],
-    [heroes]
-  )
+  const { heroes } = useHeroList()
 
   const { boardId } = useParams()
 
@@ -121,7 +88,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     ]
   }))
 
-  const { data, isLoading } = useQuery(`boards/${boardId}`, {
+  const { isLoading } = useQuery(`boards/${boardId}`, {
     onSuccess: (data) => {
       setBoard(data.board)
     }
@@ -192,6 +159,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     return category.y_position + category.height
   }
 
+  // @TODO: Turn into a reusable function that we may reuse this when
+  // adding categories to a new board.
   const addCategory = () => {
     const lowestCategory = [...board.categories].sort((a, b) => {
       return getCategoryBottom(b) - getCategoryBottom(a)
@@ -241,8 +210,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   return (
     <BoardWorkspaceContext.Provider
       value={{
-        heroes,
-        heroAttributeGroups,
         board,
         isEditing,
         setIsEditing,

@@ -25,6 +25,16 @@ class Board extends Model
      */
     protected $keyType = 'string';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'user_id',
+        'name'
+    ];
+
     public function user()
     {
         return $this->hasMany(User::class);

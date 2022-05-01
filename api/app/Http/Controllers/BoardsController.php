@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 use App\Models\Board;
 use App\Models\Category;
 use App\Http\Requests\CreateBoardRequest;
@@ -20,11 +21,13 @@ class BoardsController extends Controller
     public function store(CreateBoardRequest $request)
     {
         $board = Board::create([
+            'user_id' => $request->user()->id,
             'name' => $request->input('name')
         ]);
 
-        $categories = collect($request->input('categories'))->map(function ($input) {
+        collect($request->input('categories'))->each(function ($input) use ($board) {
             $category = Category::create([
+                'board_id' => $board->id,
                 'name' => $input['name'],
                 'x_position' => $input['x_position'],
                 'y_position' => $input['y_position'],
@@ -32,14 +35,15 @@ class BoardsController extends Controller
                 'height' => $input['width'],
             ]);
 
-            $category->attach($input['heroes']);
-
-            return response()->json([
-                'category' => $category
-            ]);
+            collect($input['heroes'])->each(function ($hero) use ($category) {
+                $category->heroes()->attach($hero['id'], [
+                    // @TODO: App\Traits\Uuid handle this for most tasks.
+                    // Refactor so we're not manually doing this in the controller.
+                    'id' => Str::orderedUuid(),
+                    'order' => $hero['order']
+                ]);
+            });
         });
-
-        $board->attach($categories->pluck('id')->toArray());
 
         return response()->json([
             'board' => $board

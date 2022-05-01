@@ -24,12 +24,13 @@ class CreateCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|alpha_num',
+            'name' => 'required',
             'x_position' => 'required|numeric',
             'y_position' => 'required|numeric',
             'width' => 'required|numeric',
             'height' => 'required|numeric',
             'heroes.*.id' => 'required|exists:heroes',
+            'heroes.*.order' => 'required|numeric',
         ];
     }
 }

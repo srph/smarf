@@ -24,13 +24,14 @@ class CreateBoardRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|alpha_num',
-            'categories.*.name' => 'required|alpha_name',
+            'name' => 'required',
+            'categories.*.name' => 'required',
             'categories.*.x_position' => 'required|numeric',
             'categories.*.y_position' => 'required|numeric',
             'categories.*.width' => 'required|numeric',
             'categories.*.height' => 'required|numeric',
             'categories.*.heroes.*.id' => 'required|exists:heroes',
+            'categories.*.heroes.*.order' => 'required|numeric',
         ];
     }
 }

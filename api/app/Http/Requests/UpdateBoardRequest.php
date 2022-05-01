@@ -24,7 +24,7 @@ class UpdateBoardRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|alpha_num',
+            'name' => 'required',
             'x_position' => 'required|numeric',
             'y_position' => 'required|numeric',
             'width' => 'required|numeric',

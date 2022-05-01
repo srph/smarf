@@ -24,7 +24,7 @@ class AuthRegisterRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|alpha_num',
+            'name' => 'required',
             'email' => 'required|email',
             'password' => 'required|confirmed'
         ];
