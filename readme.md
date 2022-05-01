@@ -48,11 +48,19 @@ sail artisan passport:keys
 sail artisan passport:client --password
 ```
 
-Open up `ui/src/config.ts` and set `oauth.clientId` and `oauth.clientSecret` from Passport's output.
+Copy the output's client id and secret id.
 
 ### Running UI
 
-Go the `/ui` directory, then run:
+Go the `/ui` directory. Create .env file:
+
+```
+cp .env.example .env
+```
+
+Open .env and set `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` based on Passport's output.
+
+Afterwards, install dependencies and run Parcel:
 
 ```bash
 npm install && npm start
