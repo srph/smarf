@@ -1,6 +1,6 @@
 const config = {
   api: {
-    baseUrl: process.env.API_BASE_URL
+    baseUrl: process.env.API_URL
   },
 
   oauth: {
