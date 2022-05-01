@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { createGlobalStyle } from 'styled-components'
 import 'modern-normalize/modern-normalize.css'
 
-import { AuthUserProvider, AuthUserLoader } from '~/src/contexts/AuthUser'
+import { AuthUserProvider } from '~/src/contexts/AuthUser'
 import { AxiosProvider } from '~/src/contexts/Axios'
 import { QueryProvider } from '~/src/contexts/Query'
 
@@ -11,15 +11,16 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { GuardedRoute } from '~/src/components'
 import { BoardRoute } from './routes/board'
 import { LoginRoute } from './routes/login'
+import { LogoutRoute } from './routes/logout'
 import { theme } from './theme'
 
 const App = () => {
   return (
     <>
-      <QueryProvider>
-        <AuthUserProvider>
-          <AxiosProvider>
-            <BrowserRouter>
+      <BrowserRouter>
+        <QueryProvider>
+          <AuthUserProvider>
+            <AxiosProvider>
               <Routes>
                 <Route
                   path="/"
@@ -29,6 +30,7 @@ const App = () => {
                     </GuardedRoute>
                   }
                 />
+                
                 <Route
                   path="/login"
                   element={
@@ -37,11 +39,13 @@ const App = () => {
                     </GuardedRoute>
                   }
                 />
+
+                <Route path="/logout" element={<LogoutRoute />} />
               </Routes>
-            </BrowserRouter>
-          </AxiosProvider>
-        </AuthUserProvider>
-      </QueryProvider>
+            </AxiosProvider>
+          </AuthUserProvider>
+        </QueryProvider>
+      </BrowserRouter>
 
       <GlobalStyle />
     </>

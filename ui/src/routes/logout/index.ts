@@ -1,0 +1,1 @@
+export { LogoutRoute } from './LogoutRoute'

@@ -3,6 +3,7 @@ import { useCookieState } from 'use-cookie-state'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { User } from '~/src/types/api'
 import { config } from '~/src/config'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 interface OauthCredentials {
   username: string
@@ -28,12 +29,33 @@ const AuthUserProvider: React.FC = ({ children }) => {
 
   const { isLoading } = useQuery('auth/me', {
     enabled: Boolean(token),
-    onSuccess: (data) => setUser(data)
+    onSuccess: (data) => {
+      setUser(data.user)
+    },
+    // At this point interceptors haven't been initialized yet
+    headers: token ? {
+      'Authorization': `Bearer ${token}`
+    } : {}
   })
 
+  const location = useLocation()
+
+  const navigate = useNavigate()
+
+  // This is our supposed flow:
+  // Login -> Load User -> Set User and Token -> Navigate (?)
+  // Our current problem with the approach above is the race condition
+  // with RouteGuard running its own navigation based on token / user.
+  // Instead, we'll take the easy way out and refresh
   const { mutate: login } = useMutation<OauthCredentials>('oauth/token', 'post', {
     onSuccess: (data) => {
       setToken(data.access_token)
+
+      if (location.state?.from?.pathname) {
+        window.location.replace(location.state.from.pathname)
+      } else {
+        window.location.pathname = '/'
+      }
     },
     onError: () => {}
   })
@@ -41,6 +63,7 @@ const AuthUserProvider: React.FC = ({ children }) => {
   const logout = () => {
     setUser(null)
     setToken('')
+    navigate('/login')
   }
 
   const value = {

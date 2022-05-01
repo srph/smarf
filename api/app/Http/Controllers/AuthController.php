@@ -23,6 +23,8 @@ class AuthController extends Controller
 
     public function me()
     {
-        return request()->user();
+        return response()->json([
+            'user' =>  request()->user()
+        ]);
     }
 }

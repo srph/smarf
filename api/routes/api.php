@@ -22,14 +22,14 @@ use App\Http\Controllers\HeroesController;
 Route::get('gm', fn () => \App\Models\User::all());
 
 Route::get('auth/register', [AuthController::class, 'register']);
-Route::Get('auth/me', [AuthController::class, 'me']);
+Route::middleware('auth:api')->get('auth/me', [AuthController::class, 'me']);
 Route::get('heroes', [HeroesController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
     Route::middleware('board.own')->group(function () {
         Route::get('boards', [BoardsController::class, 'index']);
         Route::post('boards', [BoardsController::class, 'store']);

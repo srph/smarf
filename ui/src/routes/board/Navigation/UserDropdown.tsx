@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 import { theme } from '~/src/theme'
 import { Avatar, Icon } from '~/src/components'
 import avatar from '~/src/public/images/avatar.png'
@@ -16,21 +17,21 @@ const UserDropdown: React.FC = () => {
         </UserInfo>
       </Heading>
 
-      <LinkItem href="#">
+      <LinkItem to="/account">
         <LinkItemIcon>
           <Icon name="adjustments" />
         </LinkItemIcon>
 
         <LinkItemText>Account Settings</LinkItemText>
       </LinkItem>
-      <LinkItem href="#">
+      <LinkItem to="/about">
         <LinkItemIcon>
           <Icon name="lightning-bolt" />
         </LinkItemIcon>
 
         <LinkItemText>About &amp; Changelog</LinkItemText>
       </LinkItem>
-      <LinkItem href="#">
+      <LinkItem to="/logout">
         <LinkItemIcon>
           <Icon name="arrow-left" />
         </LinkItemIcon>
@@ -72,7 +73,7 @@ const UserInfoEmail = styled.span`
   font-size: ${theme.fontSizes.sm};
 `
 
-const LinkItem = styled.a`
+const LinkItem = styled(Link)`
   display: flex;
   align-items: center;
   padding: 16px;
