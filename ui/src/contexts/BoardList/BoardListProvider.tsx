@@ -80,6 +80,8 @@ const BoardListProvider: React.FC = ({ children }) => {
     }
 
     createBoardMutation(board)
+
+    // @TODO: Insert board into list
   }
 
   const updateBoard = () => {}
