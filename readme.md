@@ -22,6 +22,12 @@ docker run --rm \
     composer install --ignore-platform-reqs
 ```
 
+Create .env file:
+
+```
+cp .env.example .env
+```
+
 Afterwards, run:
 
 ```bash
@@ -34,6 +40,15 @@ Run migrations and seed data:
 ./vendor/bin/sail artisan migrate
 ./vendor/bin/sail artisan db:seed
 ```
+
+Create Passport keys and client:
+
+```
+sail artisan passport:keys
+sail artisan passport:client --password
+```
+
+Open up `ui/src/config.ts` and set `oauth.clientId` and `oauth.clientSecret` from Passport's output.
 
 ### Running UI
 
