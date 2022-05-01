@@ -11,6 +11,8 @@ import {
   CATEGORY_BODY_INITIAL_WIDTH,
   CATEGORY_SPACING
 } from '~/src/routes/board/constants'
+import { useQuery } from '~/src/contexts/Query'
+import { useParams } from 'react-router-dom'
 
 interface BoardWorkspaceCategoryMoveEvent {
   x: number
@@ -75,6 +77,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     [heroes]
   )
 
+  const { boardId } = useParams()
+
   const [isEditing, setIsEditing] = useState(false)
 
   const getCategoryHeight = ({ categoryWidth, heroCount }: { categoryWidth: number; heroCount: number }) => {
@@ -116,6 +120,12 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       }
     ]
   }))
+
+  const { data, isLoading } = useQuery(`boards/${boardId}`, {
+    onSuccess: (data) => {
+      setBoard(data.board)
+    }
+  })
 
   const addHero = (category: Category, hero: Hero) => {
     setBoard(

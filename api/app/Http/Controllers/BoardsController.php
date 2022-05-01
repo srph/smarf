@@ -49,7 +49,7 @@ class BoardsController extends Controller
     public function show(Board $board)
     {
         return response()->json([
-            'board' => $board->with('categories')
+            'board' => $board->load('categories', 'categories.heroes')
         ]);
     }
 

@@ -25,14 +25,14 @@ const App = () => {
               <BoardListProvider>
                 <Routes>
                   <Route
-                    path="/"
+                    index
                     element={
                       <Navigate to="/boards/23c54ddc-7868-4917-b5e5-5fc1e2f37f5f" replace />
                     }
                   />
 
                   <Route
-                    path="/boards/{boardId}"
+                    path="/boards/:boardId"
                     element={
                       <GuardedRoute type="auth">
                         <BoardRoute />

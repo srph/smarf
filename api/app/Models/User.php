@@ -65,7 +65,7 @@ class User extends Authenticatable
      */
     public function ownsBoard(Board $board)
     {
-        return $this->boards()->where('board_id', $board->id)->exists();
+        return $this->boards()->where('id', $board->id)->exists();
     }
 
     public function boards()

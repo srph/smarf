@@ -7,7 +7,10 @@ export interface Hero {
 }
 
 export type HeroCategoryPivot = Hero & {
-  pivot: { id: ID }
+  pivot: {
+    id: ID
+    order: number
+  }
 }
 
 export interface HeroAttributeGroup {

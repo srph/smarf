@@ -32,6 +32,8 @@ class Category extends Model
 
     public function heroes()
     {
-        return $this->belongsToMany(Hero::class);
+        return $this->belongsToMany(Hero::class)
+            ->orderBy('order')
+            ->withPivot('id', 'order');
     }
 }
