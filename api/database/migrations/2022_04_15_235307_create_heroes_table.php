@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('heroes', function(Blueprint $table) {
+        Schema::create('heroes', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('thumbnail');
+            $table->string('thumbnail')->nullable();
             $table->enum('attribute', ['strength', 'agi', 'int']);
             $table->timestamps();
         });
