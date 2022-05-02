@@ -4,11 +4,18 @@ import { theme } from '~/src/theme'
 import { Button, Container, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/boards.id/contexts'
 import { useBoardList } from '~/src/contexts/BoardList'
+import { useNavigate } from 'react-router-dom'
 
 const ToolbarComponent: React.FC = () => {
   const { board, isEditing, setIsEditing, addCategory } = useBoardWorkspace()
 
-  const { boards, isLoading: isBoardsLoading } = useBoardList()
+  const { boards, isBoardListLoading } = useBoardList()
+
+  const navigate = useNavigate()
+
+  const handleBoardChange = (evt) => {
+    navigate(`/boards/${evt.target.value}`)
+  }
 
   return (
     <ToolbarContainer>
@@ -29,8 +36,8 @@ const ToolbarComponent: React.FC = () => {
             <SelectIcon>
               <Icon name="template" />
             </SelectIcon>
-            <Select value={board.id}>
-              {isBoardsLoading ? (
+            <Select value={board.id} onChange={handleBoardChange}>
+              {isBoardListLoading ? (
                 <option>Loading boards...</option>
               ) : (
                 boards.map((b) => (

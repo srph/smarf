@@ -14,7 +14,10 @@ class BoardsController extends Controller
     public function index()
     {
         return response()->json([
-            'boards' => request()->user()->boards
+            'boards' => request()->user()
+                ->boards()
+                ->orderBy('created_at', 'desc')
+                ->get()
         ]);
     }
 

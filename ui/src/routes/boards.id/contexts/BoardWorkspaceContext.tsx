@@ -9,7 +9,7 @@ import {
   CATEGORY_ROW_HEIGHT,
   CATEGORY_BODY_INITIAL_WIDTH,
   CATEGORY_SPACING
-} from '~/src/routes/boards.id/constants'
+} from '~/src/contexts/BoardList/constants'
 import { useQuery } from '~/src/contexts/Query'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { useParams } from 'react-router-dom'

@@ -18,7 +18,7 @@ import {
   CATEGORY_BODY_INITIAL_WIDTH,
   CATEGORY_HERO_HEIGHT,
   CATEGORY_HERO_WIDTH
-} from '~/src/routes/boards.id/constants'
+} from '~/src/contexts/BoardList/constants'
 
 interface Props {
   category: Category

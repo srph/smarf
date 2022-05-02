@@ -27,6 +27,17 @@ class Hero extends Model
     public $incrementing = false;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'attribute',
+        'trhumbnail'
+    ];
+
+    /**
      * The data type of the auto-incrementing ID.
      *
      * @var string
