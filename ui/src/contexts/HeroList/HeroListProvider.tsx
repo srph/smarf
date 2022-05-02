@@ -29,17 +29,17 @@ const HeroListProvider: React.FC = ({ children }) => {
       {
         id: 1,
         name: 'Strength',
-        heroes: heroes.filter((hero) => hero.attribute === 'str')
+        heroes: heroes.filter((hero) => hero.attribute === 'strength')
       },
       {
         id: 2,
         name: 'Agility',
-        heroes: heroes.filter((hero) => hero.attribute === 'agi')
+        heroes: heroes.filter((hero) => hero.attribute === 'agility')
       },
       {
         id: 3,
         name: 'Intelligence',
-        heroes: heroes.filter((hero) => hero.attribute === 'int')
+        heroes: heroes.filter((hero) => hero.attribute === 'intelligence')
       }
     ],
     [heroes]
