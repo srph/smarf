@@ -13,7 +13,7 @@ class InsertHeroRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,9 @@ class InsertHeroRequest extends FormRequest
     public function rules()
     {
         return [
-            'order' => 'required|numeric'
+            'hero_id' => 'required|exists:heroes,id',
+            'hero_order' => 'required|numeric',
+            'category_height' => 'required|numeric'
         ];
     }
 }

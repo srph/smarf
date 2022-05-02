@@ -9,7 +9,13 @@ import {
 } from 'react-query'
 import { axios } from '~/src/contexts/Axios'
 
-const client = new QueryClient()
+const client = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+})
 
 const QueryProvider: React.FC = ({ children }) => {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>
@@ -30,10 +36,13 @@ function useQuery<T = any>(url: string, opts: UseQueryOptions<T>) {
 
 type MutationOperation = 'post' | 'put'
 
-function useMutation<T = any, U = any>(url: string, operation: MutationOperation, opts: UseMutationOptions<T>) {
+type Fetcher<T> = string | ((variables: T) => string)
+
+function useMutation<T = any, U = any>(url: Fetcher<T>, operation: MutationOperation, opts: UseMutationOptions<T>) {
   const mutationFn = useCallback(
     (variables) => {
-      return axios[operation](url, variables).then((res) => res.data)
+      const endpoint = typeof url === 'function' ? url(variables) : url
+      return axios[operation](endpoint, variables).then((res) => res.data)
     },
     [url, operation]
   )

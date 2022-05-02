@@ -65,6 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'board.own' => \App\Http\Middleware\UserOwnsBoard::class,
-        'category.own' => \App\Http\Middleware\UserOwnsBoard::class,
+        'category.own' => \App\Http\Middleware\UserOwnsCategory::class,
     ];
 }

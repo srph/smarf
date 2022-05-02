@@ -8,9 +8,11 @@ import {
   CATEGORY_HERO_WIDTH,
   CATEGORY_ROW_HEIGHT,
   CATEGORY_BODY_INITIAL_WIDTH,
-  CATEGORY_SPACING
+  CATEGORY_SPACING,
+  ORDER_FIRST_BUFFER,
+  ORDER_LAST_BUFFER
 } from '~/src/contexts/BoardList/constants'
-import { useQuery } from '~/src/contexts/Query'
+import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { useParams } from 'react-router-dom'
 
@@ -94,20 +96,60 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     }
   })
 
+  interface AddHeroMutationVariables {
+    hero_id: number
+    hero_order: number
+    category_id: number
+    category_height: number
+  }
+
+  const { mutate: addHeroMutation } = useMutation<AddHeroMutationVariables>(
+    (v) => `/categories/${v.category_id}/heroes`,
+    'post',
+    {
+      onSuccess() {
+        // @TODO: Silently apply so we have the correct uuid
+      },
+      onError() {
+        // @TODO: Rollback
+      }
+    }
+  )
+
   const addHero = (category: Category, hero: Hero) => {
+    const categoryHeight = getCategoryHeight({
+      categoryWidth: category.width,
+      heroCount: category.heroes.length + 1
+    })
+
+    const heroOrder = category.heroes.length
+      ? last(category.heroes).pivot.order + ORDER_LAST_BUFFER
+      : ORDER_FIRST_BUFFER
+
+    addHeroMutation({
+      hero_id: hero.id,
+      hero_order: heroOrder,
+      category_id: category.id,
+      category_height: categoryHeight
+    })
+
+    function last<T>(arr: T[]): T {
+      return arr[arr.length - 1]
+    }
+
     setBoard(
       immer(board, (draft) => {
         const boardCategory = draft.categories.find((c) => c.id === category.id)
 
         boardCategory.heroes.push({
           ...hero,
-          pivot: { id: uuid() }
+          pivot: {
+            id: uuid(),
+            order: heroOrder
+          }
         })
 
-        boardCategory.height = getCategoryHeight({
-          categoryWidth: boardCategory.width,
-          heroCount: boardCategory.heroes.length + 1
-        })
+        boardCategory.height = categoryHeight
       })
     )
   }

@@ -23,10 +23,14 @@ class HeroesController extends Controller
      */
     public function insert(InsertHeroRequest $request, Category $category)
     {
+        $category->height = $request->get('category_height');
+
+        $category->save();
+
         $category->heroes()->attach(
             $request->get('hero_id'),
             // WARNING: We should probably make a trait for this haha
-            ['id' => Str::uuid()->toString(), 'order' => $request->get('order')]
+            ['id' => Str::uuid()->toString(), 'order' => $request->get('hero_order')]
         );
 
         return response()->json([
