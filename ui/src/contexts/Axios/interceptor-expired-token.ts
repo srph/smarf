@@ -5,9 +5,9 @@ import { InterceptorFactory } from './types'
 const expiredToken: InterceptorFactory = {
   setup: (auth): number => {
     return axios.interceptors.response.use(null, (err: AxiosError) => {
-      // if (err?.response.status === 401 && !err.config.url.includes('/oauth/token')) {
-      //   auth.logout()
-      // }
+      if (err?.response.status === 401 && !err.config.url.includes('/oauth/token')) {
+        auth.logout()
+      }
 
       return Promise.reject(err)
     })

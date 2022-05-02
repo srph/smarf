@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('heroes', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('thumbnail', 100)->nullable();
+            $table->string('thumbnail', 100);
             $table->enum('attribute', ['strength', 'agility', 'intelligence']);
             $table->timestamps();
         });

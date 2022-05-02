@@ -11,15 +11,6 @@ class Hero extends Model
     use HasFactory, Uuid;
 
     /**
-     * The model's default values for attributes.
-     *
-     * @var array
-     */
-    protected $attributes = [
-        'thumbnail' => 'https://caretv.sgp1.cdn.digitaloceanspaces.com/app-smarf/heroes/hero.png',
-    ];
-
-    /**
      * Indicates if the model's ID is auto-incrementing.
      *
      * @var bool
@@ -34,7 +25,7 @@ class Hero extends Model
     protected $fillable = [
         'name',
         'attribute',
-        'trhumbnail'
+        'thumbnail'
     ];
 
     /**

@@ -5,7 +5,7 @@ import { ImageAspectRatio } from '~/src/components'
 import { useSortable } from '@dnd-kit/sortable'
 import { Category, HeroCategoryPivot } from '~/src/types/api'
 import { CSS } from '@dnd-kit/utilities'
-import { CATEGORY_HERO_WIDTH } from '~/src/contexts/BoardList/constants'
+import { CATEGORY_HERO_ASPECT_RATIO, CATEGORY_HERO_WIDTH } from '~/src/contexts/BoardList/constants'
 
 interface Props {
   category: Category
@@ -23,7 +23,7 @@ const CategoryHero: React.FC<Props> = ({ category, hero }) => {
   return (
     <Container width={100 / (category.heroes.length + 1)} ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <CategoryHeroImage>
-        <ImageAspectRatio src={hero.thumbnail} value="4:5" />
+        <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} />
       </CategoryHeroImage>
     </Container>
   )
