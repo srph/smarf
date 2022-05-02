@@ -14,7 +14,7 @@ class HeroesController extends Controller
     public function index()
     {
         return response()->json([
-            'heroes' => Hero::all()
+            'heroes' => Hero::orderBy('name')->get()
         ]);
     }
 

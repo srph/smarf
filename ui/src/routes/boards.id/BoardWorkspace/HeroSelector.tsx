@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
-import { Icon, SearchInput } from '~/src/components'
+import { Icon, ImageAspectRatio, SearchInput } from '~/src/components'
 import { Hero, ID } from '~/src/types/api'
 import { useHeroList } from '~/src/contexts/HeroList'
+import { CATEGORY_HERO_ASPECT_RATIO } from '~/src/contexts/BoardList/constants'
 
 interface Props {
   selectedHeroes: Hero[]
@@ -54,8 +55,9 @@ const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }
                   <HeroSelectorItemButton
                     type="button"
                     onClick={() => onSelectHero(hero)}
-                    disabled={selectedHeroesMap[hero.id]}>
-                    <HeroSelectorItemImg src={hero.thumbnail} />
+                    disabled={selectedHeroesMap[hero.id]}
+                    title={`Select ${hero.name}`}>
+                    <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
                   </HeroSelectorItemButton>
                 </HeroSelectorItem>
               ))}
@@ -153,8 +155,8 @@ const HeroSelectorGroupHeadingText = styled.h4`
 const HeroSelectorGroupList = styled.div`
   display: flex;
   flex-wrap: wrap;
-  margin-left: -8px;
-  margin-right: -8px;
+  margin-left: -4px;
+  margin-right: -4px;
 
   &:not(:last-child) {
     margin-bottom: 48px;
@@ -162,12 +164,13 @@ const HeroSelectorGroupList = styled.div`
 `
 
 const HeroSelectorItem = styled.div`
-  padding: 8px;
+  padding: 4px;
 `
 
 const HeroSelectorItemButton = styled.button`
   display: inline-block;
   padding: 0;
+  width: 60px;
   background: transparent;
   border-radius: 4px;
   border: 2px solid transparent;
@@ -182,11 +185,6 @@ const HeroSelectorItemButton = styled.button`
     opacity: 0.5;
     cursor: default;
   }
-`
-
-const HeroSelectorItemImg = styled.img`
-  width: 40px;
-  height: 50px;
 `
 
 export { HeroSelector }

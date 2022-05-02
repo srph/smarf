@@ -4,14 +4,15 @@ import styled from 'styled-components'
 interface Props {
   src: string
   value: string
+  alt?: string
 }
 
-const ImageAspectRatio: React.FC<Props> = ({ value, src }) => {
+const ImageAspectRatio: React.FC<Props> = ({ value, src, alt }) => {
   const [w, h] = value.split(':')
 
   return (
     <Container multiplier={Number(h) / Number(w)}>
-      <Image src={src} />
+      <Image src={src} alt={alt} />
     </Container>
   )
 }
