@@ -6,16 +6,17 @@ import { theme } from '../../theme'
 interface Props {
   value: string
   onChange: (v: string) => void
+  autoFocus?: boolean
 }
 
-const SearchInput: React.FC<Props> = ({ value, onChange }) => {
+const SearchInput: React.FC<Props> = ({ value, onChange, autoFocus = false }) => {
   const handleChange = (evt) => {
     onChange(evt.target.value)
   }
 
   return (
     <Container>
-      <Input type="text" value={value} onChange={handleChange} placeholder="Search..." />
+      <Input type="text" value={value} onChange={handleChange} placeholder="Search..." autoFocus={autoFocus} />
       <SearchIcon>
         <Icon name="search" width={16} />
       </SearchIcon>

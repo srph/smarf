@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import styled from 'styled-components'
+import React, { useMemo, useState } from 'react'
+import styled, { css } from 'styled-components'
 import { theme } from '~/src/theme'
 import { Icon, ImageAspectRatio, SearchInput } from '~/src/components'
 import { Hero, ID } from '~/src/types/api'
@@ -15,6 +15,8 @@ interface Props {
 type SelectedHeroMap = Record<ID, boolean>
 
 const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }) => {
+  const [search, setSearch] = useState('')
+
   const { heroAttributeGroups, isLoading } = useHeroList()
 
   const selectedHeroesMap: SelectedHeroMap = useMemo(() => {
@@ -36,7 +38,7 @@ const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }
 
       <HeroSelectorHeading>
         <HeroSelectorHeadingText>Select Hero</HeroSelectorHeadingText>
-        <SearchInput />
+        <SearchInput value={search} onChange={setSearch} autoFocus />
       </HeroSelectorHeading>
 
       <HeroSelectorContent>
@@ -55,6 +57,7 @@ const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }
                   <HeroSelectorItemButton
                     type="button"
                     onClick={() => onSelectHero(hero)}
+                    dimmed={search && !hero.name.toLowerCase().includes(search)}
                     disabled={selectedHeroesMap[hero.id]}
                     title={`Select ${hero.name}`}>
                     <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
@@ -167,7 +170,7 @@ const HeroSelectorItem = styled.div`
   padding: 4px;
 `
 
-const HeroSelectorItemButton = styled.button`
+const HeroSelectorItemButton = styled.button<{ dimmed: boolean }>`
   display: inline-block;
   padding: 0;
   width: 60px;
@@ -182,9 +185,15 @@ const HeroSelectorItemButton = styled.button`
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: default;
   }
+
+  ${(props) =>
+    props.dimmed &&
+    css`
+      opacity: 0.3;
+    `}
 `
 
 export { HeroSelector }
