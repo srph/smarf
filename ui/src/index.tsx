@@ -11,6 +11,7 @@ import { HeroListProvider } from '~/src/contexts/HeroList'
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { GuardedRoute } from '~/src/components'
+import { HomeRoute } from './routes/home'
 import { BoardsIdRoute } from './routes/boards.id'
 import { LoginRoute } from './routes/login'
 import { LogoutRoute } from './routes/logout'
@@ -28,7 +29,7 @@ const App = () => {
               <HeroListProvider>
                 <BoardListProvider>
                   <Routes>
-                    <Route index element={<Navigate to="/boards/23c54ddc-7868-4917-b5e5-5fc1e2f37f5f" replace />} />
+                    <Route index element={<HomeRoute />} />
 
                     <Route
                       path="/account"
