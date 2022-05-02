@@ -57,6 +57,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     return CATEGORY_ROW_HEIGHT * rowCount
   }
 
+  // @TODO: Implement loader and board list
   const [board, setBoard] = useState<Board>(() => ({
     id: uuid(),
     name: 'v7.30 Patch',
