@@ -29,6 +29,7 @@ interface BoardWorkspaceContextType {
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   addCategory: () => void
   moveCategory: ({ container, translate }: { container: Category; translate: BoardWorkspaceCategoryMoveEvent }) => void
+  moveCategoryEnd: ({ container }: { container: Category }) => void
   resizeCategory: ({ container, width }: { container: Category; width: number }) => void
   deleteCategory: (category: Category) => void
 }
@@ -107,6 +108,25 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   const { mutate: addHeroMutation } = useMutation<AddHeroMutationVariables>(
     (v) => `/categories/${v.category_id}/heroes`,
     'post',
+    {
+      onSuccess() {
+        // @TODO: Silently apply so we have the correct uuid
+      },
+      onError() {
+        // @TODO: Rollback
+      }
+    }
+  )
+
+  interface MoveCategoryMutationVariables {
+    category_id: number
+    x_position: number
+    y_position: number
+  }
+
+  const { mutate: moveCategoryMutation } = useMutation<MoveCategoryMutationVariables>(
+    (v) => `/categories/${v.category_id}/move`,
+    'put',
     {
       onSuccess() {
         // @TODO: Silently apply so we have the correct uuid
@@ -198,6 +218,14 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
+  const moveCategoryEnd = ({ container }) => {
+    moveCategoryMutation({
+      category_id: container.id,
+      x_position: container.x_position,
+      y_position: container.y_position
+    })
+  }
+
   const getCategoryBottom = (category: Category): number => {
     return category.y_position + category.height
   }
@@ -260,6 +288,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         moveHero,
         addCategory,
         moveCategory,
+        moveCategoryEnd,
         resizeCategory,
         deleteCategory
       }}>

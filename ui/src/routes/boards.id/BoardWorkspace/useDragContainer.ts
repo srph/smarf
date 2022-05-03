@@ -17,6 +17,7 @@ interface UseDragContainerProps<T> {
   getContainerId: (container: T) => ID
   getContainerPosition: (container: T) => Translate
   onChange: (e: UseDragContainerChangeEvent<T>) => void
+  onDragEnd: (e: UseDragContainerChangeEvent<T>) => void
 }
 
 interface UseDragContainerReturnType {
@@ -86,6 +87,10 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
     // Avoid conflict with useGridCollisionDetection
     // It means we're not dragging any of the containers
     if (!activeId) return
+
+    props.onDragEnd({
+      container: activeContainer
+    })
 
     setActiveId(null)
     setInitialTranslate(defaultTranslate)

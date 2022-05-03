@@ -58,7 +58,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
               <Icon name="arrows-expand" />
             </CategoryHeadingDragIcon>
             <CategoryHeadingTitle>
-              {category.name} ({category.width} x {category.height}) ({isDragging ? 'Dragging' : 'No'})
+              {category.name} ({category.width} x {category.height})
             </CategoryHeadingTitle>
           </CategoryHeadingInfo>
 

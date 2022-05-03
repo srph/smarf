@@ -15,7 +15,7 @@ import { mergeEvents } from './utils'
 // Board functionality
 // -
 const BoardWorkspace: React.FC = () => {
-  const { board, moveHero, moveCategory } = useBoardWorkspace()
+  const { board, moveHero, moveCategory, moveCategoryEnd } = useBoardWorkspace()
 
   const { collisionDetectionStrategy, ...gridCollisionEvents } = useGridCollisionDetection<Category>({
     containers: board.categories,
@@ -30,7 +30,8 @@ const BoardWorkspace: React.FC = () => {
     getContainerPosition: (container) => {
       return { x: container.x_position, y: container.y_position }
     },
-    onChange: moveCategory
+    onChange: moveCategory,
+    onDragEnd: moveCategoryEnd
   })
 
   const sensors = useSensors(
