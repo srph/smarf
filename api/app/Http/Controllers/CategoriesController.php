@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Http\Requests\MoveCategoryRequest;
 
 class CategoriesController extends Controller
 {
@@ -20,6 +21,19 @@ class CategoriesController extends Controller
 
         return response()->json([
             'categories' => Category::create($inputs)
+        ]);
+    }
+
+    public function move(MoveCategoryRequest $request, Category $category)
+    {
+        $category->y_position = $request->get('y_position');
+
+        $category->x_position = $request->get('x_position');
+
+        $category->save();
+
+        return response()->json([
+            'category' => $category
         ]);
     }
 

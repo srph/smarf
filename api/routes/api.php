@@ -38,11 +38,12 @@ Route::middleware('auth:api')->group(function () {
         Route::put('boards/{board}', [BoardsController::class, 'update']);
         Route::delete('boards/{board}', [BoardsController::class, 'destroy']);
     });
-    
+
     Route::post('categories', [CategoriesController::class, 'store']);
 
     Route::middleware('category.own')->group(function () {
         Route::put('categories/{category}', [CategoriesController::class, 'update']);
+        Route::put('categories/{category}/move', [CategoriesController::class, 'move']);
         Route::delete('categories/{category}', [CategoriesController::class, 'destroy']);
 
         Route::post('categories/{category}/heroes', [HeroesController::class, 'insert']);
