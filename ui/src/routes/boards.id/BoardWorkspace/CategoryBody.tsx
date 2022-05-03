@@ -25,7 +25,7 @@ interface Props {
 }
 
 const CategoryBody: React.FC<Props> = ({ category }) => {
-  const { addHero, resizeCategory, deleteCategory } = useBoardWorkspace()
+  const { addHero, resizeCategory, resizeCategoryEnd, deleteCategory } = useBoardWorkspace()
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
 
   // This is important to allow an item to be dropped to an empty category
@@ -46,6 +46,12 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
     resizeCategory({
       container: category,
       width: ref.getBoundingClientRect().width
+    })
+  }
+
+  const handleResizeStop = () => {
+    resizeCategoryEnd({
+      container: category
     })
   }
 
@@ -82,7 +88,8 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
           }}
           minWidth={CATEGORY_BODY_INITIAL_WIDTH}
           size={{ width: category.width, height: category.height }}
-          onResize={handleResize}>
+          onResize={handleResize}
+          onResizeStop={handleResizeStop}>
           <Body ref={setDroppableNodeRef} width={category.width}>
             <SortableContext items={category.heroes.map((hero) => hero.pivot.id)} strategy={rectSortingStrategy}>
               {category.heroes.map((hero) => (

@@ -44,6 +44,7 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware('category.own')->group(function () {
         Route::put('categories/{category}', [CategoriesController::class, 'update']);
         Route::put('categories/{category}/move', [CategoriesController::class, 'move']);
+        Route::put('categories/{category}/resize', [CategoriesController::class, 'resize']);
         Route::delete('categories/{category}', [CategoriesController::class, 'destroy']);
 
         Route::post('categories/{category}/heroes', [HeroesController::class, 'insert']);

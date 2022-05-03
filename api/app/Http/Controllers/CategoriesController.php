@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Http\Requests\MoveCategoryRequest;
+use App\Http\Requests\ResizeCategoryRequest;
 
 class CategoriesController extends Controller
 {
@@ -29,6 +30,17 @@ class CategoriesController extends Controller
         $category->y_position = $request->get('y_position');
 
         $category->x_position = $request->get('x_position');
+
+        $category->save();
+
+        return response()->json([
+            'category' => $category
+        ]);
+    }
+
+    public function resize(ResizeCategoryRequest $request, Category $category)
+    {
+        $category->width = $request->get('width');
 
         $category->save();
 

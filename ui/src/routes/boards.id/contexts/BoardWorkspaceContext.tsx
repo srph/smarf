@@ -31,6 +31,7 @@ interface BoardWorkspaceContextType {
   moveCategory: ({ container, translate }: { container: Category; translate: BoardWorkspaceCategoryMoveEvent }) => void
   moveCategoryEnd: ({ container }: { container: Category }) => void
   resizeCategory: ({ container, width }: { container: Category; width: number }) => void
+  resizeCategoryEnd: ({ container }: { container: Category }) => void
   deleteCategory: (category: Category) => void
 }
 
@@ -126,6 +127,24 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
 
   const { mutate: moveCategoryMutation } = useMutation<MoveCategoryMutationVariables>(
     (v) => `/categories/${v.category_id}/move`,
+    'put',
+    {
+      onSuccess() {
+        // @TODO: Silently apply so we have the correct uuid
+      },
+      onError() {
+        // @TODO: Rollback
+      }
+    }
+  )
+
+  interface ResizeCategoryMutationVariables {
+    category_id: number
+    width: number
+  }
+
+  const { mutate: resizeCategoryMutation } = useMutation<ResizeCategoryMutationVariables>(
+    (v) => `/categories/${v.category_id}/resize`,
     'put',
     {
       onSuccess() {
@@ -269,6 +288,13 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
+  const resizeCategoryEnd = ({ container }) => {
+    resizeCategoryMutation({
+      category_id: container.id,
+      width: container.width
+    })
+  }
+
   const deleteCategory = (category) => {
     setBoard(
       immer(board, (draft) => {
@@ -290,6 +316,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         moveCategory,
         moveCategoryEnd,
         resizeCategory,
+        resizeCategoryEnd,
         deleteCategory
       }}>
       {children}
