@@ -27,14 +27,19 @@ class HeroesController extends Controller
 
         $category->save();
 
+        $uuid = Str::uuid()->toString();
+
         $category->heroes()->attach(
             $request->get('hero_id'),
             // WARNING: We should probably make a trait for this haha
-            ['id' => Str::uuid()->toString(), 'order' => $request->get('hero_order')]
+            ['id' => $uuid, 'order' => $request->get('hero_order')]
         );
 
+        // @TODO: Make this reusable
+        $hero = $category->heroes()->wherePivot('id', $uuid)->first();
+
         return response()->json([
-            'category' => $category
+            'hero' => $hero
         ]);
     }
 
@@ -64,7 +69,7 @@ class HeroesController extends Controller
 
         // @TODO: Return both from/to categories
         return response()->json([
-            'category' => $hero->category
+            'hero' => $hero
         ]);
     }
 

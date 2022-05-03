@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useMemo } from 'react'
-import { Board, Hero, Category } from '~/src/types/api'
+import { Board, Hero, Category, ID } from '~/src/types/api'
 import immer from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
@@ -16,6 +16,7 @@ import { getHeroOrder } from '~/src/contexts/BoardList/utils'
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useHeroList } from '~/src/contexts/HeroList'
+import { useStateRef } from '~/src/hooks'
 import { last } from '~/src/utils'
 
 interface BoardWorkspaceCategoryMoveEvent {
@@ -63,7 +64,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   }
 
   // @TODO: Implement loader and board list
-  const [board, setBoard] = useState<Board>()
+  const [board, setBoard, boardRef] = useStateRef<Board>()
 
   const { isLoading } = useQuery(`boards/${boardId}`, {
     onSuccess: (data) => {
@@ -73,6 +74,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
 
   interface AddHeroMutationVariables {
     hero_id: number
+    hero_buffer_id: number
     hero_order: number
     category_id: number
     category_height: number
@@ -82,8 +84,17 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     (v) => `/categories/${v.category_id}/heroes`,
     'post',
     {
-      onSuccess() {
-        // @TODO: Silently apply so we have the correct uuid
+      onSuccess(data, v) {
+        // Silently apply so we have the correct uuid. OTherwise, adding a hero then moving it would cause issues.
+        setBoard(
+          // This fires way before board state gets updated so
+          immer(boardRef.current, (draft) => {
+            const category = draft.categories.find((c) => c.id === v.category_id)
+            const hero = category.heroes.find((h) => h.pivot.id === v.hero_buffer_id)
+            console.log('Here', JSON.stringify(category.heroes, null, 2), data, v)
+            hero.pivot = data.hero.pivot
+          })
+        )
       },
       onError() {
         // @TODO: Rollback
@@ -134,6 +145,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     to_category_id: number
     to_category_height: number
     hero_pivot_id: number
+    hero_buffer_uuid: ID
     order: number
   }
 
@@ -161,12 +173,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       ? last(category.heroes).pivot.order + ORDER_LAST_BUFFER
       : ORDER_FIRST_BUFFER
 
-    addHeroMutation({
-      hero_id: hero.id,
-      hero_order: heroOrder,
-      category_id: category.id,
-      category_height: categoryHeight
-    })
+    const heroBufferId = uuid()
 
     setBoard(
       immer(board, (draft) => {
@@ -175,7 +182,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         boardCategory.heroes.push({
           ...hero,
           pivot: {
-            id: uuid(),
+            id: heroBufferId,
             order: heroOrder
           }
         })
@@ -183,6 +190,14 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         boardCategory.height = categoryHeight
       })
     )
+
+    addHeroMutation({
+      hero_id: hero.id,
+      hero_buffer_id: heroBufferId,
+      hero_order: heroOrder,
+      category_id: category.id,
+      category_height: categoryHeight
+    })
   }
 
   // Mutably swap values array to array
