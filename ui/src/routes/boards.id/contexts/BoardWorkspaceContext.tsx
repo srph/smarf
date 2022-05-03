@@ -85,9 +85,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     'post',
     {
       onSuccess(data, v) {
-        // Silently apply so we have the correct uuid. OTherwise, adding a hero then moving it would cause issues.
+        // Silently apply so we have the correct uuid. Otherwise, adding a hero then moving it
+        // would fail when we try to persist it to the API.
+        // Also, we are using ref here as this fires way before board state gets updated.
         setBoard(
-          // This fires way before board state gets updated so
           immer(boardRef.current, (draft) => {
             const category = draft.categories.find((c) => c.id === v.category_id)
             const hero = category.heroes.find((h) => h.pivot.id === v.hero_buffer_id)
