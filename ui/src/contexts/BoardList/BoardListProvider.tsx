@@ -6,7 +6,7 @@ import { useAuthUser } from '~/src/contexts/AuthUser'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { Board, ID } from '~/src/types/api'
 
-import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING } from './constants'
+import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING, ORDER_BUFFER } from './constants'
 import { getCategoryHeight } from './utils'
 
 interface BoardListContextType {
@@ -52,7 +52,7 @@ const BoardListProvider: React.FC = ({ children }) => {
     const initialHeroes = heroes.slice(0, 2).map((hero, i) => {
       return {
         id: hero.id,
-        order: i * 1024
+        order: (i + 1) * ORDER_BUFFER
       }
     })
 

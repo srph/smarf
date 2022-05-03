@@ -15,13 +15,14 @@ import { mergeEvents } from './utils'
 // Board functionality
 // -
 const BoardWorkspace: React.FC = () => {
-  const { board, moveHero, moveCategory, moveCategoryEnd } = useBoardWorkspace()
+  const { board, moveHero, moveHeroEnd, moveCategory, moveCategoryEnd } = useBoardWorkspace()
 
   const { collisionDetectionStrategy, ...gridCollisionEvents } = useGridCollisionDetection<Category>({
     containers: board.categories,
     containerIdTransformer: (container) => container.id,
     containerDataIdTransformer: (container) => container.heroes.map((hero) => hero.pivot.id),
-    onChange: moveHero
+    onChange: moveHero,
+    onDragEnd: moveHeroEnd
   })
 
   const dragContainerEvents = useDragContainer({

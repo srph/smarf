@@ -13,7 +13,7 @@ class ReorderHeroRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,10 @@ class ReorderHeroRequest extends FormRequest
     public function rules()
     {
         return [
-            'order' => 'required|numeric'
+            'from_category_height' => 'required|numeric',
+            'to_category_id' => 'required|exists:categories,id',
+            'to_category_height' => 'required|numeric',
+            'hero_order' => 'required|numeric'
         ];
     }
 }

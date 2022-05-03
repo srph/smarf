@@ -25,6 +25,7 @@ interface CustomGridCollisionDetectionProps<T> {
   containerIdTransformer: (item: T) => ID
   containerDataIdTransformer: (item: T) => ID[]
   onChange: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
+  onDragEnd: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
 }
 
 interface CustomGridCollisionDetectionReturnType<T> {
@@ -212,6 +213,7 @@ function useGridCollisionDetection<T>(
 
     const activeContainer = findContainer(active.id)
 
+    // We're not dragging to a valid container
     if (!activeContainer) {
       setStartEvent(null)
       setCurrentEvent(null)
@@ -221,6 +223,7 @@ function useGridCollisionDetection<T>(
 
     const overId = over?.id
 
+    // We're not dragging to a valid item
     if (!overId) {
       setStartEvent(null)
       setCurrentEvent(null)
@@ -230,22 +233,18 @@ function useGridCollisionDetection<T>(
 
     const overContainer = findContainer(overId)
 
-    if (overContainer) {
-      const activeIndex = payload[activeContainer].indexOf(activeId)
-      const overIndex = payload[overContainer].indexOf(overId)
-
-      if (activeIndex === overIndex) {
-        props.onChange(
-          {
-            container: activeContainer,
-            index: activeIndex
-          },
-          {
-            container: overContainer,
-            index: overIndex
-          }
-        )
-      }
+    // Drag ended within the same container
+    if (activeContainer === overContainer) {
+      props.onChange(
+        {
+          container: activeContainer,
+          index: payload[activeContainer].indexOf(activeId)
+        },
+        {
+          container: overContainer,
+          index: payload[overContainer].indexOf(overId)
+        }
+      )
     }
 
     setStartEvent(null)

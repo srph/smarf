@@ -12,9 +12,11 @@ import {
   ORDER_FIRST_BUFFER,
   ORDER_LAST_BUFFER
 } from '~/src/contexts/BoardList/constants'
+import { getHeroOrder } from '~/src/contexts/BoardList/utils'
+import { useParams } from 'react-router-dom'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useHeroList } from '~/src/contexts/HeroList'
-import { useParams } from 'react-router-dom'
+import { last } from '~/src/utils'
 
 interface BoardWorkspaceCategoryMoveEvent {
   x: number
@@ -27,6 +29,7 @@ interface BoardWorkspaceContextType {
   setIsEditing: (isEditing: boolean) => void
   addHero: (category: Category, hero: Hero) => void
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
+  moveHeroEnd: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   addCategory: () => void
   moveCategory: ({ container, translate }: { container: Category; translate: BoardWorkspaceCategoryMoveEvent }) => void
   moveCategoryEnd: ({ container }: { container: Category }) => void
@@ -36,7 +39,7 @@ interface BoardWorkspaceContextType {
 }
 
 const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
-  board: {},
+  board: null,
   isEditing: false,
   setIsEditing: () => {},
   addHero: () => {},
@@ -60,38 +63,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   }
 
   // @TODO: Implement loader and board list
-  const [board, setBoard] = useState<Board>(() => ({
-    id: uuid(),
-    name: 'v7.30 Patch',
-    categories: [
-      {
-        id: uuid(),
-        name: 'Mid Farming',
-        heroes: [
-          { ...heroes[0], pivot: { id: uuid() } },
-          { ...heroes[1], pivot: { id: uuid() } },
-          { ...heroes[2], pivot: { id: uuid() } }
-        ],
-        x_position: 0,
-        y_position: 0,
-        width: CATEGORY_BODY_INITIAL_WIDTH,
-        height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 })
-      },
-      {
-        id: uuid(),
-        name: 'Mid Farming',
-        heroes: [
-          { ...heroes[0], pivot: { id: uuid() } },
-          { ...heroes[1], pivot: { id: uuid() } },
-          { ...heroes[2], pivot: { id: uuid() } }
-        ],
-        x_position: 0,
-        y_position: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 }) + CATEGORY_SPACING,
-        width: CATEGORY_BODY_INITIAL_WIDTH,
-        height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 })
-      }
-    ]
-  }))
+  const [board, setBoard] = useState<Board>()
 
   const { isLoading } = useQuery(`boards/${boardId}`, {
     onSuccess: (data) => {
@@ -156,6 +128,28 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     }
   )
 
+  interface MoveHeroMutationVariables {
+    from_category_id: number
+    from_category_height: number
+    to_category_id: number
+    to_category_height: number
+    hero_pivot_id: number
+    order: number
+  }
+
+  const { mutate: moveHeroMutation } = useMutation<MoveHeroMutationVariables>(
+    (v) => `/categories/${v.from_category_id}/heroes/${v.hero_pivot_id}`,
+    'put',
+    {
+      onSuccess() {
+        // @TODO: Silently apply so we have the correct uuid
+      },
+      onError() {
+        // @TODO: Rollback
+      }
+    }
+  )
+
   const addHero = (category: Category, hero: Hero) => {
     const categoryHeight = getCategoryHeight({
       categoryWidth: category.width,
@@ -172,10 +166,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       category_id: category.id,
       category_height: categoryHeight
     })
-
-    function last<T>(arr: T[]): T {
-      return arr[arr.length - 1]
-    }
 
     setBoard(
       immer(board, (draft) => {
@@ -204,8 +194,21 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     setBoard(
       immer(board, (draft) => {
         if (from.container === to.container) {
+          console.log(to.container, to.index)
           const category = draft.categories.find((c) => c.id === to.container)
           category.heroes = arrayMove(category.heroes, from.index, to.index)
+
+          const order = getHeroOrder(category, to.index)
+          category.heroes[to.index].pivot.order = order
+
+          moveHeroMutation({
+            from_category_id: category.id,
+            from_category_height: category.height,
+            to_category_id: category.id,
+            to_category_height: category.height,
+            hero_pivot_id: category.heroes[to.index].pivot.id,
+            hero_order: order
+          })
         } else {
           const fromCategory = draft.categories.find((c) => c.id === from.container)
 
@@ -222,9 +225,30 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           })
 
           arrayTransfer(fromCategory.heroes, toCategory.heroes, from.index, to.index)
+
+          const order = getHeroOrder(toCategory, to.index)
+          toCategory.heroes[to.index].pivot.order = getHeroOrder(toCategory, to.index)
+
+          moveHeroMutation({
+            from_category_id: fromCategory.id,
+            from_category_height: fromCategory.height,
+            to_category_id: toCategory.id,
+            to_category_height: toCategory.height,
+            hero_pivot_id: toCategory.heroes[to.index].pivot.id,
+            hero_order: order
+          })
         }
       })
     )
+  }
+
+  const moveHeroEnd = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => {
+    // moveHeroMutation({
+    //   from_category_id: from.container,
+    //   to_category_id: to.category.id,
+    //   hero_id: from.catego
+    //   order
+    // })
   }
 
   const moveCategory = ({ container, translate: { x, y } }) => {
@@ -304,6 +328,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
+  if (!board || isLoading) {
+    return null
+  }
+
   return (
     <BoardWorkspaceContext.Provider
       value={{
@@ -312,6 +340,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         setIsEditing,
         addHero,
         moveHero,
+        moveHeroEnd,
         addCategory,
         moveCategory,
         moveCategoryEnd,

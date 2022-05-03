@@ -41,11 +41,28 @@ class HeroesController extends Controller
     /**
      * Reorder a hero inside a category
      */
-    public function reorder(ReorderHeroRequest $request, Hero $hero)
+    public function reorder(ReorderHeroRequest $request, Category $category, Hero $hero)
     {
-        $hero->pivot->order = $request->input('order');
-        $hero->pivot->save();
+        if ($category->id === $request->get('to_category_id')) {
+            $hero->pivot->order = $request->get('hero_order');
 
+            $hero->push();
+        } else {
+            $category->heroes()->wherePivot('id', $hero->pivot->id)->detach();
+
+            $category->update(['height' => $request->get('from_category_height')]);
+
+            $to = Category::where('id', $request->get('to_category_id'))->first();
+
+            $to->update(['height' => $request->get('to_category_height')]);
+
+            $to->heroes()->attach(
+                $hero->id,
+                ['id' => $hero->pivot->id, 'order' => $request->get('hero_order')]
+            );
+        }
+
+        // @TODO: Return both from/to categories
         return response()->json([
             'category' => $hero->category
         ]);

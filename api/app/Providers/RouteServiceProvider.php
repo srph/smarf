@@ -53,8 +53,10 @@ class RouteServiceProvider extends ServiceProvider
 
         // `hero` is implicitly the pivot id. We want those as we can have the same instance of hero in a category
         Route::bind('hero', function ($value, $route) {
-            $category = \App\Models\Category::where('id', $route->parameter('category'))->first();
-            return $category->heroes()->wherePivot('id', $value)->firstOrFail();
+            return $route->parameter('category')
+                ->heroes()
+                ->wherePivot('id', $value)
+                ->firstOrFail();
         });
     }
 
