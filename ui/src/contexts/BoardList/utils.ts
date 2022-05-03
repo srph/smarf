@@ -13,11 +13,14 @@ export const getCategoryBottom = (category: Category): number => {
   return category.y_position + category.height
 }
 
-export const getHeroOrder = (category: Category, index: number) => {
+/**
+ * Calculate the `order` value of the hero in the specified index
+ */
+export const getHeroOrder = (category: Category, index: number): number => {
   const heroes = category.heroes
 
   if (!heroes.length) {
-    throw new Error('Unable to calculate hero order. Hero could not be found from the category.')
+    throw new Error('Unable to calculate hero order. The category does not contain any hero.')
   }
 
   // Only item in the list
@@ -32,7 +35,7 @@ export const getHeroOrder = (category: Category, index: number) => {
 
   // Last in the list
   if (index === heroes.length - 1) {
-    return last(heroes).pivot.order + ORDER_LAST_BUFFER
+    return heroes[index - 1].pivot.order + ORDER_LAST_BUFFER
   }
 
   // Middle of the list
