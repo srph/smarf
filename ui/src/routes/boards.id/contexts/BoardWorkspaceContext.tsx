@@ -156,6 +156,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       heroCount: category.heroes.length + 1
     })
 
+    // @TODO: Use getHeroOrder utility
     const heroOrder = category.heroes.length
       ? last(category.heroes).pivot.order + ORDER_LAST_BUFFER
       : ORDER_FIRST_BUFFER

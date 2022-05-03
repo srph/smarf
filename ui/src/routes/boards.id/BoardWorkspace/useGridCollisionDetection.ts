@@ -213,7 +213,7 @@ function useGridCollisionDetection<T>(
 
     const activeContainer = findContainer(active.id)
 
-    // We're not dragging to a valid container
+    // The container somehow does not exist
     if (!activeContainer) {
       setStartEvent(null)
       setCurrentEvent(null)
@@ -233,8 +233,20 @@ function useGridCollisionDetection<T>(
 
     const overContainer = findContainer(overId)
 
-    // Drag ended within the same container
-    if (activeContainer === overContainer) {
+    // We're not dragging to a valid container
+    if (!overContainer) {
+      setStartEvent(null)
+      setCurrentEvent(null)
+      setActiveId(null)
+      return
+    }
+
+    const activeIndex = payload[activeContainer].indexOf(activeId)
+
+    const orderIndex = payload[overContainer].indexOf(overId)
+
+    // We're not dragging to the same index
+    if (activeIndex !== orderIndex) {
       props.onChange(
         {
           container: activeContainer,
