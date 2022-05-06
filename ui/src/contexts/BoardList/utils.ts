@@ -1,6 +1,6 @@
 import { Board, Category } from '~/src/types/api'
 import {
-  CATEGORY_HERO_WIDTH,
+  CATEGORY_HERO_CONTAINER_TOTAL_PADDING,
   CATEGORY_HERO_TOTAL_WIDTH,
   CATEGORY_ROW_HEIGHT,
   ORDER_FIRST_BUFFER,
@@ -11,7 +11,7 @@ export const getCategoryHeight = ({ categoryWidth, heroCount }: { categoryWidth:
   const columnCount = heroCount + 1 // The "new" placeholder + new hero added to the card
   const columnsPerRow = Math.floor(categoryWidth / CATEGORY_HERO_TOTAL_WIDTH)
   const rowCount = Math.ceil(columnCount / columnsPerRow)
-  return CATEGORY_ROW_HEIGHT * rowCount
+  return CATEGORY_ROW_HEIGHT * rowCount + CATEGORY_HERO_CONTAINER_TOTAL_PADDING
 }
 
 export const getCategoryBottom = (category: Category): number => {
