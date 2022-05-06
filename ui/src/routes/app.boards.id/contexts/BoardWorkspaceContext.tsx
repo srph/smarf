@@ -339,7 +339,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           arrayTransfer(fromCategory.heroes, toCategory.heroes, from.index, to.index)
 
           const order = getHeroOrder(toCategory, to.index)
-          console.log(from, to, current(toCategory))
+
           toCategory.heroes[to.index].pivot.order = order
 
           moveHeroMutation({
