@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Button, Container, Icon } from '~/src/components'
-import { useBoardWorkspace } from '~/src/routes/boards.id/contexts'
+import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { useNavigate } from 'react-router-dom'
 

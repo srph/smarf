@@ -3,7 +3,7 @@ import { Board, Hero, Category, ID } from '~/src/types/api'
 import immer from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
-import { CustomGridCollisionDetectionEvent } from '~/src/routes/boards.id/BoardWorkspace/useGridCollisionDetection'
+import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/BoardWorkspace/useGridCollisionDetection'
 import {
   CATEGORY_HERO_WIDTH,
   CATEGORY_ROW_HEIGHT,

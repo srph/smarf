@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Container, Icon } from '~/src/components'
-import { useBoardWorkspace } from '~/src/routes/boards.id/contexts'
+import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { CategoryBody } from './CategoryBody'
 import { Category } from '~/src/types/api'
 

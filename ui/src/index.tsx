@@ -11,12 +11,13 @@ import { HeroListProvider } from '~/src/contexts/HeroList'
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { GuardedRoute } from '~/src/components'
-import { HomeRoute } from './routes/home'
-import { BoardsIdRoute } from './routes/boards.id'
+import { AppRoute } from './routes/app'
+import { HomeRoute } from './routes/app.home'
+import { BoardsIdRoute } from './routes/app.boards.id'
+import { AboutRoute } from './routes/app.about'
+import { AccountRoute } from './routes/app.account'
 import { LoginRoute } from './routes/login'
 import { LogoutRoute } from './routes/logout'
-import { AboutRoute } from './routes/about'
-import { AccountRoute } from './routes/account'
 import { theme } from './theme'
 
 const App = () => {
@@ -30,39 +31,17 @@ const App = () => {
                 <BoardListProvider>
                   <Routes>
                     <Route
-                      index
+                      path="/"
                       element={
                         <GuardedRoute type="auth">
-                          <HomeRoute />
+                          <AppRoute />
                         </GuardedRoute>
-                      }
-                    />
-
-                    <Route
-                      path="/account"
-                      element={
-                        <GuardedRoute type="auth">
-                          <AccountRoute />
-                        </GuardedRoute>
-                      }
-                    />
-
-                    <Route
-                      path="/about"
-                      element={
-                        <GuardedRoute type="auth">
-                          <AboutRoute />
-                        </GuardedRoute>
-                      }
-                    />
-                    <Route
-                      path="/boards/:boardId"
-                      element={
-                        <GuardedRoute type="auth">
-                          <BoardsIdRoute />
-                        </GuardedRoute>
-                      }
-                    />
+                      }>
+                      <Route index element={<HomeRoute />} />
+                      <Route path="/account" element={<AccountRoute />} />
+                      <Route path="/about" element={<AboutRoute />} />
+                      <Route path="/boards/:boardId" element={<BoardsIdRoute />} />
+                    </Route>
 
                     <Route
                       path="/login"

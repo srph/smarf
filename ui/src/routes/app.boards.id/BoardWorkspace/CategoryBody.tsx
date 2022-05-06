@@ -9,7 +9,7 @@ import { CategoryHero } from './CategoryHero'
 
 import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
-import { useBoardWorkspace } from '~/src/routes/boards.id/contexts'
+import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { Translate } from './useDragContainer'
 
 import { Resizable } from 're-resizable'
