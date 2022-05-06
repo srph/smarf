@@ -1,6 +1,5 @@
-import { Category } from '~/src/types/api'
+import { Board, Category } from '~/src/types/api'
 import { CATEGORY_HERO_WIDTH, CATEGORY_ROW_HEIGHT, ORDER_FIRST_BUFFER, ORDER_LAST_BUFFER } from './constants'
-import { last } from '~/src/utils'
 
 export const getCategoryHeight = ({ categoryWidth, heroCount }: { categoryWidth: number; heroCount: number }) => {
   const columnCount = heroCount + 1 // The "new" placeholder + new hero added to the card
@@ -11,6 +10,14 @@ export const getCategoryHeight = ({ categoryWidth, heroCount }: { categoryWidth:
 
 export const getCategoryBottom = (category: Category): number => {
   return category.y_position + category.height
+}
+
+export const getLowestCategoryBottom = (board: Board): number => {
+  const lowestCategory = [...board.categories].sort((a, b) => {
+    return getCategoryBottom(b) - getCategoryBottom(a)
+  })[0]
+
+  return getCategoryBottom(lowestCategory)
 }
 
 /**

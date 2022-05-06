@@ -12,7 +12,7 @@ import {
   ORDER_FIRST_BUFFER,
   ORDER_LAST_BUFFER
 } from '~/src/contexts/BoardList/constants'
-import { getHeroOrder } from '~/src/contexts/BoardList/utils'
+import { getHeroOrder, getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
 import { useParams } from 'react-router-dom'
 import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
@@ -352,26 +352,15 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     })
   }
 
-  const getCategoryBottom = (category: Category): number => {
-    return category.y_position + category.height
-  }
-
   // @TODO: Turn into a reusable function that we may reuse this when
   // adding categories to a new board.
   const addCategory = () => {
-    const lowestCategory = [...board.categories].sort((a, b) => {
-      return getCategoryBottom(b) - getCategoryBottom(a)
-    })[0]
-
-    // Bottom position + allowance
-    const yPosition = getCategoryBottom(lowestCategory) + CATEGORY_SPACING
-
     const category = {
       id: uuid(),
       name: 'Untitled',
       heroes: [],
       x_position: 0,
-      y_position: yPosition,
+      y_position: getLowestCategoryBottom(board) + CATEGORY_SPACING,
       width: CATEGORY_BODY_INITIAL_WIDTH,
       height: getCategoryHeight({
         categoryWidth: CATEGORY_BODY_INITIAL_WIDTH,

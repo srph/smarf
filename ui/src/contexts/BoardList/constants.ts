@@ -1,4 +1,5 @@
 // @TODO: Should remove unused/redundant variables
+export const BOARD_WORKSPACE_ALLOWANCE = 400
 
 export const CATEGORY_HERO_ASPECT_RATIO = '16:9'
 export const CATEGORY_HERO_ASPECT_RATIO_MULTIPLIER = 9 / 16

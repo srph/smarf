@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Container, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { CategoryBody } from './CategoryBody'
 import { Category } from '~/src/types/api'
+
+import { BOARD_WORKSPACE_ALLOWANCE } from '~/src/contexts/BoardList/constants'
+import { getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
 
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, MeasuringStrategy } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
@@ -42,9 +45,15 @@ const BoardWorkspace: React.FC = () => {
     })
   )
 
+  // Provide enough space so users are able to move around the workspace freely.
+  // We're not able to achieve this via css because of how we position categories (via `position: relative`).
+  const workspaceHeight = useMemo(() => {
+    return getLowestCategoryBottom(board) + BOARD_WORKSPACE_ALLOWANCE
+  }, [board])
+
   return (
     <Container>
-      <Workspace>
+      <Workspace height={workspaceHeight}>
         <DndContext
           sensors={sensors}
           collisionDetection={collisionDetectionStrategy}
@@ -64,9 +73,10 @@ const BoardWorkspace: React.FC = () => {
   )
 }
 
-const Workspace = styled.div`
+const Workspace = styled.div<{ height: number }>`
   position: relative;
   padding-top: 24px;
+  height: ${(props) => props.height}px;
   z-index: ${theme.zIndex.boardWorkspace};
 `
 
