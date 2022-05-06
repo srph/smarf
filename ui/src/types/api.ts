@@ -6,6 +6,7 @@ export interface Hero {
   thumbnail: string
 }
 
+// @TOOD: Rename to HeroCategoryWithPivot
 export type HeroCategoryPivot = Hero & {
   pivot: {
     id: ID

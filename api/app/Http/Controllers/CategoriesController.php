@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\Board;
 use App\Http\Requests\MoveCategoryRequest;
 use App\Http\Requests\ResizeCategoryRequest;
+use App\Http\Requests\CreateCategoryRequest;
 
 class CategoriesController extends Controller
 {
-    public function store()
+    public function store(CreateCategoryRequest $request, Board $board)
     {
-        $inputs = request()->only([
-            'board_id',
+        $inputs = $request->only([
             'name',
             'x_position',
             'y_position',
@@ -20,8 +20,21 @@ class CategoriesController extends Controller
             'height',
         ]);
 
+        $category = new Category($inputs);
+
+        $board->categories()->save($category);
+
+        $heroes = collect($request->get('heroes'))
+            ->flatMap(function ($hero) {
+                return [
+                    $hero['id'] => $hero['order']
+                ];
+            });
+
+        $category->heroes()->attach($heroes);
+
         return response()->json([
-            'categories' => Category::create($inputs)
+            'category' => $category->load('heroes')
         ]);
     }
 

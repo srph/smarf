@@ -35,7 +35,7 @@ class BoardsController extends Controller
                 'x_position' => $input['x_position'],
                 'y_position' => $input['y_position'],
                 'width' => $input['width'],
-                'height' => $input['width'],
+                'height' => $input['height'],
             ]);
 
             collect($input['heroes'])->each(function ($hero) use ($category) {

@@ -37,9 +37,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('boards/{board}', [BoardsController::class, 'show']);
         Route::put('boards/{board}', [BoardsController::class, 'update']);
         Route::delete('boards/{board}', [BoardsController::class, 'destroy']);
+        Route::post('boards/{board}/categories', [CategoriesController::class, 'store']);
     });
 
-    Route::post('categories', [CategoriesController::class, 'store']);
 
     Route::middleware('category.own')->group(function () {
         Route::put('categories/{category}', [CategoriesController::class, 'update']);

@@ -87,7 +87,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             topLeft: false
           }}
           minWidth={CATEGORY_BODY_INITIAL_WIDTH}
-          size={{ width: category.width, height: category.height }}
+          size={{ width: category.width }}
           onResize={handleResize}
           onResizeStop={handleResizeStop}>
           <Body ref={setDroppableNodeRef} width={category.width}>

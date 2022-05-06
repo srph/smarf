@@ -19,6 +19,7 @@ import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { useStateRef } from '~/src/hooks'
 import { last } from '~/src/utils'
+import { HeroCategoryPivot } from '~/src/types/api'
 
 interface BoardWorkspaceCategoryMoveEvent {
   x: number
@@ -129,6 +130,36 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
             const hero = category.heroes.find((h) => h.pivot.id === v.hero_buffer_id)
             console.log('Here', JSON.stringify(category.heroes, null, 2), data, v)
             hero.pivot = data.hero.pivot
+          })
+        )
+      },
+      onError() {
+        // @TODO: Rollback
+      }
+    }
+  )
+
+  interface AddCategoryMutationVariables {
+    category_buffer_id: ID
+    name: string
+    width: number
+    height: number
+    x_position: number
+    y_position: number
+    heroes: HeroCategoryPivot['pivot']
+  }
+
+  const { mutate: addCategoryMutation } = useMutation<AddCategoryMutationVariables>(
+    `/boards/${board?.id}/categories`,
+    'post',
+    {
+      onSuccess(data, v) {
+        // Silently apply so we have the correct uuid
+        setBoard(
+          immer(boardRef.current, (draft) => {
+            const index = draft.categories.findIndex((c) => c.id === v.category_buffer_id)
+            if (index === -1) return // @TODO: Throw
+            draft.categories[index] = data.category
           })
         )
       },
@@ -335,24 +366,29 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     // Bottom position + allowance
     const yPosition = getCategoryBottom(lowestCategory) + CATEGORY_SPACING
 
+    const category = {
+      id: uuid(),
+      name: 'Untitled',
+      heroes: [],
+      x_position: 0,
+      y_position: yPosition,
+      width: CATEGORY_BODY_INITIAL_WIDTH,
+      height: getCategoryHeight({
+        categoryWidth: CATEGORY_BODY_INITIAL_WIDTH,
+        heroCount: 0
+      })
+    }
+
     setBoard(
       immer(board, (draft) => {
-        const category = {
-          id: uuid(),
-          name: 'Untitled',
-          heroes: [],
-          x_position: 0,
-          y_position: yPosition,
-          width: CATEGORY_BODY_INITIAL_WIDTH,
-          height: getCategoryHeight({
-            categoryWidth: CATEGORY_BODY_INITIAL_WIDTH,
-            heroCount: 0
-          })
-        }
-
         draft.categories.push(category)
       })
     )
+
+    addCategoryMutation({
+      ...category,
+      category_buffer_id: category.id
+    })
   }
 
   const resizeCategory = ({ container, width }) => {

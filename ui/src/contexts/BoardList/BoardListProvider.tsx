@@ -69,16 +69,17 @@ const BoardListProvider: React.FC = ({ children }) => {
           x_position: 0,
           y_position: 0,
           width: CATEGORY_BODY_INITIAL_WIDTH,
-          height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 })
+          height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: initialHeroes.length })
         },
         {
           name: 'Suntukan Offlane',
           heroes: initialHeroes,
           x_position: 0,
           y_position:
-            getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 }) + CATEGORY_SPACING,
+            getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: initialHeroes.length }) +
+            CATEGORY_SPACING,
           width: CATEGORY_BODY_INITIAL_WIDTH,
-          height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 3 })
+          height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: initialHeroes.length })
         }
       ]
     }
