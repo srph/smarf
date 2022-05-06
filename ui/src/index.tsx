@@ -29,7 +29,14 @@ const App = () => {
               <HeroListProvider>
                 <BoardListProvider>
                   <Routes>
-                    <Route index element={<HomeRoute />} />
+                    <Route
+                      index
+                      element={
+                        <GuardedRoute type="auth">
+                          <HomeRoute />
+                        </GuardedRoute>
+                      }
+                    />
 
                     <Route
                       path="/account"
