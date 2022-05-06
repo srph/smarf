@@ -220,6 +220,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   interface ResizeCategoryMutationVariables {
     category_id: number
     width: number
+    height: number
   }
 
   const { mutate: resizeCategoryMutation } = useMutation<ResizeCategoryMutationVariables>(
@@ -415,6 +416,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       immer(board, (draft) => {
         const boardCategory = draft.categories.find((category) => category.id === container.id)
         boardCategory.width = width
+        boardCategory.height = getCategoryHeight({
+          categoryWidth: width,
+          heroCount: boardCategory.heroes.length
+        })
       })
     )
   }
@@ -422,7 +427,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   const resizeCategoryEnd = ({ container }) => {
     resizeCategoryMutation({
       category_id: container.id,
-      width: container.width
+      width: container.width,
+      height: container.height
     })
   }
 

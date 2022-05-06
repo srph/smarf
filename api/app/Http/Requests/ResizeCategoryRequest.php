@@ -25,6 +25,7 @@ class ResizeCategoryRequest extends FormRequest
     {
         return [
             'width' => 'required|numeric',
+            'height' => 'required|numeric'
         ];
     }
 }

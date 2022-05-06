@@ -55,6 +55,8 @@ class CategoriesController extends Controller
     {
         $category->width = $request->get('width');
 
+        $category->height = $request->get('height');
+
         $category->save();
 
         return response()->json([
