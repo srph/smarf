@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react'
 import { Board, Hero, Category, ID } from '~/src/types/api'
-import immer from 'immer'
+import immer, { current } from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
 import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/BoardWorkspace/useGridCollisionDetection'
@@ -12,7 +12,7 @@ import {
   ORDER_FIRST_BUFFER,
   ORDER_LAST_BUFFER
 } from '~/src/contexts/BoardList/constants'
-import { getHeroOrder, getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
+import { getCategoryHeight, getHeroOrder, getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
@@ -72,13 +72,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   const queryClient = useQueryClient()
 
   const [isEditing, setIsEditing] = useState(false)
-
-  const getCategoryHeight = ({ categoryWidth, heroCount }: { categoryWidth: number; heroCount: number }) => {
-    const columnCount = heroCount + 1 // The "new" placeholder + new hero added to the card
-    const columnsPerRow = Math.floor(categoryWidth / CATEGORY_HERO_WIDTH)
-    const rowCount = Math.ceil(columnCount / columnsPerRow)
-    return CATEGORY_ROW_HEIGHT * rowCount
-  }
 
   // @TODO: Implement loader and board list
   const [board, setBoard, boardRef] = useStateRef<Board>()
@@ -334,8 +327,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           const toCategory = draft.categories.find((c) => c.id === to.container)
 
           fromCategory.height = getCategoryHeight({
-            categoryWidth: toCategory.width,
-            heroCount: toCategory.heroes.length - 1
+            categoryWidth: fromCategory.width,
+            heroCount: fromCategory.heroes.length - 1
           })
 
           toCategory.height = getCategoryHeight({
@@ -346,7 +339,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           arrayTransfer(fromCategory.heroes, toCategory.heroes, from.index, to.index)
 
           const order = getHeroOrder(toCategory, to.index)
-          toCategory.heroes[to.index].pivot.order = getHeroOrder(toCategory, to.index)
+          console.log(from, to, current(toCategory))
+          toCategory.heroes[to.index].pivot.order = order
 
           moveHeroMutation({
             from_category_id: fromCategory.id,

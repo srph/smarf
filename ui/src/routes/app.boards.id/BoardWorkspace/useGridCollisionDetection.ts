@@ -166,10 +166,12 @@ function useGridCollisionDetection<T>(
     const overContainer = findContainer(overId)
     const activeContainer = findContainer(active.id)
 
+    // Bail if any of the containers are invalid
     if (!overContainer || !activeContainer) {
       return
     }
 
+    // Bail if we're dragging to the same container as drag end already covers this.
     if (activeContainer === overContainer) {
       return
     }
@@ -184,7 +186,7 @@ function useGridCollisionDetection<T>(
 
     const modifier = isBelowOverItem ? 1 : 0
 
-    const newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1
+    const newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length
 
     recentlyMovedToNewContainer.current = true
 
