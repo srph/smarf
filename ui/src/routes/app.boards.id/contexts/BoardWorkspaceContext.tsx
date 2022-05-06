@@ -169,6 +169,23 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     }
   )
 
+  interface DeleteCategoryMutationVariables {
+    category_id: ID
+  }
+
+  const { mutate: deleteCategoryMutation } = useMutation<DeleteCategoryMutationVariables>(
+    (v) => `/categories/${v.category_id}`,
+    'delete',
+    {
+      onSuccess(data, v) {
+        // @TODO: Toast
+      },
+      onError() {
+        // @TODO: Rollback (?)
+      }
+    }
+  )
+
   interface MoveCategoryMutationVariables {
     category_id: number
     x_position: number
@@ -403,6 +420,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         draft.categories = draft.categories.filter((category) => category.id !== categoryId)
       })
     )
+
+    deleteCategoryMutation({ category_id: category.id })
   }
 
   if (!board || isLoading) {

@@ -81,8 +81,10 @@ class CategoriesController extends Controller
     public function destroy(Category $category)
     {
         // @TODO: Truncate (?)
+        $category->delete();
+
         return response()->json([
-            'categories' => $category->delete()
+            'success' => true
         ]);
     }
 }

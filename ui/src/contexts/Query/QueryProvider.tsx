@@ -34,7 +34,7 @@ function useQuery<T = any>(url: string, opts: UseQueryOptions<T>) {
   return useOriginalQuery<T>(opts?.queryKey || url, fetcher, opts)
 }
 
-type MutationOperation = 'post' | 'put'
+type MutationOperation = 'post' | 'put' | 'delete'
 
 type Fetcher<T> = string | ((variables: T) => string)
 
