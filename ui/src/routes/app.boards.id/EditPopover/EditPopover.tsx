@@ -5,14 +5,21 @@ import { Container, PlainButton, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 
 const EditPopover: React.FC = () => {
-  const { isEditing, setIsEditing } = useBoardWorkspace()
+  const { board, isEditing, setIsEditing, updateBoard } = useBoardWorkspace()
+  const [name, setName] = useState(board.name)
 
   const handleClose = () => {
     setIsEditing(false)
+    setName(board.name)
   }
 
-  const handleSubmit = () => {
-    setIsEditing(false)
+  const handleSubmit = (evt: React.FormEvent) => {
+    evt.preventDefault()
+    updateBoard({ name })
+  }
+
+  const handleChangeName = (evt: React.ChangeEvent) => {
+    setName(evt.target.value)
   }
 
   if (!isEditing) {
@@ -29,18 +36,24 @@ const EditPopover: React.FC = () => {
             </PlainButton>
           </EditPopoverClose>
 
-          <EditPopoverContent onSubmit={handleSubmit}>
+          <EditPopoverForm onSubmit={handleSubmit}>
             <EditPopoverLabel>Name</EditPopoverLabel>
 
             <InputGroup>
-              <InputGroupElement type="text" placeholder="Enter name..." />
+              <InputGroupElement
+                value={name}
+                onChange={handleChangeName}
+                type="text"
+                placeholder="Enter name..."
+                autoFocus
+              />
               <InputGroupButtonContainer>
                 <InputGroupButton>
                   <Icon name="check" />
                 </InputGroupButton>
               </InputGroupButtonContainer>
             </InputGroup>
-          </EditPopoverContent>
+          </EditPopoverForm>
         </EditPopoverInner>
       </Container>
     </EditPopoverContainer>
@@ -67,7 +80,7 @@ const EditPopoverClose = styled.div`
   color: ${theme.colors.neutral[500]};
 `
 
-const EditPopoverContent = styled.form`
+const EditPopoverForm = styled.form`
   display: flex;
   align-items: center;
   margin: 0;
@@ -98,6 +111,7 @@ const InputGroup = styled.div`
 const InputGroupElement = styled.input`
   display: block;
   padding: 12px;
+  color: ${theme.colors.neutral[50]};
   background: transparent;
   border: 0;
   outline: 0;

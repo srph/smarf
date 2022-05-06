@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import { Board, Hero, Category, ID } from '~/src/types/api'
 import immer from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
@@ -14,6 +14,7 @@ import {
 } from '~/src/contexts/BoardList/constants'
 import { getHeroOrder } from '~/src/contexts/BoardList/utils'
 import { useParams } from 'react-router-dom'
+import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { useStateRef } from '~/src/hooks'
@@ -26,6 +27,7 @@ interface BoardWorkspaceCategoryMoveEvent {
 
 interface BoardWorkspaceContextType {
   board: Board
+  updateBoard: (b: Pick<Board, 'name'>) => void
   isEditing: boolean
   setIsEditing: (isEditing: boolean) => void
   addHero: (category: Category, hero: Hero) => void
@@ -41,11 +43,17 @@ interface BoardWorkspaceContextType {
 
 const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   board: null,
+  updateBoard: () => {},
   isEditing: false,
   setIsEditing: () => {},
   addHero: () => {},
   moveHero: () => {},
+  moveHeroEnd: () => {},
   addCategory: () => {},
+  moveCategory: () => {},
+  moveCategoryEnd: () => {},
+  resizeCategory: () => {},
+  resizeCategoryEnd: () => {},
   deleteCategory: (category: Category) => {}
 })
 
@@ -53,6 +61,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   const { heroes } = useHeroList()
 
   const { boardId } = useParams()
+
+  const queryClient = useQueryClient()
 
   const [isEditing, setIsEditing] = useState(false)
 
@@ -71,6 +81,31 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       setBoard(data.board)
     }
   })
+
+  interface UpdateBoardMutationVariables {
+    name: string
+  }
+
+  const { mutate: updateBoard, isLoading: isBoardUpdating } = useMutation<UpdateBoardMutationVariables>(
+    `/boards/${board?.id}`,
+    'put',
+    {
+      onSuccess(data) {
+        queryClient.invalidateQueries('/boards')
+
+        setBoard({
+          ...board,
+          name: data.board.name
+        })
+
+        setIsEditing(false)
+      },
+
+      onError() {
+        // Do something (?)
+      }
+    }
+  )
 
   interface AddHeroMutationVariables {
     hero_id: number
@@ -353,6 +388,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     <BoardWorkspaceContext.Provider
       value={{
         board,
+        updateBoard,
         isEditing,
         setIsEditing,
         addHero,

@@ -24,12 +24,7 @@ class UpdateBoardRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required',
-            'x_position' => 'required|numeric',
-            'y_position' => 'required|numeric',
-            'width' => 'required|numeric',
-            'height' => 'required|numeric',
-            'heroes.*.id' => 'required|exists:heroes',
+            'name' => 'required'
         ];
     }
 }
