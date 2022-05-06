@@ -1,6 +1,7 @@
 import React, { createContext, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 import { useHeroList } from '~/src/contexts/HeroList'
@@ -32,6 +33,8 @@ const BoardListProvider: React.FC = ({ children }) => {
 
   const navigate = useNavigate()
 
+  const queryClient = useQueryClient()
+
   const { data, isLoading: isBoardListLoading } = useQuery('/boards', {
     enabled: Boolean(token)
   })
@@ -40,6 +43,7 @@ const BoardListProvider: React.FC = ({ children }) => {
 
   const { mutate: createBoardMutation, isLoading: isBoardCreating } = useMutation('/boards', 'post', {
     onSuccess: (data) => {
+      queryClient.invalidateQueries('/boards')
       navigate(`/boards/${data.board.id}`)
     }
   })
@@ -80,8 +84,6 @@ const BoardListProvider: React.FC = ({ children }) => {
     }
 
     createBoardMutation(board)
-
-    // @TODO: Insert board into list
   }
 
   const updateBoard = () => {}
