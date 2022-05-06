@@ -1,10 +1,12 @@
 {
+  "private": true,
   "name": "smarf",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Dota 2 hero organizer",
+  "source": "src/public/index.html",
   "scripts": {
-    "start": "parcel src/public/index.html",
+    "start": "parcel",
+    "build": "parcel build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
