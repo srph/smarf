@@ -40,7 +40,6 @@ const Container = styled.div`
 
 const CategoryHeroImage = styled.div`
   width: ${CATEGORY_HERO_WIDTH}px;
-  border: 2px solid transparent;
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0px 0px 0px 0px ${theme.colors.blue[500]};
