@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Container, Icon } from '~/src/components'
@@ -11,8 +11,10 @@ import { getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
 
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, MeasuringStrategy } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
+import { restrictToParentElement } from '@dnd-kit/modifiers'
 import { useGridCollisionDetection } from './useGridCollisionDetection'
 import { useDragContainer } from './useDragContainer'
+import { restrictWithinWorkspace } from './restrictWithinWorkspace'
 import { mergeEvents } from './utils'
 
 // Board functionality
@@ -45,6 +47,8 @@ const BoardWorkspace: React.FC = () => {
     })
   )
 
+  const workspaceRef = useRef<HTMLDivElement>()
+
   // Provide enough space so users are able to move around the workspace freely.
   // We're not able to achieve this via css because of how we position categories (via `position: relative`).
   const workspaceHeight = useMemo(() => {
@@ -53,29 +57,36 @@ const BoardWorkspace: React.FC = () => {
 
   return (
     <Container>
-      <Workspace height={workspaceHeight}>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={collisionDetectionStrategy}
-          measuring={{
-            droppable: {
-              strategy: MeasuringStrategy.Always
-            }
-          }}
-          {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
+      <WorkspaceNavigationPadding />
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={collisionDetectionStrategy}
+        measuring={{
+          droppable: {
+            strategy: MeasuringStrategy.Always
+          }
+        }}
+        modifiers={[restrictWithinWorkspace({ workspaceRef })]}
+        {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
+        <Workspace ref={workspaceRef} height={workspaceHeight}>
           {board.categories.map((category) => {
             return <CategoryBody key={category.id} category={category} />
           })}
-        </DndContext>
-      </Workspace>
+        </Workspace>
+      </DndContext>
       <WorkspacePadding />
     </Container>
   )
 }
 
+// Easier than adjusting the logic to take the padding into account
+const WorkspaceNavigationPadding = styled.div`
+  padding-top: 24px;
+`
+
 const Workspace = styled.div<{ height: number }>`
   position: relative;
-  padding-top: 24px;
   height: ${(props) => props.height}px;
   z-index: ${theme.zIndex.boardWorkspace};
 `
