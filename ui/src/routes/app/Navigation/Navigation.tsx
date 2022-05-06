@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Avatar, Button, Container, Logo, PlainButton } from '~/src/components'
+import { Link } from 'react-router-dom'
 import avatar from '~/src/public/images/avatar.png'
 import { UserDropdown } from './UserDropdown'
 import { useBoardList } from '~/src/contexts/BoardList'
@@ -17,7 +18,9 @@ const Navigation: React.FC = () => {
     <Nav>
       <Container>
         <NavContainer>
-          <Logo />
+          <NavLogoLink to="/">
+            <Logo />
+          </NavLogoLink>
 
           <NavMenu>
             <NavMenuSection>
@@ -60,6 +63,11 @@ const NavMenu = styled.div`
 
 const NavMenuSection = styled.div`
   margin-right: 24px;
+`
+
+const NavLogoLink = styled(Link)`
+  color: inherit;
+  text-decoration: none;
 `
 
 export { Navigation }
