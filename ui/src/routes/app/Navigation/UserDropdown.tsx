@@ -17,6 +17,14 @@ const UserDropdown: React.FC = () => {
         </UserInfo>
       </Heading>
 
+      <LinkItem to="/">
+        <LinkItemIcon>
+          <Icon name="home" />
+        </LinkItemIcon>
+
+        <LinkItemText>Home</LinkItemText>
+      </LinkItem>
+
       <LinkItem to="/account">
         <LinkItemIcon>
           <Icon name="adjustments" />
@@ -24,6 +32,7 @@ const UserDropdown: React.FC = () => {
 
         <LinkItemText>Account Settings</LinkItemText>
       </LinkItem>
+
       <LinkItem to="/about">
         <LinkItemIcon>
           <Icon name="lightning-bolt" />
