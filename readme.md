@@ -41,14 +41,14 @@ Run migrations and seed data:
 ./vendor/bin/sail artisan db:seed
 ```
 
-Create Passport keys and client:
+Install Passport keys and and create client id/secret:
 
 ```
-sail artisan passport:keys
+sail artisan install
 sail artisan passport:client --password
 ```
 
-Copy the output's client id and secret id.
+Copy the output's client id and secret.
 
 ### Running UI
 
@@ -66,7 +66,13 @@ Afterwards, install dependencies and run Parcel:
 npm install && npm start
 ```
 
-The base username and password is `hi@admin.com` / `password`
+### Create an Admin User
+
+Go back to the `/api` directory, then run:
+
+```bash
+php artisan smarf:admin
+```
 
 ## Why?
 
