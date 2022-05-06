@@ -5,7 +5,11 @@ import { ImageAspectRatio } from '~/src/components'
 import { useSortable } from '@dnd-kit/sortable'
 import { Category, HeroCategoryPivot } from '~/src/types/api'
 import { CSS } from '@dnd-kit/utilities'
-import { CATEGORY_HERO_ASPECT_RATIO, CATEGORY_HERO_WIDTH } from '~/src/contexts/BoardList/constants'
+import {
+  CATEGORY_HERO_ASPECT_RATIO,
+  CATEGORY_HERO_WIDTH,
+  CATEGORY_HERO_X_TOTAL_PADDING
+} from '~/src/contexts/BoardList/constants'
 
 interface Props {
   category: Category
@@ -21,7 +25,7 @@ const CategoryHero: React.FC<Props> = ({ category, hero }) => {
   }
 
   return (
-    <Container width={100 / (category.heroes.length + 1)} ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <Container ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <CategoryHeroImage>
         <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} />
       </CategoryHeroImage>
@@ -29,18 +33,20 @@ const CategoryHero: React.FC<Props> = ({ category, hero }) => {
   )
 }
 
-const Container = styled.div<{ width: number }>`
+const Container = styled.div`
   flex-shrink: 0;
-  padding: 8px;
+  padding: ${CATEGORY_HERO_X_TOTAL_PADDING / 2}px;
 `
 
 const CategoryHeroImage = styled.div`
   width: ${CATEGORY_HERO_WIDTH}px;
   border: 2px solid transparent;
   border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0px 0px 0px 0px ${theme.colors.blue[500]};
 
   &:hover {
-    border-color: ${theme.colors.blue[500]};
+    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
   }
 `
 

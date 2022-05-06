@@ -17,7 +17,9 @@ import { Resizable } from 're-resizable'
 import {
   CATEGORY_BODY_INITIAL_WIDTH,
   CATEGORY_HERO_HEIGHT,
-  CATEGORY_HERO_WIDTH
+  CATEGORY_HERO_WIDTH,
+  CATEGORY_HERO_CONTAINER_TOTAL_PADDING,
+  CATEGORY_HERO_X_TOTAL_PADDING
 } from '~/src/contexts/BoardList/constants'
 
 interface Props {
@@ -100,9 +102,9 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             <NewHeroContainer>
               <NewHero onClick={() => setIsHeroSelectorOpen(true)}>
                 <NewCategoryIcon>
-                  <Icon name="plus-circle" width={48} />
+                  <Icon name="plus-circle" width={16} />
                 </NewCategoryIcon>
-                <NewCategoryText>New Hero</NewCategoryText>
+                <NewCategoryText>Add</NewCategoryText>
               </NewHero>
             </NewHeroContainer>
           </Body>
@@ -126,13 +128,12 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
 }
 
 const NewHeroContainer = styled.div`
-  padding: 8px;
+  padding: ${CATEGORY_HERO_X_TOTAL_PADDING / 2}px;
   flex-shrink: 0;
 `
 
 const NewHero = styled.button`
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 8px;
@@ -145,7 +146,7 @@ const NewHero = styled.button`
 `
 
 const NewCategoryIcon = styled.div`
-  margin-bottom: 16px;
+  margin-right: 8px;
   color: ${theme.colors.neutral[500]};
 `
 
@@ -159,7 +160,7 @@ const NewCategoryText = styled.div`
 const Body = styled.div<{ width: number }>`
   display: inline-flex;
   flex-wrap: wrap;
-  padding: 16px 8px;
+  padding: ${CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2}px;
   background: ${theme.colors.neutral[800]};
   border-radius: 4px;
 
