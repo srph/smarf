@@ -28,27 +28,30 @@ class CreateAdmin extends Command
      */
     public function handle()
     {
-        $email = $this->askName();
+        $email = $this->askEmail();
+
+        $name = $this->ask('What name should we set?');
 
         $password = $this->ask('What password should we set?');
 
         User::create([
             'email' => $email,
+            'name' => $name,
             'password' => bcrypt($password)
         ]);
 
-        $this->info('Admin user with email "{$email} was created successfully.');
+        $this->info("Admin user with email \"{$email}\" was created successfully.");
 
         return 0;
     }
 
-    protected function askName()
+    protected function askEmail()
     {
         $email = $this->ask('What name should we set? (e.g., hi@admin.com)');
 
         if (User::where('email', $email)->exists()) {
-            $this->error('An account with the email "{$email}" already exists.');
-            return $this->askName();
+            $this->error("An account with the email \"{$email}\" already exists.");
+            return $this->askEmail();
         }
 
         return $email;
