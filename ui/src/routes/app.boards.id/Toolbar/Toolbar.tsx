@@ -7,7 +7,7 @@ import { useBoardList } from '~/src/contexts/BoardList'
 import { useNavigate } from 'react-router-dom'
 
 const ToolbarComponent: React.FC = () => {
-  const { board, isEditing, setIsEditing, addCategory } = useBoardWorkspace()
+  const { board, isEditing, setIsEditing, addCategory, deleteBoard } = useBoardWorkspace()
 
   const { boards, isBoardListLoading } = useBoardList()
 
@@ -63,7 +63,7 @@ const ToolbarComponent: React.FC = () => {
                 <Icon name="pencil" />
               </IconGroupButton>
 
-              <IconGroupButton>
+              <IconGroupButton onClick={() => deleteBoard()}>
                 <Icon name="trash" />
               </IconGroupButton>
             </IconGroup>

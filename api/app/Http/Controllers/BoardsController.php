@@ -71,8 +71,11 @@ class BoardsController extends Controller
 
     public function destroy(Board $board)
     {
+        // @TODO: Truncate (?)
+        $board->delete();
+
         return response()->json([
-            'board' => $board->delete()
+            'success' => true
         ]);
     }
 }

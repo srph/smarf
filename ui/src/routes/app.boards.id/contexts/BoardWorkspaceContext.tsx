@@ -13,7 +13,7 @@ import {
   ORDER_LAST_BUFFER
 } from '~/src/contexts/BoardList/constants'
 import { getHeroOrder, getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useHeroList } from '~/src/contexts/HeroList'
@@ -29,7 +29,9 @@ interface BoardWorkspaceCategoryMoveEvent {
 interface BoardWorkspaceContextType {
   board: Board
   updateBoard: (b: Pick<Board, 'name'>) => void
+  deleteBoard: () => void
   isEditing: boolean
+  isDeleting: boolean
   setIsEditing: (isEditing: boolean) => void
   addHero: (category: Category, hero: Hero) => void
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
@@ -45,7 +47,9 @@ interface BoardWorkspaceContextType {
 const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   board: null,
   updateBoard: () => {},
+  deleteBoard: () => {},
   isEditing: false,
+  isDeleting: false,
   setIsEditing: () => {},
   addHero: () => {},
   moveHero: () => {},
@@ -62,6 +66,8 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   const { heroes } = useHeroList()
 
   const { boardId } = useParams()
+
+  const navigate = useNavigate()
 
   const queryClient = useQueryClient()
 
@@ -103,10 +109,23 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       },
 
       onError() {
-        // Do something (?)
+        // Toast
       }
     }
   )
+
+  const { mutate: deleteBoard, isLoading: isDeleting } = useMutation(`/boards/${board?.id}`, 'delete', {
+    onSuccess() {
+      queryClient.invalidateQueries('/boards')
+
+      navigate('/')
+
+      // @TODO: Toast
+    },
+    onError() {
+      // @TODO: Toast
+    }
+  })
 
   interface AddHeroMutationVariables {
     hero_id: number
@@ -433,7 +452,9 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       value={{
         board,
         updateBoard,
+        deleteBoard,
         isEditing,
+        isDeleting,
         setIsEditing,
         addHero,
         moveHero,
