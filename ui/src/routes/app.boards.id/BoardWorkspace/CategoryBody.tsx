@@ -65,9 +65,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             <CategoryHeadingDragIcon ref={setDraggableNodeRef} {...listeners}>
               <Icon name="arrows-expand" />
             </CategoryHeadingDragIcon>
-            <CategoryHeadingTitle>
-              {category.name} ({category.width} x {category.height})
-            </CategoryHeadingTitle>
+            <CategoryHeadingTitle>{category.name}</CategoryHeadingTitle>
           </CategoryHeadingInfo>
 
           <div>
