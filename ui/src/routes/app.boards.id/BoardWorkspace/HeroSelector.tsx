@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import styled, { css } from 'styled-components'
 import { theme } from '~/src/theme'
 import { Icon, ImageAspectRatio, SearchInput } from '~/src/components'
-import { Hero, ID } from '~/src/types/api'
+import { Hero } from '~/src/types/api'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { CATEGORY_HERO_ASPECT_RATIO } from '~/src/contexts/BoardList/constants'
 
@@ -12,19 +12,10 @@ interface Props {
   onClose: () => void
 }
 
-type SelectedHeroMap = Record<ID, boolean>
-
 const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }) => {
   const [search, setSearch] = useState('')
 
   const { heroAttributeGroups, isLoading } = useHeroList()
-
-  const selectedHeroesMap: SelectedHeroMap = useMemo(() => {
-    return selectedHeroes.reduce((heroes, hero) => {
-      heroes[hero.id] = true
-      return heroes
-    }, {})
-  }, [selectedHeroes])
 
   if (isLoading) {
     return null
@@ -58,7 +49,6 @@ const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }
                     type="button"
                     onClick={() => onSelectHero(hero)}
                     dimmed={search && !hero.name.toLowerCase().includes(search)}
-                    disabled={selectedHeroesMap[hero.id]}
                     title={`Select ${hero.name}`}>
                     <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
                   </HeroSelectorItemButton>
@@ -179,14 +169,9 @@ const HeroSelectorItemButton = styled.button<{ dimmed: boolean }>`
   border: 2px solid transparent;
   cursor: pointer;
 
-  &:hover:not(:disabled),
-  &:focus:not(:disabled) {
+  &:hover,
+  &:focus {
     border-color: ${theme.colors.blue[500]};
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: default;
   }
 
   ${(props) =>
