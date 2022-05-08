@@ -134,7 +134,7 @@ const HeroSelectorGroupHeading = styled.div`
   margin-bottom: 16px;
 `
 
-const HeroSelectorGroupHeadingIcon = styled.div`
+const HeroSelectorGroupHeadingIcon = styled.div<{ bg: string }>`
   padding: 4px;
   margin-right: 12px;
   background: ${(props) => props.bg};
