@@ -1,0 +1,1 @@
+export { RegisterRoute } from './RegisterRoute'

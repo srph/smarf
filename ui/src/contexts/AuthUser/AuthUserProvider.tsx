@@ -8,15 +8,22 @@ import { useLocation, useNavigate } from 'react-router-dom'
 interface OauthCredentials {
   username: string
   password: string
-  client_id: string
-  client_secret: string
-  grant_type: string
+}
+
+interface RegisterMutationVariables {
+  name: string
+  username: string
+  password: string
+  password_confirmation: string
 }
 
 interface ContextType {
   user: User | null
   token: string
   login: (user: OauthCredentials) => void
+  isLoggingIn: boolean
+  register: (user: RegisterMutationVariables) => void
+  isRegistering: boolean
   logout: () => void
 }
 
@@ -33,9 +40,11 @@ const AuthUserProvider: React.FC = ({ children }) => {
       setUser(data.user)
     },
     // At this point interceptors haven't been initialized yet
-    headers: token ? {
-      'Authorization': `Bearer ${token}`
-    } : {}
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`
+        }
+      : {}
   })
 
   const location = useLocation()
@@ -47,7 +56,7 @@ const AuthUserProvider: React.FC = ({ children }) => {
   // Our current problem with the approach above is the race condition
   // with RouteGuard running its own navigation based on token / user.
   // Instead, we'll take the easy way out and refresh
-  const { mutate: login } = useMutation<OauthCredentials>('oauth/token', 'post', {
+  const { mutate: loginMutation, isLoading: isLoggingIn } = useMutation<OauthCredentials>('oauth/token', 'post', {
     onSuccess: (data) => {
       setToken(data.access_token)
 
@@ -60,6 +69,29 @@ const AuthUserProvider: React.FC = ({ children }) => {
     onError: () => {}
   })
 
+  const login = (credentials: OauthCredentials) => {
+    loginMutation({
+      client_id: config.oauth.clientId,
+      client_secret: config.oauth.clientSecret,
+      grant_type: 'password',
+      ...credentials
+    })
+  }
+
+  const { mutate: register, isLoading: isRegistering } = useMutation<RegisterMutationVariables>(
+    'auth/register',
+    'post',
+    {
+      onSuccess: (data, variables) => {
+        login({
+          username: variables.username,
+          password: variables.password
+        })
+      },
+      onError: () => {}
+    }
+  )
+
   const logout = () => {
     setUser(null)
     setToken('')
@@ -70,7 +102,10 @@ const AuthUserProvider: React.FC = ({ children }) => {
     user,
     setUser,
     token,
+    register,
+    isRegistering: isRegistering || isLoggingIn,
     login,
+    isLoggingIn,
     logout
   }
 

@@ -10,14 +10,14 @@ class AuthController extends Controller
 {
     public function register(AuthRegisterRequest $request)
     {
-        $user = User::create([
+        User::create([
             'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'password' => $request->input('password')
+            'email' => $request->input('username'),
+            'password' => bcrypt($request->input('password'))
         ]);
 
         return response()->json([
-            'user' => $user
+            'success' => true
         ]);
     }
 

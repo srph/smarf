@@ -16,7 +16,9 @@ import { HomeRoute } from './routes/app.home'
 import { BoardsIdRoute } from './routes/app.boards.id'
 import { AboutRoute } from './routes/app.about'
 import { AccountRoute } from './routes/app.account'
-import { LoginRoute } from './routes/login'
+import { AuthRoute } from './routes/auth'
+import { LoginRoute } from './routes/auth.login'
+import { RegisterRoute } from './routes/auth.register'
 import { LogoutRoute } from './routes/logout'
 import { theme } from './theme'
 
@@ -43,14 +45,25 @@ const App = () => {
                       <Route path="/boards/:boardId" element={<BoardsIdRoute />} />
                     </Route>
 
-                    <Route
-                      path="/login"
-                      element={
-                        <GuardedRoute type="guest">
-                          <LoginRoute />
-                        </GuardedRoute>
-                      }
-                    />
+                    <Route element={<AuthRoute />}>
+                      <Route
+                        path="/login"
+                        element={
+                          <GuardedRoute type="guest">
+                            <LoginRoute />
+                          </GuardedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/register"
+                        element={
+                          <GuardedRoute type="guest">
+                            <RegisterRoute />
+                          </GuardedRoute>
+                        }
+                      />
+                    </Route>
 
                     <Route path="/logout" element={<LogoutRoute />} />
                   </Routes>

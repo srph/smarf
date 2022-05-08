@@ -25,7 +25,7 @@ class AuthRegisterRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'email' => 'required|email',
+            'username' => 'required|email',
             'password' => 'required|confirmed'
         ];
     }
