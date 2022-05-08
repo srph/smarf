@@ -1,5 +1,7 @@
 import React, { useMemo, useRef } from 'react'
 import styled from 'styled-components'
+import { Helmet } from 'react-helmet-async'
+
 import { theme } from '~/src/theme'
 import { Container, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
@@ -57,6 +59,8 @@ const BoardWorkspace: React.FC = () => {
 
   return (
     <Container>
+      <Helmet title={`${board.name} Board`} />
+
       <WorkspaceNavigationPadding />
 
       <DndContext

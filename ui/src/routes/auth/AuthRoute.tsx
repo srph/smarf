@@ -3,14 +3,16 @@ import styled from 'styled-components'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Spacer, Logo } from '~/src/components'
 import { theme } from '~/src/theme'
-import bg from '~/src/public/images/login-bg.png'
+import loginBg from '~/src/public/images/login-bg.png'
+import registerBg from '~/src/public/images/register-bg.jpg'
 
 const AuthRoute = () => {
   const { pathname } = useLocation()
 
   return (
     <Layout>
-      <LayoutBg />
+      <LayoutBg bg={pathname === '/login' ? loginBg : registerBg} />
+
       <LayoutContent>
         <Logo />
 
@@ -48,10 +50,10 @@ const Layout = styled.div`
   min-height: 768px;
 `
 
-const LayoutBg = styled.div`
+const LayoutBg = styled.div<{ bg: string }>`
   height: 100%;
   width: 50%;
-  background-image: url(${bg});
+  background-image: url(${(props) => props.bg});
   background-size: cover;
 `
 

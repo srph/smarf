@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { Button, Input, Spacer } from '~/src/components'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 
@@ -25,35 +26,38 @@ const RegisterRoute = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Input label="Email" placeholder="your@email.com" value={email} onChange={setEmail} type="email" />
-      <Spacer size={2} />
+    <>
+      <Helmet title="Create an account" />
+      <form onSubmit={handleSubmit}>
+        <Input label="Email" placeholder="your@email.com" value={email} onChange={setEmail} type="email" />
+        <Spacer size={2} />
 
-      <Input label="Name" placeholder="John Doe" value={name} onChange={setName} />
-      <Spacer size={2} />
+        <Input label="Name" placeholder="John Doe" value={name} onChange={setName} />
+        <Spacer size={2} />
 
-      <Input
-        label="Password"
-        placeholder="Enter your password"
-        value={password}
-        onChange={setPassword}
-        type="password"
-      />
-      <Spacer size={2} />
+        <Input
+          label="Password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={setPassword}
+          type="password"
+        />
+        <Spacer size={2} />
 
-      <Input
-        label="Password Confirmation"
-        placeholder="Repeat your password above"
-        value={passwordConfirmation}
-        onChange={setPasswordConfirmation}
-        type="password"
-      />
-      <Spacer size={4} />
+        <Input
+          label="Password Confirmation"
+          placeholder="Repeat your password above"
+          value={passwordConfirmation}
+          onChange={setPasswordConfirmation}
+          type="password"
+        />
+        <Spacer size={4} />
 
-      <Button type="submit" block disabled={isRegistering}>
-        Create an account
-      </Button>
-    </form>
+        <Button type="submit" block disabled={isRegistering}>
+          Create an account
+        </Button>
+      </form>
+    </>
   )
 }
 

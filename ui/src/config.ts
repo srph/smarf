@@ -1,4 +1,9 @@
 const config = {
+  app: {
+    title: 'Smarf',
+    description: 'Dota 2 Hero Organizer'
+  },
+
   api: {
     baseUrl: process.env.API_URL
   },

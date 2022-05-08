@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { createGlobalStyle } from 'styled-components'
 import 'modern-normalize/modern-normalize.css'
 
+import { HelmetProvider, Helmet } from 'react-helmet-async'
 import { AuthUserProvider } from '~/src/contexts/AuthUser'
 import { AxiosProvider } from '~/src/contexts/Axios'
 import { QueryProvider } from '~/src/contexts/Query'
@@ -22,57 +23,63 @@ import { RegisterRoute } from './routes/auth.register'
 import { LogoutRoute } from './routes/logout'
 import { theme } from './theme'
 
+import { config } from './config'
+
 const App = () => {
   return (
     <>
-      <BrowserRouter>
-        <QueryProvider>
-          <AuthUserProvider>
-            <AxiosProvider>
-              <HeroListProvider>
-                <BoardListProvider>
-                  <Routes>
-                    <Route
-                      path="/"
-                      element={
-                        <GuardedRoute type="auth">
-                          <AppRoute />
-                        </GuardedRoute>
-                      }>
-                      <Route index element={<HomeRoute />} />
-                      <Route path="/account" element={<AccountRoute />} />
-                      <Route path="/about" element={<AboutRoute />} />
-                      <Route path="/boards/:boardId" element={<BoardsIdRoute />} />
-                    </Route>
+      <HelmetProvider>
+        <Helmet titleTemplate={`${config.app.title} — %s`} />
 
-                    <Route element={<AuthRoute />}>
+        <BrowserRouter>
+          <QueryProvider>
+            <AuthUserProvider>
+              <AxiosProvider>
+                <HeroListProvider>
+                  <BoardListProvider>
+                    <Routes>
                       <Route
-                        path="/login"
+                        path="/"
                         element={
-                          <GuardedRoute type="guest">
-                            <LoginRoute />
+                          <GuardedRoute type="auth">
+                            <AppRoute />
                           </GuardedRoute>
-                        }
-                      />
+                        }>
+                        <Route index element={<HomeRoute />} />
+                        <Route path="/account" element={<AccountRoute />} />
+                        <Route path="/about" element={<AboutRoute />} />
+                        <Route path="/boards/:boardId" element={<BoardsIdRoute />} />
+                      </Route>
 
-                      <Route
-                        path="/register"
-                        element={
-                          <GuardedRoute type="guest">
-                            <RegisterRoute />
-                          </GuardedRoute>
-                        }
-                      />
-                    </Route>
+                      <Route element={<AuthRoute />}>
+                        <Route
+                          path="/login"
+                          element={
+                            <GuardedRoute type="guest">
+                              <LoginRoute />
+                            </GuardedRoute>
+                          }
+                        />
 
-                    <Route path="/logout" element={<LogoutRoute />} />
-                  </Routes>
-                </BoardListProvider>
-              </HeroListProvider>
-            </AxiosProvider>
-          </AuthUserProvider>
-        </QueryProvider>
-      </BrowserRouter>
+                        <Route
+                          path="/register"
+                          element={
+                            <GuardedRoute type="guest">
+                              <RegisterRoute />
+                            </GuardedRoute>
+                          }
+                        />
+                      </Route>
+
+                      <Route path="/logout" element={<LogoutRoute />} />
+                    </Routes>
+                  </BoardListProvider>
+                </HeroListProvider>
+              </AxiosProvider>
+            </AuthUserProvider>
+          </QueryProvider>
+        </BrowserRouter>
+      </HelmetProvider>
 
       <GlobalStyle />
     </>
