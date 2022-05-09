@@ -194,6 +194,10 @@ const CategoryHeadingDragIcon = styled.div`
 const CategoryHeadingTitle = styled.h4`
   margin: 0;
   font-size: ${theme.fontSizes.md};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
 `
 
 const CategoryRemove = styled.button`
