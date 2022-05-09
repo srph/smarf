@@ -26,7 +26,7 @@ const BoardList: React.FC<Props> = ({ title, boards }) => {
           </ItemLink>
 
           <PlainButton type="button" onClick={() => favoriteBoard(board.id)}>
-            <ItemFavorite color={board.is_favorite ? theme.colors.red[500] : theme.colors.neutral[400]}>
+            <ItemFavorite color={board.is_favorite ? theme.colors.yellow[500] : theme.colors.neutral[400]}>
               <Icon name={board.is_favorite ? 'star' : 'starOutline'} width={24} />
             </ItemFavorite>
           </PlainButton>

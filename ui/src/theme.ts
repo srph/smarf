@@ -48,6 +48,10 @@ export const theme = {
 
     red: {
       500: '#ef4444'
+    },
+
+    yellow: {
+      500: '#EAB308'
     }
   },
 
