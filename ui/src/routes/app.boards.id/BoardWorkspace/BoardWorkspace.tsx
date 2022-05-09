@@ -61,8 +61,6 @@ const BoardWorkspace: React.FC = () => {
     <Container>
       <Helmet title={`${board.name} Board`} />
 
-      <WorkspaceNavigationPadding />
-
       <DndContext
         sensors={sensors}
         collisionDetection={collisionDetectionStrategy}
@@ -83,11 +81,6 @@ const BoardWorkspace: React.FC = () => {
     </Container>
   )
 }
-
-// Easier than adjusting the logic to take the padding into account
-const WorkspaceNavigationPadding = styled.div`
-  padding-top: 24px;
-`
 
 const Workspace = styled.div<{ height: number }>`
   position: relative;

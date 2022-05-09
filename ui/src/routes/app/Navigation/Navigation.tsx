@@ -45,6 +45,7 @@ const Navigation: React.FC = () => {
 }
 
 const Nav = styled.div`
+  margin-bottom: 48px;
   border-bottom: 1px solid ${theme.colors.neutral[800]};
 `
 
