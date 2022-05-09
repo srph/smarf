@@ -33,11 +33,15 @@ export interface Category {
 export interface Board {
   id: ID
   name: string
+  is_favorite: string
   categories: Category[]
+  created_at: string
+  updated_at: string
 }
 
 export interface User {
   id: ID
   email: string
   name: string
+  avatar: string
 }

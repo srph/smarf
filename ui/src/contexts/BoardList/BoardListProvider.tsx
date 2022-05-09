@@ -16,6 +16,7 @@ interface BoardListContextType {
   isBoardCreating: boolean
   createBoard: () => void
   updateBoard: (id: ID, name: string) => void
+  favoriteBoard: (id: ID) => void
   removeBoard: (id: ID) => void
 }
 
@@ -23,6 +24,7 @@ const BoardListContext = createContext<BoardListContextType>({
   boards: [],
   isBoardListLoading: false,
   isBoardCreating: false,
+  favoriteBoard: () => {},
   createBoard: () => {},
   updateBoard: () => {},
   removeBoard: () => {}
@@ -47,6 +49,30 @@ const BoardListProvider: React.FC = ({ children }) => {
       navigate(`/boards/${data.board.id}`)
     }
   })
+
+  interface FavoriteBoardMutationVariables {
+    board_id: string
+    is_favorite: boolean
+  }
+
+  const { mutate: favoriteBoardMutation } = useMutation<FavoriteBoardMutationVariables>(
+    (v) => `/boards/${v.board_id}/favorite`,
+    'put',
+    {
+      onSuccess: (data) => {
+        // @TODO: Toast
+        queryClient.invalidateQueries('/boards')
+      }
+    }
+  )
+
+  const boards = data?.boards || []
+
+  const favoriteBoard = (id: ID) => {
+    if (!boards) return null
+    const board = boards.find((board) => board.id === id)
+    favoriteBoardMutation({ board_id: id, is_favorite: !board.is_favorite })
+  }
 
   const createBoard = () => {
     if (isBoardCreating || isHeroListLoading) {
@@ -94,9 +120,10 @@ const BoardListProvider: React.FC = ({ children }) => {
   return (
     <BoardListContext.Provider
       value={{
-        boards: data?.boards || [],
+        boards: boards,
         isBoardListLoading,
         isBoardCreating,
+        favoriteBoard,
         createBoard,
         updateBoard,
         removeBoard

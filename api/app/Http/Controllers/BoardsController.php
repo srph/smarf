@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use App\Models\Board;
 use App\Models\Category;
 use App\Http\Requests\CreateBoardRequest;
+use App\Http\Requests\FavoriteBoardRequest;
 use App\Http\Requests\UpdateBoardRequest;
 
 class BoardsController extends Controller
@@ -57,6 +58,15 @@ class BoardsController extends Controller
     {
         return response()->json([
             'board' => $board->load('categories', 'categories.heroes')
+        ]);
+    }
+
+    public function favorite(FavoriteBoardRequest $request, Board $board)
+    {
+        return response()->json([
+            'board' => $board->update([
+                'is_favorite' => $request->get('is_favorite')
+            ])
         ]);
     }
 
