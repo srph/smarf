@@ -76,12 +76,12 @@ const ItemLink = styled(Link)`
 
 const ItemTitle = styled.h3`
   color: ${theme.colors.text};
-  font-size: ${theme.fontSizes.lg};
+  font-size: ${theme.fontSizes.lg}px;
   font-weight: 500;
 `
 
 const ItemLastUpdate = styled.span`
-  font-size: ${theme.fontSizes.sm};
+  font-size: ${theme.fontSizes.sm}px;
   font-weight: 400;
   color: ${theme.colors.neutral[400]};
 `
