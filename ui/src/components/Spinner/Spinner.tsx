@@ -2,6 +2,7 @@ import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { theme } from '~/src/theme'
 
+// @source: https://loading.io/css/
 const Spinner = () => {
   return (
     <Container>
