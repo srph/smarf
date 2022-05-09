@@ -1,18 +1,27 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+import styled from 'styled-components'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { BoardList } from './BoardList'
-import { Spacer } from '~/src/components'
+import { Spacer, Spinner } from '~/src/components'
 
 const HomeRoute = () => {
-  const { boards } = useBoardList()
+  const { boards, isBoardListLoading } = useBoardList()
 
-  if (!boards.length) {
-    return null
+  const favorites = useMemo(() => {
+    return boards.filter((board) => board.is_favorite)
+  }, [boards])
+
+  const recent = useMemo(() => {
+    return boards.filter((board) => !board.is_favorite)
+  }, [boards])
+
+  if (isBoardListLoading) {
+    return (
+      <Container>
+        <Spinner />
+      </Container>
+    )
   }
-
-  const favorites = boards.filter((board) => board.is_favorite)
-
-  const recent = boards.filter((board) => !board.is_favorite)
 
   return (
     <>
@@ -27,5 +36,12 @@ const HomeRoute = () => {
     </>
   )
 }
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 48px;
+`
 
 export { HomeRoute }
