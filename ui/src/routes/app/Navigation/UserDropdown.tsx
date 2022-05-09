@@ -1,60 +1,69 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { theme } from '~/src/theme'
-import { Avatar, Icon } from '~/src/components'
+import { Avatar, Icon, Popover, PlainButton } from '~/src/components'
+import { useAuthUser } from '~/src/contexts/AuthUser'
 import avatar from '~/src/public/images/avatar.png'
 
 const UserDropdown: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false)
+  const { user } = useAuthUser()
+
+  const trigger = (
+    <PlainButton>
+      <Avatar src={user.avatar || avatar} size="lg"></Avatar>
+    </PlainButton>
+  )
+
   return (
-    <Container>
-      <Heading>
-        <Avatar src={avatar} />
+    <Popover open={isOpen} onChangeOpen={setIsOpen} trigger={trigger} placement="bottom-end" offset={{ x: 0, y: 24 }}>
+      <Container>
+        <Heading>
+          <Avatar src={user.avatar || avatar} />
 
-        <UserInfo>
-          <UserInfoName>Kier Borromeo</UserInfoName>
-          <UserInfoEmail>your@email.com</UserInfoEmail>
-        </UserInfo>
-      </Heading>
+          <UserInfo>
+            <UserInfoName>{user.name}</UserInfoName>
+            <UserInfoEmail>{user.email}</UserInfoEmail>
+          </UserInfo>
+        </Heading>
 
-      <LinkItem to="/">
-        <LinkItemIcon>
-          <Icon name="home" />
-        </LinkItemIcon>
+        <LinkItem to="/">
+          <LinkItemIcon>
+            <Icon name="home" />
+          </LinkItemIcon>
 
-        <LinkItemText>Home</LinkItemText>
-      </LinkItem>
+          <LinkItemText>Home</LinkItemText>
+        </LinkItem>
 
-      <LinkItem to="/account">
-        <LinkItemIcon>
-          <Icon name="adjustments" />
-        </LinkItemIcon>
+        <LinkItem to="/account">
+          <LinkItemIcon>
+            <Icon name="adjustments" />
+          </LinkItemIcon>
 
-        <LinkItemText>Account Settings</LinkItemText>
-      </LinkItem>
+          <LinkItemText>Account Settings</LinkItemText>
+        </LinkItem>
 
-      <LinkItem to="/about">
-        <LinkItemIcon>
-          <Icon name="lightning-bolt" />
-        </LinkItemIcon>
+        <LinkItem to="/about">
+          <LinkItemIcon>
+            <Icon name="lightning-bolt" />
+          </LinkItemIcon>
 
-        <LinkItemText>About &amp; Changelog</LinkItemText>
-      </LinkItem>
-      <LinkItem to="/logout">
-        <LinkItemIcon>
-          <Icon name="arrow-left" />
-        </LinkItemIcon>
+          <LinkItemText>About &amp; Changelog</LinkItemText>
+        </LinkItem>
+        <LinkItem to="/logout">
+          <LinkItemIcon>
+            <Icon name="arrow-left" />
+          </LinkItemIcon>
 
-        <LinkItemText>Logout</LinkItemText>
-      </LinkItem>
-    </Container>
+          <LinkItemText>Logout</LinkItemText>
+        </LinkItem>
+      </Container>
+    </Popover>
   )
 }
 
 const Container = styled.div`
-  position: absolute;
-  right: 0;
-  top: 120px;
   width: 240px;
   background: ${theme.colors.neutral[900]};
   border-radius: 4px;

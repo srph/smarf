@@ -1,16 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
-import { Avatar, Button, Container, Logo, PlainButton } from '~/src/components'
+import { Button, Container, Logo } from '~/src/components'
 import { Link } from 'react-router-dom'
-import avatar from '~/src/public/images/avatar.png'
 import { UserDropdown } from './UserDropdown'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { useHeroList } from '~/src/contexts/HeroList'
 
 const Navigation: React.FC = () => {
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
-
   const { createBoard, isBoardCreating } = useBoardList()
   const { isLoading: isHeroListLoading } = useHeroList()
 
@@ -32,13 +29,9 @@ const Navigation: React.FC = () => {
               </Button>
             </NavMenuSection>
 
-            <PlainButton onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}>
-              <Avatar src={avatar} size="lg"></Avatar>
-            </PlainButton>
+            <UserDropdown />
           </NavMenu>
         </NavContainer>
-
-        {isUserDropdownOpen && <UserDropdown />}
       </Container>
     </Nav>
   )
