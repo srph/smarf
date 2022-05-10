@@ -11,13 +11,19 @@ const UserDropdown: React.FC = () => {
   const { user } = useAuthUser()
 
   const trigger = (
-    <PlainButton>
+    <PlainButton onClick={() => setIsOpen(!isOpen)}>
       <Avatar src={user.avatar || avatar} size="lg"></Avatar>
     </PlainButton>
   )
 
   return (
-    <Popover open={isOpen} onChangeOpen={setIsOpen} trigger={trigger} placement="bottom-end" offset={{ x: 0, y: 24 }}>
+    <Popover
+      open={isOpen}
+      onChangeOpen={setIsOpen}
+      trigger={trigger}
+      placement="bottom-end"
+      offset={{ x: 0, y: 24 }}
+      closeOnContentClick>
       <Container>
         <Heading>
           <Avatar src={user.avatar || avatar} />

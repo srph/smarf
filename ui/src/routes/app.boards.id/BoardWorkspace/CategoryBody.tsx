@@ -13,6 +13,7 @@ import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { Translate } from './useDragContainer'
 
 import { Resizable } from 're-resizable'
+import { mergeRefs } from '~/src/utils'
 
 import {
   CATEGORY_BODY_INITIAL_WIDTH,
@@ -28,7 +29,10 @@ interface Props {
 
 const CategoryBody: React.FC<Props> = ({ category }) => {
   const { addHero, resizeCategory, resizeCategoryEnd, deleteCategory } = useBoardWorkspace()
+
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
+
+  const [containerElement, setContainerElement] = useState<HTMLDivElement>()
 
   // This is important to allow an item to be dropped to an empty category
   const { setNodeRef: setDroppableNodeRef } = useDroppable({
@@ -90,37 +94,36 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
           size={{ width: category.width }}
           onResize={handleResize}
           onResizeStop={handleResizeStop}>
-          <Body ref={setDroppableNodeRef} width={category.width}>
+          <Body ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)} width={category.width}>
             <SortableContext items={category.heroes.map((hero) => hero.pivot.id)} strategy={rectSortingStrategy}>
               {category.heroes.map((hero) => (
                 <CategoryHero key={hero.pivot.id} category={category} hero={hero} />
               ))}
             </SortableContext>
 
-            <NewHeroContainer>
-              <NewHero onClick={() => setIsHeroSelectorOpen(true)}>
-                <NewCategoryIcon>
-                  <Icon name="plus-circle" width={16} />
-                </NewCategoryIcon>
-                <NewCategoryText>Add</NewCategoryText>
-              </NewHero>
-            </NewHeroContainer>
+            <HeroSelector
+              open={isHeroSelectorOpen}
+              onSelectHero={(hero: Hero) => {
+                addHero(category, hero)
+              }}
+              onChangeOpen={() => {
+                setIsHeroSelectorOpen(false)
+              }}
+              trigger={
+                <NewHeroContainer>
+                  <NewHero onClick={() => setIsHeroSelectorOpen(!isHeroSelectorOpen)}>
+                    <NewCategoryIcon>
+                      <Icon name="plus-circle" width={16} />
+                    </NewCategoryIcon>
+                    <NewCategoryText>Add</NewCategoryText>
+                  </NewHero>
+                </NewHeroContainer>
+              }
+              container={containerElement}
+            />
           </Body>
         </Resizable>
       </CategoryContainer>
-
-      {isHeroSelectorOpen && (
-        <HeroSelector
-          selectedHeroes={category.heroes}
-          onSelectHero={(hero: Hero) => {
-            addHero(category, hero)
-            setIsHeroSelectorOpen(false)
-          }}
-          onClose={() => {
-            setIsHeroSelectorOpen(false)
-          }}
-        />
-      )}
     </React.Fragment>
   )
 }

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react'
+import styled from 'styled-components'
 import ReactDOM from 'react-dom'
 import { usePopper } from 'react-popper'
 import { useStateRef } from '~/src/hooks'
 import type { Placement, Offsets } from '@popperjs/core'
+import { theme } from '~/src/theme'
 
 interface Props {
   open: boolean
@@ -11,6 +13,7 @@ interface Props {
   placement?: Placement
   container?: HTMLElement
   offset?: Offsets
+  closeOnContentClick?: boolean
 }
 
 const Popover: React.FC<Props> = ({
@@ -20,10 +23,11 @@ const Popover: React.FC<Props> = ({
   offset,
   trigger,
   container: containerElement,
+  closeOnContentClick = false,
   children
 }) => {
   const [triggerElement, setTriggerElement, triggerElementRef] = useStateRef<HTMLElement>()
-  const [popperElement, setPopperElement] = useState<HTMLElement>()
+  const [popperElement, setPopperElement, popperElementRef] = useStateRef<HTMLElement>()
   const modifiers = useMemo(() => {
     const result = []
     if (offset) {
@@ -68,19 +72,28 @@ const Popover: React.FC<Props> = ({
     }
 
     const handleClick = (evt) => {
+      // Clicking inside the popover won't close the popover
+      if (!closeOnContentClick && popperElementRef.current?.contains(evt.target)) {
+        return
+      }
+
+      // Clicking inside the trigger won't toggle the popover
       if (triggerElementRef.current?.contains(evt.target)) {
-        onChangeOpen(!openRef.current)
-      } else if (openRef.current) {
+        return
+      }
+
+      // Close for everything else
+      if (openRef.current) {
         onChangeOpen(false)
       }
     }
 
     document.addEventListener('keydown', handleEscape)
-    document.addEventListener('click', handleClick)
+    document.addEventListener('mousedown', handleClick)
 
     return () => {
       document.removeEventListener('keydown', handleEscape)
-      document.removeEventListener('click', handleClick)
+      document.removeEventListener('mousedown', handleClick)
     }
   }, [])
 
@@ -91,13 +104,18 @@ const Popover: React.FC<Props> = ({
       {portalElement &&
         open &&
         ReactDOM.createPortal(
-          <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
+          <PopperContainer ref={setPopperElement} style={styles.popper} {...attributes.popper}>
             {children}
-          </div>,
+          </PopperContainer>,
           portalElement
         )}
     </>
   )
 }
+
+const PopperContainer = styled.div`
+  position: absolute;
+  z-index: ${theme.zIndex.popover};
+`
 
 export { Popover }

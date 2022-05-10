@@ -60,6 +60,7 @@ export const theme = {
     boardToolbar: 1000,
     editPopover: 1100,
     userDropdown: 1200,
-    heroSelector: 1300
+    heroSelector: 1300,
+    popover: 1500
   }
 }

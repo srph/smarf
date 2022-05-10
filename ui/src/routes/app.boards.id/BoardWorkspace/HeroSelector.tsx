@@ -1,18 +1,20 @@
 import React, { useState } from 'react'
 import styled, { css } from 'styled-components'
 import { theme } from '~/src/theme'
-import { Icon, ImageAspectRatio, SearchInput } from '~/src/components'
+import { Icon, ImageAspectRatio, SearchInput, Popover } from '~/src/components'
 import { Hero } from '~/src/types/api'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { CATEGORY_HERO_ASPECT_RATIO } from '~/src/contexts/BoardList/constants'
 
 interface Props {
-  selectedHeroes: Hero[]
+  open: boolean
+  trigger: React.ReactNode
+  container: HTMLDivElement
   onSelectHero: (hero: Hero) => void
-  onClose: () => void
+  onChangeOpen: (open: boolean) => void
 }
 
-const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }) => {
+const HeroSelector: React.FC<Props> = ({ open, onSelectHero, onChangeOpen, trigger, container }) => {
   const [search, setSearch] = useState('')
 
   const { heroAttributeGroups, isLoading } = useHeroList()
@@ -22,43 +24,52 @@ const HeroSelector: React.FC<Props> = ({ selectedHeroes, onSelectHero, onClose }
   }
 
   return (
-    <HeroSelectorContainer>
-      <HeroSelectorClose onClick={onClose}>
-        <Icon name="x" />
-      </HeroSelectorClose>
+    <Popover
+      open={open}
+      trigger={trigger}
+      container={container}
+      offset={{ x: 0, y: 32 }}
+      placement="bottom-start"
+      onChangeOpen={onChangeOpen}
+      closeOnContentClick={false}>
+      <HeroSelectorContainer>
+        <HeroSelectorClose onClick={() => onChangeOpen(false)}>
+          <Icon name="x" />
+        </HeroSelectorClose>
 
-      <HeroSelectorHeading>
-        <HeroSelectorHeadingText>Select Hero</HeroSelectorHeadingText>
-        <SearchInput value={search} onChange={setSearch} autoFocus />
-      </HeroSelectorHeading>
+        <HeroSelectorHeading>
+          <HeroSelectorHeadingText>Select Hero</HeroSelectorHeadingText>
+          <SearchInput value={search} onChange={setSearch} autoFocus />
+        </HeroSelectorHeading>
 
-      <HeroSelectorContent>
-        {heroAttributeGroups.map((attribute) => (
-          <React.Fragment key={attribute.id}>
-            <HeroSelectorGroupHeading>
-              <HeroSelectorGroupHeadingIcon bg={getAttributeIconColor(attribute.name)}>
-                <Icon name={getAttributeIcon(attribute.name)} />
-              </HeroSelectorGroupHeadingIcon>
-              <HeroSelectorGroupHeadingText>{attribute.name}</HeroSelectorGroupHeadingText>
-            </HeroSelectorGroupHeading>
+        <HeroSelectorContent>
+          {heroAttributeGroups.map((attribute) => (
+            <React.Fragment key={attribute.id}>
+              <HeroSelectorGroupHeading>
+                <HeroSelectorGroupHeadingIcon bg={getAttributeIconColor(attribute.name)}>
+                  <Icon name={getAttributeIcon(attribute.name)} />
+                </HeroSelectorGroupHeadingIcon>
+                <HeroSelectorGroupHeadingText>{attribute.name}</HeroSelectorGroupHeadingText>
+              </HeroSelectorGroupHeading>
 
-            <HeroSelectorGroupList>
-              {attribute.heroes.map((hero) => (
-                <HeroSelectorItem key={hero.id}>
-                  <HeroSelectorItemButton
-                    type="button"
-                    onClick={() => onSelectHero(hero)}
-                    dimmed={search && !hero.name.toLowerCase().includes(search)}
-                    title={`Select ${hero.name}`}>
-                    <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
-                  </HeroSelectorItemButton>
-                </HeroSelectorItem>
-              ))}
-            </HeroSelectorGroupList>
-          </React.Fragment>
-        ))}
-      </HeroSelectorContent>
-    </HeroSelectorContainer>
+              <HeroSelectorGroupList>
+                {attribute.heroes.map((hero) => (
+                  <HeroSelectorItem key={hero.id}>
+                    <HeroSelectorItemButton
+                      type="button"
+                      onClick={() => onSelectHero(hero)}
+                      dimmed={search && !hero.name.toLowerCase().includes(search)}
+                      title={`Select ${hero.name}`}>
+                      <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
+                    </HeroSelectorItemButton>
+                  </HeroSelectorItem>
+                ))}
+              </HeroSelectorGroupList>
+            </React.Fragment>
+          ))}
+        </HeroSelectorContent>
+      </HeroSelectorContainer>
+    </Popover>
   )
 }
 
@@ -89,9 +100,6 @@ const getAttributeIcon = (name: string) => {
 }
 
 const HeroSelectorContainer = styled.div`
-  position: absolute;
-  top: 120px;
-  left: 120px;
   width: 960px;
   background: ${theme.colors.neutral[900]};
   border: 1px solid ${theme.colors.neutral[700]};
