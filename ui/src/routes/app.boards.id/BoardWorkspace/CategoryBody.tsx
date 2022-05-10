@@ -155,7 +155,7 @@ const NewCategoryText = styled.div`
   color: ${theme.colors.text};
   font-weight: bold;
   letter-spacing: 0.5px;
-  font-size: ${theme.fontSizes.sm};
+  font-size: ${theme.fontSizes.sm}px;
 `
 
 const Body = styled.div<{ width: number }>`
@@ -172,7 +172,6 @@ const CategoryContainer = styled.div<Translate>`
   --translate-x: ${(props) => props.x}px;
   --translate-y: ${(props) => props.y}px;
   display: inline-block;
-  position: absolute;
   transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0);
 `
 

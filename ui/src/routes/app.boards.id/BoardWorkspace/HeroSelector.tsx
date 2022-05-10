@@ -104,7 +104,6 @@ const HeroSelectorContainer = styled.div`
   background: ${theme.colors.neutral[900]};
   border: 1px solid ${theme.colors.neutral[700]};
   border-radius: 4px;
-  z-index: ${theme.zIndex.heroSelector};
 `
 
 const HeroSelectorClose = styled.button`

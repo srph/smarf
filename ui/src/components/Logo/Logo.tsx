@@ -26,7 +26,7 @@ const NavLogoText = styled.h1`
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 800;
-  font-size: ${theme.fontSizes.lg};
+  font-size: ${theme.fontSizes.lg}px;
 `
 
 export { Logo }

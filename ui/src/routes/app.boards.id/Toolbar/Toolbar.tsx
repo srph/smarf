@@ -83,7 +83,7 @@ const StatusIndicator = styled.div`
   margin-left: auto;
   display: flex;
   align-items: center;
-  font-size: ${theme.fontSizes.sm};
+  font-size: ${theme.fontSizes.sm}px;
 `
 
 const StatusIndicatorIcon = styled.div`

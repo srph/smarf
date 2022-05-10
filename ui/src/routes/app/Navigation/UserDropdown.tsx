@@ -94,7 +94,7 @@ const UserInfoName = styled.h4`
 
 const UserInfoEmail = styled.span`
   color: ${theme.colors.neutral[400]};
-  font-size: ${theme.fontSizes.sm};
+  font-size: ${theme.fontSizes.sm}px;
 `
 
 const LinkItem = styled(Link)`
@@ -121,7 +121,7 @@ const LinkItemIcon = styled.div`
 `
 
 const LinkItemText = styled.div`
-  font-size: ${theme.fontSizes.md};
+  font-size: ${theme.fontSizes.md}px;
   color: ${theme.colors.text};
 `
 
