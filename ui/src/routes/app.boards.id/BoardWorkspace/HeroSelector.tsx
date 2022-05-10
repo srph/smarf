@@ -12,9 +12,10 @@ interface Props {
   container: HTMLDivElement
   onSelectHero: (hero: Hero) => void
   onChangeOpen: (open: boolean) => void
+  dependencies?: any[]
 }
 
-const HeroSelector: React.FC<Props> = ({ open, onSelectHero, onChangeOpen, trigger, container }) => {
+const HeroSelector: React.FC<Props> = ({ open, onSelectHero, onChangeOpen, trigger, container, dependencies }) => {
   const [search, setSearch] = useState('')
 
   const { heroAttributeGroups, isLoading } = useHeroList()
@@ -31,7 +32,7 @@ const HeroSelector: React.FC<Props> = ({ open, onSelectHero, onChangeOpen, trigg
       offset={{ x: 0, y: 32 }}
       placement="bottom-start"
       onChangeOpen={onChangeOpen}
-      closeOnContentClick={false}>
+      dependencies={dependencies}>
       <HeroSelectorContainer>
         <HeroSelectorClose onClick={() => onChangeOpen(false)}>
           <Icon name="x" />

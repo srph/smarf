@@ -120,6 +120,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
                 </NewHeroContainer>
               }
               container={containerElement}
+              dependencies={[category.height]}
             />
           </Body>
         </Resizable>

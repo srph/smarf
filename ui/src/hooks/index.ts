@@ -1,1 +1,5 @@
 export { useStateRef } from './useStateRef'
+export { useUpdateEffect } from './useUpdateEffect'
+export { useDocumentListener } from './useDocumentListener'
+export { useLatestValue } from './useLatestValue'
+export { useOutsideClick } from './useOutsideClick'

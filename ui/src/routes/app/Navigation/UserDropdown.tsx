@@ -16,14 +16,12 @@ const UserDropdown: React.FC = () => {
     </PlainButton>
   )
 
+  const handleClickLink = () => {
+    setIsOpen(false)
+  }
+
   return (
-    <Popover
-      open={isOpen}
-      onChangeOpen={setIsOpen}
-      trigger={trigger}
-      placement="bottom-end"
-      offset={{ x: 0, y: 24 }}
-      closeOnContentClick>
+    <Popover open={isOpen} onChangeOpen={setIsOpen} trigger={trigger} placement="bottom-end" offset={{ x: 0, y: 24 }}>
       <Container>
         <Heading>
           <Avatar src={user.avatar || avatar} />
@@ -34,7 +32,7 @@ const UserDropdown: React.FC = () => {
           </UserInfo>
         </Heading>
 
-        <LinkItem to="/">
+        <LinkItem to="/" onClick={handleClickLink}>
           <LinkItemIcon>
             <Icon name="home" />
           </LinkItemIcon>
@@ -42,7 +40,7 @@ const UserDropdown: React.FC = () => {
           <LinkItemText>Home</LinkItemText>
         </LinkItem>
 
-        <LinkItem to="/account">
+        <LinkItem to="/account" onClick={handleClickLink}>
           <LinkItemIcon>
             <Icon name="adjustments" />
           </LinkItemIcon>
@@ -50,14 +48,14 @@ const UserDropdown: React.FC = () => {
           <LinkItemText>Account Settings</LinkItemText>
         </LinkItem>
 
-        <LinkItem to="/about">
+        <LinkItem to="/about" onClick={handleClickLink}>
           <LinkItemIcon>
             <Icon name="lightning-bolt" />
           </LinkItemIcon>
 
           <LinkItemText>About &amp; Changelog</LinkItemText>
         </LinkItem>
-        <LinkItem to="/logout">
+        <LinkItem to="/logout" onClick={handleClickLink}>
           <LinkItemIcon>
             <Icon name="arrow-left" />
           </LinkItemIcon>

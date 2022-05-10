@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react'
 import styled from 'styled-components'
 import ReactDOM from 'react-dom'
 import { usePopper } from 'react-popper'
-import { useStateRef } from '~/src/hooks'
+import { useStateRef, useUpdateEffect, useDocumentListener, useOutsideClick } from '~/src/hooks'
 import type { Placement, Offsets } from '@popperjs/core'
 import { theme } from '~/src/theme'
 
@@ -13,8 +13,10 @@ interface Props {
   placement?: Placement
   container?: HTMLElement
   offset?: Offsets
-  closeOnContentClick?: boolean
+  dependencies?: any[]
 }
+
+const PORTAL_ID = 'smarf-popover-portal'
 
 const Popover: React.FC<Props> = ({
   open,
@@ -23,11 +25,13 @@ const Popover: React.FC<Props> = ({
   offset,
   trigger,
   container: containerElement,
-  closeOnContentClick = false,
+  dependencies,
   children
 }) => {
   const [triggerElement, setTriggerElement, triggerElementRef] = useStateRef<HTMLElement>()
+
   const [popperElement, setPopperElement, popperElementRef] = useStateRef<HTMLElement>()
+
   const modifiers = useMemo(() => {
     const result = []
     if (offset) {
@@ -40,64 +44,36 @@ const Popover: React.FC<Props> = ({
     }
     return result
   }, [offset])
-  const { styles, attributes } = usePopper(containerElement || triggerElement, popperElement, {
+
+  const { styles, attributes, forceUpdate } = usePopper(containerElement || triggerElement, popperElement, {
     placement,
     modifiers
   })
-  const [portalElement, setPortalElement] = useState<HTMLElement>()
-  const openRef = useRef(open)
 
-  useEffect(() => {
-    let portal
-
-    if ((portal = document.querySelector('#smarf-popover-portal'))) {
-      setPortalElement(portal)
-    } else {
-      portal = document.createElement('div')
-      portal.setAttribute('id', 'smarf-popover-portal')
-      document.body.appendChild(portal)
-      setPortalElement(portal)
-    }
+  const portalElement = useMemo(() => {
+    return document.querySelector('#smarf-popover-portal')
   }, [])
 
-  useEffect(() => {
-    openRef.current = open
-  }, [open])
+  // Force-calculate position when dependencies change
+  // e.g., category height increases
+  useUpdateEffect(
+    () => {
+      forceUpdate?.()
+    },
+    dependencies ? [forceUpdate, ...dependencies] : [forceUpdate]
+  )
 
-  useEffect(() => {
-    const handleEscape = (evt) => {
-      if (openRef.current && evt.key === 'Escape') {
-        onChangeOpen(false)
-      }
+  useDocumentListener('keydown', (evt) => {
+    if (open && evt.key === 'Escape') {
+      onChangeOpen(false)
     }
+  })
 
-    const handleClick = (evt) => {
-      // Clicking inside the popover won't close the popover
-      if (!closeOnContentClick && popperElementRef.current?.contains(evt.target)) {
-        return
-      }
-
-      // Clicking inside the trigger won't toggle the popover
-      if (triggerElementRef.current?.contains(evt.target)) {
-        return
-      }
-
-      // Close for everything else
-      if (openRef.current) {
-        // setTimeout(() => {
-        //   onChangeOpen(false)
-        // }, 50)
-      }
+  useOutsideClick([popperElementRef, triggerElementRef], (evt) => {
+    if (open) {
+      onChangeOpen(false)
     }
-
-    document.addEventListener('keydown', handleEscape)
-    document.addEventListener('mousedown', handleClick)
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-      document.removeEventListener('mousedown', handleClick)
-    }
-  }, [])
+  })
 
   return (
     <>
@@ -115,9 +91,13 @@ const Popover: React.FC<Props> = ({
   )
 }
 
+const PopoverPortal = () => {
+  return <div id={PORTAL_ID} />
+}
+
 const PopperContainer = styled.div`
   position: absolute;
   z-index: ${theme.zIndex.popover};
 `
 
-export { Popover }
+export { Popover, PopoverPortal }

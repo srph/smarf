@@ -11,7 +11,7 @@ import { BoardListProvider } from '~/src/contexts/BoardList'
 import { HeroListProvider } from '~/src/contexts/HeroList'
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { GuardedRoute } from '~/src/components'
+import { GuardedRoute, PopoverPortal } from '~/src/components'
 import { AppRoute } from './routes/app'
 import { HomeRoute } from './routes/app.home'
 import { BoardsIdRoute } from './routes/app.boards.id'
@@ -21,8 +21,8 @@ import { AuthRoute } from './routes/auth'
 import { LoginRoute } from './routes/auth.login'
 import { RegisterRoute } from './routes/auth.register'
 import { LogoutRoute } from './routes/logout'
-import { theme } from './theme'
 
+import { theme } from './theme'
 import { config } from './config'
 
 const App = () => {
@@ -80,6 +80,8 @@ const App = () => {
           </QueryProvider>
         </BrowserRouter>
       </HelmetProvider>
+
+      <PopoverPortal />
 
       <GlobalStyle />
     </>
