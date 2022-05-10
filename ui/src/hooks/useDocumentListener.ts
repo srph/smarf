@@ -3,7 +3,7 @@ import { useLatestValue } from './useLatestValue'
 
 type Listener<T extends keyof WindowEventMap> = (event: WindowEventMap[T]) => void
 
-const useDocumentListener = <T extends keyof WindowEventMap>(event: string, listener: Listener<T>) => {
+const useDocumentListener = <T extends keyof WindowEventMap>(event: T, listener: Listener<T>) => {
   const listenerRef = useLatestValue(listener)
 
   useEffect(() => {
