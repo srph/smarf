@@ -169,6 +169,9 @@ const IconGroupButton = styled.button`
   background: ${theme.colors.neutral[900]};
   border: 0;
   cursor: pointer;
+  box-shadow: 0px 0px 0px 2px transparent;
+  transition: 200ms all ease;
+  z-index: ${theme.zIndex.boardToolbarIcon};
 
   &:first-child {
     border-top-left-radius: 4px;
@@ -184,21 +187,10 @@ const IconGroupButton = styled.button`
     border-right: 1px solid ${theme.colors.neutral[700]};
   }
 
-  &::after {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 4px;
-    border: 2px solid transparent;
-  }
-
-  &:hover::after,
-  &:focus::after {
-    border-color: ${theme.colors.indigo[300]};
+  &:hover,
+  &:focus {
+    z-index: ${theme.zIndex.boardToolbarHoveredIcon};
+    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
   }
 `
 
