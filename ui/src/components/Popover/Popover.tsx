@@ -1,9 +1,10 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react'
-import styled from 'styled-components'
+import React, { useMemo } from 'react'
 import ReactDOM from 'react-dom'
+import styled from 'styled-components'
 import { usePopper } from 'react-popper'
-import { useStateRef, useUpdateEffect, useDocumentListener, useOutsideClick } from '~/src/hooks'
 import type { Placement, Offsets } from '@popperjs/core'
+
+import { useStateRef, useUpdateEffect, useDocumentListener, useOutsideClick } from '~/src/hooks'
 import { theme } from '~/src/theme'
 
 interface Props {
@@ -51,7 +52,7 @@ const Popover: React.FC<Props> = ({
   })
 
   const portalElement = useMemo(() => {
-    return document.querySelector('#smarf-popover-portal')
+    return document.getElementById(PORTAL_ID)
   }, [])
 
   // Force-calculate position when dependencies change
