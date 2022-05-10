@@ -140,7 +140,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
           immer(boardRef.current, (draft) => {
             const category = draft.categories.find((c) => c.id === v.category_id)
             const hero = category.heroes.find((h) => h.pivot.id === v.hero_buffer_id)
-            console.log('Here', JSON.stringify(category.heroes, null, 2), data, v)
             hero.pivot = data.hero.pivot
           })
         )
