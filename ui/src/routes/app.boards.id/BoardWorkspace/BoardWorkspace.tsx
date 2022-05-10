@@ -83,6 +83,7 @@ const BoardWorkspace: React.FC = () => {
 }
 
 const Workspace = styled.div<{ height: number }>`
+  position: relative;
   height: ${(props) => props.height}px;
   z-index: ${theme.zIndex.boardWorkspace};
 `

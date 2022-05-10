@@ -169,6 +169,7 @@ const Body = styled.div<{ width: number }>`
 `
 
 const CategoryContainer = styled.div<Translate>`
+  position: absolute;
   --translate-x: ${(props) => props.x}px;
   --translate-y: ${(props) => props.y}px;
   display: inline-block;

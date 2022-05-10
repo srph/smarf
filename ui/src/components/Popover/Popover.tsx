@@ -84,7 +84,9 @@ const Popover: React.FC<Props> = ({
 
       // Close for everything else
       if (openRef.current) {
-        onChangeOpen(false)
+        // setTimeout(() => {
+        //   onChangeOpen(false)
+        // }, 50)
       }
     }
 
