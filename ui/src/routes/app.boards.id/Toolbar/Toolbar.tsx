@@ -91,15 +91,18 @@ const StatusIndicatorIcon = styled.div`
   color: ${theme.colors.green[500]};
 `
 
-const SelectContainer = styled.div`
+const SelectContainer = styled.label`
   position: relative;
   width: 320px;
-  border: 2px solid transparent;
   border-radius: 4px;
+  border: 0;
+  box-shadow: 0px 0px 0px 2px transparent;
+  transition: 200ms all ease;
+  cursor: pointer;
 
   &:hover,
   &:focus-within {
-    border-color: ${theme.colors.indigo[300]};
+    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
   }
 `
 
@@ -124,6 +127,7 @@ const SelectIcon = styled.div`
   bottom: 0;
   padding: 8px;
   color: ${theme.colors.neutral[500]};
+  pointer-events: none;
 `
 
 const SelectCaret = styled.div`
@@ -133,6 +137,7 @@ const SelectCaret = styled.div`
   bottom: 0;
   padding: 8px;
   color: ${theme.colors.neutral[500]};
+  pointer-events: none;
 `
 
 const ToolbarContainer = styled.div`
