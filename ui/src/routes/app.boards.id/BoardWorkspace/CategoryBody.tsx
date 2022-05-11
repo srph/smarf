@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { theme } from '~/src/theme'
 import { Category, Hero } from '~/src/types/api'
-import { Icon } from '~/src/components'
+import { Icon, DeletePopover } from '~/src/components'
 import { HeroSelector } from './HeroSelector'
 import { CategoryHero } from './CategoryHero'
 
@@ -31,6 +31,16 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
   const { addHero, resizeCategory, resizeCategoryEnd, deleteCategory } = useBoardWorkspace()
 
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
+
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
+
+  const handleToggleDeleteConfirmation = () => {
+    setIsDeleteConfirmationOpen(!isDeleteConfirmationOpen)
+  }
+
+  const handleDismissDeleteConfirmation = () => {
+    setIsDeleteConfirmationOpen(false)
+  }
 
   const [containerElement, setContainerElement] = useState<HTMLDivElement>()
 
@@ -73,9 +83,21 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
           </CategoryHeadingInfo>
 
           <div>
-            <CategoryRemove onClick={() => deleteCategory(category)}>
-              <Icon name="trash" />
-            </CategoryRemove>
+            <DeletePopover
+              open={isDeleteConfirmationOpen}
+              onConfirm={() => deleteCategory(category)}
+              onDismiss={handleDismissDeleteConfirmation}
+              offset={{ x: 0, y: 16 }}
+              placement="top-end"
+              trigger={({ ref }) => (
+                <CategoryRemove
+                  ref={ref}
+                  onClick={handleToggleDeleteConfirmation}
+                  isConfirming={isDeleteConfirmationOpen}>
+                  <Icon name="trash" />
+                </CategoryRemove>
+              )}
+            />
           </div>
         </CategoryHeading>
 
@@ -204,7 +226,7 @@ const CategoryHeadingTitle = styled.h4`
   max-width: 240px;
 `
 
-const CategoryRemove = styled.button`
+const CategoryRemove = styled.button<{ isConfirming: boolean }>`
   display: inline-block;
   padding: 4px;
   font-size: 12px;
@@ -213,7 +235,7 @@ const CategoryRemove = styled.button`
   border: 0;
   border-radius: 4px;
   cursor: pointer;
-  opacity: 0;
+  ${(props) => (props.isConfirming ? 'opacity: 1;' : 'opacity: 0;')};
   transition: 200ms opacity ease;
 
   &:hover,
