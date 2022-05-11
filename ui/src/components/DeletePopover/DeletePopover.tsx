@@ -91,12 +91,14 @@ const Container = styled.div`
 `
 
 const HeadingText = styled.h4`
+  font-weight: 400;
   margin: 0;
 `
 
 const Text = styled.p`
-  color: ${theme.colors.neutral[500]};
-  line-height: 1.5;
+  margin: 0;
+  color: ${theme.colors.neutral[400]};
+  line-height: 1.75;
 `
 
 const Actions = styled.div`
