@@ -1,20 +1,30 @@
-import React, { ButtonHTMLAttributes } from 'react'
-import styled from 'styled-components'
+import React from 'react'
+import styled, { css } from 'styled-components'
 import { theme } from '../../theme'
 import { Icon } from '../Icon'
 
+type Variant = 'primary' | 'clear' | 'danger'
+
 interface Props {
   block?: boolean
-  variant?: 'primary'
+  variant?: Variant
   icon?: string
   type?: 'button' | 'submit'
   disabled?: boolean
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
-const Button: React.FC<Props> = ({ children, icon, type = 'button', onClick, block = false, disabled = false }) => {
+const Button: React.FC<Props> = ({
+  children,
+  icon,
+  variant = 'primary',
+  type = 'button',
+  onClick,
+  block = false,
+  disabled = false
+}) => {
   return (
-    <Element type={type} onClick={onClick} block={block} disabled={disabled}>
+    <Element variant={variant} type={type} onClick={onClick} block={block} disabled={disabled}>
       {icon ? (
         <IconContainer>
           <Icon name={icon} />
@@ -25,25 +35,48 @@ const Button: React.FC<Props> = ({ children, icon, type = 'button', onClick, blo
   )
 }
 
-const Element = styled.button<{ block?: boolean }>`
+const Element = styled.button<{ block?: boolean; variant?: Variant }>`
   display: ${(props) => (props.block ? 'flex' : 'inline-flex')};
   align-items: center;
   justify-content: center;
   width: 100%;
   padding: 8px;
-  color: ${theme.colors.neutral[50]};
-  background: ${theme.colors.indigo[400]};
+  color: ${theme.colors.text};
+  background: transparent;
   font-size: ${theme.fontSizes.md}px;
   font-weight: bold;
   text-align: center;
-  border: 2px solid transparent;
+  border: 0;
   border-radius: 4px;
   cursor: pointer;
 
-  &:hover,
-  &:focus {
+  ${(props) =>
+    props.variant === 'primary' &&
+    css`
+      background: ${theme.colors.indigo[400]};
+    `}
+
+  ${(props) =>
+    props.variant === 'danger' &&
+    css`
+      background: ${theme.colors.red[500]};
+    `}
+
+    ${(props) =>
+    props.variant === 'clear' &&
+    css`
+      border: 1px solid ${theme.colors.neutral[700]};
+    `}
+
+  &:not(:disabled):hover,
+  &:not(:disabled):focus {
     transition: 200ms box-shadow ease;
     box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.75;
   }
 `
 

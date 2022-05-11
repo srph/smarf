@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
-import { Button, Container, Icon } from '~/src/components'
+import { Button, Container, Icon, DeletePopover } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { EditPopover } from '../EditPopover'
@@ -11,6 +11,16 @@ const ToolbarComponent: React.FC = () => {
   const { board, isEditing, setIsEditing, addCategory, deleteBoard, isDeleting } = useBoardWorkspace()
 
   const [toolbarElement, setToolbarElement] = useState<HTMLDivElement>()
+
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
+
+  const handleToggleDeleteConfirmation = () => {
+    setIsDeleteConfirmationOpen(!isDeleteConfirmationOpen)
+  }
+
+  const handleDismissDeleteConfirmation = () => {
+    setIsDeleteConfirmationOpen(false)
+  }
 
   const { boards, isBoardListLoading } = useBoardList()
 
@@ -72,9 +82,26 @@ const ToolbarComponent: React.FC = () => {
                   container={toolbarElement}
                 />
 
-                <IconGroupButton onClick={() => deleteBoard()} disabled={isDeleting} title="Delete board">
-                  <Icon name="trash" />
-                </IconGroupButton>
+                <DeletePopover
+                  open={isDeleteConfirmationOpen}
+                  onConfirm={deleteBoard}
+                  onDismiss={handleDismissDeleteConfirmation}
+                  nameConfirmation={board.name}
+                  nameConfirmationPlaceholder="Enter board name"
+                  placement="top-end"
+                  offset={{ x: 0, y: 16 }}
+                  strategy="fixed"
+                  trigger={({ ref }) => (
+                    <IconGroupButton
+                      ref={ref}
+                      onClick={handleToggleDeleteConfirmation}
+                      disabled={isDeleting}
+                      title="Delete board">
+                      <Icon name="trash" />
+                    </IconGroupButton>
+                  )}
+                  container={toolbarElement}
+                />
               </IconGroup>
             </ToolbarActions>
           </Toolbar>
