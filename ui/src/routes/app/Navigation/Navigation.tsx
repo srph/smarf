@@ -13,6 +13,8 @@ const Navigation: React.FC = () => {
 
   return (
     <Nav>
+      <NavAccent />
+
       <Container>
         <NavContainer>
           <NavLogoLink to="/">
@@ -36,6 +38,11 @@ const Navigation: React.FC = () => {
     </Nav>
   )
 }
+
+const NavAccent = styled.div`
+  border-top: 4px solid ${theme.colors.indigo[500]};
+  border-image: linear-gradient(90deg, ${theme.colors.indigo[500]}, ${theme.colors.indigo[300]}) 1;
+`
 
 const Nav = styled.div`
   margin-bottom: 48px;
