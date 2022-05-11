@@ -27,7 +27,7 @@ const ToolbarComponent: React.FC = () => {
   const navigate = useNavigate()
 
   const handleBoardChange = (evt) => {
-    navigate(`/boards/${evt.target.value}`)
+    navigate(`/b/${evt.target.value}`)
   }
 
   return (

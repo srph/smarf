@@ -46,7 +46,7 @@ const BoardListProvider: React.FC = ({ children }) => {
   const { mutate: createBoardMutation, isLoading: isBoardCreating } = useMutation('/boards', 'post', {
     onSuccess: (data) => {
       queryClient.invalidateQueries('/boards')
-      navigate(`/boards/${data.board.id}`)
+      navigate(`/b/${data.board.id}`)
     }
   })
 

@@ -20,7 +20,7 @@ const BoardList: React.FC<Props> = ({ title, boards }) => {
 
       {boards.map((board) => (
         <Item key={board.id}>
-          <ItemLink to={`/boards/${board.id}`}>
+          <ItemLink to={`/b/${board.id}`}>
             <ItemTitle>{board.name}</ItemTitle>
             <ItemLastUpdate>5 minutes ago</ItemLastUpdate>
           </ItemLink>
