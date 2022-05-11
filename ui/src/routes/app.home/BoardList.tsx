@@ -1,10 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
 import { useBoardList } from '~/src/contexts/BoardList'
-import { Icon, PlainButton } from '~/src/components'
+import { Icon, PlainButton, TimeAgo } from '~/src/components'
 import { Link } from 'react-router-dom'
 import { theme } from '~/src/theme'
 import { Board } from '~/src/types/api'
+import { formatDistanceToNowStrict } from 'date-fns'
 
 interface Props {
   title: string
@@ -22,7 +23,9 @@ const BoardList: React.FC<Props> = ({ title, boards }) => {
         <Item key={board.id}>
           <ItemLink to={`/b/${board.id}`}>
             <ItemTitle>{board.name}</ItemTitle>
-            <ItemLastUpdate>5 minutes ago</ItemLastUpdate>
+            <ItemLastUpdate>
+              <TimeAgo time={board.updated_at} />
+            </ItemLastUpdate>
           </ItemLink>
 
           <PlainButton type="button" onClick={() => favoriteBoard(board.id)}>
