@@ -88,7 +88,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
               onConfirm={() => deleteCategory(category)}
               onDismiss={handleDismissDeleteConfirmation}
               offset={{ x: 0, y: 16 }}
-              placement="top-end"
+              placement="bottom-end"
               trigger={({ ref }) => (
                 <CategoryRemove
                   ref={ref}
