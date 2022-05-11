@@ -17,7 +17,7 @@ const BoardList: React.FC<Props> = ({ title, boards }) => {
 
   return (
     <Container>
-      <Heading>Recent Boards</Heading>
+      <Heading>{title}</Heading>
 
       {boards.map((board) => (
         <Item key={board.id}>
