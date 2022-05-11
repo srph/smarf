@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { BoardWorkspaceContextProvider } from './contexts'
-import { EditPopover } from './EditPopover'
 import { BoardWorkspace } from './BoardWorkspace'
 import { Toolbar } from './Toolbar'
 
@@ -11,7 +10,6 @@ const BoardsIdRoute = () => {
       <BoardWorkspaceContextProvider>
         <BoardWorkspace />
         <Toolbar />
-        <EditPopover />
       </BoardWorkspaceContextProvider>
     </>
   )

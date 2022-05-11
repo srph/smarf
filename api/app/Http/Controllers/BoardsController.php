@@ -63,19 +63,23 @@ class BoardsController extends Controller
 
     public function favorite(FavoriteBoardRequest $request, Board $board)
     {
+        $board->update([
+            'is_favorite' => $request->get('is_favorite')
+        ]);
+
         return response()->json([
-            'board' => $board->update([
-                'is_favorite' => $request->get('is_favorite')
-            ])
+            'board' => $board
         ]);
     }
 
     public function update(UpdateBoardRequest $request, Board $board)
     {
+        $board->update([
+            'name' => $request->input('name')
+        ]);
+
         return response()->json([
-            'board' => $board->update([
-                'name' => $request->input('name')
-            ])
+            'board' => $board
         ]);
     }
 

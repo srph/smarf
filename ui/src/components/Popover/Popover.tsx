@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { MutableRefObject, useMemo } from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import { usePopper } from 'react-popper'
@@ -7,10 +7,11 @@ import type { Placement, Offsets } from '@popperjs/core'
 import { useStateRef, useUpdateEffect, useDocumentListener, useOutsideClick } from '~/src/hooks'
 import { theme } from '~/src/theme'
 
-interface Props {
+interface PopoverProps {
   open: boolean
   onChangeOpen: (open: boolean) => void
-  trigger: React.ReactNode
+  trigger: React.ReactNode | (({ ref }: { ref: (n) => void }) => React.ReactNode)
+  strategy?: 'absolute' | 'fixed'
   placement?: Placement
   container?: HTMLElement
   offset?: Offsets
@@ -19,9 +20,10 @@ interface Props {
 
 const PORTAL_ID = 'smarf-popover-portal'
 
-const Popover: React.FC<Props> = ({
+const Popover: React.FC<PopoverProps> = ({
   open,
   onChangeOpen,
+  strategy = 'absolute',
   placement,
   offset,
   trigger,
@@ -48,7 +50,8 @@ const Popover: React.FC<Props> = ({
 
   const { styles, attributes, forceUpdate } = usePopper(containerElement || triggerElement, popperElement, {
     placement,
-    modifiers
+    modifiers,
+    strategy
   })
 
   const portalElement = useMemo(() => {
@@ -78,7 +81,11 @@ const Popover: React.FC<Props> = ({
 
   return (
     <>
-      <div ref={setTriggerElement}>{trigger}</div>
+      {typeof trigger === 'function' ? (
+        trigger({ ref: setTriggerElement })
+      ) : (
+        <div ref={setTriggerElement}>{trigger}</div>
+      )}
 
       {portalElement &&
         open &&
@@ -101,4 +108,4 @@ const PopperContainer = styled.div`
   z-index: ${theme.zIndex.popover};
 `
 
-export { Popover, PopoverPortal }
+export { Popover, PopoverPortal, PopoverProps }

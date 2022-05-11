@@ -1,16 +1,27 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
-import { Container, PlainButton, Icon } from '~/src/components'
+import { PlainButton, Popover, PopoverProps, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 
-const EditPopover: React.FC = () => {
+interface Props {
+  trigger: PopoverProps['trigger']
+  container: HTMLElement
+}
+
+const EditPopover: React.FC<Props> = ({ trigger, container }) => {
   const { board, isEditing, setIsEditing, updateBoard } = useBoardWorkspace()
+
   const [name, setName] = useState(board.name)
+
+  useEffect(() => {
+    if (!isEditing) {
+      setName(board.name)
+    }
+  }, [board.name, isEditing])
 
   const handleClose = () => {
     setIsEditing(false)
-    setName(board.name)
   }
 
   const handleSubmit = (evt: React.FormEvent) => {
@@ -22,51 +33,44 @@ const EditPopover: React.FC = () => {
     setName(evt.target.value)
   }
 
-  if (!isEditing) {
-    return null
-  }
-
   return (
-    <EditPopoverContainer>
-      <Container>
-        <EditPopoverInner>
-          <EditPopoverClose>
-            <PlainButton type="button" onClick={handleClose}>
-              <Icon name="x" />
-            </PlainButton>
-          </EditPopoverClose>
+    <Popover
+      open={isEditing}
+      onChangeOpen={setIsEditing}
+      trigger={trigger}
+      container={container}
+      strategy="fixed"
+      offset={{ x: 0, y: 16 }}
+      placement="top-end">
+      <EditPopoverInner>
+        <EditPopoverClose>
+          <PlainButton type="button" onClick={handleClose}>
+            <Icon name="x" />
+          </PlainButton>
+        </EditPopoverClose>
 
-          <EditPopoverForm onSubmit={handleSubmit}>
-            <EditPopoverLabel>Name</EditPopoverLabel>
+        <EditPopoverForm onSubmit={handleSubmit}>
+          <EditPopoverLabel>Name</EditPopoverLabel>
 
-            <InputGroup>
-              <InputGroupElement
-                value={name}
-                onChange={handleChangeName}
-                type="text"
-                placeholder="Enter name..."
-                autoFocus
-              />
-              <InputGroupButtonContainer>
-                <InputGroupButton>
-                  <Icon name="check" />
-                </InputGroupButton>
-              </InputGroupButtonContainer>
-            </InputGroup>
-          </EditPopoverForm>
-        </EditPopoverInner>
-      </Container>
-    </EditPopoverContainer>
+          <InputGroup>
+            <InputGroupElement
+              value={name}
+              onChange={handleChangeName}
+              type="text"
+              placeholder={board.name}
+              autoFocus
+            />
+            <InputGroupButtonContainer>
+              <InputGroupButton>
+                <Icon name="check" />
+              </InputGroupButton>
+            </InputGroupButtonContainer>
+          </InputGroup>
+        </EditPopoverForm>
+      </EditPopoverInner>
+    </Popover>
   )
 }
-
-const EditPopoverContainer = styled.div`
-  position: fixed;
-  bottom: 90px;
-  left: 0;
-  right: 0;
-  z-index: ${theme.zIndex.editPopover};
-`
 
 const EditPopoverInner = styled.div`
   display: flex;
@@ -121,12 +125,21 @@ const InputGroupButtonContainer = styled.div`
   padding: 4px;
 `
 
-const InputGroupButton = styled.div`
-  display: inline-block;
+const InputGroupButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 4px;
+  color: ${theme.colors.neutral[50]};
   background: ${theme.colors.neutral[500]};
   border-radius: 4px;
   cursor: pointer;
+  transition: background 200ms ease;
+
+  &:hover,
+  &:focus {
+    background: ${theme.colors.neutral[600]};
+  }
 `
 
 export { EditPopover }

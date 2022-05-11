@@ -1,13 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Button, Container, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { useBoardList } from '~/src/contexts/BoardList'
+import { EditPopover } from '../EditPopover'
 import { useNavigate } from 'react-router-dom'
 
 const ToolbarComponent: React.FC = () => {
   const { board, isEditing, setIsEditing, addCategory, deleteBoard, isDeleting } = useBoardWorkspace()
+
+  const [toolbarElement, setToolbarElement] = useState<HTMLDivElement>()
 
   const { boards, isBoardListLoading } = useBoardList()
 
@@ -18,59 +21,66 @@ const ToolbarComponent: React.FC = () => {
   }
 
   return (
-    <ToolbarContainer>
-      <Container>
-        <StatusIndicatorContainer>
-          <StatusIndicator>
-            <StatusIndicatorIcon>
-              <Icon name="check-circle" />
-            </StatusIndicatorIcon>
-            Saved
-          </StatusIndicator>
-        </StatusIndicatorContainer>
-      </Container>
+    <>
+      <ToolbarContainer>
+        <Container>
+          <StatusIndicatorContainer>
+            <StatusIndicator>
+              <StatusIndicatorIcon>
+                <Icon name="check-circle" />
+              </StatusIndicatorIcon>
+              Saved
+            </StatusIndicator>
+          </StatusIndicatorContainer>
+        </Container>
 
-      <Container>
-        <Toolbar>
-          <SelectContainer>
-            <SelectIcon>
-              <Icon name="template" />
-            </SelectIcon>
-            <Select value={board.id} onChange={handleBoardChange}>
-              {isBoardListLoading ? (
-                <option>Loading boards...</option>
-              ) : (
-                boards.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                    {b.id === board.id ? ' (Selected)' : ''}
-                  </option>
-                ))
-              )}
-            </Select>
-            <SelectCaret>
-              <Icon name="chevron-double-down" />
-            </SelectCaret>
-          </SelectContainer>
+        <Container>
+          <Toolbar ref={setToolbarElement}>
+            <SelectContainer>
+              <SelectIcon>
+                <Icon name="template" />
+              </SelectIcon>
+              <Select value={board.id} onChange={handleBoardChange}>
+                {isBoardListLoading ? (
+                  <option>Loading boards...</option>
+                ) : (
+                  boards.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                      {b.id === board.id ? ' (Selected)' : ''}
+                    </option>
+                  ))
+                )}
+              </Select>
+              <SelectCaret>
+                <Icon name="chevron-double-down" />
+              </SelectCaret>
+            </SelectContainer>
 
-          <ToolbarActions>
-            <Button icon="plus-circle" onClick={addCategory}>
-              New Category
-            </Button>
+            <ToolbarActions>
+              <Button icon="plus-circle" onClick={addCategory}>
+                New Category
+              </Button>
 
-            <IconGroup>
-              <IconGroupButton onClick={() => setIsEditing(!isEditing)}>
-                <Icon name="pencil" />
-              </IconGroupButton>
+              <IconGroup>
+                <EditPopover
+                  trigger={({ ref }) => (
+                    <IconGroupButton ref={ref} onClick={() => setIsEditing(!isEditing)} title="Edit board name">
+                      <Icon name="pencil" />
+                    </IconGroupButton>
+                  )}
+                  container={toolbarElement}
+                />
 
-              <IconGroupButton onClick={() => deleteBoard()} disabled={isDeleting}>
-                <Icon name="trash" />
-              </IconGroupButton>
-            </IconGroup>
-          </ToolbarActions>
-        </Toolbar>
-      </Container>
-    </ToolbarContainer>
+                <IconGroupButton onClick={() => deleteBoard()} disabled={isDeleting} title="Delete board">
+                  <Icon name="trash" />
+                </IconGroupButton>
+              </IconGroup>
+            </ToolbarActions>
+          </Toolbar>
+        </Container>
+      </ToolbarContainer>
+    </>
   )
 }
 
