@@ -48,7 +48,7 @@ const App = () => {
                         <Route index element={<HomeRoute />} />
                         <Route path="/account" element={<AccountRoute />} />
                         <Route path="/about" element={<AboutRoute />} />
-                        <Route path="/boards/:boardId" element={<BoardsIdRoute />} />
+                        <Route path="/b/:boardId" element={<BoardsIdRoute />} />
                       </Route>
 
                       <Route element={<AuthRoute />}>
