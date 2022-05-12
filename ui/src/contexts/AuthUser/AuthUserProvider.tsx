@@ -34,22 +34,37 @@ const AuthUserProvider: React.FC = ({ children }) => {
 
   const [token, setToken] = useCookieState(config.oauth.cookieKey, '')
 
+  const location = useLocation()
+
+  const navigate = useNavigate()
+
+  const logout = () => {
+    setUser(null)
+    setToken('')
+    navigate('/login')
+  }
+
   const { isLoading } = useQuery('auth/me', {
     enabled: Boolean(token),
     onSuccess: (data) => {
       setUser(data.user)
+    },
+    onError: (err) => {
+      // At this point interceptors haven't been initialized yet
+      if (err?.response.status === 401) {
+        logout()
+      }
     },
     // At this point interceptors haven't been initialized yet
     headers: token
       ? {
           Authorization: `Bearer ${token}`
         }
-      : {}
+      : {},
+    // If it fails (mostly due to expired / invalid tokens), we don't want to delay
+    // the user from navigating to the login page.
+    retry: false
   })
-
-  const location = useLocation()
-
-  const navigate = useNavigate()
 
   // This is our supposed flow:
   // Login -> Load User -> Set User and Token -> Navigate (?)
@@ -92,12 +107,6 @@ const AuthUserProvider: React.FC = ({ children }) => {
     }
   )
 
-  const logout = () => {
-    setUser(null)
-    setToken('')
-    navigate('/login')
-  }
-
   const value = {
     user,
     setUser,
@@ -109,7 +118,7 @@ const AuthUserProvider: React.FC = ({ children }) => {
     logout
   }
 
-  if (token && isLoading) {
+  if (token && !user) {
     return null
   }
 
