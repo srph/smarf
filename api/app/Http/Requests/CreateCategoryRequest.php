@@ -28,9 +28,7 @@ class CreateCategoryRequest extends FormRequest
             'x_position' => 'required|numeric',
             'y_position' => 'required|numeric',
             'width' => 'required|numeric',
-            'height' => 'required|numeric',
-            'heroes.*.id' => 'required|exists:heroes',
-            'heroes.*.order' => 'required|numeric',
+            'height' => 'required|numeric'
         ];
     }
 }

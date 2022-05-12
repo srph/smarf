@@ -61,6 +61,38 @@ class BoardsController extends Controller
         ]);
     }
 
+    public function duplicate(Board $original)
+    {
+        $board = $original->replicate();
+
+        $board->name = "Copy of {$original->name}";
+
+        $board->push();
+
+        $original->categories->each(function ($original) use ($board) {
+            $category = $original->replicate();
+
+            $category->board_id = $board->id;
+
+            $category->push();
+
+            $heroes = $original->heroes->flatMap(function ($hero) {
+                $uuid = Str::uuid()->toString();
+
+                return [
+                    // WARNING: We should probably make a trait for this haha
+                    $hero->id => ['id' => $uuid, 'order' => $hero->pivot->order]
+                ];
+            });
+
+            $category->heroes()->attach($heroes);
+        });
+
+        return response()->json([
+            'board' => $board
+        ]);
+    }
+
     public function favorite(FavoriteBoardRequest $request, Board $board)
     {
         $board->update([

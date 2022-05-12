@@ -24,15 +24,6 @@ class CategoriesController extends Controller
 
         $board->categories()->save($category);
 
-        $heroes = collect($request->get('heroes'))
-            ->flatMap(function ($hero) {
-                return [
-                    $hero['id'] => $hero['order']
-                ];
-            });
-
-        $category->heroes()->attach($heroes);
-
         return response()->json([
             'category' => $category->load('heroes')
         ]);

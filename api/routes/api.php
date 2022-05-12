@@ -37,6 +37,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('boards/{board}', [BoardsController::class, 'show']);
         Route::put('boards/{board}', [BoardsController::class, 'update']);
         Route::put('boards/{board}/favorite', [BoardsController::class, 'favorite']);
+        Route::post('boards/{board}/duplicate', [BoardsController::class, 'duplicate']);
         Route::delete('boards/{board}', [BoardsController::class, 'destroy']);
         Route::post('boards/{board}/categories', [CategoriesController::class, 'store']);
     });
