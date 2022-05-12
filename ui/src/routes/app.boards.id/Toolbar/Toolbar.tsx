@@ -214,7 +214,7 @@ const ToolbarActions = styled.div`
 
 const IconGroup = styled.div`
   display: flex;
-  margin-left: 16px;
+  margin-left: 8px;
 `
 
 const IconGroupButton = styled.button<{ color?: string }>`
