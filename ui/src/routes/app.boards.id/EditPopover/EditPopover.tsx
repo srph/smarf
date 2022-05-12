@@ -9,6 +9,8 @@ interface Props {
   container: HTMLElement
 }
 
+// @TODO: For slow requests / connections, we should probably prevent
+// the popover from being closed while the board is being updated.
 const EditPopover: React.FC<Props> = ({ trigger, container }) => {
   const { board, isEditing, setIsEditing, updateBoard } = useBoardWorkspace()
 
