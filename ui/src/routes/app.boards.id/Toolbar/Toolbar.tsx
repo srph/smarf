@@ -9,8 +9,17 @@ import { ToolbarStatusIndicator } from './ToolbarStatusIndicator'
 import { useNavigate } from 'react-router-dom'
 
 const ToolbarComponent: React.FC = () => {
-  const { board, isEditing, setIsEditing, addCategory, deleteBoard, duplicateBoard, isDeleting, isDuplicating } =
-    useBoardWorkspace()
+  const {
+    board,
+    isEditing,
+    setIsEditing,
+    addCategory,
+    deleteBoard,
+    duplicateBoard,
+    isUpdating,
+    isDeleting,
+    isDuplicating
+  } = useBoardWorkspace()
 
   const [toolbarElement, setToolbarElement] = useState<HTMLDivElement>()
 
@@ -72,7 +81,11 @@ const ToolbarComponent: React.FC = () => {
 
                 <EditPopover
                   trigger={({ ref }) => (
-                    <IconGroupButton ref={ref} onClick={() => setIsEditing(!isEditing)} title="Edit board name">
+                    <IconGroupButton
+                      ref={ref}
+                      onClick={() => setIsEditing(!isEditing)}
+                      title="Edit board name"
+                      disabled={isUpdating}>
                       <Icon name="pencil" />
                     </IconGroupButton>
                   )}
