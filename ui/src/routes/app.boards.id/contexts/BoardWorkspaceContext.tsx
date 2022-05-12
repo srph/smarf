@@ -27,10 +27,12 @@ interface BoardWorkspaceContextType {
   board: Board
   updateBoard: (b: Pick<Board, 'name'>) => void
   deleteBoard: () => void
+  favoriteBoard: () => void
   duplicateBoard: () => void
   isEditing: boolean
   isUpdating: boolean
   isDeleting: boolean
+  isFavoriteLoading: boolean
   isDuplicating: boolean
   isAddingHero: boolean
   isMovingHero: boolean
@@ -54,10 +56,12 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   board: null,
   updateBoard: () => {},
   deleteBoard: () => {},
+  favoriteBoard: () => {},
   duplicateBoard: () => {},
   isEditing: false,
   isUpdating: false,
   isDeleting: false,
+  isFavoriteLoading: false,
   isDuplicating: false,
   isAddingHero: false,
   isMovingHero: false,
@@ -132,6 +136,33 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       // @TODO: Toast
     }
   })
+
+  interface FavoriteBoardMutationVariables {
+    is_favorite: boolean
+  }
+
+  const { mutate: favoriteBoardMutation, isLoading: isFavoriteLoading } = useMutation<FavoriteBoardMutationVariables>(
+    (v) => `/boards/${board?.id}/favorite`,
+    'put',
+    {
+      onSuccess: (data) => {
+        // @TODO: Toast
+        queryClient.invalidateQueries('/boards')
+      }
+    }
+  )
+
+  const favoriteBoard = () => {
+    const updatedFavoriteStatus = !board.is_favorite
+
+    setBoard(
+      immer(board, (draft) => {
+        draft.is_favorite = updatedFavoriteStatus
+      })
+    )
+
+    favoriteBoardMutation({ is_favorite: updatedFavoriteStatus })
+  }
 
   const { mutate: duplicateBoard, isLoading: isDuplicating } = useMutation(`/boards/${board?.id}/duplicate`, 'post', {
     onSuccess(data) {
@@ -470,9 +501,11 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         board,
         updateBoard,
         deleteBoard,
+        favoriteBoard,
         duplicateBoard,
         isEditing,
         isUpdating,
+        isFavoriteLoading,
         isDuplicating,
         isDeleting,
         isAddingHero,

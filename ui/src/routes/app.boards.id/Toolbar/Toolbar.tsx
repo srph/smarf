@@ -14,11 +14,13 @@ const ToolbarComponent: React.FC = () => {
     isEditing,
     setIsEditing,
     addCategory,
-    deleteBoard,
     duplicateBoard,
+    favoriteBoard,
+    deleteBoard,
     isUpdating,
-    isDeleting,
-    isDuplicating
+    isFavoriteLoading,
+    isDuplicating,
+    isDeleting
   } = useBoardWorkspace()
 
   const [toolbarElement, setToolbarElement] = useState<HTMLDivElement>()
@@ -48,26 +50,38 @@ const ToolbarComponent: React.FC = () => {
 
         <Container>
           <Toolbar ref={setToolbarElement}>
-            <SelectContainer>
-              <SelectIcon>
-                <Icon name="template" />
-              </SelectIcon>
-              <Select value={board.id} onChange={handleBoardChange}>
-                {isBoardListLoading ? (
-                  <option>Loading boards...</option>
-                ) : (
-                  boards.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.name}
-                      {b.id === board.id ? ' (Selected)' : ''}
-                    </option>
-                  ))
-                )}
-              </Select>
-              <SelectCaret>
-                <Icon name="chevron-double-down" />
-              </SelectCaret>
-            </SelectContainer>
+            <ToolbarSection>
+              <SelectContainer>
+                <SelectIcon>
+                  <Icon name="template" />
+                </SelectIcon>
+                <Select value={board.id} onChange={handleBoardChange}>
+                  {isBoardListLoading ? (
+                    <option>Loading boards...</option>
+                  ) : (
+                    boards.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}
+                        {b.id === board.id ? ' (Selected)' : ''}
+                      </option>
+                    ))
+                  )}
+                </Select>
+                <SelectCaret>
+                  <Icon name="chevron-double-down" />
+                </SelectCaret>
+              </SelectContainer>
+
+              <IconGroup>
+                <IconGroupButton
+                  onClick={() => favoriteBoard()}
+                  title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
+                  color={board.is_favorite && theme.colors.yellow[500]}
+                  disabled={isFavoriteLoading}>
+                  <Icon name={board.is_favorite ? 'star' : 'starOutline'} />
+                </IconGroupButton>
+              </IconGroup>
+            </ToolbarSection>
 
             <ToolbarActions>
               <Button icon="plus-circle" onClick={addCategory}>
@@ -187,6 +201,11 @@ const Toolbar = styled.div`
   border-radius: 4px;
 `
 
+const ToolbarSection = styled.div`
+  display: flex;
+  align-items: center;
+`
+
 const ToolbarActions = styled.div`
   display: flex;
   align-items: center;
@@ -197,10 +216,10 @@ const IconGroup = styled.div`
   margin-left: 16px;
 `
 
-const IconGroupButton = styled.button`
+const IconGroupButton = styled.button<{ color?: string }>`
   position: relative;
   padding: 8px 12px;
-  color: ${theme.colors.neutral[500]};
+  color: ${(props) => props.color || theme.colors.neutral[500]};
   background: ${theme.colors.neutral[900]};
   border: 0;
   cursor: pointer;

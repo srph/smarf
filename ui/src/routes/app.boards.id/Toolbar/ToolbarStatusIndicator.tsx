@@ -11,6 +11,7 @@ const ToolbarStatusIndicator = () => {
   const {
     isUpdating,
     isDeleting,
+    isFavoriteLoading,
     isAddingHero,
     isMovingHero,
     isAddingCategory,
@@ -27,17 +28,6 @@ const ToolbarStatusIndicator = () => {
     1000
   )
 
-  console.log(
-    isUpdating,
-    isDeleting,
-    isAddingHero,
-    isMovingHero,
-    isAddingCategory,
-    isMovingCategory,
-    isResizingCategory,
-    isDeletingCategory
-  )
-
   useEffect(() => {
     // @TODO: Seems to stop working after being idle.
     // Might be related to react-query or useDelayedState, check eitherway.
@@ -45,6 +35,7 @@ const ToolbarStatusIndicator = () => {
 
     if (
       isUpdating ||
+      isFavoriteLoading ||
       isDeleting ||
       isAddingHero ||
       isMovingHero ||
@@ -59,6 +50,7 @@ const ToolbarStatusIndicator = () => {
     setStatus('saved')
   }, [
     isUpdating,
+    isFavoriteLoading,
     isDeleting,
     isAddingHero,
     isMovingHero,
