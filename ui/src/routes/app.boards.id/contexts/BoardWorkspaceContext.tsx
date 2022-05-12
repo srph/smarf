@@ -309,7 +309,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     setBoard(
       immer(board, (draft) => {
         if (from.container === to.container) {
-          console.log(to.container, to.index)
           const category = draft.categories.find((c) => c.id === to.container)
           category.heroes = arrayMove(category.heroes, from.index, to.index)
 

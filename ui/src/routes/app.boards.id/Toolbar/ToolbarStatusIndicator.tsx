@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Container, Icon, Spinner } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
-import { useBoardList } from '~/src/contexts/BoardList'
+import { useDelayedState } from '~/src/hooks'
 
 type Status = 'loading' | 'saved' | 'error'
 
@@ -19,7 +19,15 @@ const ToolbarStatusIndicator = () => {
     isDeletingCategory
   } = useBoardWorkspace()
 
-  const status = useMemo(() => {
+  const [status, setStatus] = useDelayedState<Status>(
+    'saved',
+    (previous) => {
+      return previous === 'loading'
+    },
+    1000
+  )
+
+  useEffect(() => {
     if (
       isUpdating ||
       isDeleting ||
@@ -30,10 +38,10 @@ const ToolbarStatusIndicator = () => {
       isResizingCategory ||
       isDeletingCategory
     ) {
-      return 'loading'
+      return setStatus('loading')
     }
 
-    return 'saved'
+    setStatus('saved')
   }, [
     isUpdating,
     isDeleting,

@@ -10,19 +10,20 @@ type Callback<T> = (previousValue: T, newValue: T) => boolean
 // feature UX-wise, but I'm doing this show-case the component :)
 function useDelayedState<T>(defaultValue: T, callback: Callback<T>, delay: number): [T, (s: T) => void] {
   const [state, internalSetState] = useState<T>(defaultValue)
+
   const timeoutRef = useRef()
 
-  const setState = (newState) => {
+  const setState = (nextState: T) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
 
-    if (callback(state, newState)) {
+    if (callback(state, nextState)) {
       setTimeout(() => {
-        internalSetState(newState)
+        internalSetState(nextState)
       }, delay)
     } else {
-      internalSetState(newState)
+      internalSetState(nextState)
     }
   }
 
