@@ -54,6 +54,7 @@ const BoardWorkspace: React.FC = () => {
   // Provide enough space so users are able to move around the workspace freely.
   // We're not able to achieve this via css because of how we position categories (via `position: relative`).
   const workspaceHeight = useMemo(() => {
+    if (!board.categories.length) return BOARD_WORKSPACE_ALLOWANCE
     return getLowestCategoryBottom(board) + BOARD_WORKSPACE_ALLOWANCE
   }, [board])
 

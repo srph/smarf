@@ -27,9 +27,11 @@ interface BoardWorkspaceContextType {
   board: Board
   updateBoard: (b: Pick<Board, 'name'>) => void
   deleteBoard: () => void
+  duplicateBoard: () => void
   isEditing: boolean
   isUpdating: boolean
   isDeleting: boolean
+  isDuplicating: boolean
   isAddingHero: boolean
   isMovingHero: boolean
   isAddingCategory: boolean
@@ -52,9 +54,11 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   board: null,
   updateBoard: () => {},
   deleteBoard: () => {},
+  duplicateBoard: () => {},
   isEditing: false,
   isUpdating: false,
   isDeleting: false,
+  isDuplicating: false,
   isAddingHero: false,
   isMovingHero: false,
   isAddingCategory: false,
@@ -122,6 +126,18 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
 
       navigate('/')
 
+      // @TODO: Toast
+    },
+    onError() {
+      // @TODO: Toast
+    }
+  })
+
+  const { mutate: duplicateBoard, isLoading: isDuplicating } = useMutation(`/boards/${board?.id}/duplicate`, 'post', {
+    onSuccess(data) {
+      queryClient.invalidateQueries('/boards')
+
+      navigate(`/b/${data.board.id}`)
       // @TODO: Toast
     },
     onError() {
@@ -454,8 +470,10 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         board,
         updateBoard,
         deleteBoard,
+        duplicateBoard,
         isEditing,
         isUpdating,
+        isDuplicating,
         isDeleting,
         isAddingHero,
         isMovingHero,

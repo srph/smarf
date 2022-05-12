@@ -27,6 +27,17 @@ const ToolbarStatusIndicator = () => {
     1000
   )
 
+  console.log(
+    isUpdating,
+    isDeleting,
+    isAddingHero,
+    isMovingHero,
+    isAddingCategory,
+    isMovingCategory,
+    isResizingCategory,
+    isDeletingCategory
+  )
+
   useEffect(() => {
     // @TODO: Seems to stop working after being idle.
     // Might be related to react-query or useDelayedState, check eitherway.
