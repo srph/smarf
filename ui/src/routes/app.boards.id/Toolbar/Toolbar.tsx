@@ -219,6 +219,8 @@ const IconGroup = styled.div`
 
 const IconGroupButton = styled.button<{ color?: string }>`
   position: relative;
+  display: inline-flex;
+  align-items: center;
   padding: 8px 12px;
   color: ${(props) => props.color || theme.colors.neutral[500]};
   background: ${theme.colors.neutral[900]};
