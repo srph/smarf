@@ -22,3 +22,5 @@ export const CATEGORY_SPACING = 96
 export const ORDER_FIRST_BUFFER = 1024
 export const ORDER_LAST_BUFFER = 1024
 export const ORDER_BUFFER = 1024
+
+export const CATEGORY_NAME_MAX_CHARACTERS = 31

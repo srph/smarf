@@ -37,6 +37,7 @@ interface BoardWorkspaceContextType {
   isAddingHero: boolean
   isMovingHero: boolean
   isAddingCategory: boolean
+  isUpdatingCategory: boolean
   isMovingCategory: boolean
   isResizingCategory: boolean
   isDeletingCategory: boolean
@@ -45,6 +46,7 @@ interface BoardWorkspaceContextType {
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   moveHeroEnd: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   addCategory: () => void
+  updateCategory: (category: Pick<Category, 'id' | 'name'>) => void
   moveCategory: ({ container, translate }: { container: Category; translate: BoardWorkspaceCategoryMoveEvent }) => void
   moveCategoryEnd: ({ container }: { container: Category }) => void
   resizeCategory: ({ container, width }: { container: Category; width: number }) => void
@@ -66,6 +68,7 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   isAddingHero: false,
   isMovingHero: false,
   isAddingCategory: false,
+  isUpdatingCategory: false,
   isMovingCategory: false,
   isResizingCategory: false,
   isDeletingCategory: false,
@@ -227,6 +230,31 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
             const index = draft.categories.findIndex((c) => c.id === v.category_buffer_id)
             if (index === -1) return // @TODO: Throw
             draft.categories[index] = data.category
+          })
+        )
+      },
+      onError() {
+        // @TODO: Rollback
+      }
+    }
+  )
+
+  interface UpdateCategoryMutationVariables {
+    id: ID
+    name: string
+  }
+
+  const { mutate: updateCategory, isLoading: isUpdatingCategory } = useMutation<UpdateCategoryMutationVariables>(
+    (v) => `/categories/${v.id}`,
+    'put',
+    {
+      onSuccess(data, v) {
+        // Silently apply so we have the correct uuid
+        setBoard(
+          immer(boardRef.current, (draft) => {
+            const category = draft.categories.find((c) => c.id === v.id)
+            if (!category) return // @TODO: Throw
+            category.name = v.name
           })
         )
       },
@@ -511,6 +539,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         isAddingHero,
         isMovingHero,
         isAddingCategory,
+        isUpdatingCategory,
         isMovingCategory,
         isResizingCategory,
         isDeletingCategory,
@@ -519,6 +548,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         moveHero,
         moveHeroEnd,
         addCategory,
+        updateCategory,
         moveCategory,
         moveCategoryEnd,
         resizeCategory,

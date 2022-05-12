@@ -15,6 +15,7 @@ const ToolbarStatusIndicator = () => {
     isAddingHero,
     isMovingHero,
     isAddingCategory,
+    isUpdatingCategory,
     isMovingCategory,
     isResizingCategory,
     isDeletingCategory
@@ -40,6 +41,7 @@ const ToolbarStatusIndicator = () => {
       isAddingHero ||
       isMovingHero ||
       isAddingCategory ||
+      isUpdatingCategory ||
       isMovingCategory ||
       isResizingCategory ||
       isDeletingCategory
@@ -55,6 +57,7 @@ const ToolbarStatusIndicator = () => {
     isAddingHero,
     isMovingHero,
     isAddingCategory,
+    isUpdatingCategory,
     isMovingCategory,
     isResizingCategory,
     isDeletingCategory

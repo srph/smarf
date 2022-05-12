@@ -10,6 +10,7 @@ import { CategoryHero } from './CategoryHero'
 import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
+import { CategoryTitle } from './CategoryTitle'
 import { Translate } from './useDragContainer'
 
 import { Resizable } from 're-resizable'
@@ -28,7 +29,7 @@ interface Props {
 }
 
 const CategoryBody: React.FC<Props> = ({ category }) => {
-  const { addHero, resizeCategory, resizeCategoryEnd, deleteCategory } = useBoardWorkspace()
+  const { addHero, updateCategory, resizeCategory, resizeCategoryEnd, deleteCategory } = useBoardWorkspace()
 
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
 
@@ -40,6 +41,10 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
 
   const handleDismissDeleteConfirmation = () => {
     setIsDeleteConfirmationOpen(false)
+  }
+
+  const handleUpdateCategoryName = (value: string) => {
+    updateCategory({ id: category.id, name: value })
   }
 
   const [containerElement, setContainerElement] = useState<HTMLDivElement>()
@@ -79,7 +84,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             <CategoryHeadingDragIcon ref={setDraggableNodeRef} {...listeners}>
               <Icon name="arrows-expand" />
             </CategoryHeadingDragIcon>
-            <CategoryHeadingTitle>{category.name}</CategoryHeadingTitle>
+            <CategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
           </CategoryHeadingInfo>
 
           <div>
@@ -215,15 +220,6 @@ const CategoryHeadingDragIcon = styled.div`
   margin-right: 16px;
   color: ${theme.colors.neutral[400]};
   cursor: grabbing;
-`
-
-const CategoryHeadingTitle = styled.h4`
-  margin: 0;
-  font-size: ${theme.fontSizes.md};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 240px;
 `
 
 const CategoryRemove = styled.button<{ isConfirming: boolean }>`
