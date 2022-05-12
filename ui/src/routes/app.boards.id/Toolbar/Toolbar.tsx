@@ -13,14 +13,15 @@ const ToolbarComponent: React.FC = () => {
     board,
     isEditing,
     setIsEditing,
-    addCategory,
     duplicateBoard,
     favoriteBoard,
     deleteBoard,
+    addCategory,
     isUpdating,
     isFavoriteLoading,
     isDuplicating,
-    isDeleting
+    isDeleting,
+    isAddingCategory
   } = useBoardWorkspace()
 
   const [toolbarElement, setToolbarElement] = useState<HTMLDivElement>()
@@ -84,11 +85,11 @@ const ToolbarComponent: React.FC = () => {
             </ToolbarSection>
 
             <ToolbarActions>
-              <Button icon="plus-circle" onClick={addCategory}>
-                New Category
-              </Button>
-
               <IconGroup>
+                <IconGroupButton onClick={() => addCategory()} title="New category" disabled={isAddingCategory}>
+                  <Icon name="plus-circle" />
+                </IconGroupButton>
+
                 <IconGroupButton onClick={() => duplicateBoard()} title="Duplicate board" disabled={isDuplicating}>
                   <Icon name="duplicate" />
                 </IconGroupButton>
