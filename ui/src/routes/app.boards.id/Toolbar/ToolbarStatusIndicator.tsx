@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useUpdateEffect } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Container, Icon, Spinner } from '~/src/components'
@@ -29,7 +29,7 @@ const ToolbarStatusIndicator = () => {
     1000
   )
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     // @TODO: Seems to stop working after being idle.
     // Might be related to react-query or useDelayedState, check eitherway.
     console.log('Effect')
