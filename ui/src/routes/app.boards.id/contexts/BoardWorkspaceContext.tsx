@@ -1,12 +1,10 @@
 import React, { createContext, useContext, useState } from 'react'
 import { Board, Hero, Category, ID } from '~/src/types/api'
-import immer, { current } from 'immer'
+import immer from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
 import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/BoardWorkspace/useGridCollisionDetection'
 import {
-  CATEGORY_HERO_WIDTH,
-  CATEGORY_ROW_HEIGHT,
   CATEGORY_BODY_INITIAL_WIDTH,
   CATEGORY_SPACING,
   ORDER_FIRST_BUFFER,
@@ -16,7 +14,6 @@ import { getCategoryHeight, getHeroOrder, getLowestCategoryBottom } from '~/src/
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
-import { useHeroList } from '~/src/contexts/HeroList'
 import { useStateRef } from '~/src/hooks'
 import { last } from '~/src/utils'
 import { HeroCategoryPivot } from '~/src/types/api'
@@ -31,7 +28,14 @@ interface BoardWorkspaceContextType {
   updateBoard: (b: Pick<Board, 'name'>) => void
   deleteBoard: () => void
   isEditing: boolean
+  isUpdating: boolean
   isDeleting: boolean
+  isAddingHero: boolean
+  isMovingHero: boolean
+  isAddingCategory: boolean
+  isMovingCategory: boolean
+  isResizingCategory: boolean
+  isDeletingCategory: boolean
   setIsEditing: (isEditing: boolean) => void
   addHero: (category: Category, hero: Hero) => void
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
@@ -49,7 +53,14 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   updateBoard: () => {},
   deleteBoard: () => {},
   isEditing: false,
+  isUpdating: false,
   isDeleting: false,
+  isAddingHero: false,
+  isMovingHero: false,
+  isAddingCategory: false,
+  isMovingCategory: false,
+  isResizingCategory: false,
+  isDeletingCategory: false,
   setIsEditing: () => {},
   addHero: () => {},
   moveHero: () => {},
@@ -63,8 +74,6 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
 })
 
 const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
-  const { heroes } = useHeroList()
-
   const { boardId } = useParams()
 
   const navigate = useNavigate()
@@ -86,7 +95,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     name: string
   }
 
-  const { mutate: updateBoard, isLoading: isBoardUpdating } = useMutation<UpdateBoardMutationVariables>(
+  const { mutate: updateBoard, isLoading: isUpdating } = useMutation<UpdateBoardMutationVariables>(
     `/boards/${board?.id}`,
     'put',
     {
@@ -128,7 +137,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     category_height: number
   }
 
-  const { mutate: addHeroMutation } = useMutation<AddHeroMutationVariables>(
+  const { mutate: addHeroMutation, isLoading: isAddingHero } = useMutation<AddHeroMutationVariables>(
     (v) => `/categories/${v.category_id}/heroes`,
     'post',
     {
@@ -160,7 +169,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     heroes: HeroCategoryPivot['pivot']
   }
 
-  const { mutate: addCategoryMutation } = useMutation<AddCategoryMutationVariables>(
+  const { mutate: addCategoryMutation, isLoading: isAddingCategory } = useMutation<AddCategoryMutationVariables>(
     `/boards/${board?.id}/categories`,
     'post',
     {
@@ -184,18 +193,15 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     category_id: ID
   }
 
-  const { mutate: deleteCategoryMutation } = useMutation<DeleteCategoryMutationVariables>(
-    (v) => `/categories/${v.category_id}`,
-    'delete',
-    {
+  const { mutate: deleteCategoryMutation, isLoading: isDeletingCategory } =
+    useMutation<DeleteCategoryMutationVariables>((v) => `/categories/${v.category_id}`, 'delete', {
       onSuccess(data, v) {
         // @TODO: Toast
       },
       onError() {
         // @TODO: Rollback (?)
       }
-    }
-  )
+    })
 
   interface MoveCategoryMutationVariables {
     category_id: number
@@ -203,7 +209,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     y_position: number
   }
 
-  const { mutate: moveCategoryMutation } = useMutation<MoveCategoryMutationVariables>(
+  const { mutate: moveCategoryMutation, isLoading: isMovingCategory } = useMutation<MoveCategoryMutationVariables>(
     (v) => `/categories/${v.category_id}/move`,
     'put',
     {
@@ -222,18 +228,15 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     height: number
   }
 
-  const { mutate: resizeCategoryMutation } = useMutation<ResizeCategoryMutationVariables>(
-    (v) => `/categories/${v.category_id}/resize`,
-    'put',
-    {
+  const { mutate: resizeCategoryMutation, isLoading: isResizingCategory } =
+    useMutation<ResizeCategoryMutationVariables>((v) => `/categories/${v.category_id}/resize`, 'put', {
       onSuccess() {
         // @TODO: Silently apply so we have the correct uuid
       },
       onError() {
         // @TODO: Rollback
       }
-    }
-  )
+    })
 
   interface MoveHeroMutationVariables {
     from_category_id: number
@@ -245,7 +248,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     order: number
   }
 
-  const { mutate: moveHeroMutation } = useMutation<MoveHeroMutationVariables>(
+  const { mutate: moveHeroMutation, isLoading: isMovingHero } = useMutation<MoveHeroMutationVariables>(
     (v) => `/categories/${v.from_category_id}/heroes/${v.hero_pivot_id}`,
     'put',
     {
@@ -453,7 +456,14 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         updateBoard,
         deleteBoard,
         isEditing,
+        isUpdating,
         isDeleting,
+        isAddingHero,
+        isMovingHero,
+        isAddingCategory,
+        isMovingCategory,
+        isResizingCategory,
+        isDeletingCategory,
         setIsEditing,
         addHero,
         moveHero,

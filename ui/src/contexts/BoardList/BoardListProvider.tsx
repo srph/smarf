@@ -15,9 +15,7 @@ interface BoardListContextType {
   isBoardListLoading: boolean
   isBoardCreating: boolean
   createBoard: () => void
-  updateBoard: (id: ID, name: string) => void
   favoriteBoard: (id: ID) => void
-  removeBoard: (id: ID) => void
 }
 
 const BoardListContext = createContext<BoardListContextType>({
@@ -25,9 +23,7 @@ const BoardListContext = createContext<BoardListContextType>({
   isBoardListLoading: false,
   isBoardCreating: false,
   favoriteBoard: () => {},
-  createBoard: () => {},
-  updateBoard: () => {},
-  removeBoard: () => {}
+  createBoard: () => {}
 })
 
 const BoardListProvider: React.FC = ({ children }) => {
@@ -113,10 +109,6 @@ const BoardListProvider: React.FC = ({ children }) => {
     createBoardMutation(board)
   }
 
-  const updateBoard = () => {}
-
-  const removeBoard = () => {}
-
   return (
     <BoardListContext.Provider
       value={{
@@ -124,9 +116,7 @@ const BoardListProvider: React.FC = ({ children }) => {
         isBoardListLoading,
         isBoardCreating,
         favoriteBoard,
-        createBoard,
-        updateBoard,
-        removeBoard
+        createBoard
       }}>
       {children}
     </BoardListContext.Provider>

@@ -5,6 +5,7 @@ import { Button, Container, Icon, DeletePopover } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { EditPopover } from '../EditPopover'
+import { ToolbarStatusIndicator } from './ToolbarStatusIndicator'
 import { useNavigate } from 'react-router-dom'
 
 const ToolbarComponent: React.FC = () => {
@@ -33,16 +34,7 @@ const ToolbarComponent: React.FC = () => {
   return (
     <>
       <ToolbarContainer>
-        <Container>
-          <StatusIndicatorContainer>
-            <StatusIndicator>
-              <StatusIndicatorIcon>
-                <Icon name="check-circle" />
-              </StatusIndicatorIcon>
-              Saved
-            </StatusIndicator>
-          </StatusIndicatorContainer>
-        </Container>
+        <ToolbarStatusIndicator />
 
         <Container>
           <Toolbar ref={setToolbarElement}>
@@ -110,23 +102,6 @@ const ToolbarComponent: React.FC = () => {
     </>
   )
 }
-
-const StatusIndicatorContainer = styled.div`
-  display: flex;
-  margin-bottom: 16px;
-`
-
-const StatusIndicator = styled.div`
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  font-size: ${theme.fontSizes.sm}px;
-`
-
-const StatusIndicatorIcon = styled.div`
-  margin-right: 8px;
-  color: ${theme.colors.green[500]};
-`
 
 const SelectContainer = styled.label`
   position: relative;
