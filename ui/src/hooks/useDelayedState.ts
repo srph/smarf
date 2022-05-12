@@ -11,6 +11,12 @@ type Callback<T> = (previousValue: T, newValue: T) => boolean
 function useDelayedState<T>(defaultValue: T, callback: Callback<T>, delay: number): [T, (s: T) => void] {
   const [state, internalSetState] = useState<T>(defaultValue)
 
+  // We are not using useStateRef here as we need fresher access.
+  // We only call set state after the delay; which means ref value changes neither until then.
+  // Otherwise, we will have race conditions.
+  // Anyway, I'm still not sure if this works, this fix feels superficial.
+  const stateRef = useRef(state)
+
   const timeoutRef = useRef()
 
   const setState = (nextState: T) => {
@@ -18,13 +24,15 @@ function useDelayedState<T>(defaultValue: T, callback: Callback<T>, delay: numbe
       clearTimeout(timeoutRef.current)
     }
 
-    if (callback(state, nextState)) {
+    if (callback(stateRef.current, nextState)) {
       setTimeout(() => {
         internalSetState(nextState)
       }, delay)
     } else {
       internalSetState(nextState)
     }
+
+    stateRef.current = nextState
   }
 
   return [state, setState]
