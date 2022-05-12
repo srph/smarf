@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
+import { useUpdateEffect } from '~/src/hooks'
 
 const useDebouncedEffect = (callback: Function, deps: any[], timeout: number) => {
   const timeoutRef = useRef<number>()
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }

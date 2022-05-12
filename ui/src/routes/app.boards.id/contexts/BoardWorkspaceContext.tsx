@@ -77,6 +77,7 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   moveHero: () => {},
   moveHeroEnd: () => {},
   addCategory: () => {},
+  updateCategory: () => {},
   moveCategory: () => {},
   moveCategoryEnd: () => {},
   resizeCategory: () => {},

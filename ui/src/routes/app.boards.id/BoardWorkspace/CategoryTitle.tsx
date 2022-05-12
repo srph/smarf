@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import AutosizeInput from 'react-input-autosize'
 import { theme } from '~/src/theme'
 import { useDebouncedEffect } from '~/src/hooks'
+import { CATEGORY_NAME_MAX_CHARACTERS } from '~/src/contexts/BoardList/constants'
 
-import { CATEGORY_NAME_MAX_CHARACTERS } from '~/src/contexts/BoardList'
 interface Props {
   value: string
   onChange: (v: string) => void

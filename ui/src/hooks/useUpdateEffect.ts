@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 
 /**
  * Avoid running the effect on mount.
  */
 export const useUpdateEffect: typeof useEffect = (fn, deps) => {
-  const [isMounted, setIsMounted] = useState(false)
+  const isMountedRef = useRef(false)
 
   useEffect(() => {
-    if (!isMounted) {
-      setIsMounted(true)
+    if (!isMountedRef.current) {
+      isMountedRef.current = true
       return
     }
 
