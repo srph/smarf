@@ -31,7 +31,7 @@ interface ContextType {
 const AuthUserContext = createContext<ContextType>({} as ContextType)
 
 const AuthUserProvider: React.FC = ({ children }) => {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<User | null>(null)
 
   const [token, setToken] = useCookieState(config.oauth.cookieKey, '')
 
@@ -108,22 +108,25 @@ const AuthUserProvider: React.FC = ({ children }) => {
     }
   )
 
-  const value = {
-    user,
-    setUser,
-    token,
-    register,
-    isRegistering: isRegistering || isLoggingIn,
-    login,
-    isLoggingIn,
-    logout
-  }
-
   if (token && !user) {
     return null
   }
 
-  return <AuthUserContext.Provider value={value}>{children}</AuthUserContext.Provider>
+  return (
+    <AuthUserContext.Provider
+      value={{
+        user,
+        setUser,
+        token,
+        register,
+        isRegistering: isRegistering || isLoggingIn,
+        login,
+        isLoggingIn,
+        logout
+      }}>
+      {children}
+    </AuthUserContext.Provider>
+  )
 }
 
 const useAuthUser = () => {
