@@ -66,28 +66,11 @@ const AuthUserProvider: React.FC = ({ children }) => {
     onSuccess: (data) => {
       setUser(data.user)
     },
-    onError: (err) => {
-      // At this point interceptors haven't been initialized yet
-      if (err?.response.status === 401) {
-        logout()
-      }
-    },
-    // At this point interceptors haven't been initialized yet
-    headers: token
-      ? {
-          Authorization: `Bearer ${token}`
-        }
-      : {},
     // If it fails (mostly due to expired / invalid tokens), we don't want to delay
     // the user from navigating to the login page.
     retry: false
   })
 
-  // This is our supposed flow:
-  // Login -> Load User -> Set User and Token -> Navigate (?)
-  // Our current problem with the approach above is the race condition
-  // with RouteGuard running its own navigation based on token / user.
-  // Instead, we'll take the easy way out and refresh
   const { mutate: loginMutation, isLoading: isLoggingIn } = useMutation<OauthCredentials>('oauth/token', 'post', {
     onSuccess: (data) => {
       setToken(data.access_token)
@@ -101,6 +84,7 @@ const AuthUserProvider: React.FC = ({ children }) => {
     onError: () => {}
   })
 
+  // Login -> Success -> Hard-redirect
   const login = (credentials: OauthCredentials) => {
     loginMutation({
       client_id: config.oauth.clientId,
