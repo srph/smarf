@@ -38,16 +38,20 @@ type MutationOperation = 'post' | 'put' | 'delete'
 
 type Fetcher<T> = string | ((variables: T) => string)
 
-function useMutation<T = any, U = any>(url: Fetcher<T>, operation: MutationOperation, opts: UseMutationOptions<T>) {
+function useMutation<TResponse = {}, TVariables = {}>(
+  url: Fetcher<TVariables>,
+  operation: MutationOperation,
+  opts: UseMutationOptions<TResponse, unknown, TVariables>
+) {
   const mutationFn = useCallback(
-    (variables) => {
+    (variables: TVariables) => {
       const endpoint = typeof url === 'function' ? url(variables) : url
       return axios[operation](endpoint, variables).then((res) => res.data)
     },
     [url, operation]
   )
 
-  return useOriginalMutation<T>(mutationFn, opts)
+  return useOriginalMutation<TResponse, unknown, TVariables>(mutationFn, opts)
 }
 
 export { QueryProvider, useQuery, useMutation }

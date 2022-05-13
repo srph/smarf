@@ -9,6 +9,10 @@ interface HeroListContextType {
   isLoading: boolean
 }
 
+interface HeroListQueryResponse {
+  heroes: Hero[]
+}
+
 const HeroListContext = createContext<HeroListContextType>({
   heroes: [],
   heroAttributeGroups: [],
@@ -18,7 +22,7 @@ const HeroListContext = createContext<HeroListContextType>({
 const HeroListProvider: React.FC = ({ children }) => {
   const { token } = useAuthUser()
 
-  const { data: heroData, isLoading } = useQuery('/heroes', {
+  const { data: heroData, isLoading } = useQuery<HeroListQueryResponse>('/heroes', {
     enabled: Boolean(token)
   })
 
@@ -27,23 +31,24 @@ const HeroListProvider: React.FC = ({ children }) => {
   const heroAttributeGroups: HeroAttributeGroup[] = useMemo(
     () => [
       {
-        id: 1,
+        id: '1',
         name: 'Strength',
         heroes: heroes.filter((hero) => hero.attribute === 'strength')
       },
       {
-        id: 2,
+        id: '2',
         name: 'Agility',
         heroes: heroes.filter((hero) => hero.attribute === 'agility')
       },
       {
-        id: 3,
+        id: '3',
         name: 'Intelligence',
         heroes: heroes.filter((hero) => hero.attribute === 'intelligence')
       }
     ],
     [heroes]
   )
+
   return (
     <HeroListContext.Provider
       value={{

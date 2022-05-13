@@ -5,10 +5,26 @@ import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 import { useHeroList } from '~/src/contexts/HeroList'
-import { Board, ID } from '~/src/types/api'
+import { Board, Category, HeroCategoryPivot, ID } from '~/src/types/api'
 
 import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING, ORDER_BUFFER } from './constants'
 import { getCategoryHeight } from './utils'
+
+interface CreateBoardMutationResponse {
+  board: Board
+}
+
+interface CreateBoardMutationVariables {
+  name: string
+  categories: Omit<Category, 'created_at' | 'updated_at'> & {
+    heroes: HeroCategoryPivot['pivot'][]
+  }
+}
+
+interface FavoriteBoardMutationVariables {
+  board_id: string
+  is_favorite: boolean
+}
 
 interface BoardListContextType {
   boards: Board[]
@@ -39,23 +55,21 @@ const BoardListProvider: React.FC = ({ children }) => {
 
   const { heroes, isLoading: isHeroListLoading } = useHeroList()
 
-  const { mutate: createBoardMutation, isLoading: isBoardCreating } = useMutation('/boards', 'post', {
+  const { mutate: createBoardMutation, isLoading: isBoardCreating } = useMutation<
+    CreateBoardMutationResponse,
+    CreateBoardMutationVariables
+  >('/boards', 'post', {
     onSuccess: (data) => {
       queryClient.invalidateQueries('/boards')
       navigate(`/b/${data.board.id}`)
     }
   })
 
-  interface FavoriteBoardMutationVariables {
-    board_id: string
-    is_favorite: boolean
-  }
-
-  const { mutate: favoriteBoardMutation } = useMutation<FavoriteBoardMutationVariables>(
+  const { mutate: favoriteBoardMutation } = useMutation<{}, FavoriteBoardMutationVariables>(
     (v) => `/boards/${v.board_id}/favorite`,
     'put',
     {
-      onSuccess: (data) => {
+      onSuccess() {
         // @TODO: Toast
         queryClient.invalidateQueries('/boards')
       }

@@ -11,6 +11,18 @@ interface OauthCredentials {
   password: string
 }
 
+interface LoginMutationResponse {
+  access_token: string
+}
+
+interface LoginMutationVariables {
+  username: string
+  password: string
+  client_id: string
+  client_secret: string
+  grant_type: string
+}
+
 interface RegisterMutationVariables {
   name: string
   username: string
@@ -71,18 +83,22 @@ const AuthUserProvider: React.FC = ({ children }) => {
     retry: false
   })
 
-  const { mutate: loginMutation, isLoading: isLoggingIn } = useMutation<OauthCredentials>('oauth/token', 'post', {
-    onSuccess: (data) => {
-      setToken(data.access_token)
+  const { mutate: loginMutation, isLoading: isLoggingIn } = useMutation<LoginMutationResponse, LoginMutationVariables>(
+    'oauth/token',
+    'post',
+    {
+      onSuccess: (data) => {
+        setToken(data.access_token)
 
-      if (location.state?.from?.pathname) {
-        window.location.replace(location.state.from.pathname)
-      } else {
-        window.location.pathname = '/'
-      }
-    },
-    onError: () => {}
-  })
+        if (location.state?.from?.pathname) {
+          window.location.replace(location.state.from.pathname)
+        } else {
+          window.location.pathname = '/'
+        }
+      },
+      onError: () => {}
+    }
+  )
 
   // Login -> Success -> Hard-redirect
   const login = (credentials: OauthCredentials) => {
@@ -94,7 +110,7 @@ const AuthUserProvider: React.FC = ({ children }) => {
     })
   }
 
-  const { mutate: register, isLoading: isRegistering } = useMutation<RegisterMutationVariables>(
+  const { mutate: register, isLoading: isRegistering } = useMutation<{}, RegisterMutationVariables>(
     'auth/register',
     'post',
     {
@@ -116,7 +132,6 @@ const AuthUserProvider: React.FC = ({ children }) => {
     <AuthUserContext.Provider
       value={{
         user,
-        setUser,
         token,
         register,
         isRegistering: isRegistering || isLoggingIn,

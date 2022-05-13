@@ -1,9 +1,12 @@
 export type ID = string
 
+export type HeroAttribute = 'strength' | 'agility' | 'intelligence'
+
 export interface Hero {
   id: ID
   name: string
   thumbnail: string
+  attribute: HeroAttribute
 }
 
 // @TOOD: Rename to HeroCategoryWithPivot
@@ -28,6 +31,8 @@ export interface Category {
   y_position: number
   width: number
   height: number
+  created_at: string
+  updated_at: string
 }
 
 export interface Board {
