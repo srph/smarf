@@ -18,7 +18,7 @@ const useInterceptor = (req?: RequestInterceptor, res?: ResponseInterceptor) => 
     })
 
     const responseEject = axios.interceptors.response.use(null, (error: AxiosError) => {
-      return resRef.current ? resRef.current.(error) : Promise.reject(error)
+      return resRef.current ? resRef.current(error) : Promise.reject(error)
     })
 
     return () => {
