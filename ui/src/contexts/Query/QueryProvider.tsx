@@ -7,7 +7,7 @@ import {
   UseQueryOptions as UseOriginalQueryOptions,
   UseMutationOptions
 } from 'react-query'
-import { axios } from '~/src/contexts/Axios'
+import { axios } from '~/src/lib/axios'
 
 const client = new QueryClient({
   defaultOptions: {

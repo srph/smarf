@@ -5,7 +5,6 @@ import 'modern-normalize/modern-normalize.css'
 
 import { HelmetProvider, Helmet } from 'react-helmet-async'
 import { AuthUserProvider } from '~/src/contexts/AuthUser'
-import { AxiosProvider } from '~/src/contexts/Axios'
 import { QueryProvider } from '~/src/contexts/Query'
 import { BoardListProvider } from '~/src/contexts/BoardList'
 import { HeroListProvider } from '~/src/contexts/HeroList'
@@ -34,48 +33,46 @@ const App = () => {
         <BrowserRouter>
           <QueryProvider>
             <AuthUserProvider>
-              <AxiosProvider>
-                <HeroListProvider>
-                  <BoardListProvider>
-                    <Routes>
+              <HeroListProvider>
+                <BoardListProvider>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <GuardedRoute type="auth">
+                          <AppRoute />
+                        </GuardedRoute>
+                      }>
+                      <Route index element={<HomeRoute />} />
+                      <Route path="/account" element={<AccountRoute />} />
+                      <Route path="/about" element={<AboutRoute />} />
+                      <Route path="/b/:boardId" element={<BoardsIdRoute />} />
+                    </Route>
+
+                    <Route element={<AuthRoute />}>
                       <Route
-                        path="/"
+                        path="/login"
                         element={
-                          <GuardedRoute type="auth">
-                            <AppRoute />
+                          <GuardedRoute type="guest">
+                            <LoginRoute />
                           </GuardedRoute>
-                        }>
-                        <Route index element={<HomeRoute />} />
-                        <Route path="/account" element={<AccountRoute />} />
-                        <Route path="/about" element={<AboutRoute />} />
-                        <Route path="/b/:boardId" element={<BoardsIdRoute />} />
-                      </Route>
+                        }
+                      />
 
-                      <Route element={<AuthRoute />}>
-                        <Route
-                          path="/login"
-                          element={
-                            <GuardedRoute type="guest">
-                              <LoginRoute />
-                            </GuardedRoute>
-                          }
-                        />
+                      <Route
+                        path="/register"
+                        element={
+                          <GuardedRoute type="guest">
+                            <RegisterRoute />
+                          </GuardedRoute>
+                        }
+                      />
+                    </Route>
 
-                        <Route
-                          path="/register"
-                          element={
-                            <GuardedRoute type="guest">
-                              <RegisterRoute />
-                            </GuardedRoute>
-                          }
-                        />
-                      </Route>
-
-                      <Route path="/logout" element={<LogoutRoute />} />
-                    </Routes>
-                  </BoardListProvider>
-                </HeroListProvider>
-              </AxiosProvider>
+                    <Route path="/logout" element={<LogoutRoute />} />
+                  </Routes>
+                </BoardListProvider>
+              </HeroListProvider>
             </AuthUserProvider>
           </QueryProvider>
         </BrowserRouter>

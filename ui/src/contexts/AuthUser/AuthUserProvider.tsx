@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '~/src/contexts/Query'
 import { User } from '~/src/types/api'
 import { config } from '~/src/config'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useInterceptor } from './useInterceptor'
 
 interface OauthCredentials {
   username: string
@@ -44,7 +45,23 @@ const AuthUserProvider: React.FC = ({ children }) => {
     navigate('/login')
   }
 
-  const { isLoading } = useQuery('auth/me', {
+  useInterceptor((config) => {
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+
+    return config
+  })
+
+  useInterceptor(null, (err) => {
+    if (err.response.status === 401 && !err.config.url.includes('/oauth/token')) {
+      logout()
+    }
+
+    return Promise.reject(err)
+  })
+
+  useQuery('auth/me', {
     enabled: Boolean(token),
     onSuccess: (data) => {
       setUser(data.user)
