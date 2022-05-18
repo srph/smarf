@@ -1,7 +1,12 @@
 import immer from 'immer'
 import { useQueryClient } from 'react-query'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
+import { Board } from '~/src/types/api'
 import { DivdedQueryAndMutationProps } from './types'
+
+interface UpdateBoardMutationResponse {
+  board: Board
+}
 
 interface UpdateBoardMutationVariables {
   name: string
@@ -10,7 +15,7 @@ interface UpdateBoardMutationVariables {
 const useUpdateBoardMutation = ({ board, setBoard, setIsEditing }: DivdedQueryAndMutationProps): MutationReturnType => {
   const queryClient = useQueryClient()
 
-  const { mutate: mutateFn, ...props } = useMutation<UpdateBoardMutationVariables>(`/boards/${board?.id}`, 'put', {
+  return useMutation<UpdateBoardMutationResponse, UpdateBoardMutationVariables>(`/boards/${board?.id}`, 'put', {
     onSuccess(data) {
       queryClient.invalidateQueries('/boards')
 
@@ -26,23 +31,6 @@ const useUpdateBoardMutation = ({ board, setBoard, setIsEditing }: DivdedQueryAn
       // Toast
     }
   })
-
-  const mutate = () => {
-    const updatedFavoriteStatus = !board.is_favorite
-
-    setBoard(
-      immer(board, (draft) => {
-        draft.is_favorite = updatedFavoriteStatus
-      })
-    )
-
-    mutateFn({ is_favorite: updatedFavoriteStatus })
-  }
-
-  return {
-    mutate,
-    ...props
-  }
 }
 
 export { useUpdateBoardMutation, UpdateBoardMutationVariables }
