@@ -127,14 +127,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
 
   const { mutate: moveHero, isLoading: isMovingHero } = useMoveHeroMutation(operationProps)
 
-  const moveHeroEnd = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => {
-    // moveHeroMutation({
-    //   from_category_id: from.container,
-    //   to_category_id: to.category.id,
-    //   hero_id: from.catego
-    //   order
-    // })
-  }
+  const moveHeroEnd = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => {}
 
   if (!board) {
     return null
