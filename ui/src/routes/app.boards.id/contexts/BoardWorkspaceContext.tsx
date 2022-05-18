@@ -86,48 +86,46 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
 const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
   const { boardId } = useParams()
 
-  const [isEditing, setIsEditing] = useState(false)
-
   const [board, setBoard, boardRef] = useStateRef<Board>()
 
-  const { isLoading } = useQuery(`boards/${boardId}`, {
-    onSuccess: (data) => {
-      setBoard(data.board)
-    }
+  const [isEditing, setIsEditing] = useState(false)
+
+  useQuery(`boards/${boardId}`, {
+    onSuccess: (data) => setBoard(data.board)
   })
 
-  const hookProps = {
+  const operationProps = {
     board,
     boardRef,
     setBoard,
     setIsEditing
   }
 
-  const { mutate: updateBoard, isLoading: isUpdating } = useUpdateBoardMutation(hookProps)
+  const { mutate: updateBoard, isLoading: isUpdating } = useUpdateBoardMutation(operationProps)
 
-  const { mutate: deleteBoard, isLoading: isDeleting } = useDeleteBoardMutation(hookProps)
+  const { mutate: deleteBoard, isLoading: isDeleting } = useDeleteBoardMutation(operationProps)
 
-  const { mutate: favoriteBoard, isLoading: isFavoriteLoading } = useFavoriteBoardMutation(hookProps)
+  const { mutate: favoriteBoard, isLoading: isFavoriteLoading } = useFavoriteBoardMutation(operationProps)
 
-  const { mutate: duplicateBoard, isLoading: isDuplicating } = useDuplicateBoardMutation(hookProps)
+  const { mutate: duplicateBoard, isLoading: isDuplicating } = useDuplicateBoardMutation(operationProps)
 
-  const { mutate: addHero, isLoading: isAddingHero } = useAddHeroMutation(hookProps)
+  const { mutate: addHero, isLoading: isAddingHero } = useAddHeroMutation(operationProps)
 
-  const { mutate: addCategory, isLoading: isAddingCategory } = useAddCategoryMutation(hookProps)
+  const { mutate: addCategory, isLoading: isAddingCategory } = useAddCategoryMutation(operationProps)
 
-  const { mutate: updateCategory, isLoading: isUpdatingCategory } = useUpdateCategoryMutation(hookProps)
+  const { mutate: updateCategory, isLoading: isUpdatingCategory } = useUpdateCategoryMutation(operationProps)
 
-  const { mutate: deleteCategory, isLoading: isDeletingCategory } = useDeleteCategoryMutation(hookProps)
+  const { mutate: deleteCategory, isLoading: isDeletingCategory } = useDeleteCategoryMutation(operationProps)
 
-  const { mutate: moveCategory } = useMoveCategoryFn(hookProps)
+  const { mutate: moveCategory } = useMoveCategoryFn(operationProps)
 
-  const { mutate: moveCategoryEnd, isLoading: isMovingCategory } = useMoveEndCategoryMutation(hookProps)
+  const { mutate: moveCategoryEnd, isLoading: isMovingCategory } = useMoveEndCategoryMutation(operationProps)
 
-  const { mutate: resizeCategory } = useResizeCategoryFn(hookProps)
+  const { mutate: resizeCategory } = useResizeCategoryFn(operationProps)
 
-  const { mutate: resizeCategoryEnd, isLoading: isResizingCategory } = useResizeCategoryMutation(hookProps)
+  const { mutate: resizeCategoryEnd, isLoading: isResizingCategory } = useResizeCategoryMutation(operationProps)
 
-  const { mutate: moveHero, isLoading: isMovingHero } = useMoveHeroMutation(hookProps)
+  const { mutate: moveHero, isLoading: isMovingHero } = useMoveHeroMutation(operationProps)
 
   const moveHeroEnd = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => {
     // moveHeroMutation({
@@ -138,7 +136,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     // })
   }
 
-  if (!board || isLoading) {
+  if (!board) {
     return null
   }
 
