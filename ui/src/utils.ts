@@ -17,3 +17,9 @@ export function mergeRefs<T>(...refs: Ref<T>[]) {
 export function last<T>(arr: T[]): T {
   return arr[arr.length - 1]
 }
+
+// Mutably swap values array to array
+export function arrayTransfer<T>(src: T[], dest: T[], from: number, to: number) {
+  const value = src.splice(from, 1)[0]
+  dest.splice(to, 0, value)
+}
