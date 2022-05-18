@@ -1,5 +1,5 @@
 import immer from 'immer'
-import { Category, Translate } from '~/src/types/api'
+import { Category } from '~/src/types/api'
 import { getCategoryHeight } from '~/src/contexts/BoardList/utils'
 import { DivdedQueryAndMutationProps } from './types'
 

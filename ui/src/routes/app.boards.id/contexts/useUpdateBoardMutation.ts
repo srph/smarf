@@ -1,4 +1,3 @@
-import immer from 'immer'
 import { useQueryClient } from 'react-query'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
 import { Board } from '~/src/types/api'

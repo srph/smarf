@@ -1,6 +1,6 @@
 import immer from 'immer'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
-import { HeroCategoryPivot, ID } from '~/src/types/api'
+import { ID } from '~/src/types/api'
 import { arrayMove } from '@dnd-kit/sortable'
 import { arrayTransfer } from '~/src/utils'
 import { getCategoryHeight, getHeroOrder } from '~/src/contexts/BoardList/utils'
@@ -8,13 +8,12 @@ import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/Bo
 import { DivdedQueryAndMutationProps } from './types'
 
 interface MoveHeroMutationVariables {
-  from_category_id: number
+  from_category_id: ID
   from_category_height: number
-  to_category_id: number
+  to_category_id: ID
   to_category_height: number
-  hero_pivot_id: number
-  hero_buffer_uuid: ID
-  order: number
+  hero_pivot_id: ID
+  hero_order: number
 }
 
 type MutationFn = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
