@@ -27,6 +27,16 @@ interface BoardWorkspaceContextType {
   deleteBoard: () => void
   favoriteBoard: () => void
   duplicateBoard: () => void
+  setIsEditing: (isEditing: boolean) => void
+  addHero: (category: Category, hero: Hero) => void
+  moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
+  addCategory: () => void
+  updateCategory: (category: Pick<Category, 'id' | 'name'>) => void
+  moveCategory: ({ container, translate }: { container: Category; translate: Translate }) => void
+  moveCategoryEnd: ({ container }: { container: Category }) => void
+  resizeCategory: ({ container, width }: { container: Category; width: number }) => void
+  resizeCategoryEnd: ({ container }: { container: Category }) => void
+  deleteCategory: (category: Category) => void
   isEditing: boolean
   isUpdating: boolean
   isDeleting: boolean
@@ -39,16 +49,6 @@ interface BoardWorkspaceContextType {
   isMovingCategory: boolean
   isResizingCategory: boolean
   isDeletingCategory: boolean
-  setIsEditing: (isEditing: boolean) => void
-  addHero: (category: Category, hero: Hero) => void
-  moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
-  addCategory: () => void
-  updateCategory: (category: Pick<Category, 'id' | 'name'>) => void
-  moveCategory: ({ container, translate }: { container: Category; translate: Translate }) => void
-  moveCategoryEnd: ({ container }: { container: Category }) => void
-  resizeCategory: ({ container, width }: { container: Category; width: number }) => void
-  resizeCategoryEnd: ({ container }: { container: Category }) => void
-  deleteCategory: (category: Category) => void
 }
 
 const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
@@ -57,6 +57,16 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   deleteBoard: () => {},
   favoriteBoard: () => {},
   duplicateBoard: () => {},
+  setIsEditing: () => {},
+  addCategory: () => {},
+  updateCategory: () => {},
+  moveCategory: () => {},
+  moveCategoryEnd: () => {},
+  resizeCategory: () => {},
+  resizeCategoryEnd: () => {},
+  deleteCategory: () => {},
+  addHero: () => {},
+  moveHero: () => {},
   isEditing: false,
   isUpdating: false,
   isDeleting: false,
@@ -68,17 +78,7 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   isUpdatingCategory: false,
   isMovingCategory: false,
   isResizingCategory: false,
-  isDeletingCategory: false,
-  setIsEditing: () => {},
-  addHero: () => {},
-  moveHero: () => {},
-  addCategory: () => {},
-  updateCategory: () => {},
-  moveCategory: () => {},
-  moveCategoryEnd: () => {},
-  resizeCategory: () => {},
-  resizeCategoryEnd: () => {},
-  deleteCategory: () => {}
+  isDeletingCategory: false
 })
 
 const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
@@ -137,6 +137,16 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         deleteBoard,
         favoriteBoard,
         duplicateBoard,
+        setIsEditing,
+        addHero,
+        moveHero,
+        addCategory,
+        updateCategory,
+        moveCategory,
+        moveCategoryEnd,
+        resizeCategory,
+        resizeCategoryEnd,
+        deleteCategory,
         isEditing,
         isUpdating,
         isFavoriteLoading,
@@ -148,17 +158,7 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         isUpdatingCategory,
         isMovingCategory,
         isResizingCategory,
-        isDeletingCategory,
-        setIsEditing,
-        addHero,
-        moveHero,
-        addCategory,
-        updateCategory,
-        moveCategory,
-        moveCategoryEnd,
-        resizeCategory,
-        resizeCategoryEnd,
-        deleteCategory
+        isDeletingCategory
       }}>
       {children}
     </BoardWorkspaceContext.Provider>

@@ -1,11 +1,14 @@
 import immer from 'immer'
 import { v4 as uuid } from 'uuid'
-import { useQueryClient } from 'react-query'
-import { useMutation, MutationReturnType } from '~/src/contexts/Query'
-import { HeroCategoryPivot, ID } from '~/src/types/api'
+import { useMutation } from '~/src/contexts/Query'
+import { Category, HeroCategoryPivot, ID } from '~/src/types/api'
 import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING } from '~/src/contexts/BoardList/constants'
 import { getCategoryHeight, getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
-import { DivdedQueryAndMutationProps } from './types'
+import { DivdedQueryAndMutationProps, CustomMutationReturnType } from './types'
+
+interface AddCategoryMutationResponse {
+  category: Category
+}
 
 interface AddCategoryMutationVariables {
   category_buffer_id: ID
@@ -14,8 +17,9 @@ interface AddCategoryMutationVariables {
   height: number
   x_position: number
   y_position: number
-  heroes: HeroCategoryPivot['pivot']
 }
+
+type MutationReturnType = CustomMutationReturnType<Function>
 
 const useAddCategoryMutation = ({
   board,
@@ -23,7 +27,7 @@ const useAddCategoryMutation = ({
   setBoard,
   setIsEditing
 }: DivdedQueryAndMutationProps): MutationReturnType => {
-  const { mutate: mutateFn, ...props } = useMutation<AddCategoryMutationVariables>(
+  const { mutate: mutateFn, ...props } = useMutation<AddCategoryMutationResponse, AddCategoryMutationVariables>(
     `/boards/${board?.id}/categories`,
     'post',
     {
@@ -46,17 +50,23 @@ const useAddCategoryMutation = ({
   // @TODO: Turn into a reusable function that we may reuse this when
   // adding categories to a new board.
   const mutate = () => {
+    const now = new Date().toISOString()
+
+    const heroes: HeroCategoryPivot[] = []
+
     const category = {
       id: uuid(),
       name: 'Untitled',
-      heroes: [],
+      heroes,
       x_position: 0,
       y_position: getLowestCategoryBottom(board) + CATEGORY_SPACING,
       width: CATEGORY_BODY_INITIAL_WIDTH,
       height: getCategoryHeight({
         categoryWidth: CATEGORY_BODY_INITIAL_WIDTH,
         heroCount: 0
-      })
+      }),
+      created_at: now,
+      updated_at: now
     }
 
     setBoard(

@@ -1,4 +1,3 @@
-import immer from 'immer'
 import { useMutation } from '~/src/contexts/Query'
 import { Category, ID } from '~/src/types/api'
 import { DivdedQueryAndMutationProps, CustomMutationReturnType } from './types'
@@ -9,7 +8,7 @@ interface MoveCategoryMutationVariables {
   y_position: number
 }
 
-type MutationFn = (container: Category) => void
+type MutationFn = (v: { container: Category }) => void
 
 type MutationReturnType = CustomMutationReturnType<MutationFn>
 
@@ -34,7 +33,7 @@ const useMoveEndCategoryMutation = ({
 
   // @TODO: Turn into a reusable function that we may reuse this when
   // adding categories to a new board.
-  const mutate = (container: Category) => {
+  const mutate: MutationFn = ({ container }) => {
     mutateFn({
       category_id: container.id,
       x_position: container.x_position,
