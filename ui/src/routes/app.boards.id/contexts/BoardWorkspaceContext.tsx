@@ -4,19 +4,21 @@ import immer from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
 import { v4 as uuid } from 'uuid'
 import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/BoardWorkspace/useGridCollisionDetection'
-import {
-  CATEGORY_BODY_INITIAL_WIDTH,
-  CATEGORY_SPACING,
-  ORDER_FIRST_BUFFER,
-  ORDER_LAST_BUFFER
-} from '~/src/contexts/BoardList/constants'
 import { getCategoryHeight, getHeroOrder, getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useStateRef } from '~/src/hooks'
-import { last } from '~/src/utils'
-import { HeroCategoryPivot } from '~/src/types/api'
+
+import { useUpdateBoardMutation } from './useUpdateBoardMutation'
+import { useDeleteBoardMutation } from './useDeleteBoardMutation'
+import { useFavoriteBoardMutation } from './useFavoriteBoardMutation'
+import { useDuplicateBoardMutation } from './useDuplicateBoardMutation'
+import { useAddCategoryMutation } from './useAddCategoryMutation'
+import { useAddHeroMutation } from './useAddHeroMutation'
+import { useUpdateCategoryMutation } from './useUpdateCategoryMutation'
+import { useDeleteCategoryMutation } from './useDeleteCategoryMutation'
+import { useMoveEndCategoryMutation } from './useMoveEndCategoryMutation'
 
 interface BoardWorkspaceCategoryMoveEvent {
   x: number
@@ -103,200 +105,30 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     }
   })
 
-  interface UpdateBoardMutationVariables {
-    name: string
+  const hookProps = {
+    board,
+    boardRef,
+    setBoard,
+    setIsEditing
   }
 
-  const { mutate: updateBoard, isLoading: isUpdating } = useMutation<UpdateBoardMutationVariables>(
-    `/boards/${board?.id}`,
-    'put',
-    {
-      onSuccess(data) {
-        queryClient.invalidateQueries('/boards')
+  const { mutate: updateBoard, isLoading: isUpdating } = useUpdateBoardMutation(hookProps)
 
-        setBoard({
-          ...board,
-          name: data.board.name
-        })
+  const { mutate: deleteBoard, isLoading: isDeleting } = useDeleteBoardMutation(hookProps)
 
-        setIsEditing(false)
-      },
+  const { mutate: favoriteBoard, isLoading: isFavoriteLoading } = useFavoriteBoardMutation(hookProps)
 
-      onError() {
-        // Toast
-      }
-    }
-  )
+  const { mutate: duplicateBoard, isLoading: isDuplicating } = useDuplicateBoardMutation(hookProps)
 
-  const { mutate: deleteBoard, isLoading: isDeleting } = useMutation(`/boards/${board?.id}`, 'delete', {
-    onSuccess() {
-      queryClient.invalidateQueries('/boards')
+  const { mutate: addHero, isLoading: isAddingHero } = useAddHeroMutation(hookProps)
 
-      navigate('/')
+  const { mutate: addCategory, isLoading: isAddingCategory } = useAddCategoryMutation(hookProps)
 
-      // @TODO: Toast
-    },
-    onError() {
-      // @TODO: Toast
-    }
-  })
+  const { mutate: updateCategory, isLoading: isUpdatingCategory } = useUpdateCategoryMutation(hookProps)
 
-  interface FavoriteBoardMutationVariables {
-    is_favorite: boolean
-  }
+  const { mutate: deleteCategory, isLoading: isDeletingCategory } = useDeleteCategoryMutation(hookProps)
 
-  const { mutate: favoriteBoardMutation, isLoading: isFavoriteLoading } = useMutation<FavoriteBoardMutationVariables>(
-    (v) => `/boards/${board?.id}/favorite`,
-    'put',
-    {
-      onSuccess: (data) => {
-        // @TODO: Toast
-        queryClient.invalidateQueries('/boards')
-      }
-    }
-  )
-
-  const favoriteBoard = () => {
-    const updatedFavoriteStatus = !board.is_favorite
-
-    setBoard(
-      immer(board, (draft) => {
-        draft.is_favorite = updatedFavoriteStatus
-      })
-    )
-
-    favoriteBoardMutation({ is_favorite: updatedFavoriteStatus })
-  }
-
-  const { mutate: duplicateBoard, isLoading: isDuplicating } = useMutation(`/boards/${board?.id}/duplicate`, 'post', {
-    onSuccess(data) {
-      queryClient.invalidateQueries('/boards')
-
-      navigate(`/b/${data.board.id}`)
-      // @TODO: Toast
-    },
-    onError() {
-      // @TODO: Toast
-    }
-  })
-
-  interface AddHeroMutationVariables {
-    hero_id: number
-    hero_buffer_id: number
-    hero_order: number
-    category_id: number
-    category_height: number
-  }
-
-  const { mutate: addHeroMutation, isLoading: isAddingHero } = useMutation<AddHeroMutationVariables>(
-    (v) => `/categories/${v.category_id}/heroes`,
-    'post',
-    {
-      onSuccess(data, v) {
-        // Silently apply so we have the correct uuid. Otherwise, adding a hero then moving it
-        // would fail when we try to persist it to the API.
-        // Also, we are using ref here as this fires way before board state gets updated.
-        setBoard(
-          immer(boardRef.current, (draft) => {
-            const category = draft.categories.find((c) => c.id === v.category_id)
-            const hero = category.heroes.find((h) => h.pivot.id === v.hero_buffer_id)
-            hero.pivot = data.hero.pivot
-          })
-        )
-      },
-      onError() {
-        // @TODO: Rollback
-      }
-    }
-  )
-
-  interface AddCategoryMutationVariables {
-    category_buffer_id: ID
-    name: string
-    width: number
-    height: number
-    x_position: number
-    y_position: number
-    heroes: HeroCategoryPivot['pivot']
-  }
-
-  const { mutate: addCategoryMutation, isLoading: isAddingCategory } = useMutation<AddCategoryMutationVariables>(
-    `/boards/${board?.id}/categories`,
-    'post',
-    {
-      onSuccess(data, v) {
-        // Silently apply so we have the correct uuid
-        setBoard(
-          immer(boardRef.current, (draft) => {
-            const index = draft.categories.findIndex((c) => c.id === v.category_buffer_id)
-            if (index === -1) return // @TODO: Throw
-            draft.categories[index] = data.category
-          })
-        )
-      },
-      onError() {
-        // @TODO: Rollback
-      }
-    }
-  )
-
-  interface UpdateCategoryMutationVariables {
-    id: ID
-    name: string
-  }
-
-  const { mutate: updateCategory, isLoading: isUpdatingCategory } = useMutation<UpdateCategoryMutationVariables>(
-    (v) => `/categories/${v.id}`,
-    'put',
-    {
-      onSuccess(data, v) {
-        // Silently apply so we have the correct uuid
-        setBoard(
-          immer(boardRef.current, (draft) => {
-            const category = draft.categories.find((c) => c.id === v.id)
-            if (!category) return // @TODO: Throw
-            category.name = v.name
-          })
-        )
-      },
-      onError() {
-        // @TODO: Rollback
-      }
-    }
-  )
-
-  interface DeleteCategoryMutationVariables {
-    category_id: ID
-  }
-
-  const { mutate: deleteCategoryMutation, isLoading: isDeletingCategory } =
-    useMutation<DeleteCategoryMutationVariables>((v) => `/categories/${v.category_id}`, 'delete', {
-      onSuccess(data, v) {
-        // @TODO: Toast
-      },
-      onError() {
-        // @TODO: Rollback (?)
-      }
-    })
-
-  interface MoveCategoryMutationVariables {
-    category_id: number
-    x_position: number
-    y_position: number
-  }
-
-  const { mutate: moveCategoryMutation, isLoading: isMovingCategory } = useMutation<MoveCategoryMutationVariables>(
-    (v) => `/categories/${v.category_id}/move`,
-    'put',
-    {
-      onSuccess() {
-        // @TODO: Silently apply so we have the correct uuid
-      },
-      onError() {
-        // @TODO: Rollback
-      }
-    }
-  )
+  const { mutate: moveCategoryEnd, isLoading: isMovingCategory } = useMoveEndCategoryMutation(hookProps)
 
   interface ResizeCategoryMutationVariables {
     category_id: number
@@ -336,44 +168,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       }
     }
   )
-
-  const addHero = (category: Category, hero: Hero) => {
-    const categoryHeight = getCategoryHeight({
-      categoryWidth: category.width,
-      heroCount: category.heroes.length + 1
-    })
-
-    // @TODO: Use getHeroOrder utility
-    const heroOrder = category.heroes.length
-      ? last(category.heroes).pivot.order + ORDER_LAST_BUFFER
-      : ORDER_FIRST_BUFFER
-
-    const heroBufferId = uuid()
-
-    setBoard(
-      immer(board, (draft) => {
-        const boardCategory = draft.categories.find((c) => c.id === category.id)
-
-        boardCategory.heroes.push({
-          ...hero,
-          pivot: {
-            id: heroBufferId,
-            order: heroOrder
-          }
-        })
-
-        boardCategory.height = categoryHeight
-      })
-    )
-
-    addHeroMutation({
-      hero_id: hero.id,
-      hero_buffer_id: heroBufferId,
-      hero_order: heroOrder,
-      category_id: category.id,
-      category_height: categoryHeight
-    })
-  }
 
   // Mutably swap values array to array
   function arrayTransfer<T>(src: T[], dest: T[], from: number, to: number) {
@@ -452,42 +246,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
     )
   }
 
-  const moveCategoryEnd = ({ container }) => {
-    moveCategoryMutation({
-      category_id: container.id,
-      x_position: container.x_position,
-      y_position: container.y_position
-    })
-  }
-
-  // @TODO: Turn into a reusable function that we may reuse this when
-  // adding categories to a new board.
-  const addCategory = () => {
-    const category = {
-      id: uuid(),
-      name: 'Untitled',
-      heroes: [],
-      x_position: 0,
-      y_position: getLowestCategoryBottom(board) + CATEGORY_SPACING,
-      width: CATEGORY_BODY_INITIAL_WIDTH,
-      height: getCategoryHeight({
-        categoryWidth: CATEGORY_BODY_INITIAL_WIDTH,
-        heroCount: 0
-      })
-    }
-
-    setBoard(
-      immer(board, (draft) => {
-        draft.categories.push(category)
-      })
-    )
-
-    addCategoryMutation({
-      ...category,
-      category_buffer_id: category.id
-    })
-  }
-
   const resizeCategory = ({ container, width }) => {
     setBoard(
       immer(board, (draft) => {
@@ -507,17 +265,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       width: container.width,
       height: container.height
     })
-  }
-
-  const deleteCategory = (category) => {
-    setBoard(
-      immer(board, (draft) => {
-        const categoryId = category.id
-        draft.categories = draft.categories.filter((category) => category.id !== categoryId)
-      })
-    )
-
-    deleteCategoryMutation({ category_id: category.id })
   }
 
   if (!board || isLoading) {

@@ -1,0 +1,80 @@
+import immer from 'immer'
+import { v4 as uuid } from 'uuid'
+import { useQueryClient } from 'react-query'
+import { useMutation, MutationReturnType } from '~/src/contexts/Query'
+import { HeroCategoryPivot, ID } from '~/src/types/api'
+import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING } from '~/src/contexts/BoardList/constants'
+import { getCategoryHeight, getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
+import { DivdedQueryAndMutationProps } from './types'
+
+interface AddCategoryMutationVariables {
+  category_buffer_id: ID
+  name: string
+  width: number
+  height: number
+  x_position: number
+  y_position: number
+  heroes: HeroCategoryPivot['pivot']
+}
+
+const useAddCategoryMutation = ({
+  board,
+  boardRef,
+  setBoard,
+  setIsEditing
+}: DivdedQueryAndMutationProps): MutationReturnType => {
+  const { mutate: mutateFn, ...props } = useMutation<AddCategoryMutationVariables>(
+    `/boards/${board?.id}/categories`,
+    'post',
+    {
+      onSuccess(data, v) {
+        // Silently apply so we have the correct uuid
+        setBoard(
+          immer(boardRef.current, (draft) => {
+            const index = draft.categories.findIndex((c) => c.id === v.category_buffer_id)
+            if (index === -1) return // @TODO: Throw
+            draft.categories[index] = data.category
+          })
+        )
+      },
+      onError() {
+        // @TODO: Rollback
+      }
+    }
+  )
+
+  // @TODO: Turn into a reusable function that we may reuse this when
+  // adding categories to a new board.
+  const mutate = () => {
+    const category = {
+      id: uuid(),
+      name: 'Untitled',
+      heroes: [],
+      x_position: 0,
+      y_position: getLowestCategoryBottom(board) + CATEGORY_SPACING,
+      width: CATEGORY_BODY_INITIAL_WIDTH,
+      height: getCategoryHeight({
+        categoryWidth: CATEGORY_BODY_INITIAL_WIDTH,
+        heroCount: 0
+      })
+    }
+
+    setBoard(
+      immer(board, (draft) => {
+        draft.categories.push(category)
+      })
+    )
+
+    mutateFn({
+      ...category,
+      category_buffer_id: category.id
+    })
+  }
+
+  return {
+    mutate,
+    ...props
+  }
+}
+
+export { useAddCategoryMutation, AddCategoryMutationVariables }
