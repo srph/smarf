@@ -152,7 +152,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
         setIsEditing,
         addHero,
         moveHero,
-        moveHeroEnd,
         addCategory,
         updateCategory,
         moveCategory,
