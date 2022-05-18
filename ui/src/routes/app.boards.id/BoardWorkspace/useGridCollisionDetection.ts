@@ -25,7 +25,6 @@ interface CustomGridCollisionDetectionProps<T> {
   containerIdTransformer: (item: T) => ID
   containerDataIdTransformer: (item: T) => ID[]
   onChange: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
-  onDragEnd: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
 }
 
 interface CustomGridCollisionDetectionReturnType<T> {

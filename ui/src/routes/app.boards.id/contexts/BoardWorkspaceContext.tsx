@@ -12,13 +12,13 @@ import { useDeleteBoardMutation } from './useDeleteBoardMutation'
 import { useFavoriteBoardMutation } from './useFavoriteBoardMutation'
 import { useDuplicateBoardMutation } from './useDuplicateBoardMutation'
 import { useAddCategoryMutation } from './useAddCategoryMutation'
-import { useAddHeroMutation } from './useAddHeroMutation'
 import { useUpdateCategoryMutation } from './useUpdateCategoryMutation'
 import { useDeleteCategoryMutation } from './useDeleteCategoryMutation'
 import { useMoveCategoryFn } from './useMoveCategoryFn'
 import { useMoveEndCategoryMutation } from './useMoveEndCategoryMutation'
 import { useResizeCategoryFn } from './useResizeCategoryFn'
 import { useResizeCategoryMutation } from './useResizeCategoryMutation'
+import { useAddHeroMutation } from './useAddHeroMutation'
 import { useMoveHeroMutation } from './useMoveHeroMutation'
 
 interface BoardWorkspaceContextType {
@@ -42,7 +42,6 @@ interface BoardWorkspaceContextType {
   setIsEditing: (isEditing: boolean) => void
   addHero: (category: Category, hero: Hero) => void
   moveHero: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
-  moveHeroEnd: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
   addCategory: () => void
   updateCategory: (category: Pick<Category, 'id' | 'name'>) => void
   moveCategory: ({ container, translate }: { container: Category; translate: Translate }) => void
@@ -73,14 +72,13 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   setIsEditing: () => {},
   addHero: () => {},
   moveHero: () => {},
-  moveHeroEnd: () => {},
   addCategory: () => {},
   updateCategory: () => {},
   moveCategory: () => {},
   moveCategoryEnd: () => {},
   resizeCategory: () => {},
   resizeCategoryEnd: () => {},
-  deleteCategory: (category: Category) => {}
+  deleteCategory: () => {}
 })
 
 const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
@@ -109,8 +107,6 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
 
   const { mutate: duplicateBoard, isLoading: isDuplicating } = useDuplicateBoardMutation(operationProps)
 
-  const { mutate: addHero, isLoading: isAddingHero } = useAddHeroMutation(operationProps)
-
   const { mutate: addCategory, isLoading: isAddingCategory } = useAddCategoryMutation(operationProps)
 
   const { mutate: updateCategory, isLoading: isUpdatingCategory } = useUpdateCategoryMutation(operationProps)
@@ -125,9 +121,9 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
 
   const { mutate: resizeCategoryEnd, isLoading: isResizingCategory } = useResizeCategoryMutation(operationProps)
 
-  const { mutate: moveHero, isLoading: isMovingHero } = useMoveHeroMutation(operationProps)
+  const { mutate: addHero, isLoading: isAddingHero } = useAddHeroMutation(operationProps)
 
-  const moveHeroEnd = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => {}
+  const { mutate: moveHero, isLoading: isMovingHero } = useMoveHeroMutation(operationProps)
 
   if (!board) {
     return null
