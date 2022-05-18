@@ -1,12 +1,13 @@
 import immer from 'immer'
-import { Category, Translate } from '~/src/types/api'
+import { Category } from '~/src/types/api'
+import { Translate } from '~/src/types/board-operations'
 import { DivdedQueryAndMutationProps } from './types'
 
 interface MutationReturnType {
   mutate: (v: { container: Category; translate: Translate }) => void
 }
 
-const useDeleteBoardMutation = ({ board, setBoard, setIsEditing }: DivdedQueryAndMutationProps): MutationReturnType => {
+const useMoveCategoryFn = ({ board, setBoard, setIsEditing }: DivdedQueryAndMutationProps): MutationReturnType => {
   const mutate = ({ container, translate: { x, y } }) => {
     setBoard(
       immer(board, (draft) => {
@@ -20,4 +21,4 @@ const useDeleteBoardMutation = ({ board, setBoard, setIsEditing }: DivdedQueryAn
   return { mutate }
 }
 
-export { useDeleteBoardMutation }
+export { useMoveCategoryFn }

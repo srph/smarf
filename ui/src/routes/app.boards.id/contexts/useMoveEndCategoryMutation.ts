@@ -1,10 +1,10 @@
 import immer from 'immer'
-import { useMutation, MutationReturnType } from '~/src/contexts/Query'
+import { useMutation } from '~/src/contexts/Query'
 import { Category, ID } from '~/src/types/api'
 import { DivdedQueryAndMutationProps, CustomMutationReturnType } from './types'
 
 interface MoveCategoryMutationVariables {
-  category_id: number
+  category_id: ID
   x_position: number
   y_position: number
 }

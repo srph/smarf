@@ -9,7 +9,7 @@ const useDeleteBoardMutation = ({ board, setBoard, setIsEditing }: DivdedQueryAn
 
   const navigate = useNavigate()
 
-  return useMutation(`/boards/${board?.id}`, 'delete', {
+  return useMutation<{}, null>(`/boards/${board?.id}`, 'delete', {
     onSuccess() {
       queryClient.invalidateQueries('/boards')
 
