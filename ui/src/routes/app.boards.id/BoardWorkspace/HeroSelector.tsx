@@ -24,6 +24,8 @@ const HeroSelector: React.FC<Props> = ({ open, onSelectHero, onChangeOpen, trigg
     return null
   }
 
+  const searchInput = search.toLowerCase()
+
   return (
     <Popover
       open={open}
@@ -54,17 +56,21 @@ const HeroSelector: React.FC<Props> = ({ open, onSelectHero, onChangeOpen, trigg
               </HeroSelectorGroupHeading>
 
               <HeroSelectorGroupList>
-                {attribute.heroes.map((hero) => (
-                  <HeroSelectorItem key={hero.id}>
-                    <HeroSelectorItemButton
-                      type="button"
-                      onClick={() => onSelectHero(hero)}
-                      dimmed={search && !hero.name.toLowerCase().includes(search)}
-                      title={`Select ${hero.name}`}>
-                      <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
-                    </HeroSelectorItemButton>
-                  </HeroSelectorItem>
-                ))}
+                {attribute.heroes.map((hero) => {
+                  const name = hero.name.toLowerCase()
+
+                  return (
+                    <HeroSelectorItem key={hero.id}>
+                      <HeroSelectorItemButton
+                        type="button"
+                        onClick={() => onSelectHero(hero)}
+                        dimmed={searchInput && !name.includes(searchInput)}
+                        title={`Select ${hero.name}`}>
+                        <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
+                      </HeroSelectorItemButton>
+                    </HeroSelectorItem>
+                  )
+                })}
               </HeroSelectorGroupList>
             </React.Fragment>
           ))}
