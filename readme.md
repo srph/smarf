@@ -4,6 +4,8 @@
 
 Smarf is a dota hero organizer on your browser
 
+[App](https://smarf.kierb.com) / [Figma](https://www.figma.com/file/H1r4PLLf8UFnBconO1v66p/Smarf)
+
 ## Requirements
 
 - npm v16
