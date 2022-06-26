@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
+import { Helmet } from 'react-helmet-async'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { BoardList } from './BoardList'
 import { Spacer, Spinner } from '~/src/components'
@@ -17,14 +18,20 @@ const HomeRoute = () => {
 
   if (isBoardListLoading) {
     return (
-      <Container>
-        <Spinner />
-      </Container>
+      <>
+        <Helmet title="Your Boards" />
+        
+        <Container>
+          <Spinner />
+        </Container>
+      </>
     )
   }
 
   return (
     <>
+      <Helmet title="Your Boards" />
+      
       {favorites.length ? <BoardList title="Favorite Boards" boards={favorites} /> : null}
 
       {recent.length ? (
