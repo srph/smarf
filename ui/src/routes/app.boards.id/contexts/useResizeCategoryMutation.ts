@@ -1,5 +1,4 @@
 import immer from 'immer'
-import { useQueryClient } from 'react-query'
 import { useMutation } from '~/src/contexts/Query'
 import { Board, Category } from '~/src/types/api'
 import { DivdedQueryAndMutationProps, CustomMutationReturnType } from './types'
@@ -21,25 +20,15 @@ const useResizeCategoryMutation = ({
   setBoard,
   setIsEditing
 }: DivdedQueryAndMutationProps): MutationReturnType => {
-  const queryClient = useQueryClient()
-
   const { mutate: mutateFn, ...props } = useMutation<ResizeCategoryMutationResponse, ResizeCategoryMutationVariables>(
-    `/boards/${board?.id}`,
+    (v) => `/categories/${v.category_id}/resize`,
     'put',
     {
-      onSuccess(data) {
-        queryClient.invalidateQueries('/boards')
-
-        setBoard({
-          ...board,
-          name: data.board.name
-        })
-
-        setIsEditing(false)
+      onSuccess() {
+        // @TODO: Silently apply so we have the correct uuid
       },
-
       onError() {
-        // Toast
+        // @TODO: Rollback
       }
     }
   )
