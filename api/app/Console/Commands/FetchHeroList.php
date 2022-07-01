@@ -31,6 +31,7 @@ class FetchHeroList extends Command
     {
         $heroes = Http::get('https://api.opendota.com/api/heroes')->collect()
             ->map(function ($hero) {
+                // @TODO: Move this into a service class along with the `update_hero_thumbnails` migration
                 // Get thumbnail key based on prefixed name
                 $name = str_replace('npc_dota_hero_', '', $hero['name']);
 
@@ -41,7 +42,8 @@ class FetchHeroList extends Command
                         'agi' => 'agility',
                         'int' => 'intelligence'
                     },
-                    'thumbnail' => "https://cdn.dota2.com/apps/dota2/images/heroes/{$name}_full.png"
+                    'thumbnail' => "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{$name}.png"
+
                 ];
             });
 
