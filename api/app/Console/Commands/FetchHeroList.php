@@ -31,7 +31,6 @@ class FetchHeroList extends Command
     {
         $heroes = Http::get('https://api.opendota.com/api/heroes')->collect()
             ->map(function ($hero) {
-                // @TODO: Move this into a service class along with the `update_hero_thumbnails` migration
                 // Get thumbnail key based on prefixed name
                 $name = str_replace('npc_dota_hero_', '', $hero['name']);
 
