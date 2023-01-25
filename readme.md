@@ -1,6 +1,6 @@
 ![Thumbnail](readme-thumb.png)
 
-## Smarf (WIP)
+## Smarf
 
 Smarf is a dota hero organizer on your browser
 
