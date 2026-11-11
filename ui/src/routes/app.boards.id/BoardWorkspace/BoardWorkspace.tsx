@@ -1,9 +1,8 @@
 import React, { useMemo, useRef } from 'react'
 import styled from 'styled-components'
-import { Helmet } from 'react-helmet-async'
 
 import { theme } from '~/src/theme'
-import { Container, Icon } from '~/src/components'
+import { Container, Icon, PageTitle } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { CategoryBody } from './CategoryBody'
 import { Category } from '~/src/types/api'
@@ -59,7 +58,7 @@ const BoardWorkspace: React.FC = () => {
 
   return (
     <Container>
-      <Helmet title={`${board.name} Board`} />
+      <PageTitle title={`${board.name} Board`} />
 
       <DndContext
         sensors={sensors}

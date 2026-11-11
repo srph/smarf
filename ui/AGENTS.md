@@ -24,7 +24,7 @@ public/           copied as-is: favicons, _redirects (Netlify)
 src/
 ├── App.tsx       route table + providers; index.tsx only mounts it
 ├── assets/       images imported by components
-├── components/   shared UI primitives (Button, Input, Popover, ...)
+├── components/   shared UI primitives (Button, Input, Popover, PageTitle, ...)
 ├── contexts/     AuthUser (token cookie + axios auth), BoardList, HeroList, Query
 ├── hooks/        generic hooks (useDebouncedEffect, useOutsideClick, ...)
 ├── lib/axios.ts  configured axios instance

@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
-import { Helmet } from 'react-helmet-async'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { BoardList } from './BoardList'
-import { Spacer, Spinner } from '~/src/components'
+import { PageTitle, Spacer, Spinner } from '~/src/components'
 
 const HomeRoute = () => {
   const { boards, isBoardListLoading } = useBoardList()
@@ -19,7 +18,7 @@ const HomeRoute = () => {
   if (isBoardListLoading) {
     return (
       <>
-        <Helmet title="Your Boards" />
+        <PageTitle title="Your Boards" />
         
         <Container>
           <Spinner />
@@ -30,7 +29,7 @@ const HomeRoute = () => {
 
   return (
     <>
-      <Helmet title="Your Boards" />
+      <PageTitle title="Your Boards" />
       
       {favorites.length ? <BoardList title="Favorite Boards" boards={favorites} /> : null}
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { createGlobalStyle } from 'styled-components'
 import 'modern-normalize/modern-normalize.css'
 
-import { HelmetProvider, Helmet } from 'react-helmet-async'
 import { AuthUserProvider } from '~/src/contexts/AuthUser'
 import { QueryProvider } from '~/src/contexts/Query'
 import { BoardListProvider } from '~/src/contexts/BoardList'
@@ -22,7 +21,6 @@ import { RegisterRoute } from './routes/auth.register'
 import { LogoutRoute } from './routes/logout'
 
 import { theme } from './theme'
-import { config } from './config'
 
 // Providers that use router hooks (useNavigate, useLocation) have to render inside the router.
 const Root = () => {
@@ -88,13 +86,9 @@ const App = () => {
 
   return (
     <>
-      <HelmetProvider>
-        <Helmet titleTemplate={`${config.app.title} — %s`} />
-
-        <QueryProvider>
-          <RouterProvider router={router} />
-        </QueryProvider>
-      </HelmetProvider>
+      <QueryProvider>
+        <RouterProvider router={router} />
+      </QueryProvider>
 
       <PopoverPortal />
 

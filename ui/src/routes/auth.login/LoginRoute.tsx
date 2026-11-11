@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { Button, Input, Spacer } from '~/src/components'
+import { Button, Input, PageTitle, Spacer } from '~/src/components'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 
 const LoginRoute = () => {
@@ -21,7 +20,7 @@ const LoginRoute = () => {
 
   return (
     <>
-      <Helmet title="Sign in" />
+      <PageTitle title="Sign in" />
       <form onSubmit={handleSubmit}>
         <Input label="Email" placeholder="your@email.com" value={email} onChange={setEmail} type="email" />
         <Spacer size={2} />

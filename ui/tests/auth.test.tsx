@@ -79,4 +79,11 @@ describe('auth', () => {
     expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument()
     expect(getToken()).toBeFalsy()
   })
+
+  it('sets the page title', async () => {
+    renderApp('/login', { loggedIn: false })
+
+    await screen.findByRole('button', { name: 'Sign in' })
+    expect(document.title).toBe('Smarf — Sign in')
+  })
 })
