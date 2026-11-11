@@ -19,7 +19,7 @@ interface AddCategoryMutationVariables {
   y_position: number
 }
 
-type MutationReturnType = CustomMutationReturnType<Function>
+type MutationReturnType = CustomMutationReturnType<() => void>
 
 const useAddCategoryMutation = ({
   board,
@@ -87,4 +87,4 @@ const useAddCategoryMutation = ({
   }
 }
 
-export { useAddCategoryMutation, AddCategoryMutationVariables }
+export { useAddCategoryMutation, type AddCategoryMutationVariables }

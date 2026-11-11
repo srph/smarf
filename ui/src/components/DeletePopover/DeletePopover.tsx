@@ -114,4 +114,4 @@ const ActionItem = styled.div`
   padding-right: 8px;
 `
 
-export { DeletePopover, DeletePopoverProps }
+export { DeletePopover, type DeletePopoverProps }

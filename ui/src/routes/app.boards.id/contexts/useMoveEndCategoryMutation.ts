@@ -47,4 +47,4 @@ const useMoveEndCategoryMutation = ({
   }
 }
 
-export { useMoveEndCategoryMutation, MoveCategoryMutationVariables }
+export { useMoveEndCategoryMutation, type MoveCategoryMutationVariables }

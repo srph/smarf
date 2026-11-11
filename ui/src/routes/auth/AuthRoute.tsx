@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Spacer, Logo } from '~/src/components'
 import { theme } from '~/src/theme'
-import loginBg from '~/src/public/images/login-bg.png'
-import registerBg from '~/src/public/images/register-bg.jpg'
+import loginBg from '~/src/assets/images/login-bg.png'
+import registerBg from '~/src/assets/images/register-bg.jpg'
 
 const AuthRoute = () => {
   const { pathname } = useLocation()

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import {
   QueryClient,
   QueryClientProvider,
@@ -9,15 +9,19 @@ import {
 } from 'react-query'
 import { axios } from '~/src/lib/axios'
 
-const client = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false
+const createQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false
+      }
     }
-  }
-})
+  })
 
+// One client per provider, so each mounted app (and each test) gets its own cache.
 const QueryProvider: React.FC = ({ children }) => {
+  const [client] = useState(createQueryClient)
+
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>
 }
 
@@ -58,4 +62,4 @@ type MutationReturnType = ReturnType<typeof useMutation>
 
 type QueryReturnType = ReturnType<typeof useQuery>
 
-export { QueryProvider, useQuery, useMutation, QueryReturnType, MutationReturnType }
+export { QueryProvider, useQuery, useMutation, type QueryReturnType, type MutationReturnType }

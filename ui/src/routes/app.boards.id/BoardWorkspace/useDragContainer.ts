@@ -17,7 +17,7 @@ interface UseDragContainerProps<T> {
   getContainerId: (container: T) => ID
   getContainerPosition: (container: T) => Translate
   onChange: (e: UseDragContainerChangeEvent<T>) => void
-  onDragEnd: (e: UseDragContainerChangeEvent<T>) => void
+  onDragEnd: (e: Pick<UseDragContainerChangeEvent<T>, 'container'>) => void
 }
 
 interface UseDragContainerReturnType {

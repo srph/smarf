@@ -16,9 +16,11 @@ interface CreateBoardMutationResponse {
 
 interface CreateBoardMutationVariables {
   name: string
-  categories: Omit<Category, 'created_at' | 'updated_at'> & {
-    heroes: HeroCategoryPivot['pivot'][]
-  }
+  categories: Array<
+    Omit<Category, 'id' | 'heroes' | 'created_at' | 'updated_at'> & {
+      heroes: HeroCategoryPivot['pivot'][]
+    }
+  >
 }
 
 interface FavoriteBoardMutationVariables {

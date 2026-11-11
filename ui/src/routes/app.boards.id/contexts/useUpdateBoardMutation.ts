@@ -32,4 +32,4 @@ const useUpdateBoardMutation = ({ board, setBoard, setIsEditing }: DivdedQueryAn
   })
 }
 
-export { useUpdateBoardMutation, UpdateBoardMutationVariables }
+export { useUpdateBoardMutation, type UpdateBoardMutationVariables }

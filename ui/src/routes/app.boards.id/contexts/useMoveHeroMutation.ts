@@ -97,4 +97,4 @@ const useMoveHeroMutation = ({
   }
 }
 
-export { useMoveHeroMutation, MoveHeroMutationVariables }
+export { useMoveHeroMutation, type MoveHeroMutationVariables }

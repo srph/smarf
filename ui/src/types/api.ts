@@ -38,7 +38,7 @@ export interface Category {
 export interface Board {
   id: ID
   name: string
-  is_favorite: string
+  is_favorite: boolean
   categories: Category[]
   created_at: string
   updated_at: string

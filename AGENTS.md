@@ -3,14 +3,14 @@
 A Dota 2 hero organizer for the browser. It recreates the in-game hero grid: boards hold resizable, movable categories, and each category holds an ordered list of heroes.
 
 - **API** (`api/`): Laravel 9 on PHP 8.1, with Passport password-grant auth and MySQL 8. See [api/AGENTS.md](api/AGENTS.md).
-- **UI** (`ui/`): React 17 + TypeScript, bundled with Parcel 2. See [ui/AGENTS.md](ui/AGENTS.md).
+- **UI** (`ui/`): React 17 + TypeScript, built with Vite 8 and tested with Vitest. See [ui/AGENTS.md](ui/AGENTS.md).
 
 ## Tooling / Dependencies
 
 - PHP 8.1 via Laravel Valet (`api/.valetrc`)
 - Composer 2
 - MySQL 8 via Docker (`compose.yaml`)
-- Node 16 via nvm (`ui/.nvmrc`) and npm
+- Node 26 via nvm (`ui/.nvmrc`) and npm
 - Docker with Compose v2
 - Make
 

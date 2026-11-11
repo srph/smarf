@@ -31,7 +31,7 @@ const EditPopover: React.FC<Props> = ({ trigger, container }) => {
     updateBoard({ name })
   }
 
-  const handleChangeName = (evt: React.ChangeEvent) => {
+  const handleChangeName = (evt: React.ChangeEvent<HTMLInputElement>) => {
     setName(evt.target.value)
   }
 

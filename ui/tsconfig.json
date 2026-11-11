@@ -1,18 +1,21 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "es5",
-    "jsx": "react",
-    "lib": ["es2018", "dom"],
-    "rootDir": "src",
-    "baseUrl": ".",
-    "typeRoots": ["./src/types", "node_modules/@types"],
-    "paths": {
-      "~*": ["./*"]
-    },
+    "target": "es2022",
+    "lib": ["es2023", "dom", "dom.iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": false,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "types": ["vite/client"],
+    "paths": {
+      "~/*": ["./*"]
+    }
   },
-  "exclude": ["node_modules", "build", "scripts", "acceptance-tests", "webpack", "jest", "src/setupTests.ts"]
+  "include": ["src", "tests", "vite.config.ts"]
 }

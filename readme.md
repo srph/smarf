@@ -8,7 +8,7 @@ Smarf is a dota hero organizer on your browser
 
 ## Requirements
 
-- npm v16
+- Node 26 (via nvm, see `ui/.nvmrc`)
 - Docker
 
 ### Running API
@@ -62,7 +62,7 @@ cp .env.example .env
 
 Open .env and set `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` based on Passport's output.
 
-Afterwards, install dependencies and run Parcel:
+Afterwards, install dependencies and start the Vite dev server:
 
 ```bash
 npm install && npm start

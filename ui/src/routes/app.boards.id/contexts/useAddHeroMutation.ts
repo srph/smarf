@@ -95,4 +95,4 @@ const useAddHeroMutation = ({
   }
 }
 
-export { useAddHeroMutation, AddHeroMutationVariables }
+export { useAddHeroMutation, type AddHeroMutationVariables }

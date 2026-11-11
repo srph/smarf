@@ -26,7 +26,8 @@ Versions checked against npm on 2026-11-11.
 - React Router in data mode, not framework mode. TanStack Query owns data, so we don't need loaders. This keeps the most existing code.
 - The query cache is the source of truth. No copying query data into `useState` via `onSuccess`.
 - While dragging or resizing, the in-progress position or width lives in component state. It's saved to the cache and the API on drop.
-- Remove `swr`, `use-swr` and `cookie` (unused).
+- Remove `swr` and `use-swr` (unused). `cookie` goes with `use-cookie-state` in phase 4.
+- Env var names stay the same (`API_URL`, `OAUTH_CLIENT_*`) via Vite's `envPrefix`, so Netlify settings don't change.
 
 ## How each phase is verified
 
@@ -47,23 +48,26 @@ Versions checked against npm on 2026-11-11.
 
 ### 1. Tooling and baseline tests (still on React 17)
 
-- [ ] `.nvmrc` → 26; check the Makefile's `use_nvm` still works
-- [ ] Replace Parcel with Vite 8 + `@vitejs/plugin-react`
-  - [ ] `index.html` at the `ui/` root; `~` alias in `vite.config.ts`
-  - [ ] Env: `process.env.X` → `import.meta.env.VITE_X` (only in `config.ts`); update `.env.example` and the Makefile `oauth-client` target
-  - [ ] `netlify/_redirects` → `public/_redirects`
-  - [ ] Static assets (favicon, images, webmanifest) load
-  - [ ] Remove `parcel`, `@parcel/*`, `buffer`, `process`
-- [ ] `tsconfig`: `moduleResolution: bundler`, `jsx: react-jsx`, modern target; add a `typecheck` script
-- [ ] Remove `swr`, `use-swr`, `cookie`
-- [ ] Vitest + jsdom + Testing Library (v12, for React 17) + MSW
-  - [ ] MSW handlers for auth, boards, categories, heroes
-  - [ ] Tests: login success/failure, logged-out redirect, 401 → logout
-  - [ ] Tests: board list, create board → navigates to it, favorite, duplicate, delete
-  - [ ] Tests: workspace renders categories/heroes, rename board, add/rename/delete category, add hero
-  - [ ] Tests: move a hero within and across categories using dnd-kit's keyboard sensor
-- [ ] Update `ui/AGENTS.md` and the root `AGENTS.md` (Node, Vite, commands)
-- [ ] Browser check
+- [x] `.nvmrc` → 26; the Makefile's `use_nvm` picks it up
+- [x] Replace Parcel with Vite 8 + `@vitejs/plugin-react`
+  - [x] `index.html` at the `ui/` root; `~` alias in `vite.config.ts`
+  - [x] Env: `process.env.X` → `import.meta.env.X` (only in `config.ts`). The names stay the same via `envPrefix`, so `.env`, the Makefile and Netlify don't change
+  - [x] `netlify/_redirects` → `public/_redirects`; favicons → `public/favicon`; images → `src/assets/images`
+  - [x] Dev server binds `127.0.0.1:1234` (Node resolves `localhost` to `::1`, which browsers didn't reach)
+  - [x] Remove `parcel`, `@parcel/*`, `buffer`, `process`
+- [x] `tsconfig`: `moduleResolution: bundler`, `jsx: react-jsx`, ES2022 target; `typecheck` script
+  - [x] `strict: false` set explicitly (TypeScript 6 turns it on by default; the code never used it)
+  - [x] Type re-exports use `export { type X }`; fixed the existing type errors Parcel never checked
+- [x] Remove `swr`, `use-swr`. **`cookie` stays**: `use-cookie-state` needs it. It goes in phase 4
+- [x] Vitest + jsdom + Testing Library (v12, for React 17) + MSW 3
+  - [x] Fake API: MSW handlers over an in-memory db (`tests/support`)
+  - [x] Auth (8): logged-out redirect, login, wrong password, register, guest-only pages, rejected token, 401 → logout, /logout
+  - [x] Board list (4): favorite/recent sections, favorite from list, create board → opens it, open a board
+  - [x] Workspace (9): render, rename/favorite/duplicate/delete board, add/rename/delete category, add hero
+  - [x] Drag and drop (2): reorder within a category, move to another category (keyboard + fake layout)
+- [x] `App` split out of `index.tsx`; one query client per `QueryProvider` (needed so tests don't share a cache)
+- [x] Update `ui/AGENTS.md`, root `AGENTS.md`, `readme.md` (Node, Vite, commands)
+- [ ] Browser check. **Blocked**: the connected Chrome runs on Windows and can't reach this Mac's `localhost`
 
 ### 2. React 19 and React Router 8
 
@@ -87,6 +91,7 @@ Versions checked against npm on 2026-11-11.
 - [ ] Drag and resize: keep in-progress values in local state; save on drop or resize end
 - [ ] Remove `useStateRef` / `boardRef` from board operations
 - [ ] Fix `useDelayedState` (it never sets `timeoutRef`)
+- [ ] Fix `useGridCollisionDetection` `onDragStart`: it calls `indexOf` on the container id string instead of on its hero list, so cancelling a cross-category drag puts the hero back in the wrong place
 - [ ] Browser check
 
 ### 4. Base UI and leftover libraries
@@ -114,7 +119,8 @@ Versions checked against npm on 2026-11-11.
 
 ## Open questions
 
-- Netlify: the env var names change (`VITE_` prefix) and the Node version comes from `.nvmrc`. Someone needs to update the Netlify site settings before the next deploy.
+- Netlify: env var names are unchanged and Node comes from `.nvmrc` (now 26). Check that the site's build command is `npm run build` with publish directory `dist`, since `_redirects` is now copied from `public/`.
+- Browser checks: the connected Chrome runs on Windows and can't reach this Mac's `localhost`. A Chrome on the Mac with Claude in Chrome connected is needed.
 
 ## Later (not part of this upgrade)
 
@@ -125,3 +131,4 @@ Versions checked against npm on 2026-11-11.
 ## Log
 
 - 2026-11-11: Plan written.
+- 2026-11-12: Phase 1 done except the browser check. 23 tests pass, plus typecheck and build.

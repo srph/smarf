@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { theme } from '~/src/theme'
 import { Avatar, Icon, Popover, PlainButton } from '~/src/components'
 import { useAuthUser } from '~/src/contexts/AuthUser'
-import avatar from '~/src/public/images/avatar.png'
+import avatar from '~/src/assets/images/avatar.png'
 
 const UserDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)

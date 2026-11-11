@@ -7,7 +7,7 @@ interface FavoriteBoardMutationVariables {
   is_favorite: boolean
 }
 
-type MutationReturnType = CustomMutationReturnType<Function>
+type MutationReturnType = CustomMutationReturnType<() => void>
 
 const useFavoriteBoardMutation = ({
   board,
@@ -45,4 +45,4 @@ const useFavoriteBoardMutation = ({
   }
 }
 
-export { useFavoriteBoardMutation, FavoriteBoardMutationVariables }
+export { useFavoriteBoardMutation, type FavoriteBoardMutationVariables }

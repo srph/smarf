@@ -1,6 +1,6 @@
 import immer from 'immer'
 import { useMutation } from '~/src/contexts/Query'
-import { Board, Category } from '~/src/types/api'
+import { Board, Category, ID } from '~/src/types/api'
 import { DivdedQueryAndMutationProps, CustomMutationReturnType } from './types'
 
 interface ResizeCategoryMutationResponse {
@@ -8,7 +8,9 @@ interface ResizeCategoryMutationResponse {
 }
 
 interface ResizeCategoryMutationVariables {
-  name: string
+  category_id: ID
+  width: number
+  height: number
 }
 
 type MutationFn = (v: { container: Category }) => void
@@ -47,4 +49,4 @@ const useResizeCategoryMutation = ({
   }
 }
 
-export { useResizeCategoryMutation, ResizeCategoryMutationVariables }
+export { useResizeCategoryMutation, type ResizeCategoryMutationVariables }

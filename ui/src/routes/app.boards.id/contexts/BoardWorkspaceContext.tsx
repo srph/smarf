@@ -134,9 +134,9 @@ const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
       value={{
         board,
         updateBoard,
-        deleteBoard,
+        deleteBoard: () => deleteBoard(undefined),
         favoriteBoard,
-        duplicateBoard,
+        duplicateBoard: () => duplicateBoard(undefined),
         setIsEditing,
         addHero,
         moveHero,

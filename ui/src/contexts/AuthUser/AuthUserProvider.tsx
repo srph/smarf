@@ -90,8 +90,10 @@ const AuthUserProvider: React.FC = ({ children }) => {
       onSuccess: (data) => {
         setToken(data.access_token)
 
-        if (location.state?.from?.pathname) {
-          window.location.replace(location.state.from.pathname)
+        const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname
+
+        if (from) {
+          window.location.replace(from)
         } else {
           window.location.pathname = '/'
         }

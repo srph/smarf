@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
-import logo from '~/src/public/images/logo.png'
+import logo from '~/src/assets/images/logo.png'
 
 const Logo = () => {
   return (

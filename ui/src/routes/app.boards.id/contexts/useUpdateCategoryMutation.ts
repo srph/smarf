@@ -39,4 +39,4 @@ const useUpdateCategoryMutation = ({
   )
 }
 
-export { useUpdateCategoryMutation, UpdateCategoryMutationVariables }
+export { useUpdateCategoryMutation, type UpdateCategoryMutationVariables }

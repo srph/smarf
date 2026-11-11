@@ -13,7 +13,7 @@ import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { CategoryTitle } from './CategoryTitle'
 import { Translate } from './useDragContainer'
 
-import { Resizable } from 're-resizable'
+import { Resizable, type Size } from 're-resizable'
 import { mergeRefs } from '~/src/utils'
 
 import {
@@ -98,6 +98,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
                 <CategoryRemove
                   ref={ref}
                   onClick={handleToggleDeleteConfirmation}
+                  title="Delete category"
                   isConfirming={isDeleteConfirmationOpen}>
                   <Icon name="trash" />
                 </CategoryRemove>
@@ -118,7 +119,8 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             topLeft: false
           }}
           minWidth={CATEGORY_BODY_INITIAL_WIDTH}
-          size={{ width: category.width }}
+          // Height is left to re-resizable (auto); only width is controlled.
+          size={{ width: category.width } as Size}
           onResize={handleResize}
           onResizeStop={handleResizeStop}>
           <Body ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)} width={category.width}>

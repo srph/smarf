@@ -49,4 +49,4 @@ const useDeleteCategoryMutation = ({
   }
 }
 
-export { useDeleteCategoryMutation, DeleteCategoryMutationVariables }
+export { useDeleteCategoryMutation, type DeleteCategoryMutationVariables }

@@ -1,1 +1,1 @@
-export { DeletePopover, DeletePopoverProps } from './DeletePopover'
+export { DeletePopover, type DeletePopoverProps } from './DeletePopover'

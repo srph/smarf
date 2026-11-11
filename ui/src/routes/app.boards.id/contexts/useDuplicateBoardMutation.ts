@@ -2,6 +2,7 @@ import immer from 'immer'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from 'react-query'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
+import { Board } from '~/src/types/api'
 import { DivdedQueryAndMutationProps } from './types'
 
 const useDuplicateBoardMutation = ({
@@ -13,7 +14,7 @@ const useDuplicateBoardMutation = ({
 
   const navigate = useNavigate()
 
-  return useMutation(`/boards/${board?.id}/duplicate`, 'post', {
+  return useMutation<{ board: Board }>(`/boards/${board?.id}/duplicate`, 'post', {
     onSuccess(data) {
       queryClient.invalidateQueries('/boards')
 

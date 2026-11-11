@@ -1,1 +1,1 @@
-export { QueryProvider, useQuery, useMutation, MutationReturnType, QueryReturnType } from './QueryProvider'
+export { QueryProvider, useQuery, useMutation, type MutationReturnType, type QueryReturnType } from './QueryProvider'

@@ -5,13 +5,13 @@ const config = {
   },
 
   api: {
-    baseUrl: process.env.API_URL
+    baseUrl: import.meta.env.API_URL
   },
 
   oauth: {
     cookieKey: 'smarf-oauth-token',
-    clientId: process.env.OAUTH_CLIENT_ID,
-    clientSecret: process.env.OAUTH_CLIENT_SECRET
+    clientId: import.meta.env.OAUTH_CLIENT_ID,
+    clientSecret: import.meta.env.OAUTH_CLIENT_SECRET
   }
 }
 

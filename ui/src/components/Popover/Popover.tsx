@@ -108,4 +108,4 @@ const PopperContainer = styled.div`
   z-index: ${theme.zIndex.popover};
 `
 
-export { Popover, PopoverPortal, PopoverProps }
+export { Popover, PopoverPortal, type PopoverProps }
