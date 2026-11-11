@@ -1,6 +1,6 @@
 import React from 'react'
 import { useAuthUser } from '~/src/contexts/AuthUser'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router'
 
 interface Props {
   type: 'guest' | 'auth'

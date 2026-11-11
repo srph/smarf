@@ -50,4 +50,11 @@ describe('board list', () => {
 
     expect(await screen.findByDisplayValue('Carries')).toBeInTheDocument()
   })
+
+  it('sends unknown URLs to the board list', async () => {
+    renderApp('/no-such-page')
+
+    expect(await screen.findByRole('button', { name: 'New Board' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/')
+  })
 })

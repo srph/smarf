@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useQueryClient } from 'react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'

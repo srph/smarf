@@ -2,7 +2,7 @@
 
 React front-end for Smarf: the board list, and the board workspace where users drag heroes between resizable categories.
 
-React 17, TypeScript, Vite 8, styled-components, React Router 6, react-query 3, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. An upgrade to React 19 is in progress; see [UPGRADE.md](UPGRADE.md).
+React 19, TypeScript, Vite 8, styled-components, React Router 8 (data router, `createBrowserRouter`), react-query 3, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. A dependency upgrade is in progress; see [UPGRADE.md](UPGRADE.md).
 
 ## Commands
 
@@ -22,7 +22,7 @@ npm test            # Vitest integration tests (npm run test:watch to watch)
 index.html        Vite entry
 public/           copied as-is: favicons, _redirects (Netlify)
 src/
-├── App.tsx       providers + routes; index.tsx only mounts it
+├── App.tsx       route table + providers; index.tsx only mounts it
 ├── assets/       images imported by components
 ├── components/   shared UI primitives (Button, Input, Popover, ...)
 ├── contexts/     AuthUser (token cookie + axios auth), BoardList, HeroList, Query

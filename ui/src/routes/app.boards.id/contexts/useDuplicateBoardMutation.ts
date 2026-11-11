@@ -1,5 +1,5 @@
 import immer from 'immer'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { useQueryClient } from 'react-query'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
 import { Board } from '~/src/types/api'

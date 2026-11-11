@@ -76,7 +76,7 @@ Versions checked against npm on 2026-11-11.
 - [x] `ReactDOM.render` → `createRoot`
 - [ ] Wrap the app in `StrictMode`
 - [x] `React.FC` components that take children: add `PropsWithChildren`; `useRef()` calls get an initial value
-- [ ] React Router 8 with `createBrowserRouter`; package is `react-router` only (drop `react-router-dom`)
+- [x] React Router 8 with `createBrowserRouter`; package is `react-router` only (`react-router-dom` removed). Providers that use router hooks render in a root layout route. Unknown URLs now redirect to `/` (before, they rendered a blank page)
 - [ ] Replace `react-helmet-async` with React 19's built-in `<title>` (the title template moves into a small helper)
 - [x] Libraries that cap React below 19 get a temporary `overrides` entry in `package.json` (no global `legacy-peer-deps`): `react-query` (phase 3), `react-helmet-async` (this phase), `react-input-autosize`, `use-cookie-state`, `react-popper` (phase 4)
 - [ ] Fix whatever StrictMode's double effects expose

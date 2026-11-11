@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { theme } from '~/src/theme'
 import { Avatar, Icon, Popover, PlainButton } from '~/src/components'
 import { useAuthUser } from '~/src/contexts/AuthUser'

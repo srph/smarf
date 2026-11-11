@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router'
 import { Spacer, Logo } from '~/src/components'
 import { theme } from '~/src/theme'
 import loginBg from '~/src/assets/images/login-bg.png'

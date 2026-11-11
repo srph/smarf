@@ -3,7 +3,7 @@ import { useCookieState } from 'use-cookie-state'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { User } from '~/src/types/api'
 import { config } from '~/src/config'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 import { useInterceptor } from './useInterceptor'
 
 interface OauthCredentials {

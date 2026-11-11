@@ -3,7 +3,7 @@ import { Board, Hero, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'
 
 import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/BoardWorkspace/useGridCollisionDetection'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { useQuery } from '~/src/contexts/Query'
 import { useStateRef } from '~/src/hooks'
 

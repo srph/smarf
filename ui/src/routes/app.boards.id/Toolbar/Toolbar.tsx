@@ -6,7 +6,7 @@ import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { EditPopover } from '../EditPopover'
 import { ToolbarStatusIndicator } from './ToolbarStatusIndicator'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 const ToolbarComponent: React.FC = () => {
   const {
