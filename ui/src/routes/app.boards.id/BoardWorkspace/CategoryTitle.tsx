@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import AutosizeInput from 'react-input-autosize'
+import AutosizeInputModule from 'react-input-autosize'
 import { theme } from '~/src/theme'
 import { useDebouncedEffect } from '~/src/hooks'
 import { CATEGORY_NAME_MAX_CHARACTERS } from '~/src/contexts/BoardList/constants'
+
+// CommonJS package with `exports.default`. Vite's dev server returns the whole module as the default
+// import, while builds and Vitest unwrap it, so handle both. Removed in phase 4 (field-sizing: content).
+const AutosizeInput = AutosizeInputModule.default ?? AutosizeInputModule
 
 interface Props {
   value: string

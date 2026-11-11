@@ -67,7 +67,8 @@ Versions checked against npm on 2026-11-11.
   - [x] Drag and drop (2): reorder within a category, move to another category (keyboard + fake layout)
 - [x] `App` split out of `index.tsx`; one query client per `QueryProvider` (needed so tests don't share a cache)
 - [x] Update `ui/AGENTS.md`, root `AGENTS.md`, `readme.md` (Node, Vite, commands)
-- [ ] Browser check. **Blocked**: the connected Chrome runs on Windows and can't reach this Mac's `localhost`
+- [x] Browser check (Chrome on the Mac, dev server and production preview). Everything on the checklist works. One console warning: React 17's "state update on an unmounted component" after deleting a category. It's harmless, and React 18+ no longer warns about it.
+  - Found and fixed: the board page crashed in the dev server because `react-input-autosize` (CommonJS) came through as the whole module. Vitest and the production build were fine, so the tests didn't catch it
 
 ### 2. React 19 and React Router 8
 
@@ -120,10 +121,10 @@ Versions checked against npm on 2026-11-11.
 ## Open questions
 
 - Netlify: env var names are unchanged and Node comes from `.nvmrc` (now 26). Check that the site's build command is `npm run build` with publish directory `dist`, since `_redirects` is now copied from `public/`.
-- Browser checks: the connected Chrome runs on Windows and can't reach this Mac's `localhost`. A Chrome on the Mac with Claude in Chrome connected is needed.
 
 ## Later (not part of this upgrade)
 
+- API: duplicating a board collapses a hero that appears twice in one category (`BoardsController::duplicate` keys pivots by hero id). The UI also allows adding the same hero twice; decide which is intended.
 - `@dnd-kit/react` (0.5, pre-1.0) could replace the custom multi-container collision code.
 - Replace styled-components (it's in maintenance mode).
 - The OAuth client secret ships in the browser bundle because the password grant runs in the browser. Consider doing the token exchange on the API side.
@@ -131,4 +132,4 @@ Versions checked against npm on 2026-11-11.
 ## Log
 
 - 2026-11-11: Plan written.
-- 2026-11-12: Phase 1 done except the browser check. 23 tests pass, plus typecheck and build.
+- 2026-11-12: Phase 1 done. 23 tests pass, plus typecheck and build. Browser check passed after fixing the autosize import.

@@ -43,6 +43,7 @@ tests/
 - When the API changes, update the fake handlers to match.
 - Drag and drop runs through dnd-kit's keyboard controls with `installFakeLayout()`, since jsdom has no layout. Category move and resize aren't covered; check them in a browser.
 - jsdom prints "Not implemented: navigation" after login; that's the hard redirect, and it's expected.
+- Vitest loads packages with Node's rules, not the way the Vite dev server does. A CommonJS import that works in tests can still break in `npm start`, so do a quick browser check after dependency changes.
 
 ## Best practices
 
