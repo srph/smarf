@@ -81,7 +81,7 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   isDeletingCategory: false
 })
 
-const BoardWorkspaceContextProvider: React.FC = ({ children }) => {
+const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { boardId } = useParams()
 
   const [board, setBoard, boardRef] = useStateRef<Board>()

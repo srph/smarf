@@ -72,12 +72,13 @@ Versions checked against npm on 2026-11-11.
 
 ### 2. React 19 and React Router 8
 
-- [ ] `react`/`react-dom` 19.3, `@types/react` 19, Testing Library 16
-- [ ] `ReactDOM.render` → `createRoot`; wrap the app in `StrictMode`
-- [ ] `React.FC` components that take children: add `PropsWithChildren`
+- [x] `react`/`react-dom` 19.3, `@types/react` 19, Testing Library 16, `@types/styled-components` 5.1.36, `re-resizable` 6.11 (supports 19)
+- [x] `ReactDOM.render` → `createRoot`
+- [ ] Wrap the app in `StrictMode`
+- [x] `React.FC` components that take children: add `PropsWithChildren`; `useRef()` calls get an initial value
 - [ ] React Router 8 with `createBrowserRouter`; package is `react-router` only (drop `react-router-dom`)
 - [ ] Replace `react-helmet-async` with React 19's built-in `<title>` (the title template moves into a small helper)
-- [ ] Libraries that haven't been replaced yet may need `legacy-peer-deps` for now; note which ones and remove it in phase 4
+- [x] Libraries that cap React below 19 get a temporary `overrides` entry in `package.json` (no global `legacy-peer-deps`): `react-query` (phase 3), `react-helmet-async` (this phase), `react-input-autosize`, `use-cookie-state`, `react-popper` (phase 4)
 - [ ] Fix whatever StrictMode's double effects expose
 - [ ] Browser check
 
@@ -101,7 +102,7 @@ Versions checked against npm on 2026-11-11.
 - [ ] Remove `react-popper`, `@popperjs/core`, `PopoverPortal`, `useOutsideClick` (if nothing else uses it)
 - [ ] `CategoryTitle`: `field-sizing: content`, with `size={value.length}` as a fallback; remove `react-input-autosize`
 - [ ] Token cookie: small hook instead of `use-cookie-state`
-- [ ] Remove `legacy-peer-deps`
+- [ ] Remove the remaining React `overrides` from `package.json`
 - [ ] Browser check
 
 ### 5. Icons, styling, dnd-kit, and the rest

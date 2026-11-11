@@ -19,7 +19,7 @@ const HeroListContext = createContext<HeroListContextType>({
   isLoading: false
 })
 
-const HeroListProvider: React.FC = ({ children }) => {
+const HeroListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { token } = useAuthUser()
 
   const { data: heroData, isLoading } = useQuery<HeroListQueryResponse>('/heroes', {

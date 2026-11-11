@@ -14,7 +14,7 @@ interface Props {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
 
-const Button: React.FC<Props> = ({
+const Button: React.FC<React.PropsWithChildren<Props>> = ({
   children,
   icon,
   variant = 'primary',

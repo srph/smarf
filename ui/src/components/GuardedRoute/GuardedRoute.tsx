@@ -6,7 +6,7 @@ interface Props {
   type: 'guest' | 'auth'
 }
 
-const GuardedRoute: React.FC<Props> = ({ children, type }) => {
+const GuardedRoute: React.FC<React.PropsWithChildren<Props>> = ({ children, type }) => {
   const { user } = useAuthUser()
   const location = useLocation()
 

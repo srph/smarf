@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useUpdateEffect } from '~/src/hooks'
 
 const useDebouncedEffect = (callback: Function, deps: any[], timeout: number) => {
-  const timeoutRef = useRef<number>()
+  const timeoutRef = useRef<number>(undefined)
 
   useUpdateEffect(() => {
     if (timeoutRef.current) {

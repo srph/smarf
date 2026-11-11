@@ -17,7 +17,7 @@ function useDelayedState<T>(defaultValue: T, callback: Callback<T>, delay: numbe
   // Anyway, I'm still not sure if this works, this fix feels superficial.
   const stateRef = useRef(state)
 
-  const timeoutRef = useRef()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const setState = (nextState: T) => {
     if (timeoutRef.current) {

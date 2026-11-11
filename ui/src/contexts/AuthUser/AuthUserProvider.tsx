@@ -42,7 +42,7 @@ interface ContextType {
 
 const AuthUserContext = createContext<ContextType>({} as ContextType)
 
-const AuthUserProvider: React.FC = ({ children }) => {
+const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
 
   const [token, setToken] = useCookieState(config.oauth.cookieKey, '')

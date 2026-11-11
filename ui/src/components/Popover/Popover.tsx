@@ -20,7 +20,7 @@ interface PopoverProps {
 
 const PORTAL_ID = 'smarf-popover-portal'
 
-const Popover: React.FC<PopoverProps> = ({
+const Popover: React.FC<React.PropsWithChildren<PopoverProps>> = ({
   open,
   onChangeOpen,
   strategy = 'absolute',

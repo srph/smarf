@@ -19,7 +19,7 @@ const createQueryClient = () =>
   })
 
 // One client per provider, so each mounted app (and each test) gets its own cache.
-const QueryProvider: React.FC = ({ children }) => {
+const QueryProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [client] = useState(createQueryClient)
 
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>

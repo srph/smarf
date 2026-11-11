@@ -44,7 +44,7 @@ const BoardListContext = createContext<BoardListContextType>({
   createBoard: () => {}
 })
 
-const BoardListProvider: React.FC = ({ children }) => {
+const BoardListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { token } = useAuthUser()
 
   const navigate = useNavigate()

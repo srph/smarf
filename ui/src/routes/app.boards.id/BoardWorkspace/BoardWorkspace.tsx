@@ -48,7 +48,7 @@ const BoardWorkspace: React.FC = () => {
     })
   )
 
-  const workspaceRef = useRef<HTMLDivElement>()
+  const workspaceRef = useRef<HTMLDivElement>(null)
 
   // Provide enough space so users are able to move around the workspace freely.
   // We're not able to achieve this via css because of how we position categories (via `position: relative`).
