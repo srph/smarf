@@ -2,7 +2,7 @@
 
 React front-end for Smarf: the board list, and the board workspace where users drag heroes between resizable categories.
 
-React 19, TypeScript, Vite 8, styled-components, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, Base UI for popovers and menus, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. A dependency upgrade is in progress; see [UPGRADE.md](UPGRADE.md).
+React 19, TypeScript, Vite 8, styled-components 6, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, Base UI for popovers and menus, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. A dependency upgrade is in progress; see [UPGRADE.md](UPGRADE.md).
 
 ## Commands
 
@@ -51,6 +51,8 @@ tests/
 - Board operations (`routes/app.boards.id/contexts`) treat the query cache as the source of truth: read with `getBoard()`, write with `setBoard()` before the request, call `rollback` on error, and pass `mutationKey: boardKey`. Drag and resize go through `setDraft` until they finish.
 - Build popovers and menus on Base UI (`@base-ui/react`); `components/Popover` covers the usual popover. Style its parts with styled-components and its `data-*` state attributes (`data-popup-open`, `data-highlighted`).
 - Keep components route-local until a second route needs them, then move them to `components/`.
+- Import icons from `@heroicons/react/20/solid` and pass the component: `<Icon icon={TrashIcon} />`.
+- Prefix styled-components props that only feed styles with `$` (`$width`, `$color`) so they don't reach the DOM.
 - Use theme values from `theme.ts` instead of hard-coded colors and spacing.
 - Read env vars only in `config.ts`.
 - Export types with `export { type Foo }`. Vite compiles each file on its own, so a bare type re-export breaks the build.

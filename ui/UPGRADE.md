@@ -120,11 +120,14 @@ Versions checked against npm on 2026-11-11.
 
 ### 5. Icons, styling, dnd-kit, and the rest
 
-- [ ] heroicons 2: import icons directly instead of looking them up by string name; rename the icons v2 renamed (`search`, `x`, `duplicate`, `lightning-bolt`, `arrows-expand`, `adjustments`, `template`)
-- [ ] styled-components 6: switch custom props to `$prop`; no unknown-prop warnings
-- [ ] dnd-kit core 6 / sortable 10 / modifiers / utilities; keep the custom collision detection for moving heroes between categories
-- [ ] Bump `re-resizable`, `immer`, `date-fns`, `uuid`; trim `lodash` where it's only used once or twice
-- [ ] Browser check
+- [x] heroicons 2: `Icon` takes the component (`icon={TrashIcon}`) and a `size`, imported from `@heroicons/react/20/solid` (or `24/outline` for the empty star). Renamed: `search`, `x`, `duplicate`, `lightning-bolt`, `arrows-expand`, `adjustments`, `template`, `view-grid-add`
+  - The bundle dropped from 929 kB to 671 kB, because the old `Icon` imported every icon (and lodash's `startCase`) to look them up by name
+- [x] styled-components 6: styling-only props are `$prop` now; `@types/styled-components` removed (v6 has its own types). No unknown-prop warnings in tests or the browser
+  - `Spacer` is a component over a `$size` gap, so callers still write `<Spacer size={2} />`
+- [x] dnd-kit core 6.3, sortable 10, modifiers 9, utilities 3.2; the custom collision detection stays. Ids are typed `string | number` now, so the drag handlers wrap them in `String()` (ours are always UUIDs)
+- [x] Bump `re-resizable` 6.11.2, `immer` 11, `date-fns` 4, `uuid` 14, `modern-normalize` 3; `lodash` removed (nothing imports it after the `Icon` change)
+- [x] Browser check (Chrome on the Mac at `mbp:13000`): every icon renders (toolbar, menu, hero attributes, stars); moving a category, moving a hero to another category and resizing all save and survive a reload; hero selector and menu work; the login page background shows. No console errors or warnings
+  - As usual after dependency changes, cleared `node_modules/.vite` and restarted Vite before checking
 
 ### 6. Wrap-up
 
@@ -138,7 +141,7 @@ Versions checked against npm on 2026-11-11.
 
 ## Later (not part of this upgrade)
 
-- Code-split the bundle (929 kB, about 271 kB gzipped), e.g. lazy-load the board workspace.
+- Code-split the bundle (673 kB, about 218 kB gzipped), e.g. lazy-load the board workspace.
 - API: duplicating a board collapses a hero that appears twice in one category (`BoardsController::duplicate` keys pivots by hero id). The UI also allows adding the same hero twice; decide which is intended.
 - `@dnd-kit/react` (0.5, pre-1.0) could replace the custom multi-container collision code.
 - Replace styled-components (it's in maintenance mode).
@@ -152,3 +155,4 @@ Versions checked against npm on 2026-11-11.
 - 2026-11-12: Dev setup moved to Tailscale MagicDNS so any machine on the tailnet can use it: web `http://mbp:13000`, API `http://mbp:13001`, both on all interfaces (`vite preview` on 13002). The database stays on `127.0.0.1:3308`.
 - 2026-11-12: Phase 3 done (fetch, TanStack Query 5, auth hooks, cache-backed board, three bug fixes). 33 tests pass, plus typecheck and build; browser check passed.
 - 2026-11-12: Phase 4 done (Base UI popovers and menu, `field-sizing` titles, no React `overrides` left). 37 tests pass, plus typecheck and build; browser check passed.
+- 2026-11-12: Phase 5 done (heroicons 2, styled-components 6, dnd-kit 6/10, library bumps, lodash removed). 37 tests pass, plus typecheck and build; browser check passed. Bundle 673 kB.
