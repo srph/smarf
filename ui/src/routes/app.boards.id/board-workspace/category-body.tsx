@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Category, Hero } from '~/src/types/api'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
@@ -38,6 +38,10 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
   }
 
   const [containerElement, setContainerElement] = useState<HTMLDivElement>()
+
+  // SortableContext treats a new array as a changed list and skips the next transition,
+  // so the ids must keep their identity while the heroes are unchanged.
+  const heroIds = useMemo(() => category.heroes.map((hero) => hero.pivot.id), [category.heroes])
 
   // This is important to allow an item to be dropped to an empty category
   const { setNodeRef: setDroppableNodeRef } = useDroppable({
@@ -120,7 +124,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             className="inline-flex flex-wrap rounded bg-zinc-800"
             // Sizes come from constants the drag-and-drop math also uses, so they stay inline.
             style={{ padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2, width: category.width }}>
-            <SortableContext items={category.heroes.map((hero) => hero.pivot.id)} strategy={rectSortingStrategy}>
+            <SortableContext items={heroIds} strategy={rectSortingStrategy}>
               {category.heroes.map((hero) => (
                 <CategoryHero key={hero.pivot.id} category={category} hero={hero} />
               ))}
