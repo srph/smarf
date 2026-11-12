@@ -87,8 +87,9 @@ Versions checked against npm on 2026-11-11.
 
 ### 3. Data layer: fetch + TanStack Query 5
 
-- [ ] `lib/http.ts`: a `fetch` wrapper that adds the bearer token, parses JSON, throws on non-2xx, and logs out on 401 (except `/oauth/token`)
-- [ ] Remove axios and `useInterceptor`
+- [x] `lib/http.ts`: a `fetch` wrapper that adds the bearer token, parses JSON, throws `HttpError` on non-2xx, and reports 401s (except `/oauth/token`) to `onUnauthorized` listeners
+- [x] Remove axios and `useInterceptor`
+- [x] `lib/token.ts`: the token cookie (same name and options, so existing logins carry over) with `useToken()`. Pulled forward from phase 4 because the fetch wrapper needs the token outside React; `use-cookie-state` removed, `cookie` bumped to 1.x
 - [ ] `@tanstack/react-query` 5; rewrite the `contexts/Query` wrappers (object-form options, array keys, `isPending`)
 - [ ] Auth: user comes from the `['auth/me']` query; `useAuthUser` / `useLogin` / `useLogout` hooks; no blank screen when `auth/me` fails
 - [ ] Login navigates within the app instead of reloading the page
@@ -104,7 +105,7 @@ Versions checked against npm on 2026-11-11.
 - [ ] `@base-ui/react`: Popover (`Popover`, `DeletePopover`, `EditPopover`, `HeroSelector`), Menu (`UserDropdown`)
 - [ ] Remove `react-popper`, `@popperjs/core`, `PopoverPortal`, `useOutsideClick` (if nothing else uses it)
 - [ ] `CategoryTitle`: `field-sizing: content`, with `size={value.length}` as a fallback; remove `react-input-autosize`
-- [ ] Token cookie: small hook instead of `use-cookie-state`
+- [x] Token cookie: small hook instead of `use-cookie-state` (done in phase 3, `lib/token.ts`)
 - [ ] Remove the remaining React `overrides` from `package.json`
 - [ ] Browser check
 

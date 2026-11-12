@@ -25,9 +25,9 @@ src/
 ├── App.tsx       route table + providers; index.tsx only mounts it
 ├── assets/       images imported by components
 ├── components/   shared UI primitives (Button, Input, Popover, PageTitle, ...)
-├── contexts/     AuthUser (token cookie + axios auth), BoardList, HeroList, Query
+├── contexts/     AuthUser (current user, login/logout), BoardList, HeroList, Query
 ├── hooks/        generic hooks (useDebouncedEffect, useOutsideClick, ...)
-├── lib/axios.ts  configured axios instance
+├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie)
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId)
 ├── types/        API and board-operation types
 ├── config.ts     reads env vars

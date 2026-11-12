@@ -7,7 +7,7 @@ import {
   UseQueryOptions as UseOriginalQueryOptions,
   UseMutationOptions
 } from 'react-query'
-import { axios } from '~/src/lib/axios'
+import { http } from '~/src/lib/http'
 
 const createQueryClient = () =>
   new QueryClient({
@@ -31,8 +31,7 @@ interface UseQueryOptions<T> extends UseOriginalQueryOptions<T> {
 
 function useQuery<T = any>(url: string, opts: UseQueryOptions<T>) {
   const fetcher = useCallback(() => {
-    const axiosOptions = opts?.headers ? { headers: opts.headers } : null
-    return axios.get(url, axiosOptions).then((res) => res.data)
+    return http<T>(url, { headers: opts?.headers })
   }, [url, opts?.queryKey])
 
   return useOriginalQuery<T>(opts?.queryKey || url, fetcher, opts)
@@ -50,7 +49,11 @@ function useMutation<TResponse = {}, TVariables = {}>(
   const mutationFn = useCallback(
     (variables: TVariables) => {
       const endpoint = typeof url === 'function' ? url(variables) : url
-      return axios[operation](endpoint, variables).then((res) => res.data)
+      // Like axios before: DELETE sends no body.
+      return http<TResponse>(endpoint, {
+        method: operation === 'post' ? 'POST' : operation === 'put' ? 'PUT' : 'DELETE',
+        body: operation === 'delete' ? undefined : variables
+      })
     },
     [url, operation]
   )

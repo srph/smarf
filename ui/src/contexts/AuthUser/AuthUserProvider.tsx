@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useCookieState } from 'use-cookie-state'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { User } from '~/src/types/api'
 import { config } from '~/src/config'
 import { useLocation, useNavigate } from 'react-router'
-import { useInterceptor } from './useInterceptor'
+import { onUnauthorized } from '~/src/lib/http'
+import { setToken, useToken } from '~/src/lib/token'
+import { useLatestValue } from '~/src/hooks'
 
 interface OauthCredentials {
   username: string
@@ -45,7 +46,7 @@ const AuthUserContext = createContext<ContextType>({} as ContextType)
 const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
 
-  const [token, setToken] = useCookieState(config.oauth.cookieKey, '')
+  const token = useToken()
 
   const location = useLocation()
 
@@ -57,21 +58,9 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     navigate('/login')
   }
 
-  useInterceptor((config) => {
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`
-    }
-
-    return config
-  })
-
-  useInterceptor(null, (err) => {
-    if (err.response.status === 401 && !err.config.url.includes('/oauth/token')) {
-      logout()
-    }
-
-    return Promise.reject(err)
-  })
+  // Any 401 (outside login) means the token expired or was revoked.
+  const logoutRef = useLatestValue(logout)
+  useEffect(() => onUnauthorized(() => logoutRef.current()), [])
 
   useQuery('auth/me', {
     enabled: Boolean(token),
