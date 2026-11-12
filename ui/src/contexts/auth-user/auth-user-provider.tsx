@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect } from 'react'
-import { useQuery } from '~/src/contexts/query/query-provider'
+import { useMeQuery } from '~/src/queries/auth/use-me-query'
 import { User } from '~/src/types/api'
 import { HttpError, onUnauthorized } from '~/src/lib/http'
 import { useToken } from '~/src/lib/token'
@@ -30,25 +30,27 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const logoutRef = useLatestValue(logout)
   useEffect(() => onUnauthorized(() => logoutRef.current()), [logoutRef])
 
-  const me = useQuery<{ user: User }>('auth/me', {
-    enabled: Boolean(token),
-    // An expired token should send the user to login right away, not after retries.
-    retry: false
-  })
+  const {
+    data: me,
+    status: meStatus,
+    error: meError,
+    refetch: refetchMe,
+    isFetching: isMeFetching
+  } = useMeQuery({ enabled: Boolean(token) })
 
-  if (token && me.isPending) {
+  if (token && meStatus === 'pending') {
     return null
   }
 
   // A 401 is handled by onUnauthorized above; anything else (API down, 500) gets a way out.
-  if (token && me.isError && !(me.error instanceof HttpError && me.error.status === 401)) {
+  if (token && meStatus === 'error' && !(meError instanceof HttpError && meError.status === 401)) {
     return (
       <Container>
         <ErrorState
           className="mt-24"
           message="Couldn't load your account. Check your connection and try again."
-          onRetry={() => me.refetch()}
-          isRetrying={me.isFetching}>
+          onRetry={() => refetchMe()}
+          isRetrying={isMeFetching}>
           <Spacer size={1} />
           <Button variant="clear" onClick={logout}>
             Log out
@@ -58,7 +60,7 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     )
   }
 
-  const user = token ? (me.data?.user ?? null) : null
+  const user = token ? (me ?? null) : null
 
   return <AuthUserContext.Provider value={{ user, token }}>{children}</AuthUserContext.Provider>
 }

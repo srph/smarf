@@ -3,10 +3,13 @@ import { Button } from '~/src/components/button/button'
 import { Input } from '~/src/components/input/input'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { Spacer } from '~/src/components/spacer/spacer'
-import { useRegister } from '~/src/contexts/auth-user/use-register'
+import { useLoginMutation } from '~/src/queries/auth/use-login-mutation'
+import { useRegisterMutation } from '~/src/queries/auth/use-register-mutation'
 
 const RegisterRoute = () => {
-  const { register, isRegistering } = useRegister()
+  const { mutate: register, isPending: isRegistering } = useRegisterMutation()
+
+  const { mutate: login, isPending: isLoggingIn } = useLoginMutation()
 
   const [email, setEmail] = useState('')
 
@@ -19,12 +22,11 @@ const RegisterRoute = () => {
   const handleSubmit = (evt: React.FormEvent) => {
     evt.preventDefault()
 
-    register({
-      name,
-      username: email,
-      password,
-      password_confirmation: passwordConfirmation
-    })
+    register(
+      { name, username: email, password, password_confirmation: passwordConfirmation },
+      // Then log straight in.
+      { onSuccess: () => login({ username: email, password }) }
+    )
   }
 
   return (
@@ -55,7 +57,7 @@ const RegisterRoute = () => {
         />
         <Spacer size={4} />
 
-        <Button type="submit" block disabled={isRegistering}>
+        <Button type="submit" block disabled={isRegistering || isLoggingIn}>
           Create an account
         </Button>
       </form>

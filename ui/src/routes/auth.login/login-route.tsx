@@ -3,10 +3,10 @@ import { Button } from '~/src/components/button/button'
 import { Input } from '~/src/components/input/input'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { Spacer } from '~/src/components/spacer/spacer'
-import { useLogin } from '~/src/contexts/auth-user/use-login'
+import { useLoginMutation } from '~/src/queries/auth/use-login-mutation'
 
 const LoginRoute = () => {
-  const { login, isLoggingIn } = useLogin()
+  const { mutate: login, isPending: isLoggingIn } = useLoginMutation()
 
   const [email, setEmail] = useState('')
 

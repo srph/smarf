@@ -29,10 +29,10 @@ src/
 ├── app.tsx       route table + providers; index.tsx only mounts it
 ├── assets/       images imported by components
 ├── components/   shared UI primitives (button/, input/, popover/, page-title/, ...)
-├── contexts/     auth-user (current user, login/logout), board-list (layout constants and math), query (QueryProvider)
+├── contexts/     auth-user (current user, logout), board-list (layout constants and math), query (QueryProvider)
 ├── hooks/        generic hooks (use-debounced-effect.ts, use-delayed-state.ts, ...)
 ├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie)
-├── queries/      React Query hooks used by more than one route, a folder per domain (boards/, heroes/)
+├── queries/      React Query hooks used by more than one route, a folder per domain (auth/, boards/, heroes/)
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId); a route's own query hooks go in its queries/
 ├── types/        API and board-operation types
 ├── config.ts     reads env vars
@@ -63,7 +63,7 @@ tests/
 - Build query keys with the key factories (`boardKeys.list()`), and cache plain data: unwrap the API's `{ boards: [...] }` in `queryFn`. Derive views with `select`, defined at module level.
 - Destructure and rename (`const { data: boards, status: boardsStatus } = useBoardsQuery()`), then handle `pending` (`PageSpinner`), `error` (`ErrorState` with Try again), and success. `data` is typed as defined once the other two are handled.
 - A mutation hook owns its cache work: write the optimistic change in `onMutate`, and give one board's saves ``scope: { id: `board:${id}` }`` so they reach the API in order. UI side effects (navigating, closing a popover) go in the `mutate(vars, { onSuccess })` call.
-- The board page and auth still use the older URL-keyed `useQuery`/`useMutation` wrappers in `contexts/query`; don't use them in new code.
+- The board page still uses the older URL-keyed `useQuery`/`useMutation` wrappers in `contexts/query`; don't use them in new code.
 - Board operations (`routes/app.boards.id/contexts`) treat the query cache as the source of truth: read with `getBoard()`, write with `setBoard()` before the request, call `rollback` on error, and pass `mutationKey: boardKey`. Drag and resize go through `setDraft` until they finish.
 - Build popovers and menus on Base UI (`@base-ui/react`); `components/popover` covers the usual popover. Style its parts with `className` and Tailwind's `data-*` variants (`data-popup-open:`, `data-highlighted:`).
 - Keep components route-local until a second route needs them, then move them to `components/`.
