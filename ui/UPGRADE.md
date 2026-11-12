@@ -32,7 +32,7 @@ Versions checked against npm on 2026-11-11.
 ## How each phase is verified
 
 - `npm run build`, `npm run typecheck` and `npm test` pass.
-- Browser check on the Mac (Chrome) against the local API (`make start:db`, `make start:api`, `make start:web`):
+- Browser check in Chrome against the local API (`make start:db`, `make start:api`, `make start:web`; open `http://mbp:13000`):
   - [ ] Register, log out, log in
   - [ ] Create a board and rename it
   - [ ] Favorite, duplicate and delete a board
@@ -53,7 +53,7 @@ Versions checked against npm on 2026-11-11.
   - [x] `index.html` at the `ui/` root; `~` alias in `vite.config.ts`
   - [x] Env: `process.env.X` → `import.meta.env.X` (only in `config.ts`). The names stay the same via `envPrefix`, so `.env`, the Makefile and Netlify don't change
   - [x] `netlify/_redirects` → `public/_redirects`; favicons → `public/favicon`; images → `src/assets/images`
-  - [x] Dev server binds `127.0.0.1:1234` (Node resolves `localhost` to `::1`, which browsers didn't reach)
+  - [x] Dev server binds `127.0.0.1:1234` (Node resolves `localhost` to `::1`, which browsers didn't reach). Later moved to `0.0.0.0:13000`, see the log
   - [x] Remove `parcel`, `@parcel/*`, `buffer`, `process`
 - [x] `tsconfig`: `moduleResolution: bundler`, `jsx: react-jsx`, ES2022 target; `typecheck` script
   - [x] `strict: false` set explicitly (TypeScript 6 turns it on by default; the code never used it)
@@ -99,7 +99,10 @@ Versions checked against npm on 2026-11-11.
 - [x] Fix `useDelayedState` (it never set `timeoutRef`, so an old timer could flip the status back). The save indicator now uses `useIsMutating` on the board key instead of ten mutation flags
 - [x] Fix `useGridCollisionDetection` `onDragStart`: it called `indexOf` on the container id string instead of on its hero list, so cancelling a cross-category drag lost the hero
 - [x] Fix `useUpdateEffect` under StrictMode: the dev remount counted as an update, so opening a board sent a needless `PUT` for every category title
-- [ ] Browser check
+- [x] Browser check (Chrome on the Mac at `mbp:13000`, plus the production preview on `mbp:13002`): login returns to the page that asked for it; add hero (Updating, then Saved); reorder; move between categories; drag and resize a category; rename; everything survives a reload; popovers close on Escape and outside click; logout. No console errors
+  - Opening a board sends no writes now (the StrictMode title-save fix)
+  - In dev, the first board, boards and heroes requests show as cancelled (status 0) and are re-sent right away: StrictMode mounts, unmounts and remounts, and the query cancels its request. Production doesn't double-mount
+  - The bundle is 818 kB (234 kB gzipped), down from 839 kB without axios and the other removed packages
 
 ### 4. Base UI and leftover libraries
 
@@ -130,7 +133,7 @@ Versions checked against npm on 2026-11-11.
 
 ## Later (not part of this upgrade)
 
-- Code-split the bundle (839 kB, about 239 kB gzipped), e.g. lazy-load the board workspace.
+- Code-split the bundle (818 kB, about 234 kB gzipped), e.g. lazy-load the board workspace.
 - API: duplicating a board collapses a hero that appears twice in one category (`BoardsController::duplicate` keys pivots by hero id). The UI also allows adding the same hero twice; decide which is intended.
 - `@dnd-kit/react` (0.5, pre-1.0) could replace the custom multi-container collision code.
 - Replace styled-components (it's in maintenance mode).
@@ -141,4 +144,5 @@ Versions checked against npm on 2026-11-11.
 - 2026-11-11: Plan written.
 - 2026-11-12: Phase 1 done. 23 tests pass, plus typecheck and build. Browser check passed after fixing the autosize import.
 - 2026-11-12: Phase 2 done: React 19.3, React Router 8, `<title>` instead of Helmet, StrictMode. 26 tests pass, plus typecheck and build; browser check passed.
-- 2026-11-12: Phase 3 code done (fetch, TanStack Query 5, auth hooks, cache-backed board, three bug fixes). 33 tests pass, plus typecheck and build. Browser check pending: the servers had stopped and the Mac's Chrome wasn't connected.
+- 2026-11-12: Dev setup moved to Tailscale MagicDNS so any machine on the tailnet can use it: web `http://mbp:13000`, API `http://mbp:13001`, both on all interfaces (`vite preview` on 13002). The database stays on `127.0.0.1:3308`.
+- 2026-11-12: Phase 3 done (fetch, TanStack Query 5, auth hooks, cache-backed board, three bug fixes). 33 tests pass, plus typecheck and build; browser check passed.
