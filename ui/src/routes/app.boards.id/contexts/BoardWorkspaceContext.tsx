@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { Board, Hero, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'
 
 import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/BoardWorkspace/useGridCollisionDetection'
 import { useParams } from 'react-router'
 import { useQuery } from '~/src/contexts/Query'
-import { useStateRef } from '~/src/hooks'
+import { BoardOperationProps, CategoryDraft } from './types'
 
 import { useUpdateBoardMutation } from './useUpdateBoardMutation'
 import { useDeleteBoardMutation } from './useDeleteBoardMutation'
@@ -84,22 +85,34 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
 const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { boardId } = useParams()
 
-  const [board, setBoard, boardRef] = useStateRef<Board>()
+  const queryClient = useQueryClient()
 
-  const [isEditing, setIsEditing] = useState(false)
+  // Same key useQuery(url) uses by default.
+  const boardKey = useMemo(() => [`boards/${boardId}`], [boardId])
 
   const { data } = useQuery<{ board: Board }>(`boards/${boardId}`)
 
-  // Temporary: copy the fetched board into local state (what onSuccess did in react-query 3).
-  // Replaced by reading the board straight from the query cache later in phase 3.
-  useEffect(() => {
-    if (data) setBoard(data.board)
-  }, [data])
+  // In-progress drag/resize values for one category, applied on top of the cached board.
+  const [draft, setDraft] = useState<CategoryDraft | null>(null)
 
-  const operationProps = {
-    board,
-    boardRef,
-    setBoard,
+  const [isEditing, setIsEditing] = useState(false)
+
+  const board = useMemo(() => (data ? withDraft(data.board, draft) : undefined), [data, draft])
+
+  const operationProps: BoardOperationProps = {
+    boardId,
+    boardKey,
+    getBoard: () => queryClient.getQueryData<{ board: Board }>(boardKey)!.board,
+    setBoard: (next) => {
+      // An in-flight refetch would overwrite this edit with older data.
+      queryClient.cancelQueries({ queryKey: boardKey })
+      queryClient.setQueryData<{ board: Board }>(boardKey, (old) => (old ? { ...old, board: next } : old))
+    },
+    setDraft,
+    rollback: () => {
+      setDraft(null)
+      queryClient.invalidateQueries({ queryKey: boardKey })
+    },
     setIsEditing
   }
 
@@ -167,6 +180,17 @@ const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ chil
       {children}
     </BoardWorkspaceContext.Provider>
   )
+}
+
+function withDraft(board: Board, draft: CategoryDraft | null): Board {
+  if (!draft) return board
+
+  const { id, ...changes } = draft
+
+  return {
+    ...board,
+    categories: board.categories.map((category) => (category.id === id ? { ...category, ...changes } : category))
+  }
 }
 
 const useBoardWorkspace = () => {

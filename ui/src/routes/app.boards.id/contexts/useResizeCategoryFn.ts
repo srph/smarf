@@ -1,28 +1,22 @@
-import immer from 'immer'
 import { Category } from '~/src/types/api'
 import { getCategoryHeight } from '~/src/contexts/BoardList/utils'
-import { DivdedQueryAndMutationProps } from './types'
+import { BoardOperationProps } from './types'
 
 interface PretendMutationReturnType {
   mutate: (v: { container: Category; width: number }) => void
 }
 
-const useResizeCategoryFn = ({
-  board,
-  setBoard,
-  setIsEditing
-}: DivdedQueryAndMutationProps): PretendMutationReturnType => {
-  const mutate = ({ container, width }) => {
-    setBoard(
-      immer(board, (draft) => {
-        const boardCategory = draft.categories.find((category) => category.id === container.id)
-        boardCategory.width = width
-        boardCategory.height = getCategoryHeight({
-          categoryWidth: width,
-          heroCount: boardCategory.heroes.length
-        })
+/** While resizing a category: track its size as a draft (saved by useResizeCategoryMutation). */
+const useResizeCategoryFn = ({ setDraft }: BoardOperationProps): PretendMutationReturnType => {
+  const mutate = ({ container, width }: { container: Category; width: number }) => {
+    setDraft({
+      id: container.id,
+      width,
+      height: getCategoryHeight({
+        categoryWidth: width,
+        heroCount: container.heroes.length
       })
-    )
+    })
   }
 
   return { mutate }

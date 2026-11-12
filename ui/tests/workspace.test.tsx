@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { waitFor, within } from '@testing-library/react'
+import { delay, http, HttpResponse } from 'msw'
+import { API, server } from './support/handlers'
 import { db, heroNamesIn, seedBoard, type DbBoard } from './support/db'
 import { currentPath, renderApp, screen } from './support/render'
 import { findCategory, heroesShownIn } from './support/workspace'
@@ -111,5 +113,48 @@ describe('board workspace', () => {
 
     expect(heroesShownIn(supports)).toEqual(['Crystal Maiden', 'Lion'])
     await waitFor(() => expect(heroNamesIn('Supports', board.id)).toEqual(['Crystal Maiden', 'Lion']))
+  })
+
+  it('shows a change before the server answers, and undoes it if the save fails', async () => {
+    let release!: () => void
+    const answered = new Promise<void>((resolve) => (release = resolve))
+    server.use(
+      http.post(`${API}/categories/:id/heroes`, async () => {
+        await answered
+        return HttpResponse.json({ message: 'Server Error' }, { status: 500 })
+      })
+    )
+    const { user } = renderApp(`/b/${board.id}`)
+
+    const supports = await findCategory('Supports')
+    await user.click(within(supports).getByRole('button', { name: 'Add' }))
+    await user.click(await screen.findByTitle('Select Lion'))
+
+    // Shown right away, while the request is still pending.
+    expect(heroesShownIn(supports)).toEqual(['Crystal Maiden', 'Lion'])
+
+    release()
+
+    // The save failed, so the board is refetched and matches the server again.
+    await waitFor(() => expect(heroesShownIn(supports)).toEqual(['Crystal Maiden']))
+  })
+
+  it('keeps edits made while an earlier save is in flight', async () => {
+    server.use(
+      http.put(`${API}/categories/:id`, async () => {
+        await delay(200)
+        return undefined // fall through to the regular handler
+      })
+    )
+    const { user } = renderApp(`/b/${board.id}`)
+
+    const title = await screen.findByDisplayValue('Supports')
+    await user.clear(title)
+    await user.type(title, 'Hard Supports')
+    await user.click(await screen.findByTitle('New category'))
+
+    expect(await findCategory('Untitled')).toBeInTheDocument()
+    await waitFor(() => expect(db.categories.map((c) => c.name)).toEqual(['Carries', 'Hard Supports', 'Untitled']))
+    expect(screen.getByDisplayValue('Hard Supports')).toBeInTheDocument()
   })
 })

@@ -1,17 +1,18 @@
-import immer from 'immer'
 import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
-import { DivdedQueryAndMutationProps } from './types'
+import { BoardOperationProps } from './types'
 
-const useDeleteBoardMutation = ({ board, setBoard, setIsEditing }: DivdedQueryAndMutationProps): MutationReturnType => {
+const useDeleteBoardMutation = ({ boardId, boardKey }: BoardOperationProps): MutationReturnType => {
   const queryClient = useQueryClient()
 
   const navigate = useNavigate()
 
-  return useMutation<{}, null>(`/boards/${board?.id}`, 'delete', {
+  return useMutation<{}, null>(`/boards/${boardId}`, 'delete', {
+    mutationKey: boardKey,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['/boards'] })
+      queryClient.removeQueries({ queryKey: boardKey })
 
       navigate('/')
 

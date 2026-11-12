@@ -1,42 +1,40 @@
-import immer from 'immer'
-import { useMutation, MutationReturnType } from '~/src/contexts/Query'
-import { Board, ID } from '~/src/types/api'
-import { DivdedQueryAndMutationProps } from './types'
+import { produce } from 'immer'
+import { useMutation } from '~/src/contexts/Query'
+import { ID } from '~/src/types/api'
+import { BoardOperationProps, CustomMutationReturnType } from './types'
 
 interface UpdateCategoryMutationVariables {
   id: ID
   name: string
 }
 
-interface UpdateCategoryMutationResponse {
-  board: Board
-}
+type MutationReturnType = CustomMutationReturnType<(v: UpdateCategoryMutationVariables) => void>
 
-const useUpdateCategoryMutation = ({
-  board,
-  boardRef,
-  setBoard,
-  setIsEditing
-}: DivdedQueryAndMutationProps): MutationReturnType => {
-  return useMutation<UpdateCategoryMutationResponse, UpdateCategoryMutationVariables>(
+const useUpdateCategoryMutation = ({ boardKey, getBoard, setBoard, rollback }: BoardOperationProps): MutationReturnType => {
+  const { mutate: mutateFn, ...props } = useMutation<{}, UpdateCategoryMutationVariables>(
     (v) => `/categories/${v.id}`,
     'put',
     {
-      onSuccess(data, v) {
-        // Silently apply so we have the correct uuid
-        setBoard(
-          immer(boardRef.current, (draft) => {
-            const category = draft.categories.find((c) => c.id === v.id)
-            if (!category) return // @TODO: Throw
-            category.name = v.name
-          })
-        )
-      },
-      onError() {
-        // @TODO: Rollback
-      }
+      mutationKey: boardKey,
+      onError: rollback
     }
   )
+
+  const mutate = (v: UpdateCategoryMutationVariables) => {
+    setBoard(
+      produce(getBoard(), (draft) => {
+        const category = draft.categories.find((c) => c.id === v.id)
+        if (category) category.name = v.name
+      })
+    )
+
+    mutateFn(v)
+  }
+
+  return {
+    mutate,
+    ...props
+  }
 }
 
 export { useUpdateCategoryMutation, type UpdateCategoryMutationVariables }

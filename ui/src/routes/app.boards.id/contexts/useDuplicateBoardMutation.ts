@@ -1,20 +1,16 @@
-import immer from 'immer'
 import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
 import { Board } from '~/src/types/api'
-import { DivdedQueryAndMutationProps } from './types'
+import { BoardOperationProps } from './types'
 
-const useDuplicateBoardMutation = ({
-  board,
-  setBoard,
-  setIsEditing
-}: DivdedQueryAndMutationProps): MutationReturnType => {
+const useDuplicateBoardMutation = ({ boardId, boardKey }: BoardOperationProps): MutationReturnType => {
   const queryClient = useQueryClient()
 
   const navigate = useNavigate()
 
-  return useMutation<{ board: Board }>(`/boards/${board?.id}/duplicate`, 'post', {
+  return useMutation<{ board: Board }>(`/boards/${boardId}/duplicate`, 'post', {
+    mutationKey: boardKey,
     onSuccess(data) {
       queryClient.invalidateQueries({ queryKey: ['/boards'] })
 

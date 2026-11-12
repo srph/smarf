@@ -93,9 +93,9 @@ Versions checked against npm on 2026-11-11.
 - [x] `@tanstack/react-query` 5; rewrite the `contexts/Query` wrappers (object-form options, array keys, `isPending` for mutations). Queries pass TanStack's abort signal to `fetch`, so a query with no observers left cancels its request. A late 401 from a finished test was logging out the next one
 - [x] Auth: user comes from the `['auth/me']` query; `useAuthUser` (user, token) plus `useLogin` / `useRegister` / `useLogout` hooks. If `auth/me` fails for any reason other than a 401, there's an error with Try again / Log out instead of a blank screen
 - [x] Login navigates within the app instead of reloading the page, back to the page that asked for login
-- [ ] Board workspace: read the board from the query; mutations update the cache optimistically in `onMutate` and roll back in `onError`
-- [ ] Drag and resize: keep in-progress values in local state; save on drop or resize end
-- [ ] Remove `useStateRef` / `boardRef` from board operations
+- [x] Board workspace: the board comes from the query cache. Operations read it with `getBoard()` when they run and write it with `setBoard()` before the request, so changes show immediately. A failed save drops any draft and refetches the board (simpler and safer than restoring snapshots)
+- [x] Drag and resize: in-progress values are a `CategoryDraft` layered over the cached board; saved to the cache and the API on drop or resize end
+- [x] Remove `useStateRef` / `boardRef` from board operations (the `DivdedQueryAndMutationProps` type is now `BoardOperationProps`)
 - [ ] Fix `useDelayedState` (it never sets `timeoutRef`)
 - [ ] Fix `useGridCollisionDetection` `onDragStart`: it calls `indexOf` on the container id string instead of on its hero list, so cancelling a cross-category drag puts the hero back in the wrong place
 - [ ] Browser check

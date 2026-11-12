@@ -1,11 +1,7 @@
-import immer from 'immer'
+import { produce } from 'immer'
 import { useMutation } from '~/src/contexts/Query'
-import { Board, Category, ID } from '~/src/types/api'
-import { DivdedQueryAndMutationProps, CustomMutationReturnType } from './types'
-
-interface ResizeCategoryMutationResponse {
-  board: Board
-}
+import { Category, ID } from '~/src/types/api'
+import { BoardOperationProps, CustomMutationReturnType } from './types'
 
 interface ResizeCategoryMutationVariables {
   category_id: ID
@@ -17,25 +13,35 @@ type MutationFn = (v: { container: Category }) => void
 
 type MutationReturnType = CustomMutationReturnType<MutationFn>
 
+/** On resize end: write the new size to the cache, drop the draft, and save it. */
 const useResizeCategoryMutation = ({
-  board,
+  boardKey,
+  getBoard,
   setBoard,
-  setIsEditing
-}: DivdedQueryAndMutationProps): MutationReturnType => {
-  const { mutate: mutateFn, ...props } = useMutation<ResizeCategoryMutationResponse, ResizeCategoryMutationVariables>(
+  setDraft,
+  rollback
+}: BoardOperationProps): MutationReturnType => {
+  const { mutate: mutateFn, ...props } = useMutation<{}, ResizeCategoryMutationVariables>(
     (v) => `/categories/${v.category_id}/resize`,
     'put',
     {
-      onSuccess() {
-        // @TODO: Silently apply so we have the correct uuid
-      },
-      onError() {
-        // @TODO: Rollback
-      }
+      mutationKey: boardKey,
+      onError: rollback
     }
   )
 
-  const mutate = ({ container }) => {
+  // `container` comes from the rendered board, so it already has the resized width and height.
+  const mutate: MutationFn = ({ container }) => {
+    setBoard(
+      produce(getBoard(), (draft) => {
+        const category = draft.categories.find((c) => c.id === container.id)
+        if (!category) return
+        category.width = container.width
+        category.height = container.height
+      })
+    )
+    setDraft(null)
+
     mutateFn({
       category_id: container.id,
       width: container.width,

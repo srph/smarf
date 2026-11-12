@@ -47,7 +47,8 @@ tests/
 
 ## Best practices
 
-- Fetch and mutate through the TanStack Query hooks in `contexts/Query` next to the route that uses them (see `routes/app.boards.id/contexts`).
+- Fetch and mutate through the TanStack Query hooks in `contexts/Query` next to the route that uses them.
+- Board operations (`routes/app.boards.id/contexts`) treat the query cache as the source of truth: read with `getBoard()`, write with `setBoard()` before the request, call `rollback` on error, and pass `mutationKey: boardKey`. Drag and resize go through `setDraft` until they finish.
 - Keep components route-local until a second route needs them, then move them to `components/`.
 - Use theme values from `theme.ts` instead of hard-coded colors and spacing.
 - Read env vars only in `config.ts`.

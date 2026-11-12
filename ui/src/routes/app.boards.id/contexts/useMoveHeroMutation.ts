@@ -1,11 +1,11 @@
-import immer from 'immer'
+import { produce } from 'immer'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
 import { ID } from '~/src/types/api'
 import { arrayMove } from '@dnd-kit/sortable'
 import { arrayTransfer } from '~/src/utils'
 import { getCategoryHeight, getHeroOrder } from '~/src/contexts/BoardList/utils'
 import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/BoardWorkspace/useGridCollisionDetection'
-import { DivdedQueryAndMutationProps } from './types'
+import { BoardOperationProps } from './types'
 
 interface MoveHeroMutationVariables {
   from_category_id: ID
@@ -20,28 +20,19 @@ type MutationFn = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollis
 
 type CustomMutationReturnType = Omit<MutationReturnType, 'mutate'> & { mutate: MutationFn }
 
-const useMoveHeroMutation = ({
-  board,
-  boardRef,
-  setBoard,
-  setIsEditing
-}: DivdedQueryAndMutationProps): CustomMutationReturnType => {
+const useMoveHeroMutation = ({ boardKey, getBoard, setBoard, rollback }: BoardOperationProps): CustomMutationReturnType => {
   const { mutate: mutateFn, ...props } = useMutation<{}, MoveHeroMutationVariables>(
     (v) => `/categories/${v.from_category_id}/heroes/${v.hero_pivot_id}`,
     'put',
     {
-      onSuccess() {
-        // @TODO: Silently apply so we have the correct uuid
-      },
-      onError() {
-        // @TODO: Rollback
-      }
+      mutationKey: boardKey,
+      onError: rollback
     }
   )
 
   const mutate = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => {
     setBoard(
-      immer(board, (draft) => {
+      produce(getBoard(), (draft) => {
         if (from.container === to.container) {
           const category = draft.categories.find((c) => c.id === to.container)
           category.heroes = arrayMove(category.heroes, from.index, to.index)

@@ -1,7 +1,6 @@
-import immer from 'immer'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMutation } from '~/src/contexts/Query'
-import { DivdedQueryAndMutationProps, CustomMutationReturnType } from './types'
+import { BoardOperationProps, CustomMutationReturnType } from './types'
 
 interface FavoriteBoardMutationVariables {
   is_favorite: boolean
@@ -10,33 +9,34 @@ interface FavoriteBoardMutationVariables {
 type MutationReturnType = CustomMutationReturnType<() => void>
 
 const useFavoriteBoardMutation = ({
-  board,
+  boardId,
+  boardKey,
+  getBoard,
   setBoard,
-  setIsEditing
-}: DivdedQueryAndMutationProps): MutationReturnType => {
+  rollback
+}: BoardOperationProps): MutationReturnType => {
   const queryClient = useQueryClient()
 
   const { mutate: mutateFn, ...props } = useMutation<{}, FavoriteBoardMutationVariables>(
-    (v) => `/boards/${board?.id}/favorite`,
+    `/boards/${boardId}/favorite`,
     'put',
     {
+      mutationKey: boardKey,
       onSuccess: () => {
         // @TODO: Toast
         queryClient.invalidateQueries({ queryKey: ['/boards'] })
-      }
+      },
+      onError: rollback
     }
   )
 
   const mutate = () => {
-    const updatedFavoriteStatus = !board.is_favorite
+    const board = getBoard()
+    const is_favorite = !board.is_favorite
 
-    setBoard(
-      immer(board, (draft) => {
-        draft.is_favorite = updatedFavoriteStatus
-      })
-    )
+    setBoard({ ...board, is_favorite })
 
-    mutateFn({ is_favorite: updatedFavoriteStatus })
+    mutateFn({ is_favorite })
   }
 
   return {

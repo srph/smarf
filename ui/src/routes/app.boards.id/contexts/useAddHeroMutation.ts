@@ -1,11 +1,11 @@
-import immer from 'immer'
+import { produce } from 'immer'
 import { v4 as uuid } from 'uuid'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
 import { ORDER_FIRST_BUFFER, ORDER_LAST_BUFFER } from '~/src/contexts/BoardList/constants'
 import { last } from '~/src/utils'
 import { Category, Hero, HeroCategoryPivot, ID } from '~/src/types/api'
 import { getCategoryHeight } from '~/src/contexts/BoardList/utils'
-import { DivdedQueryAndMutationProps } from './types'
+import { BoardOperationProps } from './types'
 
 interface AddHeroMutationVariables {
   hero_id: ID
@@ -23,51 +23,44 @@ type MutationFn = (category: Category, hero: Hero) => void
 
 type CustomMutationReturnType = Omit<MutationReturnType, 'mutate'> & { mutate: MutationFn }
 
-const useAddHeroMutation = ({
-  board,
-  boardRef,
-  setBoard,
-  setIsEditing
-}: DivdedQueryAndMutationProps): CustomMutationReturnType => {
+const useAddHeroMutation = ({ boardKey, getBoard, setBoard, rollback }: BoardOperationProps): CustomMutationReturnType => {
   const { mutate: mutateFn, ...props } = useMutation<AddHeroMutationResponse, AddHeroMutationVariables>(
     (v) => `/categories/${v.category_id}/heroes`,
     'post',
     {
+      mutationKey: boardKey,
       onSuccess(data, v) {
-        // Silently apply so we have the correct uuid. Otherwise, adding a hero then moving it
-        // would fail when we try to persist it to the API.
-        // Also, we are using ref here as this fires way before board state gets updated.
+        // Swap the temporary pivot for the saved one; moving the hero later needs the real id.
         setBoard(
-          immer(boardRef.current, (draft) => {
+          produce(getBoard(), (draft) => {
             const category = draft.categories.find((c) => c.id === v.category_id)
-            const hero = category.heroes.find((h) => h.pivot.id === v.hero_buffer_id)
-            hero.pivot = data.hero.pivot
+            const hero = category?.heroes.find((h) => h.pivot.id === v.hero_buffer_id)
+            if (hero) hero.pivot = data.hero.pivot
           })
         )
       },
-      onError() {
-        // @TODO: Rollback
-      }
+      onError: rollback
     }
   )
 
   const mutate = (category: Category, hero: Hero) => {
+    const board = getBoard()
+    const current = board.categories.find((c) => c.id === category.id) ?? category
+
     const categoryHeight = getCategoryHeight({
-      categoryWidth: category.width,
-      heroCount: category.heroes.length + 1
+      categoryWidth: current.width,
+      heroCount: current.heroes.length + 1
     })
 
     // @TODO: Use getHeroOrder utility
-    const heroOrder = category.heroes.length
-      ? last(category.heroes).pivot.order + ORDER_LAST_BUFFER
-      : ORDER_FIRST_BUFFER
+    const heroOrder = current.heroes.length ? last(current.heroes).pivot.order + ORDER_LAST_BUFFER : ORDER_FIRST_BUFFER
 
     const heroBufferId = uuid()
 
     setBoard(
-      immer(board, (draft) => {
+      produce(board, (draft) => {
         const boardCategory = draft.categories.find((c) => c.id === category.id)
-
+        if (!boardCategory) return
         boardCategory.heroes.push({
           ...hero,
           pivot: {
@@ -75,7 +68,6 @@ const useAddHeroMutation = ({
             order: heroOrder
           }
         })
-
         boardCategory.height = categoryHeight
       })
     )
