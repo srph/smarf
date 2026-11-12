@@ -10,9 +10,13 @@ React 19, TypeScript 7, Vite 8, styled-components 6, React Router 8 (data router
 npm install
 npm start           # Vite dev server, http://mbp:13000 (or `make start:web` from the root)
 npm run build       # production build to dist/
-npm run typecheck   # tsc --noEmit (Vite doesn't type-check)
+npm run typecheck   # tsc --noEmit, strict mode (Vite doesn't type-check)
+npm run lint        # Oxlint (.oxlintrc.json)
+npm run format      # Prettier (.prettierrc); format:check to only check
 npm test            # Vitest integration tests (npm run test:watch to watch)
 ```
+
+Before committing, `typecheck`, `lint`, `format:check` and `test` should all pass.
 
 `.env` holds `API_URL` and the Passport password client (`OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`). `make install` fills these in. Vite exposes them via `envPrefix` in `vite.config.ts`, so the names stay the same as on Netlify.
 
@@ -53,6 +57,8 @@ tests/
 - Keep components route-local until a second route needs them, then move them to `components/`.
 - Import icons from `@heroicons/react/20/solid` and pass the component: `<Icon icon={TrashIcon} />`.
 - Prefix styled-components props that only feed styles with `$` (`$width`, `$color`) so they don't reach the DOM.
+- TypeScript is strict. Prefer a null check over `!`; when `!` is right (for example a route param the route guarantees), say why in a comment.
+- Lint suppressions (`// oxlint-disable-next-line rule`) need a comment saying why.
 - Use theme values from `theme.ts` instead of hard-coded colors and spacing.
 - Read env vars only in `config.ts`.
 - Export types with `export { type Foo }`. Vite compiles each file on its own, so a bare type re-export breaks the build.

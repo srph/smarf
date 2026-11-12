@@ -56,7 +56,7 @@ Versions checked against npm on 2026-11-11.
   - [x] Dev server binds `127.0.0.1:1234` (Node resolves `localhost` to `::1`, which browsers didn't reach). Later moved to `0.0.0.0:13000`, see the log
   - [x] Remove `parcel`, `@parcel/*`, `buffer`, `process`
 - [x] `tsconfig`: `moduleResolution: bundler`, `jsx: react-jsx`, ES2022 target; `typecheck` script
-  - [x] `strict: false` set explicitly (TypeScript 6 turns it on by default; the code never used it)
+  - [x] `strict: false` set explicitly (TypeScript 6 turns it on by default; the code never used it). Turned on after the upgrade; see the log
   - [x] Type re-exports use `export { type X }`; fixed the existing type errors Parcel never checked
 - [x] Remove `swr`, `use-swr`. **`cookie` stays**: `use-cookie-state` needs it. It goes in phase 4
 - [x] Vitest + jsdom + Testing Library (v12, for React 17) + MSW 3
@@ -157,3 +157,4 @@ Versions checked against npm on 2026-11-11.
 - 2026-11-12: Phase 4 done (Base UI popovers and menu, `field-sizing` titles, no React `overrides` left). 37 tests pass, plus typecheck and build; browser check passed.
 - 2026-11-12: Phase 5 done (heroicons 2, styled-components 6, dnd-kit 6/10, library bumps, lodash removed). 37 tests pass, plus typecheck and build; browser check passed. Bundle 673 kB.
 - 2026-11-12: Phase 6 done (TypeScript 7.0.2, readme). Upgrade complete: 37 tests, typecheck and build pass; bundle 673 kB (218 kB gzipped).
+- 2026-11-12: After the upgrade: Prettier 3.10 (config fixed, UI formatted), Oxlint 1.93 (findings fixed: refs written during render, setState in effects, hook deps, unused code), and TypeScript strict mode (64 errors fixed). Browser check passed.
