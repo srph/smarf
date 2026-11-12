@@ -12,3 +12,8 @@ Known issues, flagged for later. Remove an entry when it's fixed.
 - **Toolbar hides failed saves.** It shows "Saved" after a failed save is rolled back.
 - **`Board` type is wrong for the list.** `GET /boards` items have no `categories`, but the type says they do.
 - **4xx errors are retried.** Queries retry 3 times by default, so error UI shows only after about 7 seconds, even for a 404.
+
+## API
+
+- **Categories come back unsorted.** `Board::categories()` has no `orderBy` and ids are uuids, so the order differs from creation order and can change between loads.
+- **Hero order can collide (edge case).** `order` is a double. Dropping heroes into the same gap over and over halves it each time, until two heroes share a value and their sort order becomes arbitrary.
