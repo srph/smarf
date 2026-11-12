@@ -41,7 +41,8 @@ tests/
 
 - Tests render `<App />` at a URL (`renderApp('/b/123')`) and talk to an in-memory fake of the Laravel API (`tests/support/handlers.ts`, `db.ts`). Seed data with `seedBoard()`; assert on what the user sees and on `db`.
 - When the API changes, update the fake handlers to match.
-- Drag and drop runs through dnd-kit's keyboard controls with `installFakeLayout()`, since jsdom has no layout. Category move and resize aren't covered; check them in a browser.
+- Drag and drop runs with `installFakeLayout()` (jsdom has no layout): heroes through dnd-kit's keyboard controls, categories through `user.pointer`. Resizing isn't covered; check it in a browser.
+- Drive drags with user-event so React renders between steps. dnd-kit applies moves after React renders, so a drag that finishes before any render (raw events in one `act`, or a browser tool's instant drag) drops without moving. Real drags are fine.
 - jsdom prints "Not implemented: navigation" after login; that's the hard redirect, and it's expected.
 - Vitest loads packages with Node's rules, not the way the Vite dev server does. A CommonJS import that works in tests can still break in `npm start`, so do a quick browser check after dependency changes.
 

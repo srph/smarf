@@ -1,4 +1,7 @@
-import { afterEach, vi } from 'vitest'
+import { vi } from 'vitest'
+
+// Captured once at import, so re-installing in later tests never falls back to a previous mock.
+const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect
 
 /**
  * jsdom has no layout, so every element measures 0×0 and dnd-kit can't find drop targets.
@@ -10,10 +13,9 @@ import { afterEach, vi } from 'vitest'
  * - the workspace is huge, so nothing gets clamped
  *
  * Only what dnd-kit measures needs a rect; everything else keeps jsdom's zeros.
+ * Call it in `beforeEach`; `tests/setup.ts` restores mocks after every test.
  */
 export function installFakeLayout() {
-  const original = Element.prototype.getBoundingClientRect
-
   const rect = (left: number, top: number, width: number, height: number): DOMRect =>
     ({ left, top, width, height, x: left, y: top, right: left + width, bottom: top + height, toJSON() {} }) as DOMRect
 
@@ -39,8 +41,7 @@ export function installFakeLayout() {
       if (card.children[1]?.children[0] === this) return rect(c * 1000, 90, 900, 100)
     }
 
-    return original.call(this)
+    return originalGetBoundingClientRect.call(this)
   })
 
-  afterEach(() => vi.restoreAllMocks())
 }

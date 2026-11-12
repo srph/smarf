@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll, beforeEach } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest'
 import { resetDb } from './support/db'
 import { server } from './support/handlers'
 
@@ -12,6 +12,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup()
+  vi.restoreAllMocks()
   server.resetHandlers()
   // Drop every cookie (the auth token lives in one).
   document.cookie.split(';').forEach((c) => {

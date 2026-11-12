@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { waitFor, within } from '@testing-library/react'
-import { heroNamesIn, seedBoard, type DbBoard } from './support/db'
+import { db, heroNamesIn, seedBoard, type DbBoard } from './support/db'
 import { installFakeLayout } from './support/layout'
 import { renderApp } from './support/render'
 import { findCategory, heroesShownIn } from './support/workspace'
@@ -50,5 +50,25 @@ describe('drag and drop', () => {
     expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Juggernaut'])
     await waitFor(() => expect(heroNamesIn('Supports', board.id)).toContain('Axe'))
     expect(heroNamesIn('Carries', board.id)).toEqual(['Anti-Mage', 'Juggernaut'])
+  })
+
+  // React 18+ renders after each pointer event rather than during it, and dnd-kit applies moves after
+  // that render. user-event leaves time between steps, like a real drag spread over frames.
+  it('moves a category by dragging its handle', async () => {
+    const { user } = renderApp(`/b/${board.id}`)
+    const supports = await findCategory('Supports')
+    const handle = supports.querySelector('svg')!.parentElement!
+
+    await user.pointer([
+      { keys: '[MouseLeft>]', target: handle, coords: { clientX: 10, clientY: 10 } },
+      { coords: { clientX: 160, clientY: 60 } },
+      { coords: { clientX: 310, clientY: 110 } },
+      { keys: '[/MouseLeft]' }
+    ])
+
+    await waitFor(() => {
+      const category = db.categories.find((c) => c.name === 'Supports')!
+      expect({ x: category.x_position, y: category.y_position }).toEqual({ x: 300, y: 300 })
+    })
   })
 })
