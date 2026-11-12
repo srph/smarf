@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react'
-import styled from 'styled-components'
 import { CheckCircleIcon } from '@heroicons/react/20/solid'
-import { theme } from '~/src/theme'
 import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
 import { Spinner } from '~/src/components/spinner/spinner'
@@ -27,44 +25,27 @@ const ToolbarStatusIndicator = () => {
 
   return (
     <Container>
-      <StatusIndicatorContainer>
+      <div className="mb-4 flex">
         {status === 'saved' && (
-          <StatusIndicator>
-            <StatusIndicatorIcon>
+          <div className="ml-auto flex items-center text-xs">
+            <div className="mr-2 text-green-500">
               <Icon icon={CheckCircleIcon} />
-            </StatusIndicatorIcon>
+            </div>
             Saved
-          </StatusIndicator>
+          </div>
         )}
 
         {status === 'loading' && (
-          <StatusIndicator>
-            <StatusIndicatorIcon>
+          <div className="ml-auto flex items-center text-xs">
+            <div className="mr-2 text-green-500">
               <Spinner />
-            </StatusIndicatorIcon>
+            </div>
             Updating
-          </StatusIndicator>
+          </div>
         )}
-      </StatusIndicatorContainer>
+      </div>
     </Container>
   )
 }
-
-const StatusIndicatorContainer = styled.div`
-  display: flex;
-  margin-bottom: 16px;
-`
-
-const StatusIndicator = styled.div`
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  font-size: ${theme.fontSizes.sm}px;
-`
-
-const StatusIndicatorIcon = styled.div`
-  margin-right: 8px;
-  color: ${theme.colors.green[500]};
-`
 
 export { ToolbarStatusIndicator }

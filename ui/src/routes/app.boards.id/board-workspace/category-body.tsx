@@ -1,7 +1,4 @@
 import React, { useState } from 'react'
-import styled from 'styled-components'
-
-import { theme } from '~/src/theme'
 import { Category, Hero } from '~/src/types/api'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
@@ -71,14 +68,17 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
 
   return (
     <React.Fragment>
-      <CategoryContainer {...attributes} $x={category.x_position} $y={category.y_position}>
-        <CategoryHeading>
-          <CategoryHeadingInfo>
-            <CategoryHeadingDragIcon ref={setDraggableNodeRef} {...listeners}>
+      <div
+        {...attributes}
+        className="group absolute inline-block"
+        style={{ transform: `translate3d(${category.x_position}px, ${category.y_position}px, 0)` }}>
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center">
+            <div ref={setDraggableNodeRef} {...listeners} className="mr-4 cursor-grabbing text-zinc-400">
               <Icon icon={ArrowsPointingOutIcon} />
-            </CategoryHeadingDragIcon>
+            </div>
             <CategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
-          </CategoryHeadingInfo>
+          </div>
 
           <div>
             <DeletePopover
@@ -89,13 +89,15 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
               align="end"
               sideOffset={16}
               trigger={
-                <CategoryRemove title="Delete category">
+                <button
+                  title="Delete category"
+                  className="inline-block cursor-pointer rounded bg-zinc-700 p-1 text-zinc-400 opacity-0 ring-sky-500 transition-opacity duration-200 group-hover:opacity-100 hover:ring-2 focus:ring-2 focus:outline-none data-popup-open:opacity-100">
                   <Icon icon={TrashIcon} />
-                </CategoryRemove>
+                </button>
               }
             />
           </div>
-        </CategoryHeading>
+        </div>
 
         <Resizable
           enable={{
@@ -113,14 +115,18 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
           size={{ width: category.width } as Size}
           onResize={handleResize}
           onResizeStop={handleResizeStop}>
-          <Body ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)} $width={category.width}>
+          <div
+            ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)}
+            className="inline-flex flex-wrap rounded bg-zinc-800"
+            // Sizes come from constants the drag-and-drop math also uses, so they stay inline.
+            style={{ padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2, width: category.width }}>
             <SortableContext items={category.heroes.map((hero) => hero.pivot.id)} strategy={rectSortingStrategy}>
               {category.heroes.map((hero) => (
                 <CategoryHero key={hero.pivot.id} category={category} hero={hero} />
               ))}
             </SortableContext>
 
-            <NewHeroContainer>
+            <div className="shrink-0" style={{ padding: CATEGORY_HERO_X_TOTAL_PADDING / 2 }}>
               <HeroSelector
                 open={isHeroSelectorOpen}
                 onOpenChange={setIsHeroSelectorOpen}
@@ -128,118 +134,23 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
                   addHero(category, hero)
                 }}
                 trigger={
-                  <NewHero>
-                    <NewCategoryIcon>
+                  <button
+                    className="flex cursor-pointer items-center justify-center rounded border-2 border-dashed border-zinc-500 bg-zinc-700 p-2"
+                    style={{ width: CATEGORY_HERO_WIDTH, height: CATEGORY_HERO_HEIGHT }}>
+                    <div className="mr-2 text-zinc-500">
                       <Icon icon={PlusCircleIcon} size={16} />
-                    </NewCategoryIcon>
-                    <NewCategoryText>Add</NewCategoryText>
-                  </NewHero>
+                    </div>
+                    <div className="text-xs font-bold tracking-wide">Add</div>
+                  </button>
                 }
                 anchor={containerElement}
               />
-            </NewHeroContainer>
-          </Body>
+            </div>
+          </div>
         </Resizable>
-      </CategoryContainer>
+      </div>
     </React.Fragment>
   )
 }
-
-const NewHeroContainer = styled.div`
-  padding: ${CATEGORY_HERO_X_TOTAL_PADDING / 2}px;
-  flex-shrink: 0;
-`
-
-const NewHero = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  width: ${CATEGORY_HERO_WIDTH}px;
-  height: ${CATEGORY_HERO_HEIGHT}px;
-  background: ${theme.colors.neutral[700]};
-  border: 2px dashed ${theme.colors.neutral[500]};
-  border-radius: 4px;
-  cursor: pointer;
-`
-
-const NewCategoryIcon = styled.div`
-  margin-right: 8px;
-  color: ${theme.colors.neutral[500]};
-`
-
-const NewCategoryText = styled.div`
-  color: ${theme.colors.text};
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  font-size: ${theme.fontSizes.sm}px;
-`
-
-const Body = styled.div<{ $width: number }>`
-  display: inline-flex;
-  flex-wrap: wrap;
-  padding: ${CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2}px;
-  background: ${theme.colors.neutral[800]};
-  border-radius: 4px;
-
-  width: ${(props) => props.$width}px;
-`
-
-const CategoryContainer = styled.div<{ $x: number; $y: number }>`
-  position: absolute;
-  --translate-x: ${(props) => props.$x}px;
-  --translate-y: ${(props) => props.$y}px;
-  display: inline-block;
-  transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0);
-`
-
-const CategoryHeading = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-`
-
-const CategoryHeadingInfo = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const CategoryHeadingDragIcon = styled.div`
-  margin-right: 16px;
-  color: ${theme.colors.neutral[400]};
-  cursor: grabbing;
-`
-
-const CategoryRemove = styled.button`
-  display: inline-block;
-  padding: 4px;
-  font-size: 12px;
-  color: ${theme.colors.neutral[400]};
-  background: ${theme.colors.neutral[700]};
-  border: 0;
-  border-radius: 4px;
-  cursor: pointer;
-  opacity: 0;
-  transition: 200ms opacity ease;
-
-  /* Set by Base UI while the delete confirmation is open. */
-  &[data-popup-open] {
-    opacity: 1;
-  }
-
-  &:hover,
-  &:focus {
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-
-  &:focus {
-    outline: 0;
-  }
-
-  ${CategoryContainer}:hover & {
-    opacity: 1;
-  }
-`
 
 export { CategoryBody }

@@ -1,7 +1,5 @@
-import React, { useRef, useState } from 'react'
-import styled from 'styled-components'
+import React, { useId, useRef, useState } from 'react'
 import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
-import { theme } from '~/src/theme'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
 import { Popover, PopoverClose, type PopoverProps } from '~/src/components/popover/popover'
 import { Icon } from '~/src/components/icon/icon'
@@ -20,6 +18,8 @@ const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
   const [name, setName] = useState(board.name)
 
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const inputId = useId()
 
   // Start from the current name each time the editor opens.
   const handleOpenChange = (open: boolean) => {
@@ -47,104 +47,40 @@ const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
       align="end"
       sideOffset={16}
       initialFocus={inputRef}>
-      <EditPopoverInner>
-        <EditPopoverClose>
+      <div className="relative flex">
+        <div className="absolute -top-8 right-0 text-zinc-500">
           <PopoverClose render={<PlainButton type="button" title="Close" />}>
             <Icon icon={XMarkIcon} />
           </PopoverClose>
-        </EditPopoverClose>
+        </div>
 
-        <EditPopoverForm onSubmit={handleSubmit}>
-          <EditPopoverLabel>Name</EditPopoverLabel>
+        <form
+          onSubmit={handleSubmit}
+          className="ml-auto flex items-center rounded border border-zinc-700 bg-zinc-900 p-4">
+          <label htmlFor={inputId} className="mr-4">
+            Name
+          </label>
 
-          <InputGroup>
-            <InputGroupElement
+          <div className="flex items-center rounded border border-zinc-700 bg-zinc-900 ring-sky-500 focus-within:ring-2 hover:ring-2">
+            <input
               ref={inputRef}
+              id={inputId}
               value={name}
               onChange={handleChangeName}
               type="text"
               placeholder={board.name}
+              className="block bg-transparent p-3 text-zinc-50 outline-none"
             />
-            <InputGroupButtonContainer>
-              <InputGroupButton>
+            <div className="p-1">
+              <button className="inline-flex cursor-pointer items-center justify-center rounded bg-zinc-500 p-1 text-zinc-50 transition-colors duration-200 hover:bg-zinc-600 focus:bg-zinc-600">
                 <Icon icon={CheckIcon} />
-              </InputGroupButton>
-            </InputGroupButtonContainer>
-          </InputGroup>
-        </EditPopoverForm>
-      </EditPopoverInner>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </Popover>
   )
 }
-
-const EditPopoverInner = styled.div`
-  display: flex;
-  position: relative;
-`
-
-const EditPopoverClose = styled.div`
-  position: absolute;
-  top: -32px;
-  right: 0;
-  color: ${theme.colors.neutral[500]};
-`
-
-const EditPopoverForm = styled.form`
-  display: flex;
-  align-items: center;
-  margin: 0;
-  margin-left: auto;
-  padding: 16px;
-  background: ${theme.colors.neutral[900]};
-  border: 1px solid ${theme.colors.neutral[700]};
-  border-radius: 4px;
-`
-
-const EditPopoverLabel = styled.label`
-  margin-right: 16px;
-`
-
-const InputGroup = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${theme.colors.neutral[900]};
-  border: 1px solid ${theme.colors.neutral[700]};
-  border-radius: 4px;
-
-  &:hover,
-  &:focus-within {
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-`
-
-const InputGroupElement = styled.input`
-  display: block;
-  padding: 12px;
-  color: ${theme.colors.neutral[50]};
-  background: transparent;
-  border: 0;
-  outline: 0;
-`
-
-const InputGroupButtonContainer = styled.div`
-  padding: 4px;
-`
-
-const InputGroupButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  color: ${theme.colors.neutral[50]};
-  background: ${theme.colors.neutral[500]};
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 200ms ease;
-
-  &:hover,
-  &:focus {
-    background: ${theme.colors.neutral[600]};
-  }
-`
 
 export { EditPopover }

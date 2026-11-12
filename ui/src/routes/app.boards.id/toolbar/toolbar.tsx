@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import styled from 'styled-components'
-import { theme } from '~/src/theme'
+import { cn } from 'cn'
 import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
@@ -48,17 +47,20 @@ const ToolbarComponent: React.FC = () => {
 
   return (
     <>
-      <ToolbarContainer>
+      <div className="fixed inset-x-0 bottom-6 z-(--z-board-toolbar)">
         <ToolbarStatusIndicator />
 
         <Container>
-          <Toolbar ref={setToolbarElement}>
-            <ToolbarSection>
-              <SelectContainer>
-                <SelectIcon>
+          <div ref={setToolbarElement} className="flex items-center justify-between rounded bg-zinc-700 p-2">
+            <div className="flex items-center">
+              <label className="relative w-80 cursor-pointer rounded ring-2 ring-transparent transition-all duration-200 focus-within:ring-sky-500 hover:ring-sky-500">
+                <div className="pointer-events-none absolute inset-y-0 left-0 p-2 text-zinc-500">
                   <Icon icon={RectangleGroupIcon} />
-                </SelectIcon>
-                <Select value={board.id} onChange={handleBoardChange}>
+                </div>
+                <select
+                  value={board.id}
+                  onChange={handleBoardChange}
+                  className="block w-full cursor-pointer appearance-none rounded border border-zinc-600 bg-zinc-900 p-2 pl-8 text-zinc-50">
                   {isBoardListLoading ? (
                     <option>Loading boards...</option>
                   ) : (
@@ -69,25 +71,25 @@ const ToolbarComponent: React.FC = () => {
                       </option>
                     ))
                   )}
-                </Select>
-                <SelectCaret>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 p-2 text-zinc-500">
                   <Icon icon={ChevronDoubleDownIcon} />
-                </SelectCaret>
-              </SelectContainer>
+                </div>
+              </label>
 
-              <IconGroup>
+              <div className="ml-2 flex">
                 <IconGroupButton
                   onClick={() => favoriteBoard()}
                   title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
-                  $color={board.is_favorite ? theme.colors.yellow[500] : undefined}
+                  active={board.is_favorite}
                   disabled={isFavoriteLoading}>
                   <Icon icon={board.is_favorite ? StarIcon : StarOutlineIcon} />
                 </IconGroupButton>
-              </IconGroup>
-            </ToolbarSection>
+              </div>
+            </div>
 
-            <ToolbarActions>
-              <IconGroup>
+            <div className="flex items-center">
+              <div className="ml-2 flex">
                 <IconGroupButton onClick={() => addCategory()} title="New category" disabled={isAddingCategory}>
                   <Icon icon={PlusCircleIcon} />
                 </IconGroupButton>
@@ -122,128 +124,31 @@ const ToolbarComponent: React.FC = () => {
                   }
                   anchor={toolbarElement}
                 />
-              </IconGroup>
-            </ToolbarActions>
-          </Toolbar>
+              </div>
+            </div>
+          </div>
         </Container>
-      </ToolbarContainer>
+      </div>
     </>
   )
 }
 
-const SelectContainer = styled.label`
-  position: relative;
-  width: 320px;
-  border-radius: 4px;
-  border: 0;
-  box-shadow: 0px 0px 0px 2px transparent;
-  transition: 200ms all ease;
-  cursor: pointer;
-
-  &:hover,
-  &:focus-within {
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-`
-
-const Select = styled.select`
-  display: block;
-  width: 100%;
-  padding: 8px;
-  padding-left: 32px;
-  color: ${theme.colors.text};
-  background: ${theme.colors.neutral[900]};
-  border: 1px solid ${theme.colors.neutral[600]};
-  border-radius: 4px;
-  cursor: pointer;
-  -moz-appearance: none;
-  -webkit-appearance: none;
-`
-
-const SelectIcon = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  padding: 8px;
-  color: ${theme.colors.neutral[500]};
-  pointer-events: none;
-`
-
-const SelectCaret = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  padding: 8px;
-  color: ${theme.colors.neutral[500]};
-  pointer-events: none;
-`
-
-const ToolbarContainer = styled.div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 24px;
-  z-index: ${theme.zIndex.boardToolbar};
-`
-
-const Toolbar = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px;
-  background: ${theme.colors.neutral[700]};
-  border-radius: 4px;
-`
-
-const ToolbarSection = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const ToolbarActions = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const IconGroup = styled.div`
-  display: flex;
-  margin-left: 8px;
-`
-
-const IconGroupButton = styled.button<{ $color?: string }>`
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 12px;
-  color: ${(props) => props.$color || theme.colors.neutral[500]};
-  background: ${theme.colors.neutral[900]};
-  border: 0;
-  cursor: pointer;
-  box-shadow: 0px 0px 0px 2px transparent;
-  transition: 200ms all ease;
-  z-index: ${theme.zIndex.boardToolbarIcon};
-
-  &:first-child {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-  }
-
-  &:last-child {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-  }
-
-  &:not(:last-child) {
-    border-right: 1px solid ${theme.colors.neutral[700]};
-  }
-
-  &:hover,
-  &:focus {
-    z-index: ${theme.zIndex.boardToolbarHoveredIcon};
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-`
+// A component (not just classes) because popover triggers pass it props and a ref.
+const IconGroupButton: React.FC<React.ComponentProps<'button'> & { active?: boolean }> = ({
+  active = false,
+  className,
+  ...props
+}) => (
+  <button
+    {...props}
+    className={cn(
+      'relative z-(--z-board-toolbar-icon) inline-flex cursor-pointer items-center border-zinc-700 bg-zinc-900 px-3 py-2 ring-2 ring-transparent transition-all duration-200',
+      'not-last:border-r first:rounded-l last:rounded-r',
+      'hover:z-(--z-board-toolbar-hovered-icon) hover:ring-sky-500 focus:z-(--z-board-toolbar-hovered-icon) focus:ring-sky-500',
+      active ? 'text-yellow-500' : 'text-zinc-500',
+      className
+    )}
+  />
+)
 
 export { ToolbarComponent as Toolbar }

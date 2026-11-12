@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react'
-import styled, { css } from 'styled-components'
+import { cn } from 'cn'
 import { AcademicCapIcon, BoltIcon, FireIcon, XMarkIcon } from '@heroicons/react/20/solid'
-import { theme } from '~/src/theme'
 import { Icon } from '~/src/components/icon/icon'
 import { ImageAspectRatio } from '~/src/components/image-aspect-ratio/image-aspect-ratio'
 import { SearchInput } from '~/src/components/search-input/search-input'
@@ -37,47 +36,50 @@ const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigg
       align="start"
       sideOffset={32}
       initialFocus={searchRef}>
-      <HeroSelectorContainer>
-        <HeroSelectorClose title="Close">
+      <div className="w-240 rounded border border-zinc-700 bg-zinc-900">
+        <PopoverClose title="Close" className="absolute -top-8 right-0 cursor-pointer text-zinc-500">
           <Icon icon={XMarkIcon} />
-        </HeroSelectorClose>
+        </PopoverClose>
 
-        <HeroSelectorHeading>
-          <HeroSelectorHeadingText>Select Hero</HeroSelectorHeadingText>
+        <div className="flex items-center justify-between border-b border-zinc-700 p-4">
+          <h4 className="font-bold">Select Hero</h4>
           <SearchInput ref={searchRef} value={search} onChange={setSearch} />
-        </HeroSelectorHeading>
+        </div>
 
-        <HeroSelectorContent>
+        <div className="h-90 overflow-y-scroll p-4">
           {heroAttributeGroups.map((attribute) => (
             <React.Fragment key={attribute.id}>
-              <HeroSelectorGroupHeading>
-                <HeroSelectorGroupHeadingIcon $bg={getAttributeIconColor(attribute.name)}>
+              <div className="mb-4 flex items-center">
+                <div className={cn('mr-3 rounded p-1', getAttributeIconColor(attribute.name))}>
                   <Icon icon={getAttributeIcon(attribute.name)} />
-                </HeroSelectorGroupHeadingIcon>
-                <HeroSelectorGroupHeadingText>{attribute.name}</HeroSelectorGroupHeadingText>
-              </HeroSelectorGroupHeading>
+                </div>
+                <h4 className="font-bold">{attribute.name}</h4>
+              </div>
 
-              <HeroSelectorGroupList>
+              <div className="-mx-1 flex flex-wrap not-last:mb-12">
                 {attribute.heroes.map((hero) => {
                   const name = hero.name.toLowerCase()
 
                   return (
-                    <HeroSelectorItem key={hero.id}>
-                      <HeroSelectorItemButton
+                    <div key={hero.id} className="p-1">
+                      <button
                         type="button"
                         onClick={() => onSelectHero(hero)}
-                        $dimmed={searchInput !== '' && !name.includes(searchInput)}
-                        title={`Select ${hero.name}`}>
+                        title={`Select ${hero.name}`}
+                        className={cn(
+                          'inline-block w-15 cursor-pointer rounded border-2 border-transparent hover:border-sky-500 focus:border-sky-500',
+                          searchInput !== '' && !name.includes(searchInput) && 'opacity-30'
+                        )}>
                         <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
-                      </HeroSelectorItemButton>
-                    </HeroSelectorItem>
+                      </button>
+                    </div>
                   )
                 })}
-              </HeroSelectorGroupList>
+              </div>
             </React.Fragment>
           ))}
-        </HeroSelectorContent>
-      </HeroSelectorContainer>
+        </div>
+      </div>
     </Popover>
   )
 }
@@ -85,13 +87,13 @@ const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigg
 const getAttributeIconColor = (name: string) => {
   switch (name) {
     case 'Strength':
-      return theme.colors.red[500]
+      return 'bg-red-500'
     case 'Agility':
-      return theme.colors.green[500]
+      return 'bg-green-500'
     case 'Intelligence':
-      return theme.colors.blue[500]
+      return 'bg-sky-500'
     default:
-      return theme.colors.neutral[500]
+      return 'bg-zinc-500'
   }
 }
 
@@ -107,94 +109,5 @@ const getAttributeIcon = (name: string) => {
       return BoltIcon
   }
 }
-
-const HeroSelectorContainer = styled.div`
-  width: 960px;
-  background: ${theme.colors.neutral[900]};
-  border: 1px solid ${theme.colors.neutral[700]};
-  border-radius: 4px;
-`
-
-const HeroSelectorClose = styled(PopoverClose)`
-  position: absolute;
-  right: 0;
-  top: -32px;
-  padding: 0;
-  color: ${theme.colors.neutral[500]};
-  background: transparent;
-  border: 1px solid transparent;
-  cursor: pointer;
-`
-
-const HeroSelectorHeading = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid ${theme.colors.neutral[700]};
-`
-
-const HeroSelectorHeadingText = styled.h4`
-  margin: 0;
-`
-
-const HeroSelectorContent = styled.div`
-  padding: 16px;
-  height: 360px;
-  overflow-y: scroll;
-`
-
-const HeroSelectorGroupHeading = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-`
-
-const HeroSelectorGroupHeadingIcon = styled.div<{ $bg: string }>`
-  padding: 4px;
-  margin-right: 12px;
-  background: ${(props) => props.$bg};
-  border-radius: 4px;
-`
-
-const HeroSelectorGroupHeadingText = styled.h4`
-  margin: 0;
-`
-
-const HeroSelectorGroupList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  margin-left: -4px;
-  margin-right: -4px;
-
-  &:not(:last-child) {
-    margin-bottom: 48px;
-  }
-`
-
-const HeroSelectorItem = styled.div`
-  padding: 4px;
-`
-
-const HeroSelectorItemButton = styled.button<{ $dimmed: boolean }>`
-  display: inline-block;
-  padding: 0;
-  width: 60px;
-  background: transparent;
-  border-radius: 4px;
-  border: 2px solid transparent;
-  cursor: pointer;
-
-  &:hover,
-  &:focus {
-    border-color: ${theme.colors.blue[500]};
-  }
-
-  ${(props) =>
-    props.$dimmed &&
-    css`
-      opacity: 0.3;
-    `}
-`
 
 export { HeroSelector }

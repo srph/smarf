@@ -1,7 +1,4 @@
 import React, { useMemo, useRef } from 'react'
-import styled from 'styled-components'
-
-import { theme } from '~/src/theme'
 import { Container } from '~/src/components/container/container'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts/board-workspace-context'
@@ -73,26 +70,15 @@ const BoardWorkspace: React.FC = () => {
         // oxlint-disable-next-line react/refs
         modifiers={[restrictWithinWorkspace({ workspaceRef })]}
         {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
-        <Workspace ref={workspaceRef} $height={workspaceHeight}>
+        <div ref={workspaceRef} className="relative z-(--z-board-workspace)" style={{ height: workspaceHeight }}>
           {board.categories.map((category) => {
             return <CategoryBody key={category.id} category={category} />
           })}
-        </Workspace>
+        </div>
       </DndContext>
-      <WorkspacePadding />
+      <div className="pointer-events-none h-100" />
     </Container>
   )
 }
-
-const Workspace = styled.div<{ $height: number }>`
-  position: relative;
-  height: ${(props) => props.$height}px;
-  z-index: ${theme.zIndex.boardWorkspace};
-`
-
-const WorkspacePadding = styled.div`
-  height: 400px;
-  pointer-events: none;
-`
 
 export { BoardWorkspace }

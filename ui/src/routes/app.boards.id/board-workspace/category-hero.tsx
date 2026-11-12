@@ -1,6 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
-import { theme } from '~/src/theme'
 import { ImageAspectRatio } from '~/src/components/image-aspect-ratio/image-aspect-ratio'
 import { useSortable } from '@dnd-kit/sortable'
 import { Category, HeroCategoryPivot } from '~/src/types/api'
@@ -21,32 +19,18 @@ const CategoryHero: React.FC<Props> = ({ hero }) => {
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition
+    transition,
+    // Sizes come from constants the drag-and-drop math also uses, so they stay inline.
+    padding: CATEGORY_HERO_X_TOTAL_PADDING / 2
   }
 
   return (
-    <Container ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <CategoryHeroImage>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="shrink-0">
+      <div className="overflow-hidden rounded ring-sky-500 hover:ring-2" style={{ width: CATEGORY_HERO_WIDTH }}>
         <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} />
-      </CategoryHeroImage>
-    </Container>
+      </div>
+    </div>
   )
 }
-
-const Container = styled.div`
-  flex-shrink: 0;
-  padding: ${CATEGORY_HERO_X_TOTAL_PADDING / 2}px;
-`
-
-const CategoryHeroImage = styled.div`
-  width: ${CATEGORY_HERO_WIDTH}px;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0px 0px 0px 0px ${theme.colors.blue[500]};
-
-  &:hover {
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-`
 
 export { CategoryHero }
