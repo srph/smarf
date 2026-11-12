@@ -15,6 +15,7 @@ afterEach(() => {
   vi.useRealTimers()
   vi.restoreAllMocks()
   server.resetHandlers()
+  server.events.removeAllListeners()
   // Drop every cookie (the auth token lives in one).
   document.cookie.split(';').forEach((c) => {
     const name = c.split('=')[0].trim()

@@ -32,7 +32,7 @@ interface Props {
 }
 
 const CategoryBody: React.FC<Props> = ({ category }) => {
-  const { board, setDraft } = useBoard()
+  const { board, updateDraft, clearDraft } = useBoard()
 
   const { mutate: addHero } = useAddHeroMutation(board.id)
 
@@ -74,17 +74,18 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
   const handleResize: ResizeCallback = (_event, _direction, ref) => {
     const width = ref.getBoundingClientRect().width
 
-    setDraft({
-      id: category.id,
-      width,
-      height: getCategoryHeight({ categoryWidth: width, heroCount: category.heroes.length })
+    updateDraft((draft) => {
+      const resized = draft.categories.find((c) => c.id === category.id)
+      if (!resized) return
+      resized.width = width
+      resized.height = getCategoryHeight({ categoryWidth: width, heroCount: category.heroes.length })
     })
   }
 
   // `category` comes from the shown board, so it already has the resized width and height.
   const handleResizeStop = () => {
     resizeCategory({ category_id: category.id, width: category.width, height: category.height })
-    setDraft(null)
+    clearDraft()
   }
 
   return (

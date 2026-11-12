@@ -24,7 +24,12 @@ interface CustomGridCollisionDetectionProps<T> {
   containers: T[]
   containerIdTransformer: (item: T) => ID
   containerDataIdTransformer: (item: T) => ID[]
-  onChange: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
+  /** While dragging: show the item moved into another container. Not a save; `containers` should reflect it. */
+  onMove: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
+  /** On drop: where the item started and where it ended up (never the same place). */
+  onDrop: (start: CustomGridCollisionDetectionEvent, end: CustomGridCollisionDetectionEvent) => void
+  /** Cancelled, or dropped where it started: undo whatever `onMove` showed. */
+  onCancel: () => void
 }
 
 interface CustomGridCollisionDetectionReturnType {
@@ -41,10 +46,9 @@ type ContainerIds = ID[]
 type PayloadMap = Record<ID, ID[]>
 
 /**
- * Encapsulates custom collision detection strategy for our grid-type needs
- * Stores its own state so that parent is only aware of drag-end; where currently card goes to.
- * Won't this become problematic in a sense that if we update original state, we'll get outdated data?
- * What if we run onChange all the time? I think we should.
+ * Collision detection and drag handlers for items in a grid of containers (heroes in categories).
+ * Moving into another container calls `onMove` as it happens, so the parent can show it; the drop calls
+ * `onDrop` once with the start and end positions, so the parent saves once.
  */
 function useGridCollisionDetection<T>(
   props: CustomGridCollisionDetectionProps<T>
@@ -65,7 +69,6 @@ function useGridCollisionDetection<T>(
 
   // An active item's starting position so we know how to put it back when user cancels
   const [startEvent, setStartEvent] = useState<CustomGridCollisionDetectionEvent | null>(null)
-  const [currentEvent, setCurrentEvent] = useState<CustomGridCollisionDetectionEvent | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
   const lastOverId = useRef<UniqueIdentifier | null>(null)
   const recentlyMovedToNewContainer = useRef<boolean>(false)
@@ -192,12 +195,7 @@ function useGridCollisionDetection<T>(
 
     recentlyMovedToNewContainer.current = true
 
-    setCurrentEvent({
-      container: overContainer,
-      index: newIndex
-    })
-
-    props.onChange(
+    props.onMove(
       {
         container: activeContainer,
         index: activeIndex
@@ -209,7 +207,12 @@ function useGridCollisionDetection<T>(
     )
   }
 
-  // Responsible for moving an item in the same container
+  const reset = () => {
+    setStartEvent(null)
+    setActiveId(null)
+  }
+
+  // Works out where the item ended up and reports the whole move once.
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     // Avoid conflict with useDragContainer
     // This means we're dragging a container, and we don't care about it
@@ -218,54 +221,30 @@ function useGridCollisionDetection<T>(
     const activeContainer = findContainer(String(active.id))
 
     // The container somehow does not exist
-    if (!activeContainer) {
-      setStartEvent(null)
-      setCurrentEvent(null)
-      setActiveId(null)
+    if (!startEvent || !activeContainer) {
+      props.onCancel()
+      reset()
       return
     }
 
+    // Dropped on an item: that item's place. Otherwise (over an empty container, or nothing) wherever
+    // the drag has already shown it.
     const overId = over ? String(over.id) : undefined
+    const overContainer = overId ? findContainer(overId) : undefined
+    const overIndex = overId && overContainer ? payload[overContainer].indexOf(overId) : -1
 
-    // We're not dragging to a valid item
-    if (!overId) {
-      setStartEvent(null)
-      setCurrentEvent(null)
-      setActiveId(null)
-      return
+    const end: CustomGridCollisionDetectionEvent =
+      overContainer && overIndex >= 0
+        ? { container: overContainer, index: overIndex }
+        : { container: activeContainer, index: payload[activeContainer].indexOf(activeId) }
+
+    if (end.container === startEvent.container && end.index === startEvent.index) {
+      props.onCancel()
+    } else {
+      props.onDrop(startEvent, end)
     }
 
-    const overContainer = findContainer(overId)
-
-    // We're not dragging to a valid container
-    if (!overContainer) {
-      setStartEvent(null)
-      setCurrentEvent(null)
-      setActiveId(null)
-      return
-    }
-
-    const activeIndex = payload[activeContainer].indexOf(activeId)
-
-    const orderIndex = payload[overContainer].indexOf(overId)
-
-    // We're not dragging to the same index
-    if (activeIndex !== orderIndex) {
-      props.onChange(
-        {
-          container: activeContainer,
-          index: payload[activeContainer].indexOf(activeId)
-        },
-        {
-          container: overContainer,
-          index: payload[overContainer].indexOf(overId)
-        }
-      )
-    }
-
-    setStartEvent(null)
-    setCurrentEvent(null)
-    setActiveId(null)
+    reset()
   }
 
   const onDragCancel = () => {
@@ -273,14 +252,8 @@ function useGridCollisionDetection<T>(
     // This means we're dragging a container, and we don't care about it
     if (!activeId) return
 
-    if (currentEvent && startEvent) {
-      // Reset items to their original state in case items have been dragged across containers
-      props.onChange(currentEvent, startEvent)
-    }
-
-    setStartEvent(null)
-    setCurrentEvent(null)
-    setActiveId(null)
+    props.onCancel()
+    reset()
   }
 
   useEffect(() => {

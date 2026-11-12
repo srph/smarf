@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { waitFor, within } from '@testing-library/react'
 import { db, heroNamesIn, seedBoard, type DbBoard } from './support/db'
+import { server } from './support/handlers'
 import { installFakeLayout } from './support/layout'
 import { renderApp } from './support/render'
 import { findCategory, heroesShownIn } from './support/workspace'
@@ -24,6 +25,15 @@ const heroTile = (card: HTMLElement, name: string) =>
       (el) =>
         el.getAttribute('aria-roledescription') === 'sortable' && el.querySelector(`img[src*="${name.toLowerCase()}"]`)
     )!
+
+/** Every request other than a GET, as "METHOD /path", from now until the test ends. */
+const recordWrites = () => {
+  const writes: string[] = []
+  server.events.on('request:start', ({ request }) => {
+    if (request.method !== 'GET') writes.push(`${request.method} ${new URL(request.url).pathname}`)
+  })
+  return writes
+}
 
 describe('drag and drop', () => {
   it('reorders a hero within its category', async () => {
@@ -70,6 +80,47 @@ describe('drag and drop', () => {
     await waitFor(() => expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Juggernaut', 'Axe']))
     expect(heroesShownIn(supports)).toEqual(['Crystal Maiden'])
     await waitFor(() => expect(heroNamesIn('Carries', board.id)).toEqual(['Anti-Mage', 'Juggernaut', 'Axe']))
+  })
+
+  it('saves a move into another category once, on drop', async () => {
+    const writes = recordWrites()
+    const { user } = renderApp(`/b/${board.id}`)
+    const carries = await findCategory('Carries')
+    const supports = await findCategory('Supports')
+
+    heroTile(carries, 'Juggernaut').focus()
+    await user.keyboard('[Space]')
+    await user.keyboard('[ArrowRight]')
+    await user.keyboard('[ArrowRight]') // over Supports now
+    await waitFor(() => expect(heroesShownIn(supports)).toContain('Juggernaut'))
+
+    // Shown in Supports, but nothing saved until the drop.
+    expect(writes).toEqual([])
+    await user.keyboard('[Space]')
+
+    await waitFor(() => expect(heroNamesIn('Supports', board.id)).toContain('Juggernaut'))
+    expect(heroNamesIn('Carries', board.id)).toEqual(['Anti-Mage', 'Axe'])
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    expect(writes).toHaveLength(1)
+    expect(writes[0]).toMatch(/^PUT \/api\/categories\/.+\/heroes\/.+$/)
+  })
+
+  it('saves nothing when a drag into another category is cancelled', async () => {
+    const writes = recordWrites()
+    const { user } = renderApp(`/b/${board.id}`)
+    const carries = await findCategory('Carries')
+    const supports = await findCategory('Supports')
+
+    heroTile(carries, 'Juggernaut').focus()
+    await user.keyboard('[Space]')
+    await user.keyboard('[ArrowRight]')
+    await user.keyboard('[ArrowRight]') // over Supports now
+    await waitFor(() => expect(heroesShownIn(supports)).toContain('Juggernaut'))
+    await user.keyboard('[Escape]')
+
+    await waitFor(() => expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Juggernaut', 'Axe']))
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    expect(writes).toEqual([])
   })
 
   // React 18+ renders after each pointer event rather than during it, and dnd-kit applies moves after

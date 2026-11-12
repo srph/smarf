@@ -4,7 +4,12 @@ import { PageTitle } from '~/src/components/page-title/page-title'
 import { useQueryClient } from '@tanstack/react-query'
 import { boardKeys } from '~/src/queries/boards/board-keys'
 import { useBoard } from '~/src/routes/app.boards.id/board-context'
-import { useMoveHeroMutation, moveHeroVariables, type HeroPosition } from '../queries/use-move-hero-mutation'
+import {
+  useMoveHeroMutation,
+  moveHeroVariables,
+  applyMoveHero,
+  type HeroPosition
+} from '../queries/use-move-hero-mutation'
 import { useMoveCategoryMutation } from '../queries/use-move-category-mutation'
 import { CategoryBody } from './category-body'
 import { Board, Category } from '~/src/types/api'
@@ -26,7 +31,7 @@ const getCategoryHeroIds = (category: Category) => category.heroes.map((hero) =>
 const getCategoryPosition = (category: Category) => ({ x: category.x_position, y: category.y_position })
 
 const BoardWorkspace: React.FC = () => {
-  const { board, setDraft } = useBoard()
+  const { board, updateDraft, clearDraft } = useBoard()
 
   const queryClient = useQueryClient()
 
@@ -37,10 +42,19 @@ const BoardWorkspace: React.FC = () => {
   // The cached board, read when called: a drag can fire several moves before React re-renders with the last one.
   const getSavedBoard = () => queryClient.getQueryData<Board>(boardKeys.detail(board.id))
 
-  const handleMoveHero = (from: HeroPosition, to: HeroPosition) => {
+  // While dragging a hero into another category: show it there (saved on drop).
+  const handleHeroMove = (from: HeroPosition, to: HeroPosition) =>
+    updateDraft((draft) => {
+      const variables = moveHeroVariables(draft, from, to)
+      if (variables) applyMoveHero(draft, variables)
+    })
+
+  // On drop: one save, from where the hero started on the cached board to where it ended up.
+  const handleHeroDrop = (start: HeroPosition, end: HeroPosition) => {
     const savedBoard = getSavedBoard()
-    const variables = savedBoard && moveHeroVariables(savedBoard, from, to)
+    const variables = savedBoard && moveHeroVariables(savedBoard, start, end)
     if (variables) moveHero(variables)
+    clearDraft()
   }
 
   // While dragging a category: show its position as a draft (saved on drop).
@@ -49,24 +63,31 @@ const BoardWorkspace: React.FC = () => {
 
     // Back where it started (e.g. a cancelled drag): nothing to show.
     if (saved && saved.x_position === x && saved.y_position === y) {
-      setDraft(null)
+      clearDraft()
       return
     }
 
-    setDraft({ id: container.id, x_position: x, y_position: y })
+    updateDraft((draft) => {
+      const category = draft.categories.find((c) => c.id === container.id)
+      if (!category) return
+      category.x_position = x
+      category.y_position = y
+    })
   }
 
   // On drop: `container` comes from the shown board, so it already has the dragged position.
   const handleMoveCategoryEnd = ({ container }: { container: Category }) => {
     moveCategory({ category_id: container.id, x_position: container.x_position, y_position: container.y_position })
-    setDraft(null)
+    clearDraft()
   }
 
   const { collisionDetectionStrategy, ...gridCollisionEvents } = useGridCollisionDetection<Category>({
     containers: board.categories,
     containerIdTransformer: getCategoryId,
     containerDataIdTransformer: getCategoryHeroIds,
-    onChange: handleMoveHero
+    onMove: handleHeroMove,
+    onDrop: handleHeroDrop,
+    onCancel: clearDraft
   })
 
   const dragContainerEvents = useDragContainer({

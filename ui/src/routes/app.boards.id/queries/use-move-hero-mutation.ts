@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
+import { type Draft } from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
 import { http } from '~/src/lib/http'
 import { useBoardCache } from '~/src/queries/boards/use-board-cache'
@@ -51,6 +52,20 @@ const moveHeroVariables = (board: Board, from: HeroPosition, to: HeroPosition): 
   }
 }
 
+/** Apply a move (from `moveHeroVariables`) to `board`. Used by the mutation and by the drag preview. */
+const applyMoveHero = (board: Draft<Board>, variables: MoveHeroVariables) => {
+  const fromCategory = board.categories.find((c) => c.id === variables.from_category_id)
+  const toCategory = board.categories.find((c) => c.id === variables.to_category_id)
+  const index = fromCategory?.heroes.findIndex((h) => h.pivot.id === variables.hero_pivot_id) ?? -1
+  if (!fromCategory || !toCategory || index === -1) return
+
+  const [hero] = fromCategory.heroes.splice(index, 1)
+  hero.pivot.order = variables.hero_order
+  toCategory.heroes.splice(variables.to_index, 0, hero)
+  fromCategory.height = variables.from_category_height
+  toCategory.height = variables.to_category_height
+}
+
 /** Reorder a hero or move it to another category (variables from `moveHeroVariables`). */
 const useMoveHeroMutation = (boardId: ID) => {
   const { optimisticSaveOptions, update } = useBoardCache(boardId)
@@ -62,20 +77,8 @@ const useMoveHeroMutation = (boardId: ID) => {
         method: 'PUT',
         body: variables
       }),
-    onMutate: (variables) =>
-      update((board) => {
-        const fromCategory = board.categories.find((c) => c.id === variables.from_category_id)
-        const toCategory = board.categories.find((c) => c.id === variables.to_category_id)
-        const index = fromCategory?.heroes.findIndex((h) => h.pivot.id === variables.hero_pivot_id) ?? -1
-        if (!fromCategory || !toCategory || index === -1) return
-
-        const [hero] = fromCategory.heroes.splice(index, 1)
-        hero.pivot.order = variables.hero_order
-        toCategory.heroes.splice(variables.to_index, 0, hero)
-        fromCategory.height = variables.from_category_height
-        toCategory.height = variables.to_category_height
-      })
+    onMutate: (variables) => update((board) => applyMoveHero(board, variables))
   })
 }
 
-export { useMoveHeroMutation, moveHeroVariables, type HeroPosition }
+export { useMoveHeroMutation, moveHeroVariables, applyMoveHero, type HeroPosition }
