@@ -18,7 +18,14 @@ const SearchInput: React.FC<Props> = ({ value, onChange, autoFocus = false, ref 
 
   return (
     <Container>
-      <Input ref={ref} type="text" value={value} onChange={handleChange} placeholder="Search..." autoFocus={autoFocus} />
+      <Input
+        ref={ref}
+        type="text"
+        value={value}
+        onChange={handleChange}
+        placeholder="Search..."
+        autoFocus={autoFocus}
+      />
       <SearchIcon>
         <Icon icon={MagnifyingGlassIcon} size={16} />
       </SearchIcon>

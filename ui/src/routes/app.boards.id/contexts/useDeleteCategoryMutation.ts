@@ -11,7 +11,12 @@ type MutationFn = (category: Category) => void
 
 type MutationReturnType = CustomMutationReturnType<MutationFn>
 
-const useDeleteCategoryMutation = ({ boardKey, getBoard, setBoard, rollback }: BoardOperationProps): MutationReturnType => {
+const useDeleteCategoryMutation = ({
+  boardKey,
+  getBoard,
+  setBoard,
+  rollback
+}: BoardOperationProps): MutationReturnType => {
   const { mutate: mutateFn, ...props } = useMutation<{}, DeleteCategoryMutationVariables>(
     (v) => `/categories/${v.category_id}`,
     'delete',

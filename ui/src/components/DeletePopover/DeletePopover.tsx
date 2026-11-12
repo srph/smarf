@@ -3,8 +3,10 @@ import styled from 'styled-components'
 import { Button, Spacer, Input, Popover, type PopoverProps } from '~/src/components'
 import { theme } from '~/src/theme'
 
-interface DeletePopoverProps
-  extends Pick<PopoverProps, 'open' | 'onOpenChange' | 'trigger' | 'side' | 'align' | 'sideOffset' | 'anchor' | 'positionMethod'> {
+interface DeletePopoverProps extends Pick<
+  PopoverProps,
+  'open' | 'onOpenChange' | 'trigger' | 'side' | 'align' | 'sideOffset' | 'anchor' | 'positionMethod'
+> {
   onConfirm: () => void
   nameConfirmation?: string
   nameConfirmationPlaceholder?: string

@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "author": "",
   "license": "ISC",
@@ -44,6 +46,7 @@
     "@vitejs/plugin-react": "^6.3.0",
     "jsdom": "^31.0.0",
     "msw": "^3.0.5",
+    "prettier": "^3.10.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"

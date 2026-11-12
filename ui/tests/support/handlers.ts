@@ -123,7 +123,13 @@ export const handlers = [
   http.post(`${API}/boards/:id/duplicate`, ({ request, params }) => {
     const original = ownedBoard(request, params.id as string)
     if (!original) return HttpResponse.json({}, { status: 404 })
-    const board: DbBoard = { ...original, id: nextId('board'), name: original.name, created_at: NOW(), updated_at: NOW() }
+    const board: DbBoard = {
+      ...original,
+      id: nextId('board'),
+      name: original.name,
+      created_at: NOW(),
+      updated_at: NOW()
+    }
     db.boards.push(board)
     for (const c of db.categories.filter((c) => c.board_id === original.id)) {
       const copy = { ...c, id: nextId('category'), board_id: board.id }

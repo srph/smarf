@@ -20,7 +20,10 @@ beforeEach(() => {
 const heroTile = (card: HTMLElement, name: string) =>
   within(card)
     .getAllByRole('button')
-    .find((el) => el.getAttribute('aria-roledescription') === 'sortable' && el.querySelector(`img[src*="${name.toLowerCase()}"]`))!
+    .find(
+      (el) =>
+        el.getAttribute('aria-roledescription') === 'sortable' && el.querySelector(`img[src*="${name.toLowerCase()}"]`)
+    )!
 
 describe('drag and drop', () => {
   it('reorders a hero within its category', async () => {

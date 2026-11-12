@@ -10,7 +10,12 @@ interface UpdateCategoryMutationVariables {
 
 type MutationReturnType = CustomMutationReturnType<(v: UpdateCategoryMutationVariables) => void>
 
-const useUpdateCategoryMutation = ({ boardKey, getBoard, setBoard, rollback }: BoardOperationProps): MutationReturnType => {
+const useUpdateCategoryMutation = ({
+  boardKey,
+  getBoard,
+  setBoard,
+  rollback
+}: BoardOperationProps): MutationReturnType => {
   const { mutate: mutateFn, ...props } = useMutation<{}, UpdateCategoryMutationVariables>(
     (v) => `/categories/${v.id}`,
     'put',

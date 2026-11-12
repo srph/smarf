@@ -156,7 +156,7 @@ function useGridCollisionDetection<T>(
     // This means we're dragging a container, and we don't care about it
     if (!activeId) return
 
-    const overId = (over ? String(over.id) : undefined)
+    const overId = over ? String(over.id) : undefined
 
     if (!overId) {
       return
@@ -222,7 +222,7 @@ function useGridCollisionDetection<T>(
       return
     }
 
-    const overId = (over ? String(over.id) : undefined)
+    const overId = over ? String(over.id) : undefined
 
     // We're not dragging to a valid item
     if (!overId) {

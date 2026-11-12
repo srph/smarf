@@ -19,7 +19,7 @@ const HomeRoute = () => {
     return (
       <>
         <PageTitle title="Your Boards" />
-        
+
         <Container>
           <Spinner />
         </Container>
@@ -30,7 +30,7 @@ const HomeRoute = () => {
   return (
     <>
       <PageTitle title="Your Boards" />
-      
+
       {favorites.length ? <BoardList title="Favorite Boards" boards={favorites} /> : null}
 
       {recent.length ? (

@@ -20,7 +20,12 @@ type MutationFn = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollis
 
 type CustomMutationReturnType = Omit<MutationReturnType, 'mutate'> & { mutate: MutationFn }
 
-const useMoveHeroMutation = ({ boardKey, getBoard, setBoard, rollback }: BoardOperationProps): CustomMutationReturnType => {
+const useMoveHeroMutation = ({
+  boardKey,
+  getBoard,
+  setBoard,
+  rollback
+}: BoardOperationProps): CustomMutationReturnType => {
   const { mutate: mutateFn, ...props } = useMutation<{}, MoveHeroMutationVariables>(
     (v) => `/categories/${v.from_category_id}/heroes/${v.hero_pivot_id}`,
     'put',

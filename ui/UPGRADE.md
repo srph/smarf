@@ -6,19 +6,19 @@ Moving `ui/` from Node 16 / React 17 / Parcel to a current stack. Work happens o
 
 Versions checked against npm on 2026-11-11.
 
-| Area | From | To |
-|---|---|---|
-| Node | 16 | 26 LTS |
-| Bundler | Parcel 2.5 | Vite 8 |
-| React | 17 | 19.3 |
-| Router | React Router 6 | React Router 8, data mode (`createBrowserRouter`) |
-| Data | react-query 3 + axios | TanStack Query 5 + `fetch` |
-| UI primitives | react-popper, hand-rolled popovers | Base UI (`@base-ui/react`) |
-| Icons | heroicons 1 | heroicons 2 |
-| Styling | styled-components 5 | styled-components 6 (keeping it for now) |
-| Drag and drop | dnd-kit core 5 / sortable 6 | dnd-kit core 6 / sortable 10 |
-| TypeScript | 4.x (via Parcel) | 7 (the native compiler) |
-| Tests | none | Vitest + Testing Library + MSW |
+| Area          | From                               | To                                                |
+| ------------- | ---------------------------------- | ------------------------------------------------- |
+| Node          | 16                                 | 26 LTS                                            |
+| Bundler       | Parcel 2.5                         | Vite 8                                            |
+| React         | 17                                 | 19.3                                              |
+| Router        | React Router 6                     | React Router 8, data mode (`createBrowserRouter`) |
+| Data          | react-query 3 + axios              | TanStack Query 5 + `fetch`                        |
+| UI primitives | react-popper, hand-rolled popovers | Base UI (`@base-ui/react`)                        |
+| Icons         | heroicons 1                        | heroicons 2                                       |
+| Styling       | styled-components 5                | styled-components 6 (keeping it for now)          |
+| Drag and drop | dnd-kit core 5 / sortable 6        | dnd-kit core 6 / sortable 10                      |
+| TypeScript    | 4.x (via Parcel)                   | 7 (the native compiler)                           |
+| Tests         | none                               | Vitest + Testing Library + MSW                    |
 
 ## Decisions
 

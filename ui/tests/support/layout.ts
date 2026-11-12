@@ -43,5 +43,4 @@ export function installFakeLayout() {
 
     return originalGetBoundingClientRect.call(this)
   })
-
 }

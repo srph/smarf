@@ -103,9 +103,7 @@ describe('auth', () => {
 
   it("offers a retry when the account can't be loaded", async () => {
     let fail = true
-    server.use(
-      http.get(`${API}/auth/me`, () => (fail ? HttpResponse.json({}, { status: 500 }) : undefined))
-    )
+    server.use(http.get(`${API}/auth/me`, () => (fail ? HttpResponse.json({}, { status: 500 }) : undefined)))
     const { user } = renderApp('/')
 
     expect(await screen.findByRole('alert')).toHaveTextContent("Couldn't load your account")

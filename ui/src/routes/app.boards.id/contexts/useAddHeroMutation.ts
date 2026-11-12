@@ -23,7 +23,12 @@ type MutationFn = (category: Category, hero: Hero) => void
 
 type CustomMutationReturnType = Omit<MutationReturnType, 'mutate'> & { mutate: MutationFn }
 
-const useAddHeroMutation = ({ boardKey, getBoard, setBoard, rollback }: BoardOperationProps): CustomMutationReturnType => {
+const useAddHeroMutation = ({
+  boardKey,
+  getBoard,
+  setBoard,
+  rollback
+}: BoardOperationProps): CustomMutationReturnType => {
   const { mutate: mutateFn, ...props } = useMutation<AddHeroMutationResponse, AddHeroMutationVariables>(
     (v) => `/categories/${v.category_id}/heroes`,
     'post',
