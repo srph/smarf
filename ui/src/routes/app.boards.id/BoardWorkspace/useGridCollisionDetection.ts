@@ -99,7 +99,7 @@ function useGridCollisionDetection<T>(
             overId = closestCenter({
               ...args,
               droppableContainers: args.droppableContainers.filter(
-                (container) => container.id !== overId && containerItems.includes(container.id)
+                (container) => container.id !== overId && containerItems.includes(String(container.id))
               )
             })[0]?.id
           }
@@ -137,15 +137,15 @@ function useGridCollisionDetection<T>(
   const onDragStart = ({ active }: DragStartEvent) => {
     // Avoid conflict with useDragContainer
     // This means we're dragging a container, and we don't care about it
-    if (active.id in payload) return
+    if (String(active.id) in payload) return
 
-    const activeContainer = findContainer(active.id)
+    const activeContainer = findContainer(String(active.id))
 
-    setActiveId(active.id)
+    setActiveId(String(active.id))
 
     setStartEvent({
       container: activeContainer,
-      index: payload[activeContainer].indexOf(active.id)
+      index: payload[activeContainer].indexOf(String(active.id))
     })
   }
 
@@ -156,14 +156,14 @@ function useGridCollisionDetection<T>(
     // This means we're dragging a container, and we don't care about it
     if (!activeId) return
 
-    const overId = over?.id
+    const overId = (over ? String(over.id) : undefined)
 
     if (!overId) {
       return
     }
 
     const overContainer = findContainer(overId)
-    const activeContainer = findContainer(active.id)
+    const activeContainer = findContainer(String(active.id))
 
     // Bail if any of the containers are invalid
     if (!overContainer || !activeContainer) {
@@ -176,7 +176,7 @@ function useGridCollisionDetection<T>(
     }
 
     const activeItems = payload[activeContainer]
-    const activeIndex = activeItems.indexOf(active.id)
+    const activeIndex = activeItems.indexOf(String(active.id))
     const overItems = payload[overContainer]
     const overIndex = overItems.indexOf(overId)
 
@@ -212,7 +212,7 @@ function useGridCollisionDetection<T>(
     // This means we're dragging a container, and we don't care about it
     if (!activeId) return
 
-    const activeContainer = findContainer(active.id)
+    const activeContainer = findContainer(String(active.id))
 
     // The container somehow does not exist
     if (!activeContainer) {
@@ -222,7 +222,7 @@ function useGridCollisionDetection<T>(
       return
     }
 
-    const overId = over?.id
+    const overId = (over ? String(over.id) : undefined)
 
     // We're not dragging to a valid item
     if (!overId) {

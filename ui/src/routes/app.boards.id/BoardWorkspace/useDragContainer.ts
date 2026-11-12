@@ -53,7 +53,7 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
   const [initialWindowScroll, setInitialWindowScroll] = useState<Translate>(defaultTranslate)
 
   const onDragStart = ({ active }: DragStartEvent) => {
-    const container = getContainer(active.id)
+    const container = getContainer(String(active.id))
 
     // Avoid conflict with useGridCollisionDetection
     // It means we're not dragging any of the containers
@@ -64,7 +64,7 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
       y: window.scrollY
     })
 
-    setActiveId(active.id)
+    setActiveId(String(active.id))
     const translate = props.getContainerPosition(container)
     setInitialTranslate(translate)
   }
