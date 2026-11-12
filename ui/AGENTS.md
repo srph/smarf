@@ -2,7 +2,7 @@
 
 React front-end for Smarf: the board list, and the board workspace where users drag heroes between resizable categories.
 
-React 19, TypeScript 7, Vite 8, styled-components 6, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, Base UI for popovers and menus, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. The 2026 dependency upgrade is recorded in [UPGRADE.md](UPGRADE.md).
+React 19, TypeScript 7, Vite 8, Tailwind CSS 4, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, Base UI for popovers and menus, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. The 2026 dependency upgrade is recorded in [UPGRADE.md](UPGRADE.md).
 
 ## Commands
 
@@ -35,7 +35,7 @@ src/
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId)
 ├── types/        API and board-operation types
 ├── config.ts     reads env vars
-└── theme.ts      styled-components theme
+└── index.css     Tailwind entry: `@theme` (font, `primary-*` colors), base styles, `--z-*` stacking order
 tests/
 ├── *.test.tsx    integration tests: render the whole App at a URL against a fake API
 └── support/      MSW handlers + in-memory db, render helper, fake layout for drag-and-drop
@@ -60,12 +60,14 @@ tests/
 
 - Fetch and mutate through the TanStack Query hooks in `contexts/query` next to the route that uses them.
 - Board operations (`routes/app.boards.id/contexts`) treat the query cache as the source of truth: read with `getBoard()`, write with `setBoard()` before the request, call `rollback` on error, and pass `mutationKey: boardKey`. Drag and resize go through `setDraft` until they finish.
-- Build popovers and menus on Base UI (`@base-ui/react`); `components/popover` covers the usual popover. Style its parts with styled-components and its `data-*` state attributes (`data-popup-open`, `data-highlighted`).
+- Build popovers and menus on Base UI (`@base-ui/react`); `components/popover` covers the usual popover. Style its parts with `className` and Tailwind's `data-*` variants (`data-popup-open:`, `data-highlighted:`).
 - Keep components route-local until a second route needs them, then move them to `components/`.
 - Import icons from `@heroicons/react/20/solid` and pass the component: `<Icon icon={TrashIcon} />`.
-- Prefix styled-components props that only feed styles with `$` (`$width`, `$color`) so they don't reach the DOM.
+- Style with Tailwind classes on the element, not wrapper components named after a style. Join conditional classes with `cn` (`import { cn } from 'cn'`). Prettier sorts the classes.
+- Write class names out in full: Tailwind only generates classes it finds as literal strings. Pick from a map (`{ primary: 'bg-primary-500' }`) instead of building `bg-${color}`.
+- Values known only at runtime (positions, widths, sizes from `contexts/board-list/constants.ts` that the drag math also uses) go in `style`.
 - TypeScript is strict. Prefer a null check over `!`; when `!` is right (for example a route param the route guarantees), say why in a comment.
 - Lint suppressions (`// oxlint-disable-next-line rule`) need a comment saying why.
-- Use theme values from `theme.ts` instead of hard-coded colors and spacing.
+- Stay on Tailwind's scales: spacing in 4px steps, `zinc` for neutrals, `primary-*` for the brand color, the default palette for the rest. Avoid arbitrary values (`p-[13px]`); snap to the nearest step. Stacking order uses the `--z-*` variables in `index.css` (`z-(--z-popover)`).
 - Read env vars only in `config.ts`.
 - Export types with `export { type Foo }`. Vite compiles each file on its own, so a bare type re-export breaks the build.

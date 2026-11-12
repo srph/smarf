@@ -141,10 +141,9 @@ Versions checked against npm on 2026-11-11.
 
 ## Later (not part of this upgrade)
 
-- Code-split the bundle (673 kB, about 218 kB gzipped), e.g. lazy-load the board workspace.
+- Code-split the bundle (662 kB, about 216 kB gzipped), e.g. lazy-load the board workspace.
 - API: duplicating a board collapses a hero that appears twice in one category (`BoardsController::duplicate` keys pivots by hero id). The UI also allows adding the same hero twice; decide which is intended.
 - `@dnd-kit/react` (0.5, pre-1.0) could replace the custom multi-container collision code.
-- Replace styled-components (it's in maintenance mode).
 - The OAuth client secret ships in the browser bundle because the password grant runs in the browser. Consider doing the token exchange on the API side.
 
 ## Log

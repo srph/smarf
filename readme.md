@@ -41,7 +41,7 @@ cd api && valet php --site=smarf artisan smarf:admin
 
 ## UI
 
-React 19, TypeScript 7, Vite 8, React Router 8, TanStack Query 5, Base UI, styled-components 6, and dnd-kit. From `ui/`:
+React 19, TypeScript 7, Vite 8, React Router 8, TanStack Query 5, Base UI, Tailwind CSS 4, and dnd-kit. From `ui/`:
 
 ```bash
 npm test            # Vitest integration tests

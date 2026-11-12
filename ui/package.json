@@ -34,7 +34,6 @@
     "react": "19.3",
     "react-dom": "19.3",
     "react-router": "^8.5.1",
-    "styled-components": "^6.6.0",
     "tailwindcss": "^4.3.5",
     "uuid": "^14.0.3"
   },
