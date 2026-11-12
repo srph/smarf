@@ -1,30 +1,28 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
-import { PlainButton, Popover, PopoverProps, Icon } from '~/src/components'
+import { PlainButton, Popover, PopoverClose, type PopoverProps, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 
 interface Props {
   trigger: PopoverProps['trigger']
-  container: HTMLElement
+  anchor: HTMLElement
 }
 
 // @TODO: For slow requests / connections, we should probably prevent
 // the popover from being closed while the board is being updated (?)
-const EditPopover: React.FC<Props> = ({ trigger, container }) => {
+const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
   const { board, isEditing, setIsEditing, updateBoard } = useBoardWorkspace()
 
   const [name, setName] = useState(board.name)
+
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isEditing) {
       setName(board.name)
     }
   }, [board.name, isEditing])
-
-  const handleClose = () => {
-    setIsEditing(false)
-  }
 
   const handleSubmit = (evt: React.FormEvent) => {
     evt.preventDefault()
@@ -38,17 +36,19 @@ const EditPopover: React.FC<Props> = ({ trigger, container }) => {
   return (
     <Popover
       open={isEditing}
-      onChangeOpen={setIsEditing}
+      onOpenChange={setIsEditing}
       trigger={trigger}
-      container={container}
-      strategy="fixed"
-      offset={{ x: 0, y: 16 }}
-      placement="top-end">
+      anchor={anchor}
+      positionMethod="fixed"
+      side="top"
+      align="end"
+      sideOffset={16}
+      initialFocus={inputRef}>
       <EditPopoverInner>
         <EditPopoverClose>
-          <PlainButton type="button" onClick={handleClose}>
+          <PopoverClose render={<PlainButton type="button" title="Close" />}>
             <Icon name="x" />
-          </PlainButton>
+          </PopoverClose>
         </EditPopoverClose>
 
         <EditPopoverForm onSubmit={handleSubmit}>
@@ -56,11 +56,11 @@ const EditPopover: React.FC<Props> = ({ trigger, container }) => {
 
           <InputGroup>
             <InputGroupElement
+              ref={inputRef}
               value={name}
               onChange={handleChangeName}
               type="text"
               placeholder={board.name}
-              autoFocus
             />
             <InputGroupButtonContainer>
               <InputGroupButton>

@@ -57,4 +57,14 @@ describe('board list', () => {
     expect(await screen.findByRole('button', { name: 'New Board' })).toBeInTheDocument()
     expect(currentPath()).toBe('/')
   })
+
+  it('opens a page from the account menu', async () => {
+    const { user } = renderApp('/')
+
+    await user.click(await screen.findByTitle('Account menu'))
+    await user.click(await screen.findByRole('menuitem', { name: 'Account Settings' }))
+
+    await waitFor(() => expect(currentPath()).toBe('/account'))
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
+  })
 })

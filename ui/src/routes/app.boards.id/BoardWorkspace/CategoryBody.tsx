@@ -35,14 +35,6 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
 
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
 
-  const handleToggleDeleteConfirmation = () => {
-    setIsDeleteConfirmationOpen(!isDeleteConfirmationOpen)
-  }
-
-  const handleDismissDeleteConfirmation = () => {
-    setIsDeleteConfirmationOpen(false)
-  }
-
   const handleUpdateCategoryName = (value: string) => {
     updateCategory({ id: category.id, name: value })
   }
@@ -90,19 +82,16 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
           <div>
             <DeletePopover
               open={isDeleteConfirmationOpen}
+              onOpenChange={setIsDeleteConfirmationOpen}
               onConfirm={() => deleteCategory(category)}
-              onDismiss={handleDismissDeleteConfirmation}
-              offset={{ x: 0, y: 16 }}
-              placement="bottom-end"
-              trigger={({ ref }) => (
-                <CategoryRemove
-                  ref={ref}
-                  onClick={handleToggleDeleteConfirmation}
-                  title="Delete category"
-                  isConfirming={isDeleteConfirmationOpen}>
+              side="bottom"
+              align="end"
+              sideOffset={16}
+              trigger={
+                <CategoryRemove title="Delete category">
                   <Icon name="trash" />
                 </CategoryRemove>
-              )}
+              }
             />
           </div>
         </CategoryHeading>
@@ -130,27 +119,24 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
               ))}
             </SortableContext>
 
-            <HeroSelector
-              open={isHeroSelectorOpen}
-              onSelectHero={(hero: Hero) => {
-                addHero(category, hero)
-              }}
-              onChangeOpen={() => {
-                setIsHeroSelectorOpen(false)
-              }}
-              trigger={
-                <NewHeroContainer>
-                  <NewHero onClick={() => setIsHeroSelectorOpen(!isHeroSelectorOpen)}>
+            <NewHeroContainer>
+              <HeroSelector
+                open={isHeroSelectorOpen}
+                onOpenChange={setIsHeroSelectorOpen}
+                onSelectHero={(hero: Hero) => {
+                  addHero(category, hero)
+                }}
+                trigger={
+                  <NewHero>
                     <NewCategoryIcon>
                       <Icon name="plus-circle" width={16} />
                     </NewCategoryIcon>
                     <NewCategoryText>Add</NewCategoryText>
                   </NewHero>
-                </NewHeroContainer>
-              }
-              container={containerElement}
-              dependencies={[category.height]}
-            />
+                }
+                anchor={containerElement}
+              />
+            </NewHeroContainer>
           </Body>
         </Resizable>
       </CategoryContainer>
@@ -224,7 +210,7 @@ const CategoryHeadingDragIcon = styled.div`
   cursor: grabbing;
 `
 
-const CategoryRemove = styled.button<{ isConfirming: boolean }>`
+const CategoryRemove = styled.button`
   display: inline-block;
   padding: 4px;
   font-size: 12px;
@@ -233,8 +219,13 @@ const CategoryRemove = styled.button<{ isConfirming: boolean }>`
   border: 0;
   border-radius: 4px;
   cursor: pointer;
-  ${(props) => (props.isConfirming ? 'opacity: 1;' : 'opacity: 0;')};
+  opacity: 0;
   transition: 200ms opacity ease;
+
+  /* Set by Base UI while the delete confirmation is open. */
+  &[data-popup-open] {
+    opacity: 1;
+  }
 
   &:hover,
   &:focus {

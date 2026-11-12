@@ -1,48 +1,36 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
-import { Button, Spacer, Input, Popover, PopoverProps } from '~/src/components'
+import { Button, Spacer, Input, Popover, type PopoverProps } from '~/src/components'
 import { theme } from '~/src/theme'
 
-interface DeletePopoverProps {
-  open: boolean
+interface DeletePopoverProps
+  extends Pick<PopoverProps, 'open' | 'onOpenChange' | 'trigger' | 'side' | 'align' | 'sideOffset' | 'anchor' | 'positionMethod'> {
   onConfirm: () => void
-  onDismiss: () => void
   nameConfirmation?: string
   nameConfirmationPlaceholder?: string
-  strategy?: PopoverProps['strategy']
-  placement?: PopoverProps['placement']
-  offset?: PopoverProps['offset']
-  trigger: PopoverProps['trigger']
-  container?: PopoverProps['container']
 }
 
 const DeletePopover: React.FC<DeletePopoverProps> = ({
-  open,
   onConfirm,
-  onDismiss,
   nameConfirmation,
   nameConfirmationPlaceholder,
-  strategy,
-  placement,
-  offset,
-  trigger,
-  container
+  ...popoverProps
 }) => {
+  const { open, onOpenChange } = popoverProps
+
   const [name, setName] = useState('')
+
+  const nameRef = useRef<HTMLInputElement>(null)
+
+  const cancelRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) setName('')
   }, [open])
 
   return (
-    <Popover
-      open={open}
-      onChangeOpen={onDismiss}
-      strategy={strategy}
-      offset={offset}
-      placement={placement}
-      container={container}
-      trigger={trigger}>
+    // Focus the name field, or Cancel, so Enter never deletes by accident.
+    <Popover {...popoverProps} initialFocus={nameConfirmation ? nameRef : cancelRef}>
       <Container>
         <HeadingText>Delete Confirmation</HeadingText>
 
@@ -54,6 +42,7 @@ const DeletePopover: React.FC<DeletePopoverProps> = ({
 
         {nameConfirmation && (
           <Input
+            ref={nameRef}
             placeholder={
               nameConfirmationPlaceholder ? `${nameConfirmationPlaceholder} (${nameConfirmation})` : nameConfirmation
             }
@@ -72,7 +61,7 @@ const DeletePopover: React.FC<DeletePopoverProps> = ({
           </ActionItem>
 
           <ActionItem>
-            <Button variant="clear" block onClick={onDismiss}>
+            <Button ref={cancelRef} variant="clear" block onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
           </ActionItem>
@@ -85,7 +74,7 @@ const DeletePopover: React.FC<DeletePopoverProps> = ({
 const Container = styled.div`
   padding: 16px;
   width: 280px;
-  background ${theme.colors.neutral[800]};
+  background: ${theme.colors.neutral[800]};
   border: 1px solid ${theme.colors.neutral[700]};
   border-radius: 4px;
 `

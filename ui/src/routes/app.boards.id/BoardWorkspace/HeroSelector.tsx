@@ -1,22 +1,19 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { theme } from '~/src/theme'
-import { Icon, ImageAspectRatio, SearchInput, Popover } from '~/src/components'
+import { Icon, ImageAspectRatio, SearchInput, Popover, PopoverClose, type PopoverProps } from '~/src/components'
 import { Hero } from '~/src/types/api'
 import { useHeroList } from '~/src/contexts/HeroList'
 import { CATEGORY_HERO_ASPECT_RATIO } from '~/src/contexts/BoardList/constants'
 
-interface Props {
-  open: boolean
-  trigger: React.ReactNode
-  container: HTMLDivElement
+interface Props extends Pick<PopoverProps, 'open' | 'onOpenChange' | 'trigger' | 'anchor'> {
   onSelectHero: (hero: Hero) => void
-  onChangeOpen: (open: boolean) => void
-  dependencies?: any[]
 }
 
-const HeroSelector: React.FC<Props> = ({ open, onSelectHero, onChangeOpen, trigger, container, dependencies }) => {
+const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigger, anchor }) => {
   const [search, setSearch] = useState('')
+
+  const searchRef = useRef<HTMLInputElement>(null)
 
   const { heroAttributeGroups, isLoading } = useHeroList()
 
@@ -29,20 +26,21 @@ const HeroSelector: React.FC<Props> = ({ open, onSelectHero, onChangeOpen, trigg
   return (
     <Popover
       open={open}
+      onOpenChange={onOpenChange}
       trigger={trigger}
-      container={container}
-      offset={{ x: 0, y: 32 }}
-      placement="bottom-start"
-      onChangeOpen={onChangeOpen}
-      dependencies={dependencies}>
+      anchor={anchor}
+      side="bottom"
+      align="start"
+      sideOffset={32}
+      initialFocus={searchRef}>
       <HeroSelectorContainer>
-        <HeroSelectorClose onClick={() => onChangeOpen(false)}>
+        <HeroSelectorClose title="Close">
           <Icon name="x" />
         </HeroSelectorClose>
 
         <HeroSelectorHeading>
           <HeroSelectorHeadingText>Select Hero</HeroSelectorHeadingText>
-          <SearchInput value={search} onChange={setSearch} autoFocus />
+          <SearchInput ref={searchRef} value={search} onChange={setSearch} />
         </HeroSelectorHeading>
 
         <HeroSelectorContent>
@@ -113,7 +111,7 @@ const HeroSelectorContainer = styled.div`
   border-radius: 4px;
 `
 
-const HeroSelectorClose = styled.button`
+const HeroSelectorClose = styled(PopoverClose)`
   position: absolute;
   right: 0;
   top: -32px;

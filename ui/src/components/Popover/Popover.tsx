@@ -1,111 +1,60 @@
-import React, { MutableRefObject, useMemo } from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react'
 import styled from 'styled-components'
-import { usePopper } from 'react-popper'
-import type { Placement, Offsets } from '@popperjs/core'
-
-import { useStateRef, useUpdateEffect, useDocumentListener, useOutsideClick } from '~/src/hooks'
+import { Popover as BasePopover } from '@base-ui/react/popover'
 import { theme } from '~/src/theme'
+
+type PositionerProps = React.ComponentProps<typeof BasePopover.Positioner>
 
 interface PopoverProps {
   open: boolean
-  onChangeOpen: (open: boolean) => void
-  trigger: React.ReactNode | (({ ref }: { ref: (n) => void }) => React.ReactNode)
-  strategy?: 'absolute' | 'fixed'
-  placement?: Placement
-  container?: HTMLElement
-  offset?: Offsets
-  dependencies?: any[]
+  onOpenChange: (open: boolean) => void
+  // A <button>. Base UI makes it toggle the popover and adds the aria attributes and
+  // `data-popup-open` while open, so the trigger needs no onClick of its own.
+  trigger: React.ReactElement
+  side?: PositionerProps['side']
+  align?: PositionerProps['align']
+  sideOffset?: number
+  // Position against this element instead of the trigger.
+  anchor?: Element | null
+  positionMethod?: PositionerProps['positionMethod']
+  // Focused on open. Defaults to the first focusable element in the popup.
+  initialFocus?: React.RefObject<HTMLElement | null>
 }
 
-const PORTAL_ID = 'smarf-popover-portal'
-
+// Closes on Escape and outside clicks, and follows the anchor as it moves or resizes.
 const Popover: React.FC<React.PropsWithChildren<PopoverProps>> = ({
   open,
-  onChangeOpen,
-  strategy = 'absolute',
-  placement,
-  offset,
+  onOpenChange,
   trigger,
-  container: containerElement,
-  dependencies,
+  side = 'bottom',
+  align = 'center',
+  sideOffset = 0,
+  anchor,
+  positionMethod,
+  initialFocus,
   children
 }) => {
-  const [triggerElement, setTriggerElement, triggerElementRef] = useStateRef<HTMLElement>()
-
-  const [popperElement, setPopperElement, popperElementRef] = useStateRef<HTMLElement>()
-
-  const modifiers = useMemo(() => {
-    const result = []
-    if (offset) {
-      result.push({
-        name: 'offset',
-        options: {
-          offset: [offset.x, offset.y]
-        }
-      })
-    }
-    return result
-  }, [offset])
-
-  const { styles, attributes, forceUpdate } = usePopper(containerElement || triggerElement, popperElement, {
-    placement,
-    modifiers,
-    strategy
-  })
-
-  const portalElement = useMemo(() => {
-    return document.getElementById(PORTAL_ID)
-  }, [])
-
-  // Force-calculate position when dependencies change
-  // e.g., category height increases
-  useUpdateEffect(
-    () => {
-      forceUpdate?.()
-    },
-    dependencies ? [forceUpdate, ...dependencies] : [forceUpdate]
-  )
-
-  useDocumentListener('keydown', (evt) => {
-    if (open && evt.key === 'Escape') {
-      onChangeOpen(false)
-    }
-  })
-
-  useOutsideClick([popperElementRef, triggerElementRef], (evt) => {
-    if (open) {
-      onChangeOpen(false)
-    }
-  })
-
   return (
-    <>
-      {typeof trigger === 'function' ? (
-        trigger({ ref: setTriggerElement })
-      ) : (
-        <div ref={setTriggerElement}>{trigger}</div>
-      )}
+    <BasePopover.Root open={open} onOpenChange={(next) => onOpenChange(next)}>
+      <BasePopover.Trigger render={trigger} />
 
-      {portalElement &&
-        open &&
-        ReactDOM.createPortal(
-          <PopperContainer ref={setPopperElement} style={styles.popper} {...attributes.popper}>
-            {children}
-          </PopperContainer>,
-          portalElement
-        )}
-    </>
+      <BasePopover.Portal>
+        <Positioner side={side} align={align} sideOffset={sideOffset} anchor={anchor} positionMethod={positionMethod}>
+          <Popup initialFocus={initialFocus}>{children}</Popup>
+        </Positioner>
+      </BasePopover.Portal>
+    </BasePopover.Root>
   )
 }
 
-const PopoverPortal = () => {
-  return <div id={PORTAL_ID} />
-}
+const PopoverClose = BasePopover.Close
 
-const PopperContainer = styled.div`
-  position: absolute;
+const Positioner = styled(BasePopover.Positioner)`
   z-index: ${theme.zIndex.popover};
 `
 
-export { Popover, PopoverPortal, type PopoverProps }
+const Popup = styled(BasePopover.Popup)`
+  outline: 0;
+`
+
+export { Popover, PopoverClose, type PopoverProps }

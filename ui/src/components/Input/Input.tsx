@@ -9,6 +9,7 @@ interface Props {
   onChange: (value: string) => void
   placeholder?: string
   type?: string
+  ref?: React.Ref<HTMLInputElement>
 }
 
 const Input: React.FC<Props> = (props) => {
@@ -20,6 +21,7 @@ const Input: React.FC<Props> = (props) => {
     <div>
       {props.label && <Label>{props.label}</Label>}
       <StyledInput
+        ref={props.ref}
         type={props.type || 'text'}
         autoFocus={props.autoFocus}
         value={props.value}

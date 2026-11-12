@@ -1,78 +1,66 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router'
+import { Menu } from '@base-ui/react/menu'
 import { theme } from '~/src/theme'
-import { Avatar, Icon, Popover, PlainButton } from '~/src/components'
+import { Avatar, Icon, PlainButton } from '~/src/components'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 import avatar from '~/src/assets/images/avatar.png'
 
+const LINKS = [
+  { to: '/', icon: 'home', label: 'Home' },
+  { to: '/account', icon: 'adjustments', label: 'Account Settings' },
+  { to: '/about', icon: 'lightning-bolt', label: 'About & Changelog' },
+  { to: '/logout', icon: 'arrow-left', label: 'Logout' }
+]
+
 const UserDropdown: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false)
   const { user } = useAuthUser()
 
-  const trigger = (
-    <PlainButton onClick={() => setIsOpen(!isOpen)}>
-      <Avatar src={user.avatar || avatar} size="lg"></Avatar>
-    </PlainButton>
-  )
-
-  const handleClickLink = () => {
-    setIsOpen(false)
-  }
-
   return (
-    <Popover open={isOpen} onChangeOpen={setIsOpen} trigger={trigger} placement="bottom-end" offset={{ x: 0, y: 24 }}>
-      <Container>
-        <Heading>
-          <Avatar src={user.avatar || avatar} />
+    <Menu.Root>
+      <Menu.Trigger render={<PlainButton title="Account menu" />}>
+        <Avatar src={user.avatar || avatar} size="lg"></Avatar>
+      </Menu.Trigger>
 
-          <UserInfo>
-            <UserInfoName>{user.name}</UserInfoName>
-            <UserInfoEmail>{user.email}</UserInfoEmail>
-          </UserInfo>
-        </Heading>
+      <Menu.Portal>
+        <Positioner side="bottom" align="end" sideOffset={24}>
+          <Container>
+            <Heading>
+              <Avatar src={user.avatar || avatar} />
 
-        <LinkItem to="/" onClick={handleClickLink}>
-          <LinkItemIcon>
-            <Icon name="home" />
-          </LinkItemIcon>
+              <UserInfo>
+                <UserInfoName>{user.name}</UserInfoName>
+                <UserInfoEmail>{user.email}</UserInfoEmail>
+              </UserInfo>
+            </Heading>
 
-          <LinkItemText>Home</LinkItemText>
-        </LinkItem>
+            {LINKS.map((link) => (
+              <LinkItem key={link.to} closeOnClick render={<Link to={link.to} />}>
+                <LinkItemIcon>
+                  <Icon name={link.icon} />
+                </LinkItemIcon>
 
-        <LinkItem to="/account" onClick={handleClickLink}>
-          <LinkItemIcon>
-            <Icon name="adjustments" />
-          </LinkItemIcon>
-
-          <LinkItemText>Account Settings</LinkItemText>
-        </LinkItem>
-
-        <LinkItem to="/about" onClick={handleClickLink}>
-          <LinkItemIcon>
-            <Icon name="lightning-bolt" />
-          </LinkItemIcon>
-
-          <LinkItemText>About &amp; Changelog</LinkItemText>
-        </LinkItem>
-        <LinkItem to="/logout" onClick={handleClickLink}>
-          <LinkItemIcon>
-            <Icon name="arrow-left" />
-          </LinkItemIcon>
-
-          <LinkItemText>Logout</LinkItemText>
-        </LinkItem>
-      </Container>
-    </Popover>
+                <LinkItemText>{link.label}</LinkItemText>
+              </LinkItem>
+            ))}
+          </Container>
+        </Positioner>
+      </Menu.Portal>
+    </Menu.Root>
   )
 }
 
-const Container = styled.div`
+const Positioner = styled(Menu.Positioner)`
+  z-index: ${theme.zIndex.userDropdown};
+`
+
+const Container = styled(Menu.Popup)`
   width: 240px;
+  outline: 0;
   background: ${theme.colors.neutral[900]};
   border-radius: 4px;
   border: 1px solid ${theme.colors.neutral[700]};
-  z-index: ${theme.zIndex.userDropdown};
 `
 
 const Heading = styled.div`
@@ -95,7 +83,7 @@ const UserInfoEmail = styled.span`
   font-size: ${theme.fontSizes.sm}px;
 `
 
-const LinkItem = styled(Link)`
+const LinkItem = styled(Menu.LinkItem)`
   display: flex;
   align-items: center;
   padding: 16px;
@@ -104,7 +92,9 @@ const LinkItem = styled(Link)`
   cursor: pointer;
   transition: 200ms background ease;
 
-  &:hover {
+  outline: 0;
+
+  &[data-highlighted] {
     background: ${theme.colors.neutral[700]};
   }
 

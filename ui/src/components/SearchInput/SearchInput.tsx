@@ -7,16 +7,17 @@ interface Props {
   value: string
   onChange: (v: string) => void
   autoFocus?: boolean
+  ref?: React.Ref<HTMLInputElement>
 }
 
-const SearchInput: React.FC<Props> = ({ value, onChange, autoFocus = false }) => {
+const SearchInput: React.FC<Props> = ({ value, onChange, autoFocus = false, ref }) => {
   const handleChange = (evt) => {
     onChange(evt.target.value)
   }
 
   return (
     <Container>
-      <Input type="text" value={value} onChange={handleChange} placeholder="Search..." autoFocus={autoFocus} />
+      <Input ref={ref} type="text" value={value} onChange={handleChange} placeholder="Search..." autoFocus={autoFocus} />
       <SearchIcon>
         <Icon name="search" width={16} />
       </SearchIcon>

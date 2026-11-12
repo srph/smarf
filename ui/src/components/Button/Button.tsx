@@ -12,6 +12,7 @@ interface Props {
   type?: 'button' | 'submit'
   disabled?: boolean
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
+  ref?: React.Ref<HTMLButtonElement>
 }
 
 const Button: React.FC<React.PropsWithChildren<Props>> = ({
@@ -21,10 +22,11 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
   type = 'button',
   onClick,
   block = false,
-  disabled = false
+  disabled = false,
+  ref
 }) => {
   return (
-    <Element variant={variant} type={type} onClick={onClick} block={block} disabled={disabled}>
+    <Element ref={ref} variant={variant} type={type} onClick={onClick} block={block} disabled={disabled}>
       {icon ? (
         <IconContainer>
           <Icon name={icon} />

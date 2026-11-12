@@ -193,4 +193,41 @@ describe('board workspace', () => {
     expect(await screen.findByText('Saved', {}, { timeout: 3000 })).toBeInTheDocument()
     expect(screen.queryByText('Updating')).not.toBeInTheDocument()
   })
+
+  describe('popovers', () => {
+    it('focuses the hero search when the selector opens, and closes it on Escape', async () => {
+      const { user } = renderApp(`/b/${board.id}`)
+
+      const supports = await findCategory('Supports')
+      await user.click(within(supports).getByRole('button', { name: 'Add' }))
+
+      await waitFor(() => expect(screen.getByPlaceholderText('Search...')).toHaveFocus())
+      await user.keyboard('[Escape]')
+      await waitFor(() => expect(screen.queryByTitle('Select Lion')).not.toBeInTheDocument())
+    })
+
+    it('closes the delete confirmation on an outside click without deleting', async () => {
+      const { user } = renderApp(`/b/${board.id}`)
+
+      const supports = await findCategory('Supports')
+      await user.click(within(supports).getByTitle('Delete category'))
+      const cancel = await screen.findByRole('button', { name: 'Cancel' })
+      await waitFor(() => expect(cancel).toHaveFocus())
+
+      await user.click(document.body)
+      await waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument())
+      expect(db.categories.map((c) => c.name)).toContain('Supports')
+    })
+
+    it('closes the board name editor with its close button', async () => {
+      const { user } = renderApp(`/b/${board.id}`)
+
+      await user.click(await screen.findByTitle('Edit board name'))
+      const input = await screen.findByPlaceholderText('Ranked')
+      await waitFor(() => expect(input).toHaveFocus())
+
+      await user.click(screen.getByTitle('Close'))
+      await waitFor(() => expect(screen.queryByPlaceholderText('Ranked')).not.toBeInTheDocument())
+    })
+  })
 })

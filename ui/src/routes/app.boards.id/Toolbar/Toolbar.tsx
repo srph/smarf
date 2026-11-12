@@ -11,8 +11,6 @@ import { useNavigate } from 'react-router'
 const ToolbarComponent: React.FC = () => {
   const {
     board,
-    isEditing,
-    setIsEditing,
     duplicateBoard,
     favoriteBoard,
     deleteBoard,
@@ -27,14 +25,6 @@ const ToolbarComponent: React.FC = () => {
   const [toolbarElement, setToolbarElement] = useState<HTMLDivElement>()
 
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
-
-  const handleToggleDeleteConfirmation = () => {
-    setIsDeleteConfirmationOpen(!isDeleteConfirmationOpen)
-  }
-
-  const handleDismissDeleteConfirmation = () => {
-    setIsDeleteConfirmationOpen(false)
-  }
 
   const { boards, isBoardListLoading } = useBoardList()
 
@@ -95,37 +85,30 @@ const ToolbarComponent: React.FC = () => {
                 </IconGroupButton>
 
                 <EditPopover
-                  trigger={({ ref }) => (
-                    <IconGroupButton
-                      ref={ref}
-                      onClick={() => setIsEditing(!isEditing)}
-                      title="Edit board name"
-                      disabled={isUpdating}>
+                  trigger={
+                    <IconGroupButton title="Edit board name" disabled={isUpdating}>
                       <Icon name="pencil" />
                     </IconGroupButton>
-                  )}
-                  container={toolbarElement}
+                  }
+                  anchor={toolbarElement}
                 />
 
                 <DeletePopover
                   open={isDeleteConfirmationOpen}
+                  onOpenChange={setIsDeleteConfirmationOpen}
                   onConfirm={deleteBoard}
-                  onDismiss={handleDismissDeleteConfirmation}
                   nameConfirmation={board.name}
                   nameConfirmationPlaceholder="Enter board name"
-                  placement="top-end"
-                  offset={{ x: 0, y: 16 }}
-                  strategy="fixed"
-                  trigger={({ ref }) => (
-                    <IconGroupButton
-                      ref={ref}
-                      onClick={handleToggleDeleteConfirmation}
-                      disabled={isDeleting}
-                      title="Delete board">
+                  side="top"
+                  align="end"
+                  sideOffset={16}
+                  positionMethod="fixed"
+                  trigger={
+                    <IconGroupButton disabled={isDeleting} title="Delete board">
                       <Icon name="trash" />
                     </IconGroupButton>
-                  )}
-                  container={toolbarElement}
+                  }
+                  anchor={toolbarElement}
                 />
               </IconGroup>
             </ToolbarActions>

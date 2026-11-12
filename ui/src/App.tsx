@@ -9,7 +9,7 @@ import { HeroListProvider } from '~/src/contexts/HeroList'
 
 import { createBrowserRouter, Navigate, Outlet, type RouteObject } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
-import { GuardedRoute, PopoverPortal } from '~/src/components'
+import { GuardedRoute } from '~/src/components'
 import { AppRoute } from './routes/app'
 import { HomeRoute } from './routes/app.home'
 import { BoardsIdRoute } from './routes/app.boards.id'
@@ -90,8 +90,6 @@ const App = () => {
       <QueryProvider>
         <RouterProvider router={router} />
       </QueryProvider>
-
-      <PopoverPortal />
 
       <GlobalStyle />
     </StrictMode>
