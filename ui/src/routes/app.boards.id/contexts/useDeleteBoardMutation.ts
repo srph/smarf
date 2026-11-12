@@ -1,14 +1,14 @@
 import { useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { useMutation, MutationReturnType } from '~/src/contexts/Query'
+import { useMutation } from '~/src/contexts/Query'
 import { BoardOperationProps } from './types'
 
-const useDeleteBoardMutation = ({ boardId, boardKey }: BoardOperationProps): MutationReturnType => {
+const useDeleteBoardMutation = ({ boardId, boardKey }: BoardOperationProps) => {
   const queryClient = useQueryClient()
 
   const navigate = useNavigate()
 
-  return useMutation<{}, null>(`/boards/${boardId}`, 'delete', {
+  return useMutation<{}, void>(`/boards/${boardId}`, 'delete', {
     mutationKey: boardKey,
     onSuccess() {
       queryClient.invalidateQueries({ queryKey: ['/boards'] })

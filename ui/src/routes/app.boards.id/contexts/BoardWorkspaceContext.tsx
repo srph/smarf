@@ -54,39 +54,11 @@ interface BoardWorkspaceContextType {
   isDeletingCategory: boolean
 }
 
-const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
-  board: null,
-  updateBoard: () => {},
-  deleteBoard: () => {},
-  favoriteBoard: () => {},
-  duplicateBoard: () => {},
-  setIsEditing: () => {},
-  addCategory: () => {},
-  updateCategory: () => {},
-  moveCategory: () => {},
-  moveCategoryEnd: () => {},
-  resizeCategory: () => {},
-  resizeCategoryEnd: () => {},
-  deleteCategory: () => {},
-  addHero: () => {},
-  moveHero: () => {},
-  isEditing: false,
-  isSaving: false,
-  isUpdating: false,
-  isDeleting: false,
-  isFavoriteLoading: false,
-  isDuplicating: false,
-  isAddingHero: false,
-  isMovingHero: false,
-  isAddingCategory: false,
-  isUpdatingCategory: false,
-  isMovingCategory: false,
-  isResizingCategory: false,
-  isDeletingCategory: false
-})
+const BoardWorkspaceContext = createContext<BoardWorkspaceContextType | null>(null)
 
 const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { boardId } = useParams()
+  // The route is /b/:boardId, so it's always set.
+  const boardId = useParams().boardId!
 
   const queryClient = useQueryClient()
 
@@ -156,9 +128,9 @@ const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ chil
       value={{
         board,
         updateBoard,
-        deleteBoard: () => deleteBoard(undefined),
+        deleteBoard: () => deleteBoard(),
         favoriteBoard,
-        duplicateBoard: () => duplicateBoard(undefined),
+        duplicateBoard: () => duplicateBoard(),
         setIsEditing,
         addHero,
         moveHero,
@@ -200,7 +172,9 @@ function withDraft(board: Board, draft: CategoryDraft | null): Board {
 }
 
 const useBoardWorkspace = () => {
-  return useContext(BoardWorkspaceContext)
+  const context = useContext(BoardWorkspaceContext)
+  if (!context) throw new Error('useBoardWorkspace must be used inside BoardWorkspaceContextProvider')
+  return context
 }
 
 export { BoardWorkspaceContextProvider, useBoardWorkspace }

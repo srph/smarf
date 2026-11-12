@@ -12,7 +12,7 @@ interface Props {
 }
 
 const Input: React.FC<Props> = ({ ref, ...props }) => {
-  const handleChange = (evt) => {
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     props.onChange(evt.target.value)
   }
 

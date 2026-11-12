@@ -32,7 +32,7 @@ const ToolbarComponent: React.FC = () => {
     isAddingCategory
   } = useBoardWorkspace()
 
-  const [toolbarElement, setToolbarElement] = useState<HTMLDivElement>()
+  const [toolbarElement, setToolbarElement] = useState<HTMLDivElement | null>(null)
 
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
 
@@ -40,7 +40,7 @@ const ToolbarComponent: React.FC = () => {
 
   const navigate = useNavigate()
 
-  const handleBoardChange = (evt) => {
+  const handleBoardChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
     navigate(`/b/${evt.target.value}`)
   }
 

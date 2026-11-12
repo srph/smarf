@@ -1,23 +1,18 @@
-// I don't know how to type this shit lmao, we got too clever sir
-export const mergeEvents = (...objects: any) => {
-  const listeners = {}
+type Listener = (...args: any[]) => void
 
-  for (const events of objects) {
-    for (const event in events) {
-      const listener = events[event]
-      listeners[event] = listeners[event] ? [...listeners[event], listener] : [listener]
-    }
+/** Combine two objects of event handlers. A handler both define runs both, first `a`'s, then `b`'s. */
+export function mergeEvents<A extends object, B extends object>(a: A, b: B): A & B {
+  const result: Record<string, Listener> = { ...(a as Record<string, Listener>) }
+
+  for (const [event, listener] of Object.entries(b as Record<string, Listener>)) {
+    const first = result[event]
+    result[event] = first
+      ? (...args) => {
+          first(...args)
+          listener(...args)
+        }
+      : listener
   }
 
-  const result = {}
-
-  for (const event in listeners) {
-    result[event] = (...arg) => {
-      for (const listener of listeners[event]) {
-        listener(...arg)
-      }
-    }
-  }
-
-  return result
+  return result as A & B
 }

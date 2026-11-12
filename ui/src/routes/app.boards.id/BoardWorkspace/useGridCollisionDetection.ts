@@ -60,7 +60,7 @@ function useGridCollisionDetection<T>(
     return containers.reduce((map, container, i) => {
       map[containerIds[i]] = containerDataIdTransformer(container)
       return map
-    }, {})
+    }, {} as PayloadMap)
   }, [containers, containerIds, containerDataIdTransformer])
 
   // An active item's starting position so we know how to put it back when user cancels
@@ -126,7 +126,7 @@ function useGridCollisionDetection<T>(
     [activeId, payload]
   )
 
-  const findContainer = (id: ID): ID => {
+  const findContainer = (id: ID): ID | undefined => {
     // Check if the id is actually a container id
     // Very important to allow dragOver to work when dragging an item into an empty sortable
     if (id in payload) return id
@@ -142,6 +142,7 @@ function useGridCollisionDetection<T>(
     if (String(active.id) in payload) return
 
     const activeContainer = findContainer(String(active.id))
+    if (!activeContainer) return
 
     setActiveId(String(active.id))
 

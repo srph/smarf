@@ -59,7 +59,11 @@ const DeletePopover: React.FC<DeletePopoverProps> = ({
 
         <Actions>
           <ActionItem>
-            <Button variant="danger" block onClick={onConfirm} disabled={nameConfirmation && name !== nameConfirmation}>
+            <Button
+              variant="danger"
+              block
+              onClick={onConfirm}
+              disabled={Boolean(nameConfirmation) && name !== nameConfirmation}>
               Delete
             </Button>
           </ActionItem>

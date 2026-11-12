@@ -4,7 +4,7 @@ import { useMutation } from '~/src/contexts/Query'
 import { Category, HeroCategoryPivot, ID } from '~/src/types/api'
 import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING } from '~/src/contexts/BoardList/constants'
 import { getCategoryHeight, getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
-import { BoardOperationProps, CustomMutationReturnType } from './types'
+import { BoardOperationProps, BoardOperation } from './types'
 
 interface AddCategoryMutationResponse {
   category: Category
@@ -19,7 +19,7 @@ interface AddCategoryMutationVariables {
   y_position: number
 }
 
-type MutationReturnType = CustomMutationReturnType<() => void>
+type MutationReturnType = BoardOperation<() => void>
 
 const useAddCategoryMutation = ({
   boardId,

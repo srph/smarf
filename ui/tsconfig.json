@@ -7,7 +7,7 @@
     "jsx": "react-jsx",
     "isolatedModules": true,
     "noEmit": true,
-    "strict": false,
+    "strict": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,

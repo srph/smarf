@@ -63,8 +63,6 @@ function useMutation<TResponse = {}, TVariables = {}>(
   })
 }
 
-type MutationReturnType = ReturnType<typeof useMutation>
-
 type QueryReturnType = ReturnType<typeof useQuery>
 
-export { QueryProvider, useQuery, useMutation, type QueryReturnType, type MutationReturnType }
+export { QueryProvider, useQuery, useMutation, type QueryReturnType }

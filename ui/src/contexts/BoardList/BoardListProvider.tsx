@@ -51,7 +51,7 @@ const BoardListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const queryClient = useQueryClient()
 
-  const { data, isLoading: isBoardListLoading } = useQuery('/boards', {
+  const { data, isLoading: isBoardListLoading } = useQuery<{ boards: Board[] }>('/boards', {
     enabled: Boolean(token)
   })
 
@@ -81,8 +81,8 @@ const BoardListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const boards = data?.boards || []
 
   const favoriteBoard = (id: ID) => {
-    if (!boards) return null
     const board = boards.find((b) => b.id === id)
+    if (!board) return
     favoriteBoardMutation({ board_id: id, is_favorite: !board.is_favorite })
   }
 

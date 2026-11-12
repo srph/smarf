@@ -1,7 +1,7 @@
 import { produce } from 'immer'
 import { useMutation } from '~/src/contexts/Query'
 import { Category, ID } from '~/src/types/api'
-import { BoardOperationProps, CustomMutationReturnType } from './types'
+import { BoardOperationProps, BoardOperation } from './types'
 
 interface DeleteCategoryMutationVariables {
   category_id: ID
@@ -9,7 +9,7 @@ interface DeleteCategoryMutationVariables {
 
 type MutationFn = (category: Category) => void
 
-type MutationReturnType = CustomMutationReturnType<MutationFn>
+type MutationReturnType = BoardOperation<MutationFn>
 
 const useDeleteCategoryMutation = ({
   boardKey,

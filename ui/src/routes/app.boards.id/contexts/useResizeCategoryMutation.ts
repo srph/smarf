@@ -1,7 +1,7 @@
 import { produce } from 'immer'
 import { useMutation } from '~/src/contexts/Query'
 import { Category, ID } from '~/src/types/api'
-import { BoardOperationProps, CustomMutationReturnType } from './types'
+import { BoardOperationProps, BoardOperation } from './types'
 
 interface ResizeCategoryMutationVariables {
   category_id: ID
@@ -11,7 +11,7 @@ interface ResizeCategoryMutationVariables {
 
 type MutationFn = (v: { container: Category }) => void
 
-type MutationReturnType = CustomMutationReturnType<MutationFn>
+type MutationReturnType = BoardOperation<MutationFn>
 
 /** On resize end: write the new size to the cache, drop the draft, and save it. */
 const useResizeCategoryMutation = ({

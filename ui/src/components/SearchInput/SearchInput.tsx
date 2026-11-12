@@ -11,7 +11,7 @@ interface Props {
 }
 
 const SearchInput: React.FC<Props> = ({ value, onChange, ref }) => {
-  const handleChange = (evt) => {
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     onChange(evt.target.value)
   }
 

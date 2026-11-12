@@ -7,7 +7,7 @@ import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 
 interface Props {
   trigger: PopoverProps['trigger']
-  anchor: HTMLElement
+  anchor: HTMLElement | null
 }
 
 // @TODO: For slow requests / connections, we should probably prevent

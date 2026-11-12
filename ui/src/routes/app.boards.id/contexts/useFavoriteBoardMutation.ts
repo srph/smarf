@@ -1,12 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useMutation } from '~/src/contexts/Query'
-import { BoardOperationProps, CustomMutationReturnType } from './types'
+import { BoardOperationProps, BoardOperation } from './types'
 
 interface FavoriteBoardMutationVariables {
   is_favorite: boolean
 }
 
-type MutationReturnType = CustomMutationReturnType<() => void>
+type MutationReturnType = BoardOperation<() => void>
 
 const useFavoriteBoardMutation = ({
   boardId,

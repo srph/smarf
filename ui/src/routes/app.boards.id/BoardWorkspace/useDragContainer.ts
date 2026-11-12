@@ -46,7 +46,7 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
 
   const getContainer = (containerId: ID) => containers[containerIds.indexOf(containerId)]
 
-  const activeContainer = getContainer(activeId)
+  const activeContainer = activeId ? getContainer(activeId) : undefined
   const [initialTranslate, setInitialTranslate] = useState<Translate>(defaultTranslate)
   const [initialWindowScroll, setInitialWindowScroll] = useState<Translate>(defaultTranslate)
 
@@ -70,7 +70,7 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
   const onDragMove = ({ delta }: DragMoveEvent) => {
     // Avoid conflict with useGridCollisionDetection
     // It means we're not dragging any of the containers
-    if (!activeId) return
+    if (!activeId || !activeContainer) return
 
     props.onChange({
       container: activeContainer,
@@ -86,9 +86,11 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
     // It means we're not dragging any of the containers
     if (!activeId) return
 
-    props.onDragEnd({
-      container: activeContainer
-    })
+    if (activeContainer) {
+      props.onDragEnd({
+        container: activeContainer
+      })
+    }
 
     setActiveId(null)
     setInitialTranslate(defaultTranslate)

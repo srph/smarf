@@ -1,5 +1,4 @@
 import type { QueryKey } from '@tanstack/react-query'
-import { MutationReturnType } from '~/src/contexts/Query'
 import { Board, ID } from '~/src/types/api'
 
 /** A category's position or size mid-drag/resize, shown on top of the cached board until it's saved. */
@@ -26,4 +25,8 @@ export interface BoardOperationProps {
   setIsEditing: (isEditing: boolean) => void
 }
 
-export type CustomMutationReturnType<T> = Omit<MutationReturnType, 'mutate'> & { mutate: T }
+/** What a board operation gives the workspace: the action, and whether its request is in flight. */
+export interface BoardOperation<TMutate> {
+  mutate: TMutate
+  isPending: boolean
+}

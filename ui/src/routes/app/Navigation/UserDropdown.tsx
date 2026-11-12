@@ -18,6 +18,8 @@ const LINKS = [
 const UserDropdown: React.FC = () => {
   const { user } = useAuthUser()
 
+  if (!user) return null
+
   return (
     <Menu.Root>
       <Menu.Trigger render={<PlainButton title="Account menu" />}>

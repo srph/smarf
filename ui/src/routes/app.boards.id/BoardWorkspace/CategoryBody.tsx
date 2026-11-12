@@ -12,7 +12,7 @@ import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { CategoryTitle } from './CategoryTitle'
 
-import { Resizable, type Size } from 're-resizable'
+import { Resizable, type ResizeCallback, type Size } from 're-resizable'
 import { mergeRefs } from '~/src/utils'
 
 import {
@@ -55,7 +55,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
     id: category.id
   })
 
-  const handleResize = (e, dir, ref) => {
+  const handleResize: ResizeCallback = (_event, _direction, ref) => {
     resizeCategory({
       container: category,
       width: ref.getBoundingClientRect().width

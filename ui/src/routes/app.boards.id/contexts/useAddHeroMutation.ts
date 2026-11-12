@@ -1,11 +1,11 @@
 import { produce } from 'immer'
 import { v4 as uuid } from 'uuid'
-import { useMutation, MutationReturnType } from '~/src/contexts/Query'
+import { useMutation } from '~/src/contexts/Query'
 import { ORDER_FIRST_BUFFER, ORDER_LAST_BUFFER } from '~/src/contexts/BoardList/constants'
 import { last } from '~/src/utils'
 import { Category, Hero, HeroCategoryPivot, ID } from '~/src/types/api'
 import { getCategoryHeight } from '~/src/contexts/BoardList/utils'
-import { BoardOperationProps } from './types'
+import { BoardOperation, BoardOperationProps } from './types'
 
 interface AddHeroMutationVariables {
   hero_id: ID
@@ -21,7 +21,7 @@ interface AddHeroMutationResponse {
 
 type MutationFn = (category: Category, hero: Hero) => void
 
-type CustomMutationReturnType = Omit<MutationReturnType, 'mutate'> & { mutate: MutationFn }
+type CustomMutationReturnType = BoardOperation<MutationFn>
 
 const useAddHeroMutation = ({
   boardKey,

@@ -1,7 +1,7 @@
 import { produce } from 'immer'
 import { useMutation } from '~/src/contexts/Query'
 import { Category, ID } from '~/src/types/api'
-import { BoardOperationProps, CustomMutationReturnType } from './types'
+import { BoardOperationProps, BoardOperation } from './types'
 
 interface MoveCategoryMutationVariables {
   category_id: ID
@@ -11,7 +11,7 @@ interface MoveCategoryMutationVariables {
 
 type MutationFn = (v: { container: Category }) => void
 
-type MutationReturnType = CustomMutationReturnType<MutationFn>
+type MutationReturnType = BoardOperation<MutationFn>
 
 /** On drop: write the dragged position to the cache, drop the draft, and save it. */
 const useMoveEndCategoryMutation = ({

@@ -1,4 +1,3 @@
-export { useStateRef } from './useStateRef'
 export { useUpdateEffect } from './useUpdateEffect'
 export { useLatestValue } from './useLatestValue'
 export { useInterval } from './useInterval'

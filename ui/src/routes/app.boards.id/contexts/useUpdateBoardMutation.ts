@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useMutation, MutationReturnType } from '~/src/contexts/Query'
+import { useMutation } from '~/src/contexts/Query'
 import { Board } from '~/src/types/api'
 import { BoardOperationProps } from './types'
 
@@ -18,7 +18,7 @@ const useUpdateBoardMutation = ({
   setBoard,
   rollback,
   setIsEditing
-}: BoardOperationProps): MutationReturnType => {
+}: BoardOperationProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<UpdateBoardMutationResponse, UpdateBoardMutationVariables>(`/boards/${boardId}`, 'put', {

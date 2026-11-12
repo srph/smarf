@@ -1,11 +1,11 @@
-import { MutableRefObject } from 'react'
+import { RefObject } from 'react'
 import type { Modifier, ClientRect } from '@dnd-kit/core'
 import type { Transform } from '@dnd-kit/utilities'
 
 export const restrictWithinWorkspace = ({
   workspaceRef
 }: {
-  workspaceRef: MutableRefObject<HTMLDivElement>
+  workspaceRef: RefObject<HTMLDivElement | null>
 }): Modifier => {
   return ({ draggingNodeRect, transform }) => {
     if (!workspaceRef.current || !draggingNodeRect) {

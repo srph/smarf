@@ -1,14 +1,14 @@
 import { produce } from 'immer'
 import { useMutation } from '~/src/contexts/Query'
 import { ID } from '~/src/types/api'
-import { BoardOperationProps, CustomMutationReturnType } from './types'
+import { BoardOperationProps, BoardOperation } from './types'
 
 interface UpdateCategoryMutationVariables {
   id: ID
   name: string
 }
 
-type MutationReturnType = CustomMutationReturnType<(v: UpdateCategoryMutationVariables) => void>
+type MutationReturnType = BoardOperation<(v: UpdateCategoryMutationVariables) => void>
 
 const useUpdateCategoryMutation = ({
   boardKey,

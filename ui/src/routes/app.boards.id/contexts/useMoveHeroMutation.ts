@@ -1,11 +1,11 @@
 import { produce } from 'immer'
-import { useMutation, MutationReturnType } from '~/src/contexts/Query'
+import { useMutation } from '~/src/contexts/Query'
 import { ID } from '~/src/types/api'
 import { arrayMove } from '@dnd-kit/sortable'
 import { arrayTransfer } from '~/src/utils'
 import { getCategoryHeight, getHeroOrder } from '~/src/contexts/BoardList/utils'
 import { CustomGridCollisionDetectionEvent } from '~/src/routes/app.boards.id/BoardWorkspace/useGridCollisionDetection'
-import { BoardOperationProps } from './types'
+import { BoardOperation, BoardOperationProps } from './types'
 
 interface MoveHeroMutationVariables {
   from_category_id: ID
@@ -18,7 +18,7 @@ interface MoveHeroMutationVariables {
 
 type MutationFn = (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
 
-type CustomMutationReturnType = Omit<MutationReturnType, 'mutate'> & { mutate: MutationFn }
+type CustomMutationReturnType = BoardOperation<MutationFn>
 
 const useMoveHeroMutation = ({
   boardKey,
@@ -40,6 +40,7 @@ const useMoveHeroMutation = ({
       produce(getBoard(), (draft) => {
         if (from.container === to.container) {
           const category = draft.categories.find((c) => c.id === to.container)
+          if (!category) return
           category.heroes = arrayMove(category.heroes, from.index, to.index)
 
           const order = getHeroOrder(category, to.index)
@@ -57,6 +58,8 @@ const useMoveHeroMutation = ({
           const fromCategory = draft.categories.find((c) => c.id === from.container)
 
           const toCategory = draft.categories.find((c) => c.id === to.container)
+
+          if (!fromCategory || !toCategory) return
 
           fromCategory.height = getCategoryHeight({
             categoryWidth: fromCategory.width,

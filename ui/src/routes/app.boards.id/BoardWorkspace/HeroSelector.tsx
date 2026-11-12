@@ -63,7 +63,7 @@ const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigg
                       <HeroSelectorItemButton
                         type="button"
                         onClick={() => onSelectHero(hero)}
-                        $dimmed={searchInput && !name.includes(searchInput)}
+                        $dimmed={searchInput !== '' && !name.includes(searchInput)}
                         title={`Select ${hero.name}`}>
                         <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
                       </HeroSelectorItemButton>
