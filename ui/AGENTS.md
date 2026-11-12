@@ -2,7 +2,7 @@
 
 React front-end for Smarf: the board list, and the board workspace where users drag heroes between resizable categories.
 
-React 19, TypeScript, Vite 8, styled-components, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. A dependency upgrade is in progress; see [UPGRADE.md](UPGRADE.md).
+React 19, TypeScript, Vite 8, styled-components, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, Base UI for popovers and menus, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. A dependency upgrade is in progress; see [UPGRADE.md](UPGRADE.md).
 
 ## Commands
 
@@ -26,7 +26,7 @@ src/
 ├── assets/       images imported by components
 ├── components/   shared UI primitives (Button, Input, Popover, PageTitle, ...)
 ├── contexts/     AuthUser (current user, login/logout), BoardList, HeroList, Query
-├── hooks/        generic hooks (useDebouncedEffect, useOutsideClick, ...)
+├── hooks/        generic hooks (useDebouncedEffect, useDelayedState, ...)
 ├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie)
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId)
 ├── types/        API and board-operation types
@@ -49,6 +49,7 @@ tests/
 
 - Fetch and mutate through the TanStack Query hooks in `contexts/Query` next to the route that uses them.
 - Board operations (`routes/app.boards.id/contexts`) treat the query cache as the source of truth: read with `getBoard()`, write with `setBoard()` before the request, call `rollback` on error, and pass `mutationKey: boardKey`. Drag and resize go through `setDraft` until they finish.
+- Build popovers and menus on Base UI (`@base-ui/react`); `components/Popover` covers the usual popover. Style its parts with styled-components and its `data-*` state attributes (`data-popup-open`, `data-highlighted`).
 - Keep components route-local until a second route needs them, then move them to `components/`.
 - Use theme values from `theme.ts` instead of hard-coded colors and spacing.
 - Read env vars only in `config.ts`.

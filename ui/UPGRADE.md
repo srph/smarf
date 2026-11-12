@@ -106,12 +106,17 @@ Versions checked against npm on 2026-11-11.
 
 ### 4. Base UI and leftover libraries
 
-- [ ] `@base-ui/react`: Popover (`Popover`, `DeletePopover`, `EditPopover`, `HeroSelector`), Menu (`UserDropdown`)
-- [ ] Remove `react-popper`, `@popperjs/core`, `PopoverPortal`, `useOutsideClick` (if nothing else uses it)
-- [ ] `CategoryTitle`: `field-sizing: content`, with `size={value.length}` as a fallback; remove `react-input-autosize`
+- [x] `@base-ui/react`: Popover (`Popover`, `DeletePopover`, `EditPopover`, `HeroSelector`), Menu (`UserDropdown`)
+  - `components/Popover` wraps Base UI's Popover: the trigger is a `<button>` element that Base UI toggles, `anchor` positions against another element, `initialFocus` picks what gets focus. The old `dependencies` prop is gone because Base UI follows the anchor as it resizes
+  - Focus moves into each popover: the hero search, the board name field, the delete confirmation's name field, or Cancel (so Enter never deletes)
+  - The delete confirmation's background now shows (its CSS was missing a colon)
+- [x] Remove `react-popper`, `@popperjs/core`, `PopoverPortal`, `useOutsideClick`, `useDocumentListener`, and the unused `editPopover`/`heroSelector` z-indexes
+- [x] `CategoryTitle`: native input with `field-sizing: content`, with `size={value.length}` as a fallback; `react-input-autosize` removed
 - [x] Token cookie: small hook instead of `use-cookie-state` (done in phase 3, `lib/token.ts`)
-- [ ] Remove the remaining React `overrides` from `package.json`
-- [ ] Browser check
+- [x] Remove the remaining React `overrides` from `package.json` (none left)
+- [x] Browser check (Chrome on the Mac at `mbp:13000`): account menu opens under the avatar, arrow keys highlight items, Enter navigates and closes it; hero selector opens under its category with the search focused, stays open while adding, closes on Escape and returns focus to Add; board name and delete confirmations sit above the toolbar, and opening one closes the other; category delete focuses Cancel, keeps the trash icon visible, and an outside click closes it without deleting; category titles grow as you type. No console errors
+  - After the dependency change the dev server showed a blank page until `node_modules/.vite` was cleared and Vite restarted (same as phase 2)
+  - The bundle grew to 929 kB (271 kB gzipped) from 818 kB: Base UI and Floating UI weigh more than popper
 
 ### 5. Icons, styling, dnd-kit, and the rest
 
@@ -133,7 +138,7 @@ Versions checked against npm on 2026-11-11.
 
 ## Later (not part of this upgrade)
 
-- Code-split the bundle (818 kB, about 234 kB gzipped), e.g. lazy-load the board workspace.
+- Code-split the bundle (929 kB, about 271 kB gzipped), e.g. lazy-load the board workspace.
 - API: duplicating a board collapses a hero that appears twice in one category (`BoardsController::duplicate` keys pivots by hero id). The UI also allows adding the same hero twice; decide which is intended.
 - `@dnd-kit/react` (0.5, pre-1.0) could replace the custom multi-container collision code.
 - Replace styled-components (it's in maintenance mode).
@@ -146,3 +151,4 @@ Versions checked against npm on 2026-11-11.
 - 2026-11-12: Phase 2 done: React 19.3, React Router 8, `<title>` instead of Helmet, StrictMode. 26 tests pass, plus typecheck and build; browser check passed.
 - 2026-11-12: Dev setup moved to Tailscale MagicDNS so any machine on the tailnet can use it: web `http://mbp:13000`, API `http://mbp:13001`, both on all interfaces (`vite preview` on 13002). The database stays on `127.0.0.1:3308`.
 - 2026-11-12: Phase 3 done (fetch, TanStack Query 5, auth hooks, cache-backed board, three bug fixes). 33 tests pass, plus typecheck and build; browser check passed.
+- 2026-11-12: Phase 4 done (Base UI popovers and menu, `field-sizing` titles, no React `overrides` left). 37 tests pass, plus typecheck and build; browser check passed.
