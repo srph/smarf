@@ -7,7 +7,9 @@ import { boardKeys } from './board-keys'
 const boardsQueryOptions = () =>
   queryOptions({
     queryKey: boardKeys.list(),
-    queryFn: async ({ signal }) => (await http<{ boards: Board[] }>('boards', { signal })).boards
+    queryFn: async ({ signal }) => (await http<{ boards: Board[] }>('boards', { signal })).boards,
+    // Moving between home and a board within a minute reuses the list. Our own changes invalidate it right away.
+    staleTime: 60_000
   })
 
 /** `select` derives what the caller needs; keep it stable (module-level) so it doesn't rerun every render. */
