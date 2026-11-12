@@ -1,4 +1,4 @@
-import { useQueryClient } from 'react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useMutation, MutationReturnType } from '~/src/contexts/Query'
 import { Board } from '~/src/types/api'
 import { DivdedQueryAndMutationProps } from './types'
@@ -16,7 +16,7 @@ const useUpdateBoardMutation = ({ board, setBoard, setIsEditing }: DivdedQueryAn
 
   return useMutation<UpdateBoardMutationResponse, UpdateBoardMutationVariables>(`/boards/${board?.id}`, 'put', {
     onSuccess(data) {
-      queryClient.invalidateQueries('/boards')
+      queryClient.invalidateQueries({ queryKey: ['/boards'] })
 
       setBoard({
         ...board,

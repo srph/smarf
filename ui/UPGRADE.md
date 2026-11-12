@@ -78,7 +78,7 @@ Versions checked against npm on 2026-11-11.
 - [x] `React.FC` components that take children: add `PropsWithChildren`; `useRef()` calls get an initial value
 - [x] React Router 8 with `createBrowserRouter`; package is `react-router` only (`react-router-dom` removed). Providers that use router hooks render in a root layout route. Unknown URLs now redirect to `/` (before, they rendered a blank page)
 - [x] Replace `react-helmet-async` with React 19's built-in `<title>` via `components/PageTitle`. Pages without one fall back to the `index.html` title (Helmet used to leave the previous page's title)
-- [x] Libraries that cap React below 19 get a temporary `overrides` entry in `package.json` (no global `legacy-peer-deps`): `react-query` (phase 3), `react-helmet-async` (this phase), `react-input-autosize`, `use-cookie-state`, `react-popper` (phase 4)
+- [x] Libraries that cap React below 19 get a temporary `overrides` entry in `package.json` (no global `legacy-peer-deps`): `react-query` (removed in phase 3), `react-helmet-async` (this phase), `react-input-autosize`, `use-cookie-state`, `react-popper` (phase 4)
 - [x] Fix whatever StrictMode's double effects expose: nothing broke (tests, popovers, menus, logout all fine)
 - [x] Browser check (Chrome on the Mac, dev server and production preview): everything on the checklist works, no console errors
   - Drags must be paced like real ones. The browser tool's instant drag does nothing on React 18+, because dnd-kit applies moves after React renders. A drag spread over a few frames works, and so do real ones
@@ -90,7 +90,7 @@ Versions checked against npm on 2026-11-11.
 - [x] `lib/http.ts`: a `fetch` wrapper that adds the bearer token, parses JSON, throws `HttpError` on non-2xx, and reports 401s (except `/oauth/token`) to `onUnauthorized` listeners
 - [x] Remove axios and `useInterceptor`
 - [x] `lib/token.ts`: the token cookie (same name and options, so existing logins carry over) with `useToken()`. Pulled forward from phase 4 because the fetch wrapper needs the token outside React; `use-cookie-state` removed, `cookie` bumped to 1.x
-- [ ] `@tanstack/react-query` 5; rewrite the `contexts/Query` wrappers (object-form options, array keys, `isPending`)
+- [x] `@tanstack/react-query` 5; rewrite the `contexts/Query` wrappers (object-form options, array keys, `isPending` for mutations). Queries pass TanStack's abort signal to `fetch`, so a query with no observers left cancels its request. A late 401 from a finished test was logging out the next one
 - [ ] Auth: user comes from the `['auth/me']` query; `useAuthUser` / `useLogin` / `useLogout` hooks; no blank screen when `auth/me` fails
 - [ ] Login navigates within the app instead of reloading the page
 - [ ] Board workspace: read the board from the query; mutations update the cache optimistically in `onMutate` and roll back in `onError`

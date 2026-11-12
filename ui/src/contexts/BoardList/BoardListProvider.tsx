@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react'
 import { useNavigate } from 'react-router'
 
-import { useQueryClient } from 'react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 import { useHeroList } from '~/src/contexts/HeroList'
@@ -57,12 +57,12 @@ const BoardListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const { heroes, isLoading: isHeroListLoading } = useHeroList()
 
-  const { mutate: createBoardMutation, isLoading: isBoardCreating } = useMutation<
+  const { mutate: createBoardMutation, isPending: isBoardCreating } = useMutation<
     CreateBoardMutationResponse,
     CreateBoardMutationVariables
   >('/boards', 'post', {
     onSuccess: (data) => {
-      queryClient.invalidateQueries('/boards')
+      queryClient.invalidateQueries({ queryKey: ['/boards'] })
       navigate(`/b/${data.board.id}`)
     }
   })
@@ -73,7 +73,7 @@ const BoardListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     {
       onSuccess() {
         // @TODO: Toast
-        queryClient.invalidateQueries('/boards')
+        queryClient.invalidateQueries({ queryKey: ['/boards'] })
       }
     }
   )

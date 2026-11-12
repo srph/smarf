@@ -2,7 +2,7 @@
 
 React front-end for Smarf: the board list, and the board workspace where users drag heroes between resizable categories.
 
-React 19, TypeScript, Vite 8, styled-components, React Router 8 (data router, `createBrowserRouter`), react-query 3, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. A dependency upgrade is in progress; see [UPGRADE.md](UPGRADE.md).
+React 19, TypeScript, Vite 8, styled-components, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. A dependency upgrade is in progress; see [UPGRADE.md](UPGRADE.md).
 
 ## Commands
 
@@ -48,7 +48,7 @@ tests/
 
 ## Best practices
 
-- Fetch and mutate through react-query hooks next to the route that uses them (see `routes/app.boards.id/contexts`).
+- Fetch and mutate through the TanStack Query hooks in `contexts/Query` next to the route that uses them (see `routes/app.boards.id/contexts`).
 - Keep components route-local until a second route needs them, then move them to `components/`.
 - Use theme values from `theme.ts` instead of hard-coded colors and spacing.
 - Read env vars only in `config.ts`.

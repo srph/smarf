@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { Board, Hero, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'
 
@@ -88,9 +88,13 @@ const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ chil
 
   const [isEditing, setIsEditing] = useState(false)
 
-  useQuery(`boards/${boardId}`, {
-    onSuccess: (data) => setBoard(data.board)
-  })
+  const { data } = useQuery<{ board: Board }>(`boards/${boardId}`)
+
+  // Temporary: copy the fetched board into local state (what onSuccess did in react-query 3).
+  // Replaced by reading the board straight from the query cache later in phase 3.
+  useEffect(() => {
+    if (data) setBoard(data.board)
+  }, [data])
 
   const operationProps = {
     board,
@@ -99,31 +103,31 @@ const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ chil
     setIsEditing
   }
 
-  const { mutate: updateBoard, isLoading: isUpdating } = useUpdateBoardMutation(operationProps)
+  const { mutate: updateBoard, isPending: isUpdating } = useUpdateBoardMutation(operationProps)
 
-  const { mutate: deleteBoard, isLoading: isDeleting } = useDeleteBoardMutation(operationProps)
+  const { mutate: deleteBoard, isPending: isDeleting } = useDeleteBoardMutation(operationProps)
 
-  const { mutate: favoriteBoard, isLoading: isFavoriteLoading } = useFavoriteBoardMutation(operationProps)
+  const { mutate: favoriteBoard, isPending: isFavoriteLoading } = useFavoriteBoardMutation(operationProps)
 
-  const { mutate: duplicateBoard, isLoading: isDuplicating } = useDuplicateBoardMutation(operationProps)
+  const { mutate: duplicateBoard, isPending: isDuplicating } = useDuplicateBoardMutation(operationProps)
 
-  const { mutate: addCategory, isLoading: isAddingCategory } = useAddCategoryMutation(operationProps)
+  const { mutate: addCategory, isPending: isAddingCategory } = useAddCategoryMutation(operationProps)
 
-  const { mutate: updateCategory, isLoading: isUpdatingCategory } = useUpdateCategoryMutation(operationProps)
+  const { mutate: updateCategory, isPending: isUpdatingCategory } = useUpdateCategoryMutation(operationProps)
 
-  const { mutate: deleteCategory, isLoading: isDeletingCategory } = useDeleteCategoryMutation(operationProps)
+  const { mutate: deleteCategory, isPending: isDeletingCategory } = useDeleteCategoryMutation(operationProps)
 
   const { mutate: moveCategory } = useMoveCategoryFn(operationProps)
 
-  const { mutate: moveCategoryEnd, isLoading: isMovingCategory } = useMoveEndCategoryMutation(operationProps)
+  const { mutate: moveCategoryEnd, isPending: isMovingCategory } = useMoveEndCategoryMutation(operationProps)
 
   const { mutate: resizeCategory } = useResizeCategoryFn(operationProps)
 
-  const { mutate: resizeCategoryEnd, isLoading: isResizingCategory } = useResizeCategoryMutation(operationProps)
+  const { mutate: resizeCategoryEnd, isPending: isResizingCategory } = useResizeCategoryMutation(operationProps)
 
-  const { mutate: addHero, isLoading: isAddingHero } = useAddHeroMutation(operationProps)
+  const { mutate: addHero, isPending: isAddingHero } = useAddHeroMutation(operationProps)
 
-  const { mutate: moveHero, isLoading: isMovingHero } = useMoveHeroMutation(operationProps)
+  const { mutate: moveHero, isPending: isMovingHero } = useMoveHeroMutation(operationProps)
 
   if (!board) {
     return null

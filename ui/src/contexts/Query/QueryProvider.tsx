@@ -1,12 +1,13 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import {
   QueryClient,
   QueryClientProvider,
-  useQuery as useOriginalQuery,
-  useMutation as useOriginalMutation,
-  UseQueryOptions as UseOriginalQueryOptions,
-  UseMutationOptions
-} from 'react-query'
+  useQuery as useTanstackQuery,
+  useMutation as useTanstackMutation,
+  type QueryKey,
+  type UseQueryOptions,
+  type UseMutationOptions
+} from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
 
 const createQueryClient = () =>
@@ -25,40 +26,41 @@ const QueryProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>
 }
 
-interface UseQueryOptions<T> extends UseOriginalQueryOptions<T> {
+interface UseQueryOptionsWithUrl<T> extends Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'> {
+  /** Defaults to `[url]`. */
+  queryKey?: QueryKey
   headers?: Record<string, string>
 }
 
-function useQuery<T = any>(url: string, opts: UseQueryOptions<T>) {
-  const fetcher = useCallback(() => {
-    return http<T>(url, { headers: opts?.headers })
-  }, [url, opts?.queryKey])
-
-  return useOriginalQuery<T>(opts?.queryKey || url, fetcher, opts)
+/** GET `url` from the API. */
+function useQuery<T = any>(url: string, { queryKey, headers, ...opts }: UseQueryOptionsWithUrl<T> = {}) {
+  return useTanstackQuery<T>({
+    queryKey: queryKey ?? [url],
+    queryFn: ({ signal }) => http<T>(url, { headers, signal }),
+    ...opts
+  })
 }
 
 type MutationOperation = 'post' | 'put' | 'delete'
 
 type Fetcher<T> = string | ((variables: T) => string)
 
+const METHODS = { post: 'POST', put: 'PUT', delete: 'DELETE' } as const
+
+/** POST/PUT/DELETE to the API. `url` can depend on the variables. DELETE sends no body. */
 function useMutation<TResponse = {}, TVariables = {}>(
   url: Fetcher<TVariables>,
   operation: MutationOperation,
-  opts: UseMutationOptions<TResponse, unknown, TVariables>
+  opts: Omit<UseMutationOptions<TResponse, unknown, TVariables>, 'mutationFn'> = {}
 ) {
-  const mutationFn = useCallback(
-    (variables: TVariables) => {
-      const endpoint = typeof url === 'function' ? url(variables) : url
-      // Like axios before: DELETE sends no body.
-      return http<TResponse>(endpoint, {
-        method: operation === 'post' ? 'POST' : operation === 'put' ? 'PUT' : 'DELETE',
+  return useTanstackMutation<TResponse, unknown, TVariables>({
+    mutationFn: (variables: TVariables) =>
+      http<TResponse>(typeof url === 'function' ? url(variables) : url, {
+        method: METHODS[operation],
         body: operation === 'delete' ? undefined : variables
-      })
-    },
-    [url, operation]
-  )
-
-  return useOriginalMutation<TResponse, unknown, TVariables>(mutationFn, opts)
+      }),
+    ...opts
+  })
 }
 
 type MutationReturnType = ReturnType<typeof useMutation>

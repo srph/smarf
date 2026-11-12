@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useQuery, useMutation } from '~/src/contexts/Query'
 import { User } from '~/src/types/api'
 import { config } from '~/src/config'
@@ -44,17 +45,18 @@ interface ContextType {
 const AuthUserContext = createContext<ContextType>({} as ContextType)
 
 const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
-
   const token = useToken()
+
+  const queryClient = useQueryClient()
 
   const location = useLocation()
 
   const navigate = useNavigate()
 
   const logout = () => {
-    setUser(null)
     setToken('')
+    // Drop everything cached for this user, including auth/me.
+    queryClient.removeQueries()
     navigate('/login')
   }
 
@@ -62,17 +64,14 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const logoutRef = useLatestValue(logout)
   useEffect(() => onUnauthorized(() => logoutRef.current()), [])
 
-  useQuery('auth/me', {
+  const { data: me } = useQuery<{ user: User }>('auth/me', {
     enabled: Boolean(token),
-    onSuccess: (data) => {
-      setUser(data.user)
-    },
     // If it fails (mostly due to expired / invalid tokens), we don't want to delay
     // the user from navigating to the login page.
     retry: false
   })
 
-  const { mutate: loginMutation, isLoading: isLoggingIn } = useMutation<LoginMutationResponse, LoginMutationVariables>(
+  const { mutate: loginMutation, isPending: isLoggingIn } = useMutation<LoginMutationResponse, LoginMutationVariables>(
     'oauth/token',
     'post',
     {
@@ -101,7 +100,7 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     })
   }
 
-  const { mutate: register, isLoading: isRegistering } = useMutation<{}, RegisterMutationVariables>(
+  const { mutate: register, isPending: isRegistering } = useMutation<{}, RegisterMutationVariables>(
     'auth/register',
     'post',
     {
@@ -114,6 +113,8 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
       onError: () => {}
     }
   )
+
+  const user = token ? (me?.user ?? null) : null
 
   if (token && !user) {
     return null

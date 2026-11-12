@@ -7,6 +7,8 @@ interface Options {
   method?: Method
   body?: unknown
   headers?: Record<string, string>
+  /** Aborts the request (TanStack Query passes one, so unused queries cancel their fetch). */
+  signal?: AbortSignal
 }
 
 /** A non-2xx response. `body` is the parsed JSON error, when there is one. */
@@ -33,7 +35,7 @@ function onUnauthorized(listener: () => void) {
 const url = (path: string) => `${config.api.baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
 
 /** JSON request to the API with the bearer token. Resolves to the parsed body; throws HttpError on non-2xx. */
-async function http<T = unknown>(path: string, { method = 'GET', body, headers }: Options = {}): Promise<T> {
+async function http<T = unknown>(path: string, { method = 'GET', body, headers, signal }: Options = {}): Promise<T> {
   const token = getToken()
 
   const response = await fetch(url(path), {
@@ -44,7 +46,8 @@ async function http<T = unknown>(path: string, { method = 'GET', body, headers }
       ...(token && { Authorization: `Bearer ${token}` }),
       ...headers
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+    signal
   })
 
   const text = await response.text()

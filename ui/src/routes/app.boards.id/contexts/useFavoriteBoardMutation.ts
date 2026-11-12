@@ -1,5 +1,5 @@
 import immer from 'immer'
-import { useQueryClient } from 'react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useMutation } from '~/src/contexts/Query'
 import { DivdedQueryAndMutationProps, CustomMutationReturnType } from './types'
 
@@ -22,7 +22,7 @@ const useFavoriteBoardMutation = ({
     {
       onSuccess: () => {
         // @TODO: Toast
-        queryClient.invalidateQueries('/boards')
+        queryClient.invalidateQueries({ queryKey: ['/boards'] })
       }
     }
   )
