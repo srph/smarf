@@ -23,16 +23,15 @@
     "@heroicons/react": "^2.2.0",
     "@tanstack/react-query": "^5.107.1",
     "cookie": "^1.1.1",
-    "date-fns": "^2.28.0",
-    "immer": "^9.0.12",
-    "lodash": "^4.17.21",
-    "modern-normalize": "^1.1.0",
-    "re-resizable": "6.11",
+    "date-fns": "^4.4.0",
+    "immer": "^11.2.10",
+    "modern-normalize": "^3.0.1",
+    "re-resizable": "^6.11.2",
     "react": "19.3",
     "react-dom": "19.3",
     "react-router": "^8.5.1",
     "styled-components": "^6.6.0",
-    "uuid": "^8.3.2"
+    "uuid": "^14.0.3"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.2",
