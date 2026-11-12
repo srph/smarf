@@ -1,8 +1,6 @@
 export { useStateRef } from './useStateRef'
 export { useUpdateEffect } from './useUpdateEffect'
-export { useDocumentListener } from './useDocumentListener'
 export { useLatestValue } from './useLatestValue'
-export { useOutsideClick } from './useOutsideClick'
 export { useInterval } from './useInterval'
 export { useDelayedState } from './useDelayedState'
 export { useDebouncedEffect } from './useDebouncedEffect'
