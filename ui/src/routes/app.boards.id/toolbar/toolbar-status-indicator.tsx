@@ -3,14 +3,14 @@ import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/20/soli
 import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
 import { Spinner } from '~/src/components/spinner/spinner'
-import { useBoardDraft } from '~/src/routes/app.boards.id/board-draft-context'
+import { useBoard } from '~/src/routes/app.boards.id/board-context'
 import { useBoardSaveStatus } from '../queries/use-board-save-status'
 import { useDelayedState } from '~/src/hooks/use-delayed-state'
 
 type Status = 'loading' | 'saved' | 'error'
 
 const ToolbarStatusIndicator = () => {
-  const { board } = useBoardDraft()
+  const { board } = useBoard()
 
   const saveStatus = useBoardSaveStatus(board.id)
 

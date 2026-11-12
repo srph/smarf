@@ -3,7 +3,7 @@ import { Container } from '~/src/components/container/container'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { useQueryClient } from '@tanstack/react-query'
 import { boardKeys } from '~/src/queries/boards/board-keys'
-import { useBoardDraft } from '~/src/routes/app.boards.id/board-draft-context'
+import { useBoard } from '~/src/routes/app.boards.id/board-context'
 import { useMoveHeroMutation, moveHeroVariables, type HeroPosition } from '../queries/use-move-hero-mutation'
 import { useMoveCategoryMutation } from '../queries/use-move-category-mutation'
 import { CategoryBody } from './category-body'
@@ -26,7 +26,7 @@ const getCategoryHeroIds = (category: Category) => category.heroes.map((hero) =>
 const getCategoryPosition = (category: Category) => ({ x: category.x_position, y: category.y_position })
 
 const BoardWorkspace: React.FC = () => {
-  const { board, setDraft } = useBoardDraft()
+  const { board, setDraft } = useBoard()
 
   const queryClient = useQueryClient()
 

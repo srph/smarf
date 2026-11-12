@@ -3,7 +3,7 @@ import { cn } from 'cn'
 import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
-import { useBoardDraft } from '~/src/routes/app.boards.id/board-draft-context'
+import { useBoard } from '~/src/routes/app.boards.id/board-context'
 import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
 import { useFavoriteBoardMutation } from '~/src/queries/boards/use-favorite-board-mutation'
 import { useUpdateBoardMutation } from '../queries/use-update-board-mutation'
@@ -25,7 +25,7 @@ import {
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 
 const ToolbarComponent: React.FC = () => {
-  const { board } = useBoardDraft()
+  const { board } = useBoard()
 
   const { mutate: favoriteBoard, isPending: isFavoriteLoading } = useFavoriteBoardMutation(board.id)
 

@@ -7,7 +7,7 @@ import { CategoryHero } from './category-hero'
 
 import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
-import { useBoardDraft } from '~/src/routes/app.boards.id/board-draft-context'
+import { useBoard } from '~/src/routes/app.boards.id/board-context'
 import { useAddHeroMutation, addHeroVariables } from '../queries/use-add-hero-mutation'
 import { useUpdateCategoryMutation } from '../queries/use-update-category-mutation'
 import { useResizeCategoryMutation } from '../queries/use-resize-category-mutation'
@@ -32,7 +32,7 @@ interface Props {
 }
 
 const CategoryBody: React.FC<Props> = ({ category }) => {
-  const { board, setDraft } = useBoardDraft()
+  const { board, setDraft } = useBoard()
 
   const { mutate: addHero } = useAddHeroMutation(board.id)
 
