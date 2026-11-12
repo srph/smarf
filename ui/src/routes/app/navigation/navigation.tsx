@@ -2,15 +2,19 @@ import React from 'react'
 import { Button } from '~/src/components/button/button'
 import { Container } from '~/src/components/container/container'
 import { Logo } from '~/src/components/logo/logo'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { SquaresPlusIcon } from '@heroicons/react/20/solid'
 import { UserDropdown } from './user-dropdown'
-import { useBoardList } from '~/src/contexts/board-list/board-list-provider'
-import { useHeroList } from '~/src/contexts/hero-list/hero-list-provider'
+import { useCreateBoardMutation } from '~/src/queries/boards/use-create-board-mutation'
+import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
 
 const Navigation: React.FC = () => {
-  const { createBoard, isBoardCreating } = useBoardList()
-  const { isLoading: isHeroListLoading } = useHeroList()
+  const navigate = useNavigate()
+
+  const { mutate: createBoard, isPending: isBoardCreating } = useCreateBoardMutation()
+
+  // The starter board uses the first heroes, so wait for the hero list.
+  const { status: heroesStatus } = useHeroesQuery()
 
   return (
     <div className="mb-12 border-b border-zinc-800">
@@ -26,8 +30,8 @@ const Navigation: React.FC = () => {
             <div className="mr-6">
               <Button
                 icon={SquaresPlusIcon}
-                disabled={isBoardCreating || isHeroListLoading}
-                onClick={() => createBoard()}>
+                disabled={isBoardCreating || heroesStatus === 'pending'}
+                onClick={() => createBoard(undefined, { onSuccess: (board) => navigate(`/b/${board.id}`) })}>
                 New Board
               </Button>
             </div>

@@ -6,6 +6,7 @@ import { useToken } from '~/src/lib/token'
 import { useLatestValue } from '~/src/hooks/use-latest-value'
 import { Button } from '~/src/components/button/button'
 import { Container } from '~/src/components/container/container'
+import { ErrorState } from '~/src/components/error-state/error-state'
 import { Spacer } from '~/src/components/spacer/spacer'
 import { useLogout } from './use-logout'
 
@@ -43,17 +44,16 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   if (token && me.isError && !(me.error instanceof HttpError && me.error.status === 401)) {
     return (
       <Container>
-        <div role="alert" className="mx-auto mt-24 max-w-90 text-center">
-          <p>Couldn't load your account. Check your connection and try again.</p>
-          <Spacer size={2} />
-          <Button onClick={() => me.refetch()} disabled={me.isFetching}>
-            Try again
-          </Button>
+        <ErrorState
+          className="mt-24"
+          message="Couldn't load your account. Check your connection and try again."
+          onRetry={() => me.refetch()}
+          isRetrying={me.isFetching}>
           <Spacer size={1} />
           <Button variant="clear" onClick={logout}>
             Log out
           </Button>
-        </div>
+        </ErrorState>
       </Container>
     )
   }

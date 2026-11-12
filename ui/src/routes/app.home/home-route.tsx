@@ -1,29 +1,44 @@
-import React, { useMemo } from 'react'
-import { useBoardList } from '~/src/contexts/board-list/board-list-provider'
+import React from 'react'
+import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
+import { Board } from '~/src/types/api'
 import { BoardList } from './board-list'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { Spacer } from '~/src/components/spacer/spacer'
-import { Spinner } from '~/src/components/spinner/spinner'
+import { PageSpinner } from '~/src/components/page-spinner/page-spinner'
+import { ErrorState } from '~/src/components/error-state/error-state'
+
+const partitionByFavorite = (boards: Board[]) => ({
+  favorites: boards.filter((board) => board.is_favorite),
+  recent: boards.filter((board) => !board.is_favorite)
+})
 
 const HomeRoute = () => {
-  const { boards, isBoardListLoading } = useBoardList()
+  const {
+    data: boards,
+    status: boardsStatus,
+    refetch: refetchBoards,
+    isFetching: isBoardsFetching
+  } = useBoardsQuery(partitionByFavorite)
 
-  const favorites = useMemo(() => {
-    return boards.filter((board) => board.is_favorite)
-  }, [boards])
-
-  const recent = useMemo(() => {
-    return boards.filter((board) => !board.is_favorite)
-  }, [boards])
-
-  if (isBoardListLoading) {
+  if (boardsStatus === 'pending') {
     return (
       <>
         <PageTitle title="Your Boards" />
+        <PageSpinner />
+      </>
+    )
+  }
 
-        <div className="mx-auto flex justify-center p-12">
-          <Spinner />
-        </div>
+  if (boardsStatus === 'error') {
+    return (
+      <>
+        <PageTitle title="Your Boards" />
+        <ErrorState
+          className="py-12"
+          message="Couldn't load your boards. Check your connection and try again."
+          onRetry={() => refetchBoards()}
+          isRetrying={isBoardsFetching}
+        />
       </>
     )
   }
@@ -32,12 +47,12 @@ const HomeRoute = () => {
     <>
       <PageTitle title="Your Boards" />
 
-      {favorites.length ? <BoardList title="Favorite Boards" boards={favorites} /> : null}
+      {boards.favorites.length ? <BoardList title="Favorite Boards" boards={boards.favorites} /> : null}
 
-      {recent.length ? (
+      {boards.recent.length ? (
         <>
           <Spacer size={4} />
-          <BoardList title="Recent Boards" boards={recent} />
+          <BoardList title="Recent Boards" boards={boards.recent} />
         </>
       ) : null}
     </>

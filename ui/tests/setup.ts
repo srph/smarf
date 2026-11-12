@@ -12,6 +12,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup()
+  vi.useRealTimers()
   vi.restoreAllMocks()
   server.resetHandlers()
   // Drop every cookie (the auth token lives in one).

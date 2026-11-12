@@ -4,7 +4,7 @@ import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts/board-workspace-context'
-import { useBoardList } from '~/src/contexts/board-list/board-list-provider'
+import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
 import { EditPopover } from '../edit-popover/edit-popover'
 import { ToolbarStatusIndicator } from './toolbar-status-indicator'
 import { useNavigate } from 'react-router'
@@ -37,7 +37,7 @@ const ToolbarComponent: React.FC = () => {
 
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
 
-  const { boards, isBoardListLoading } = useBoardList()
+  const { data: boards, status: boardsStatus } = useBoardsQuery()
 
   const navigate = useNavigate()
 
@@ -61,16 +61,15 @@ const ToolbarComponent: React.FC = () => {
                   value={board.id}
                   onChange={handleBoardChange}
                   className="block w-full cursor-pointer appearance-none rounded border border-zinc-600 bg-zinc-900 p-2 pl-8 text-zinc-50">
-                  {isBoardListLoading ? (
-                    <option>Loading boards...</option>
-                  ) : (
+                  {boardsStatus === 'pending' && <option>Loading boards...</option>}
+                  {boardsStatus === 'error' && <option>Couldn't load boards</option>}
+                  {boardsStatus === 'success' &&
                     boards.map((b) => (
                       <option key={b.id} value={b.id}>
                         {b.name}
                         {b.id === board.id ? ' (Selected)' : ''}
                       </option>
-                    ))
-                  )}
+                    ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 p-2 text-zinc-500">
                   <Icon icon={ChevronDoubleDownIcon} />

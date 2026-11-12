@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useMutation } from '~/src/contexts/query/query-provider'
 import { Board } from '~/src/types/api'
+import { boardKeys } from '~/src/queries/boards/board-keys'
 import { BoardOperationProps } from './types'
 
 interface UpdateBoardMutationResponse {
@@ -24,7 +25,7 @@ const useUpdateBoardMutation = ({
   return useMutation<UpdateBoardMutationResponse, UpdateBoardMutationVariables>(`/boards/${boardId}`, 'put', {
     mutationKey: boardKey,
     onSuccess(data) {
-      queryClient.invalidateQueries({ queryKey: ['/boards'] })
+      queryClient.invalidateQueries({ queryKey: boardKeys.list() })
 
       setBoard({
         ...getBoard(),

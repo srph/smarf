@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { waitFor, within } from '@testing-library/react'
+import { http, HttpResponse } from 'msw'
+import { API, server } from './support/handlers'
 import { db, seedBoard } from './support/db'
 import { currentPath, renderApp, screen } from './support/render'
 
@@ -27,6 +29,51 @@ describe('board list', () => {
     const favorites = (await screen.findByText('Favorite Boards')).parentElement!
     expect(within(favorites).getByText('Turbo')).toBeInTheDocument()
     expect(db.boards.find((b) => b.id === board.id)!.is_favorite).toBe(true)
+  })
+
+  it('favorites a board before the server answers, and undoes it if the save fails', async () => {
+    let release!: () => void
+    const answered = new Promise<void>((resolve) => (release = resolve))
+    server.use(
+      http.put(`${API}/boards/:id/favorite`, async () => {
+        await answered
+        return HttpResponse.json({ message: 'Server Error' }, { status: 500 })
+      })
+    )
+    seedBoard('Turbo', [])
+    const { user } = renderApp('/')
+
+    const recent = (await screen.findByText('Recent Boards')).parentElement!
+    const item = within(recent).getByText('Turbo').closest('a')!.parentElement!
+    await user.click(within(item).getByRole('button'))
+
+    // Moved to favorites while the request is still pending.
+    const favorites = (await screen.findByText('Favorite Boards')).parentElement!
+    expect(within(favorites).getByText('Turbo')).toBeInTheDocument()
+
+    release()
+
+    // The save failed, so the list is refetched and matches the server again.
+    await waitFor(() => expect(screen.queryByText('Favorite Boards')).not.toBeInTheDocument())
+    expect(within(screen.getByText('Recent Boards').parentElement!).getByText('Turbo')).toBeInTheDocument()
+  })
+
+  it("offers a retry when the boards can't be loaded", async () => {
+    let fail = true
+    server.use(http.get(`${API}/boards`, () => (fail ? HttpResponse.json({}, { status: 500 }) : undefined)))
+    seedBoard('Turbo', [])
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const { user } = renderApp('/')
+
+    // Skip past React Query's retries (3, with backoff) before it gives up.
+    for (let i = 0; i < 20 && !screen.queryByRole('alert'); i++) await vi.advanceTimersByTimeAsync(500)
+    vi.useRealTimers()
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load your boards")
+
+    fail = false
+    await user.click(screen.getByRole('button', { name: 'Try again' }))
+
+    expect(await screen.findByText('Turbo')).toBeInTheDocument()
   })
 
   it('creates a board with two starter categories and opens it', async () => {

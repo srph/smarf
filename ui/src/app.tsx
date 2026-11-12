@@ -3,8 +3,6 @@ import './index.css'
 
 import { AuthUserProvider } from '~/src/contexts/auth-user/auth-user-provider'
 import { QueryProvider } from '~/src/contexts/query/query-provider'
-import { BoardListProvider } from '~/src/contexts/board-list/board-list-provider'
-import { HeroListProvider } from '~/src/contexts/hero-list/hero-list-provider'
 
 import { createBrowserRouter, Navigate, Outlet, type RouteObject } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
@@ -23,11 +21,7 @@ import { LogoutRoute } from './routes/logout/logout-route'
 const Root = () => {
   return (
     <AuthUserProvider>
-      <HeroListProvider>
-        <BoardListProvider>
-          <Outlet />
-        </BoardListProvider>
-      </HeroListProvider>
+      <Outlet />
     </AuthUserProvider>
   )
 }

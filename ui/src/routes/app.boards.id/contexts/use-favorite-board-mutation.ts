@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useMutation } from '~/src/contexts/query/query-provider'
+import { boardKeys } from '~/src/queries/boards/board-keys'
 import { BoardOperationProps, BoardOperation } from './types'
 
 interface FavoriteBoardMutationVariables {
@@ -24,7 +25,7 @@ const useFavoriteBoardMutation = ({
       mutationKey: boardKey,
       onSuccess: () => {
         // @TODO: Toast
-        queryClient.invalidateQueries({ queryKey: ['/boards'] })
+        queryClient.invalidateQueries({ queryKey: boardKeys.list() })
       },
       onError: rollback
     }
