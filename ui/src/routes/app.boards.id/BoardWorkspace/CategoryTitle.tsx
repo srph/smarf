@@ -1,13 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import AutosizeInputModule from 'react-input-autosize'
 import { theme } from '~/src/theme'
 import { useDebouncedEffect } from '~/src/hooks'
 import { CATEGORY_NAME_MAX_CHARACTERS } from '~/src/contexts/BoardList/constants'
-
-// CommonJS package with `exports.default`. Vite's dev server returns the whole module as the default
-// import, while builds and Vitest unwrap it, so handle both. Removed in phase 4 (field-sizing: content).
-const AutosizeInput = AutosizeInputModule.default ?? AutosizeInputModule
 
 interface Props {
   value: string
@@ -25,38 +20,31 @@ const CategoryTitle: React.FC<Props> = ({ value, onChange }) => {
     250
   )
 
-  const handleChange = (event) => {
-    if (event.target.value.length > CATEGORY_NAME_MAX_CHARACTERS) return
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInput(event.target.value)
   }
 
   return (
-    <AutosizeInput
+    <TitleInput
       value={input}
       onChange={handleChange}
-      inputStyle={{
-        padding: 0,
-        margin: 0,
-        background: 'transparent',
-        fontSize: `${theme.fontSizes.md}px`,
-        color: theme.colors.text,
-        border: 0,
-        outline: 0
-      }}
+      maxLength={CATEGORY_NAME_MAX_CHARACTERS}
+      // Fallback width for browsers without `field-sizing`.
+      size={Math.max(input.length, 1)}
+      aria-label="Category name"
     />
   )
 }
 
-const CategoryHeadingTitle = styled(({ className, props }) => <AutosizeInput inputClassName={className} {...props} />)`
+const TitleInput = styled.input`
+  field-sizing: content;
+  min-width: 1ch;
   padding: 0;
   margin: 0;
-  background: transparent;
+  font: inherit;
   font-size: ${theme.fontSizes.md}px;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
+  color: ${theme.colors.text};
+  background: transparent;
   border: 0;
   outline: 0;
 `

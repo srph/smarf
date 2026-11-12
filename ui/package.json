@@ -30,7 +30,6 @@
     "re-resizable": "6.11",
     "react": "19.3",
     "react-dom": "19.3",
-    "react-input-autosize": "^3.0.0",
     "react-popper": "^2.3.0",
     "react-router": "^8.5.1",
     "styled-components": "^5.3.3",
@@ -54,10 +53,6 @@
   },
   "type": "module",
   "overrides": {
-    "react-input-autosize": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    },
     "react-popper": {
       "react": "$react",
       "react-dom": "$react-dom"
