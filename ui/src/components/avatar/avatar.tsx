@@ -1,6 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
-import { theme } from '../../theme'
 
 type Sizes = 'sm' | 'md' | 'lg'
 
@@ -9,29 +7,16 @@ interface Props {
   size?: Sizes
 }
 
+const sizes: Record<Sizes, string> = {
+  sm: 'size-6',
+  md: 'size-8',
+  lg: 'size-10'
+}
+
 export const Avatar: React.FC<Props> = ({ src, size = 'md' }) => {
   return (
-    <Container>
-      <Image src={src} $size={size} />
-    </Container>
+    <div className="rounded-full border-2 border-zinc-700 p-1.5">
+      <img src={src} alt="" className={`block rounded-full ${sizes[size]}`} />
+    </div>
   )
 }
-
-const sizes: Record<Sizes, number> = {
-  sm: 24,
-  md: 32,
-  lg: 40
-}
-
-const Container = styled.div`
-  padding: 6px;
-  border: 2px solid ${theme.colors.neutral[700]};
-  border-radius: 50%;
-`
-
-const Image = styled.img<{ $size: Sizes }>`
-  display: block;
-  height: ${(props) => sizes[props.$size]}px;
-  width: ${(props) => sizes[props.$size]}px;
-  border-radius: 50%;
-`

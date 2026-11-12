@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect } from 'react'
-import styled from 'styled-components'
 import { useQuery } from '~/src/contexts/query/query-provider'
 import { User } from '~/src/types/api'
 import { HttpError, onUnauthorized } from '~/src/lib/http'
@@ -8,7 +7,6 @@ import { useLatestValue } from '~/src/hooks/use-latest-value'
 import { Button } from '~/src/components/button/button'
 import { Container } from '~/src/components/container/container'
 import { Spacer } from '~/src/components/spacer/spacer'
-import { theme } from '~/src/theme'
 import { useLogout } from './use-logout'
 
 interface ContextType {
@@ -45,8 +43,8 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   if (token && me.isError && !(me.error instanceof HttpError && me.error.status === 401)) {
     return (
       <Container>
-        <ErrorBox role="alert">
-          <ErrorText>Couldn't load your account. Check your connection and try again.</ErrorText>
+        <div role="alert" className="mx-auto mt-24 max-w-90 text-center">
+          <p>Couldn't load your account. Check your connection and try again.</p>
           <Spacer size={2} />
           <Button onClick={() => me.refetch()} disabled={me.isFetching}>
             Try again
@@ -55,7 +53,7 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
           <Button variant="clear" onClick={logout}>
             Log out
           </Button>
-        </ErrorBox>
+        </div>
       </Container>
     )
   }
@@ -64,17 +62,6 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   return <AuthUserContext.Provider value={{ user, token }}>{children}</AuthUserContext.Provider>
 }
-
-const ErrorBox = styled.div`
-  max-width: 360px;
-  margin: 96px auto 0;
-  text-align: center;
-`
-
-const ErrorText = styled.p`
-  margin: 0;
-  color: ${theme.colors.text};
-`
 
 const useAuthUser = () => {
   return useContext(AuthUserContext)

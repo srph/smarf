@@ -1,8 +1,7 @@
-import styled from 'styled-components'
+import React from 'react'
 
-export const Container = styled.div`
-  position: relative;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 0 16px;
-`
+const Container: React.FC<React.PropsWithChildren> = ({ children }) => (
+  <div className="relative mx-auto max-w-400 px-4">{children}</div>
+)
+
+export { Container }

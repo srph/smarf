@@ -1,8 +1,6 @@
 import React from 'react'
-import styled from 'styled-components'
 import { Icon } from '../icon/icon'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
-import { theme } from '../../theme'
 
 interface Props {
   value: string
@@ -16,44 +14,20 @@ const SearchInput: React.FC<Props> = ({ value, onChange, ref }) => {
   }
 
   return (
-    <Container>
-      <Input ref={ref} type="text" value={value} onChange={handleChange} placeholder="Search..." />
-      <SearchIcon>
+    <label className="flex rounded border border-zinc-700 bg-zinc-900 ring-sky-500 focus-within:ring-2 hover:ring-2">
+      <input
+        ref={ref}
+        type="text"
+        value={value}
+        onChange={handleChange}
+        placeholder="Search..."
+        className="block bg-transparent p-2 text-zinc-50 focus:outline-none"
+      />
+      <div className="flex items-center px-2 text-zinc-400">
         <Icon icon={MagnifyingGlassIcon} size={16} />
-      </SearchIcon>
-    </Container>
+      </div>
+    </label>
   )
 }
-
-const Container = styled.label`
-  display: flex;
-  background: ${theme.colors.neutral[900]};
-  border: 1px solid ${theme.colors.neutral[700]};
-  border-radius: 4px;
-
-  &:hover,
-  &:focus-within {
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-`
-
-const Input = styled.input`
-  display: block;
-  padding: 8px;
-  color: ${theme.colors.text};
-  background: transparent;
-  border: 0;
-
-  &:focus {
-    outline: 0;
-  }
-`
-
-const SearchIcon = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0px 8px;
-  color: ${theme.colors.neutral[400]};
-`
 
 export { SearchInput }

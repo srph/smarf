@@ -1,6 +1,5 @@
 import React from 'react'
-import styled, { css } from 'styled-components'
-import { theme } from '../../theme'
+import { cn } from 'cn'
 import { Icon, type IconComponent } from '../icon/icon'
 
 type Variant = 'primary' | 'clear' | 'danger'
@@ -15,6 +14,12 @@ interface Props {
   ref?: React.Ref<HTMLButtonElement>
 }
 
+const variants: Record<Variant, string> = {
+  primary: 'bg-primary-500',
+  danger: 'bg-red-500',
+  clear: 'border border-zinc-700'
+}
+
 const Button: React.FC<React.PropsWithChildren<Props>> = ({
   children,
   icon,
@@ -26,65 +31,25 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
   ref
 }) => {
   return (
-    <Element ref={ref} $variant={variant} type={type} onClick={onClick} $block={block} disabled={disabled}>
+    <button
+      ref={ref}
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'w-full cursor-pointer items-center justify-center rounded p-2 text-center text-sm font-bold text-zinc-50 ring-sky-500 transition-shadow duration-200',
+        'enabled:hover:ring-2 enabled:focus:ring-2 disabled:cursor-not-allowed disabled:opacity-75',
+        block ? 'flex' : 'inline-flex',
+        variants[variant]
+      )}>
       {icon ? (
-        <IconContainer>
+        <div className="mr-2 text-primary-200">
           <Icon icon={icon} />
-        </IconContainer>
+        </div>
       ) : null}
       <span>{children}</span>
-    </Element>
+    </button>
   )
 }
-
-const Element = styled.button<{ $block?: boolean; $variant?: Variant }>`
-  display: ${(props) => (props.$block ? 'flex' : 'inline-flex')};
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 8px;
-  color: ${theme.colors.text};
-  background: transparent;
-  font-size: ${theme.fontSizes.md}px;
-  font-weight: bold;
-  text-align: center;
-  border: 0;
-  border-radius: 4px;
-  cursor: pointer;
-
-  ${(props) =>
-    props.$variant === 'primary' &&
-    css`
-      background: ${theme.colors.indigo[400]};
-    `}
-
-  ${(props) =>
-    props.$variant === 'danger' &&
-    css`
-      background: ${theme.colors.red[500]};
-    `}
-
-    ${(props) =>
-    props.$variant === 'clear' &&
-    css`
-      border: 1px solid ${theme.colors.neutral[700]};
-    `}
-
-  &:not(:disabled):hover,
-  &:not(:disabled):focus {
-    transition: 200ms box-shadow ease;
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.75;
-  }
-`
-
-const IconContainer = styled.div`
-  margin-right: 8px;
-  color: ${theme.colors.indigo[200]};
-`
 
 export { Button }

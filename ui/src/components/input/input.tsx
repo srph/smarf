@@ -1,6 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
-import { theme } from '~/src/theme'
 
 interface Props {
   label?: string
@@ -18,36 +16,17 @@ const Input: React.FC<Props> = ({ ref, ...props }) => {
 
   return (
     <div>
-      {props.label && <Label>{props.label}</Label>}
-      <StyledInput
+      {props.label && <label className="mb-2 block w-full text-xs font-bold">{props.label}</label>}
+      <input
         ref={ref}
         type={props.type || 'text'}
         value={props.value}
         onChange={handleChange}
         placeholder={props.placeholder}
+        className="flex h-8 w-full items-center rounded border border-zinc-700 bg-transparent p-2 text-zinc-50"
       />
     </div>
   )
 }
-
-const Label = styled.label`
-  display: block;
-  width: 100%;
-  margin-bottom: 8px;
-  font-size: ${theme.fontSizes.sm}px;
-  font-weight: bold;
-`
-
-const StyledInput = styled.input`
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  height: 32px;
-  width: 100%;
-  background: transparent;
-  border-radius: 4px;
-  color: ${theme.colors.neutral[50]};
-  border: 1px solid ${theme.colors.neutral[700]};
-`
 
 export { Input }

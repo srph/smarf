@@ -1,12 +1,9 @@
-import styled from 'styled-components'
+import React from 'react'
+import { cn } from 'cn'
 
-const PlainButton = styled.button`
-  display: inline-block;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  color: inherit;
-`
+// A button with no styles of its own (Preflight already strips the browser's).
+const PlainButton: React.FC<React.ComponentProps<'button'>> = ({ className, ...props }) => (
+  <button {...props} className={cn('inline-block cursor-pointer', className)} />
+)
 
 export { PlainButton }

@@ -1,10 +1,8 @@
 import React, { useRef, useState } from 'react'
-import styled from 'styled-components'
 import { Button } from '~/src/components/button/button'
 import { Spacer } from '~/src/components/spacer/spacer'
 import { Input } from '~/src/components/input/input'
 import { Popover, type PopoverProps } from '~/src/components/popover/popover'
-import { theme } from '~/src/theme'
 
 interface DeletePopoverProps extends Pick<
   PopoverProps,
@@ -38,12 +36,12 @@ const DeletePopover: React.FC<DeletePopoverProps> = ({
   return (
     // Focus the name field, or Cancel, so Enter never deletes by accident.
     <Popover {...popoverProps} onOpenChange={handleOpenChange} initialFocus={nameConfirmation ? nameRef : cancelRef}>
-      <Container>
-        <HeadingText>Delete Confirmation</HeadingText>
+      <div className="w-70 rounded border border-zinc-700 bg-zinc-800 p-4">
+        <h4>Delete Confirmation</h4>
 
         <Spacer size={1} />
 
-        <Text>Are you sure to do this? This action cannot be undone.</Text>
+        <p className="leading-6 text-zinc-400">Are you sure to do this? This action cannot be undone.</p>
 
         <Spacer size={2} />
 
@@ -60,58 +58,22 @@ const DeletePopover: React.FC<DeletePopoverProps> = ({
 
         <Spacer size={2} />
 
-        <Actions>
-          <ActionItem>
-            <Button
-              variant="danger"
-              block
-              onClick={onConfirm}
-              disabled={Boolean(nameConfirmation) && name !== nameConfirmation}>
-              Delete
-            </Button>
-          </ActionItem>
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            variant="danger"
+            block
+            onClick={onConfirm}
+            disabled={Boolean(nameConfirmation) && name !== nameConfirmation}>
+            Delete
+          </Button>
 
-          <ActionItem>
-            <Button ref={cancelRef} variant="clear" block onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-          </ActionItem>
-        </Actions>
-      </Container>
+          <Button ref={cancelRef} variant="clear" block onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+        </div>
+      </div>
     </Popover>
   )
 }
-
-const Container = styled.div`
-  padding: 16px;
-  width: 280px;
-  background: ${theme.colors.neutral[800]};
-  border: 1px solid ${theme.colors.neutral[700]};
-  border-radius: 4px;
-`
-
-const HeadingText = styled.h4`
-  font-weight: 400;
-  margin: 0;
-`
-
-const Text = styled.p`
-  margin: 0;
-  color: ${theme.colors.neutral[400]};
-  line-height: 1.75;
-`
-
-const Actions = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: -8px;
-  margin-right: -8px;
-`
-
-const ActionItem = styled.div`
-  width: 50%;
-  padding-left: 8px;
-  padding-right: 8px;
-`
 
 export { DeletePopover, type DeletePopoverProps }

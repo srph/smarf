@@ -1,7 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
 import { Popover as BasePopover } from '@base-ui/react/popover'
-import { theme } from '~/src/theme'
 
 type PositionerProps = React.ComponentProps<typeof BasePopover.Positioner>
 
@@ -39,22 +37,22 @@ const Popover: React.FC<React.PropsWithChildren<PopoverProps>> = ({
       <BasePopover.Trigger render={trigger} />
 
       <BasePopover.Portal>
-        <Positioner side={side} align={align} sideOffset={sideOffset} anchor={anchor} positionMethod={positionMethod}>
-          <Popup initialFocus={initialFocus}>{children}</Popup>
-        </Positioner>
+        <BasePopover.Positioner
+          side={side}
+          align={align}
+          sideOffset={sideOffset}
+          anchor={anchor}
+          positionMethod={positionMethod}
+          className="z-(--z-popover)">
+          <BasePopover.Popup initialFocus={initialFocus} className="outline-none">
+            {children}
+          </BasePopover.Popup>
+        </BasePopover.Positioner>
       </BasePopover.Portal>
     </BasePopover.Root>
   )
 }
 
 const PopoverClose = BasePopover.Close
-
-const Positioner = styled(BasePopover.Positioner)`
-  z-index: ${theme.zIndex.popover};
-`
-
-const Popup = styled(BasePopover.Popup)`
-  outline: 0;
-`
 
 export { Popover, PopoverClose, type PopoverProps }
