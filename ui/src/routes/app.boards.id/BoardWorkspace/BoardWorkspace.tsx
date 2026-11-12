@@ -70,7 +70,7 @@ const BoardWorkspace: React.FC = () => {
         }}
         modifiers={[restrictWithinWorkspace({ workspaceRef })]}
         {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
-        <Workspace ref={workspaceRef} height={workspaceHeight}>
+        <Workspace ref={workspaceRef} $height={workspaceHeight}>
           {board.categories.map((category) => {
             return <CategoryBody key={category.id} category={category} />
           })}
@@ -81,9 +81,9 @@ const BoardWorkspace: React.FC = () => {
   )
 }
 
-const Workspace = styled.div<{ height: number }>`
+const Workspace = styled.div<{ $height: number }>`
   position: relative;
-  height: ${(props) => props.height}px;
+  height: ${(props) => props.$height}px;
   z-index: ${theme.zIndex.boardWorkspace};
 `
 

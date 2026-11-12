@@ -11,7 +11,6 @@ import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { CategoryTitle } from './CategoryTitle'
-import { Translate } from './useDragContainer'
 
 import { Resizable, type Size } from 're-resizable'
 import { mergeRefs } from '~/src/utils'
@@ -71,7 +70,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
 
   return (
     <React.Fragment>
-      <CategoryContainer {...attributes} x={category.x_position} y={category.y_position}>
+      <CategoryContainer {...attributes} $x={category.x_position} $y={category.y_position}>
         <CategoryHeading>
           <CategoryHeadingInfo>
             <CategoryHeadingDragIcon ref={setDraggableNodeRef} {...listeners}>
@@ -113,7 +112,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
           size={{ width: category.width } as Size}
           onResize={handleResize}
           onResizeStop={handleResizeStop}>
-          <Body ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)} width={category.width}>
+          <Body ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)} $width={category.width}>
             <SortableContext items={category.heroes.map((hero) => hero.pivot.id)} strategy={rectSortingStrategy}>
               {category.heroes.map((hero) => (
                 <CategoryHero key={hero.pivot.id} category={category} hero={hero} />
@@ -175,20 +174,20 @@ const NewCategoryText = styled.div`
   font-size: ${theme.fontSizes.sm}px;
 `
 
-const Body = styled.div<{ width: number }>`
+const Body = styled.div<{ $width: number }>`
   display: inline-flex;
   flex-wrap: wrap;
   padding: ${CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2}px;
   background: ${theme.colors.neutral[800]};
   border-radius: 4px;
 
-  width: ${(props) => props.width}px;
+  width: ${(props) => props.$width}px;
 `
 
-const CategoryContainer = styled.div<Translate>`
+const CategoryContainer = styled.div<{ $x: number; $y: number }>`
   position: absolute;
-  --translate-x: ${(props) => props.x}px;
-  --translate-y: ${(props) => props.y}px;
+  --translate-x: ${(props) => props.$x}px;
+  --translate-y: ${(props) => props.$y}px;
   display: inline-block;
   transform: translate3d(var(--translate-x, 0), var(--translate-y, 0), 0);
 `

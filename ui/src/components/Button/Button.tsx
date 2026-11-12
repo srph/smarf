@@ -26,7 +26,7 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
   ref
 }) => {
   return (
-    <Element ref={ref} variant={variant} type={type} onClick={onClick} block={block} disabled={disabled}>
+    <Element ref={ref} $variant={variant} type={type} onClick={onClick} $block={block} disabled={disabled}>
       {icon ? (
         <IconContainer>
           <Icon icon={icon} />
@@ -37,8 +37,8 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
   )
 }
 
-const Element = styled.button<{ block?: boolean; variant?: Variant }>`
-  display: ${(props) => (props.block ? 'flex' : 'inline-flex')};
+const Element = styled.button<{ $block?: boolean; $variant?: Variant }>`
+  display: ${(props) => (props.$block ? 'flex' : 'inline-flex')};
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -53,19 +53,19 @@ const Element = styled.button<{ block?: boolean; variant?: Variant }>`
   cursor: pointer;
 
   ${(props) =>
-    props.variant === 'primary' &&
+    props.$variant === 'primary' &&
     css`
       background: ${theme.colors.indigo[400]};
     `}
 
   ${(props) =>
-    props.variant === 'danger' &&
+    props.$variant === 'danger' &&
     css`
       background: ${theme.colors.red[500]};
     `}
 
     ${(props) =>
-    props.variant === 'clear' &&
+    props.$variant === 'clear' &&
     css`
       border: 1px solid ${theme.colors.neutral[700]};
     `}

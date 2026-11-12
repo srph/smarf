@@ -11,7 +11,7 @@ const AuthRoute = () => {
 
   return (
     <Layout>
-      <LayoutBg bg={pathname === '/login' ? loginBg : registerBg} />
+      <LayoutBg $bg={pathname === '/login' ? loginBg : registerBg} />
 
       <LayoutContent>
         <Logo />
@@ -50,10 +50,10 @@ const Layout = styled.div`
   min-height: 768px;
 `
 
-const LayoutBg = styled.div<{ bg: string }>`
+const LayoutBg = styled.div<{ $bg: string }>`
   height: 100%;
   width: 50%;
-  background-image: url(${(props) => props.bg});
+  background-image: url(${(props) => props.$bg});
   background-size: cover;
 `
 

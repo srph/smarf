@@ -1,11 +1,15 @@
+import React from 'react'
 import styled from 'styled-components'
 
 interface Props {
-  size: number
+  size?: number
 }
 
-const Spacer = styled.div<Props>`
-  margin-bottom: ${(props) => 8 * (props.size || 1)}px;
+// Vertical gap in steps of 8px.
+const Spacer: React.FC<Props> = ({ size = 1 }) => <Gap $size={size} />
+
+const Gap = styled.div<{ $size: number }>`
+  margin-bottom: ${(props) => 8 * props.$size}px;
 `
 
 export { Spacer }

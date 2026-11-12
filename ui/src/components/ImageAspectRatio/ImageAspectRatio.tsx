@@ -11,15 +11,15 @@ const ImageAspectRatio: React.FC<Props> = ({ value, src, alt }) => {
   const [w, h] = value.split(':')
 
   return (
-    <Container multiplier={Number(h) / Number(w)}>
+    <Container $multiplier={Number(h) / Number(w)}>
       <Image src={src} alt={alt} />
     </Container>
   )
 }
 
-const Container = styled.div<{ multiplier: number }>`
+const Container = styled.div<{ $multiplier: number }>`
   position: relative;
-  padding-bottom: ${(props) => 100 * props.multiplier}%;
+  padding-bottom: ${(props) => 100 * props.$multiplier}%;
   width: 100%;
 `
 

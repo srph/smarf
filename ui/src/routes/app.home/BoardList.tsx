@@ -31,7 +31,7 @@ const BoardList: React.FC<Props> = ({ title, boards }) => {
           </ItemLink>
 
           <PlainButton type="button" onClick={() => favoriteBoard(board.id)}>
-            <ItemFavorite color={board.is_favorite ? theme.colors.yellow[500] : theme.colors.neutral[400]}>
+            <ItemFavorite $color={board.is_favorite ? theme.colors.yellow[500] : theme.colors.neutral[400]}>
               <Icon icon={board.is_favorite ? StarIcon : StarOutlineIcon} size={24} />
             </ItemFavorite>
           </PlainButton>
@@ -91,9 +91,9 @@ const ItemLastUpdate = styled.span`
   color: ${theme.colors.neutral[400]};
 `
 
-const ItemFavorite = styled.div<{ color: string }>`
+const ItemFavorite = styled.div<{ $color: string }>`
   padding: 16px;
-  color: ${(props) => props.color};
+  color: ${(props) => props.$color};
 `
 
 export { BoardList }

@@ -48,7 +48,7 @@ const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigg
           {heroAttributeGroups.map((attribute) => (
             <React.Fragment key={attribute.id}>
               <HeroSelectorGroupHeading>
-                <HeroSelectorGroupHeadingIcon bg={getAttributeIconColor(attribute.name)}>
+                <HeroSelectorGroupHeadingIcon $bg={getAttributeIconColor(attribute.name)}>
                   <Icon icon={getAttributeIcon(attribute.name)} />
                 </HeroSelectorGroupHeadingIcon>
                 <HeroSelectorGroupHeadingText>{attribute.name}</HeroSelectorGroupHeadingText>
@@ -63,7 +63,7 @@ const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigg
                       <HeroSelectorItemButton
                         type="button"
                         onClick={() => onSelectHero(hero)}
-                        dimmed={searchInput && !name.includes(searchInput)}
+                        $dimmed={searchInput && !name.includes(searchInput)}
                         title={`Select ${hero.name}`}>
                         <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />
                       </HeroSelectorItemButton>
@@ -147,10 +147,10 @@ const HeroSelectorGroupHeading = styled.div`
   margin-bottom: 16px;
 `
 
-const HeroSelectorGroupHeadingIcon = styled.div<{ bg: string }>`
+const HeroSelectorGroupHeadingIcon = styled.div<{ $bg: string }>`
   padding: 4px;
   margin-right: 12px;
-  background: ${(props) => props.bg};
+  background: ${(props) => props.$bg};
   border-radius: 4px;
 `
 
@@ -173,7 +173,7 @@ const HeroSelectorItem = styled.div`
   padding: 4px;
 `
 
-const HeroSelectorItemButton = styled.button<{ dimmed: boolean }>`
+const HeroSelectorItemButton = styled.button<{ $dimmed: boolean }>`
   display: inline-block;
   padding: 0;
   width: 60px;
@@ -188,7 +188,7 @@ const HeroSelectorItemButton = styled.button<{ dimmed: boolean }>`
   }
 
   ${(props) =>
-    props.dimmed &&
+    props.$dimmed &&
     css`
       opacity: 0.3;
     `}

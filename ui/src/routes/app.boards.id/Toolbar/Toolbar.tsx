@@ -77,7 +77,7 @@ const ToolbarComponent: React.FC = () => {
                 <IconGroupButton
                   onClick={() => favoriteBoard()}
                   title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
-                  color={board.is_favorite && theme.colors.yellow[500]}
+                  $color={board.is_favorite ? theme.colors.yellow[500] : undefined}
                   disabled={isFavoriteLoading}>
                   <Icon icon={board.is_favorite ? StarIcon : StarOutlineIcon} />
                 </IconGroupButton>
@@ -210,12 +210,12 @@ const IconGroup = styled.div`
   margin-left: 8px;
 `
 
-const IconGroupButton = styled.button<{ color?: string }>`
+const IconGroupButton = styled.button<{ $color?: string }>`
   position: relative;
   display: inline-flex;
   align-items: center;
   padding: 8px 12px;
-  color: ${(props) => props.color || theme.colors.neutral[500]};
+  color: ${(props) => props.$color || theme.colors.neutral[500]};
   background: ${theme.colors.neutral[900]};
   border: 0;
   cursor: pointer;
