@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useIsMutating, useQueryClient } from '@tanstack/react-query'
 import { Board, Hero, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'
 
@@ -39,6 +39,8 @@ interface BoardWorkspaceContextType {
   resizeCategoryEnd: ({ container }: { container: Category }) => void
   deleteCategory: (category: Category) => void
   isEditing: boolean
+  /** Any save for this board in flight (all board mutations share the board's key). */
+  isSaving: boolean
   isUpdating: boolean
   isDeleting: boolean
   isFavoriteLoading: boolean
@@ -69,6 +71,7 @@ const BoardWorkspaceContext = createContext<BoardWorkspaceContextType>({
   addHero: () => {},
   moveHero: () => {},
   isEditing: false,
+  isSaving: false,
   isUpdating: false,
   isDeleting: false,
   isFavoriteLoading: false,
@@ -98,6 +101,8 @@ const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ chil
   const [isEditing, setIsEditing] = useState(false)
 
   const board = useMemo(() => (data ? withDraft(data.board, draft) : undefined), [data, draft])
+
+  const isSaving = useIsMutating({ mutationKey: boardKey }) > 0
 
   const operationProps: BoardOperationProps = {
     boardId,
@@ -165,6 +170,7 @@ const BoardWorkspaceContextProvider: React.FC<React.PropsWithChildren> = ({ chil
         resizeCategoryEnd,
         deleteCategory,
         isEditing,
+        isSaving,
         isUpdating,
         isFavoriteLoading,
         isDuplicating,

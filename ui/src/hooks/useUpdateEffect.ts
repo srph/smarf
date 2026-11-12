@@ -12,6 +12,14 @@ export const useUpdateEffect: typeof useEffect = (fn, deps) => {
       return
     }
 
-    fn()
+    return fn()
   }, deps)
+
+  // Reset on unmount. StrictMode mounts, unmounts and remounts in development; without this the
+  // remount would count as an update and run the effect.
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 }

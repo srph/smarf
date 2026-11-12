@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 type Callback<T> = (previousValue: T, newValue: T) => boolean
 
@@ -19,13 +19,17 @@ function useDelayedState<T>(defaultValue: T, callback: Callback<T>, delay: numbe
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
+  useEffect(() => () => clearTimeout(timeoutRef.current), [])
+
   const setState = (nextState: T) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
+      timeoutRef.current = undefined
     }
 
     if (callback(stateRef.current, nextState)) {
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
+        timeoutRef.current = undefined
         internalSetState(nextState)
       }, delay)
     } else {

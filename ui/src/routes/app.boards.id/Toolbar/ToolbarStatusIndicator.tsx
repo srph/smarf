@@ -8,18 +8,7 @@ import { useDelayedState } from '~/src/hooks'
 type Status = 'loading' | 'saved' | 'error'
 
 const ToolbarStatusIndicator = () => {
-  const {
-    isUpdating,
-    isDeleting,
-    isFavoriteLoading,
-    isAddingHero,
-    isMovingHero,
-    isAddingCategory,
-    isUpdatingCategory,
-    isMovingCategory,
-    isResizingCategory,
-    isDeletingCategory
-  } = useBoardWorkspace()
+  const { isSaving } = useBoardWorkspace()
 
   const [status, setStatus] = useDelayedState<Status>(
     'saved',
@@ -30,37 +19,8 @@ const ToolbarStatusIndicator = () => {
   )
 
   useEffect(() => {
-    // @TODO: Seems to stop working after being idle.
-    // Might be related to react-query or useDelayedState, check eitherway.
-
-    if (
-      isUpdating ||
-      isFavoriteLoading ||
-      isDeleting ||
-      isAddingHero ||
-      isMovingHero ||
-      isAddingCategory ||
-      isUpdatingCategory ||
-      isMovingCategory ||
-      isResizingCategory ||
-      isDeletingCategory
-    ) {
-      return setStatus('loading')
-    }
-
-    setStatus('saved')
-  }, [
-    isUpdating,
-    isFavoriteLoading,
-    isDeleting,
-    isAddingHero,
-    isMovingHero,
-    isAddingCategory,
-    isUpdatingCategory,
-    isMovingCategory,
-    isResizingCategory,
-    isDeletingCategory
-  ])
+    setStatus(isSaving ? 'loading' : 'saved')
+  }, [isSaving])
 
   return (
     <Container>

@@ -96,8 +96,9 @@ Versions checked against npm on 2026-11-11.
 - [x] Board workspace: the board comes from the query cache. Operations read it with `getBoard()` when they run and write it with `setBoard()` before the request, so changes show immediately. A failed save drops any draft and refetches the board (simpler and safer than restoring snapshots)
 - [x] Drag and resize: in-progress values are a `CategoryDraft` layered over the cached board; saved to the cache and the API on drop or resize end
 - [x] Remove `useStateRef` / `boardRef` from board operations (the `DivdedQueryAndMutationProps` type is now `BoardOperationProps`)
-- [ ] Fix `useDelayedState` (it never sets `timeoutRef`)
-- [ ] Fix `useGridCollisionDetection` `onDragStart`: it calls `indexOf` on the container id string instead of on its hero list, so cancelling a cross-category drag puts the hero back in the wrong place
+- [x] Fix `useDelayedState` (it never set `timeoutRef`, so an old timer could flip the status back). The save indicator now uses `useIsMutating` on the board key instead of ten mutation flags
+- [x] Fix `useGridCollisionDetection` `onDragStart`: it called `indexOf` on the container id string instead of on its hero list, so cancelling a cross-category drag lost the hero
+- [x] Fix `useUpdateEffect` under StrictMode: the dev remount counted as an update, so opening a board sent a needless `PUT` for every category title
 - [ ] Browser check
 
 ### 4. Base UI and leftover libraries

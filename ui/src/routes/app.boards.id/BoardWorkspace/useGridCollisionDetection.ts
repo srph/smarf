@@ -145,7 +145,7 @@ function useGridCollisionDetection<T>(
 
     setStartEvent({
       container: activeContainer,
-      index: activeContainer.indexOf(active.id)
+      index: payload[activeContainer].indexOf(active.id)
     })
   }
 

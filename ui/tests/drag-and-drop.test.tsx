@@ -52,6 +52,23 @@ describe('drag and drop', () => {
     expect(heroNamesIn('Carries', board.id)).toEqual(['Anti-Mage', 'Juggernaut'])
   })
 
+  it('puts a hero back where it was when a drag into another category is cancelled', async () => {
+    const { user } = renderApp(`/b/${board.id}`)
+    const carries = await findCategory('Carries')
+    const supports = await findCategory('Supports')
+
+    heroTile(carries, 'Juggernaut').focus()
+    await user.keyboard('[Space]')
+    await user.keyboard('[ArrowRight]')
+    await user.keyboard('[ArrowRight]') // over Supports now
+    await waitFor(() => expect(heroesShownIn(supports)).toContain('Juggernaut'))
+    await user.keyboard('[Escape]')
+
+    await waitFor(() => expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Juggernaut', 'Axe']))
+    expect(heroesShownIn(supports)).toEqual(['Crystal Maiden'])
+    await waitFor(() => expect(heroNamesIn('Carries', board.id)).toEqual(['Anti-Mage', 'Juggernaut', 'Axe']))
+  })
+
   // React 18+ renders after each pointer event rather than during it, and dnd-kit applies moves after
   // that render. user-event leaves time between steps, like a real drag spread over frames.
   it('moves a category by dragging its handle', async () => {

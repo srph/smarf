@@ -157,4 +157,40 @@ describe('board workspace', () => {
     await waitFor(() => expect(db.categories.map((c) => c.name)).toEqual(['Carries', 'Hard Supports', 'Untitled']))
     expect(screen.getByDisplayValue('Hard Supports')).toBeInTheDocument()
   })
+
+  it('sends no saves just for opening a board', async () => {
+    const writes: string[] = []
+    server.events.on('request:start', ({ request }) => {
+      if (request.method !== 'GET') writes.push(`${request.method} ${new URL(request.url).pathname}`)
+    })
+    renderApp(`/b/${board.id}`)
+
+    await findCategory('Supports')
+    await new Promise((resolve) => setTimeout(resolve, 400)) // past the title's save debounce
+
+    expect(writes).toEqual([])
+    server.events.removeAllListeners()
+  })
+
+  it('shows Updating while a save is pending, then Saved', async () => {
+    let release!: () => void
+    const answered = new Promise<void>((resolve) => (release = resolve))
+    server.use(
+      http.post(`${API}/boards/:id/categories`, async () => {
+        await answered
+        return undefined
+      })
+    )
+    const { user } = renderApp(`/b/${board.id}`)
+
+    expect(await screen.findByText('Saved')).toBeInTheDocument()
+    await user.click(await screen.findByTitle('New category'))
+    expect(await screen.findByText('Updating')).toBeInTheDocument()
+
+    release()
+
+    // Stays on Updating for a moment so quick saves don't flicker.
+    expect(await screen.findByText('Saved', {}, { timeout: 3000 })).toBeInTheDocument()
+    expect(screen.queryByText('Updating')).not.toBeInTheDocument()
+  })
 })
