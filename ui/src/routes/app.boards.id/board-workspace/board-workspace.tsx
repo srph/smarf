@@ -1,9 +1,14 @@
 import React, { useMemo, useRef } from 'react'
 import { Container } from '~/src/components/container/container'
 import { PageTitle } from '~/src/components/page-title/page-title'
-import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts/board-workspace-context'
+import { useQueryClient } from '@tanstack/react-query'
+import { boardKeys } from '~/src/queries/boards/board-keys'
+import { useBoardDraft } from '~/src/routes/app.boards.id/board-draft-context'
+import { useMoveHeroMutation, moveHeroVariables, type HeroPosition } from '../queries/use-move-hero-mutation'
+import { useMoveCategoryMutation } from '../queries/use-move-category-mutation'
 import { CategoryBody } from './category-body'
-import { Category } from '~/src/types/api'
+import { Board, Category } from '~/src/types/api'
+import { Translate } from '~/src/types/board-operations'
 
 import { BOARD_WORKSPACE_ALLOWANCE } from '~/src/contexts/board-list/constants'
 import { getLowestCategoryBottom } from '~/src/contexts/board-list/utils'
@@ -21,21 +26,55 @@ const getCategoryHeroIds = (category: Category) => category.heroes.map((hero) =>
 const getCategoryPosition = (category: Category) => ({ x: category.x_position, y: category.y_position })
 
 const BoardWorkspace: React.FC = () => {
-  const { board, moveHero, moveCategory, moveCategoryEnd } = useBoardWorkspace()
+  const { board, setDraft } = useBoardDraft()
+
+  const queryClient = useQueryClient()
+
+  const { mutate: moveHero } = useMoveHeroMutation(board.id)
+
+  const { mutate: moveCategory } = useMoveCategoryMutation(board.id)
+
+  // The cached board, read when called: a drag can fire several moves before React re-renders with the last one.
+  const getSavedBoard = () => queryClient.getQueryData<Board>(boardKeys.detail(board.id))
+
+  const handleMoveHero = (from: HeroPosition, to: HeroPosition) => {
+    const savedBoard = getSavedBoard()
+    const variables = savedBoard && moveHeroVariables(savedBoard, from, to)
+    if (variables) moveHero(variables)
+  }
+
+  // While dragging a category: show its position as a draft (saved on drop).
+  const handleMoveCategory = ({ container, translate: { x, y } }: { container: Category; translate: Translate }) => {
+    const saved = getSavedBoard()?.categories.find((c) => c.id === container.id)
+
+    // Back where it started (e.g. a cancelled drag): nothing to show.
+    if (saved && saved.x_position === x && saved.y_position === y) {
+      setDraft(null)
+      return
+    }
+
+    setDraft({ id: container.id, x_position: x, y_position: y })
+  }
+
+  // On drop: `container` comes from the shown board, so it already has the dragged position.
+  const handleMoveCategoryEnd = ({ container }: { container: Category }) => {
+    moveCategory({ category_id: container.id, x_position: container.x_position, y_position: container.y_position })
+    setDraft(null)
+  }
 
   const { collisionDetectionStrategy, ...gridCollisionEvents } = useGridCollisionDetection<Category>({
     containers: board.categories,
     containerIdTransformer: getCategoryId,
     containerDataIdTransformer: getCategoryHeroIds,
-    onChange: moveHero
+    onChange: handleMoveHero
   })
 
   const dragContainerEvents = useDragContainer({
     containers: board.categories,
     getContainerId: getCategoryId,
     getContainerPosition: getCategoryPosition,
-    onChange: moveCategory,
-    onDragEnd: moveCategoryEnd
+    onChange: handleMoveCategory,
+    onDragEnd: handleMoveCategoryEnd
   })
 
   const sensors = useSensors(

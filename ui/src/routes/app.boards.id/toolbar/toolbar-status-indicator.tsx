@@ -1,15 +1,18 @@
 import React, { useEffect } from 'react'
-import { CheckCircleIcon } from '@heroicons/react/20/solid'
+import { CheckCircleIcon, ExclamationCircleIcon } from '@heroicons/react/20/solid'
 import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
 import { Spinner } from '~/src/components/spinner/spinner'
-import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts/board-workspace-context'
+import { useBoardDraft } from '~/src/routes/app.boards.id/board-draft-context'
+import { useBoardSaveStatus } from '../queries/use-board-save-status'
 import { useDelayedState } from '~/src/hooks/use-delayed-state'
 
 type Status = 'loading' | 'saved' | 'error'
 
 const ToolbarStatusIndicator = () => {
-  const { isSaving } = useBoardWorkspace()
+  const { board } = useBoardDraft()
+
+  const saveStatus = useBoardSaveStatus(board.id)
 
   const [status, setStatus] = useDelayedState<Status>(
     'saved',
@@ -20,8 +23,8 @@ const ToolbarStatusIndicator = () => {
   )
 
   useEffect(() => {
-    setStatus(isSaving ? 'loading' : 'saved')
-  }, [isSaving, setStatus])
+    setStatus(saveStatus === 'saving' ? 'loading' : saveStatus)
+  }, [saveStatus, setStatus])
 
   return (
     <Container>
@@ -32,6 +35,15 @@ const ToolbarStatusIndicator = () => {
               <Icon icon={CheckCircleIcon} />
             </div>
             Saved
+          </div>
+        )}
+
+        {status === 'error' && (
+          <div className="ml-auto flex items-center text-xs">
+            <div className="mr-2 text-red-500">
+              <Icon icon={ExclamationCircleIcon} />
+            </div>
+            Couldn't save. Change undone.
           </div>
         )}
 

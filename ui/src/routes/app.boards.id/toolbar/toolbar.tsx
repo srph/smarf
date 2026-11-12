@@ -3,8 +3,13 @@ import { cn } from 'cn'
 import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
-import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts/board-workspace-context'
+import { useBoardDraft } from '~/src/routes/app.boards.id/board-draft-context'
 import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
+import { useFavoriteBoardMutation } from '~/src/queries/boards/use-favorite-board-mutation'
+import { useUpdateBoardMutation } from '../queries/use-update-board-mutation'
+import { useDuplicateBoardMutation } from '../queries/use-duplicate-board-mutation'
+import { useDeleteBoardMutation } from '../queries/use-delete-board-mutation'
+import { useAddCategoryMutation, newCategory } from '../queries/use-add-category-mutation'
 import { EditPopover } from '../edit-popover/edit-popover'
 import { ToolbarStatusIndicator } from './toolbar-status-indicator'
 import { useNavigate } from 'react-router'
@@ -20,18 +25,19 @@ import {
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 
 const ToolbarComponent: React.FC = () => {
-  const {
-    board,
-    duplicateBoard,
-    favoriteBoard,
-    deleteBoard,
-    addCategory,
-    isUpdating,
-    isFavoriteLoading,
-    isDuplicating,
-    isDeleting,
-    isAddingCategory
-  } = useBoardWorkspace()
+  const { board } = useBoardDraft()
+
+  const { mutate: favoriteBoard, isPending: isFavoriteLoading } = useFavoriteBoardMutation(board.id)
+
+  const { mutate: updateBoard, isPending: isUpdating } = useUpdateBoardMutation(board.id)
+
+  const { mutate: duplicateBoard, isPending: isDuplicating } = useDuplicateBoardMutation(board.id)
+
+  const { mutate: deleteBoard, isPending: isDeleting } = useDeleteBoardMutation(board.id)
+
+  const { mutate: addCategory, isPending: isAddingCategory } = useAddCategoryMutation(board.id)
+
+  const [isEditing, setIsEditing] = useState(false)
 
   const [toolbarElement, setToolbarElement] = useState<HTMLDivElement | null>(null)
 
@@ -78,7 +84,7 @@ const ToolbarComponent: React.FC = () => {
 
               <div className="ml-2 flex">
                 <IconGroupButton
-                  onClick={() => favoriteBoard()}
+                  onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}
                   title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
                   active={board.is_favorite}
                   disabled={isFavoriteLoading}>
@@ -89,15 +95,25 @@ const ToolbarComponent: React.FC = () => {
 
             <div className="flex items-center">
               <div className="ml-2 flex">
-                <IconGroupButton onClick={() => addCategory()} title="New category" disabled={isAddingCategory}>
+                <IconGroupButton
+                  onClick={() => addCategory(newCategory(board))}
+                  title="New category"
+                  disabled={isAddingCategory}>
                   <Icon icon={PlusCircleIcon} />
                 </IconGroupButton>
 
-                <IconGroupButton onClick={() => duplicateBoard()} title="Duplicate board" disabled={isDuplicating}>
+                <IconGroupButton
+                  onClick={() => duplicateBoard(undefined, { onSuccess: (copy) => navigate(`/b/${copy.id}`) })}
+                  title="Duplicate board"
+                  disabled={isDuplicating}>
                   <Icon icon={DocumentDuplicateIcon} />
                 </IconGroupButton>
 
                 <EditPopover
+                  open={isEditing}
+                  onOpenChange={setIsEditing}
+                  name={board.name}
+                  onSubmit={(name) => updateBoard({ name }, { onSuccess: () => setIsEditing(false) })}
                   trigger={
                     <IconGroupButton title="Edit board name" disabled={isUpdating}>
                       <Icon icon={PencilIcon} />
@@ -109,7 +125,7 @@ const ToolbarComponent: React.FC = () => {
                 <DeletePopover
                   open={isDeleteConfirmationOpen}
                   onOpenChange={setIsDeleteConfirmationOpen}
-                  onConfirm={deleteBoard}
+                  onConfirm={() => deleteBoard(undefined, { onSuccess: () => navigate('/') })}
                   nameConfirmation={board.name}
                   nameConfirmationPlaceholder="Enter board name"
                   side="top"

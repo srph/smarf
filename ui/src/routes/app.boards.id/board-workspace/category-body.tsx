@@ -7,7 +7,12 @@ import { CategoryHero } from './category-hero'
 
 import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
-import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts/board-workspace-context'
+import { useBoardDraft } from '~/src/routes/app.boards.id/board-draft-context'
+import { useAddHeroMutation, addHeroVariables } from '../queries/use-add-hero-mutation'
+import { useUpdateCategoryMutation } from '../queries/use-update-category-mutation'
+import { useResizeCategoryMutation } from '../queries/use-resize-category-mutation'
+import { useDeleteCategoryMutation } from '../queries/use-delete-category-mutation'
+import { getCategoryHeight } from '~/src/contexts/board-list/utils'
 import { CategoryTitle } from './category-title'
 
 import { Resizable, type ResizeCallback, type Size } from 're-resizable'
@@ -27,7 +32,15 @@ interface Props {
 }
 
 const CategoryBody: React.FC<Props> = ({ category }) => {
-  const { addHero, updateCategory, resizeCategory, resizeCategoryEnd, deleteCategory } = useBoardWorkspace()
+  const { board, setDraft } = useBoardDraft()
+
+  const { mutate: addHero } = useAddHeroMutation(board.id)
+
+  const { mutate: updateCategory } = useUpdateCategoryMutation(board.id)
+
+  const { mutate: resizeCategory } = useResizeCategoryMutation(board.id)
+
+  const { mutate: deleteCategory } = useDeleteCategoryMutation(board.id)
 
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
 
@@ -57,17 +70,21 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
     id: category.id
   })
 
+  // While resizing: show the new size as a draft (saved when the resize stops).
   const handleResize: ResizeCallback = (_event, _direction, ref) => {
-    resizeCategory({
-      container: category,
-      width: ref.getBoundingClientRect().width
+    const width = ref.getBoundingClientRect().width
+
+    setDraft({
+      id: category.id,
+      width,
+      height: getCategoryHeight({ categoryWidth: width, heroCount: category.heroes.length })
     })
   }
 
+  // `category` comes from the shown board, so it already has the resized width and height.
   const handleResizeStop = () => {
-    resizeCategoryEnd({
-      container: category
-    })
+    resizeCategory({ category_id: category.id, width: category.width, height: category.height })
+    setDraft(null)
   }
 
   return (
@@ -88,7 +105,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             <DeletePopover
               open={isDeleteConfirmationOpen}
               onOpenChange={setIsDeleteConfirmationOpen}
-              onConfirm={() => deleteCategory(category)}
+              onConfirm={() => deleteCategory(category.id)}
               side="bottom"
               align="end"
               sideOffset={16}
@@ -135,7 +152,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
                 open={isHeroSelectorOpen}
                 onOpenChange={setIsHeroSelectorOpen}
                 onSelectHero={(hero: Hero) => {
-                  addHero(category, hero)
+                  addHero(addHeroVariables(category, hero))
                 }}
                 trigger={
                   <button

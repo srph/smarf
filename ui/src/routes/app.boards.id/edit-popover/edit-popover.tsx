@@ -3,33 +3,32 @@ import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
 import { Popover, PopoverClose, type PopoverProps } from '~/src/components/popover/popover'
 import { Icon } from '~/src/components/icon/icon'
-import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts/board-workspace-context'
 
-interface Props {
-  trigger: PopoverProps['trigger']
+interface Props extends Pick<PopoverProps, 'open' | 'onOpenChange' | 'trigger'> {
   anchor: HTMLElement | null
+  /** The board's current name. */
+  name: string
+  onSubmit: (name: string) => void
 }
 
 // @TODO: For slow requests / connections, we should probably prevent
 // the popover from being closed while the board is being updated (?)
-const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
-  const { board, isEditing, setIsEditing, updateBoard } = useBoardWorkspace()
-
-  const [name, setName] = useState(board.name)
+const EditPopover: React.FC<Props> = ({ open, onOpenChange, trigger, anchor, name: currentName, onSubmit }) => {
+  const [name, setName] = useState(currentName)
 
   const inputRef = useRef<HTMLInputElement>(null)
 
   const inputId = useId()
 
   // Start from the current name each time the editor opens.
-  const handleOpenChange = (open: boolean) => {
-    if (open) setName(board.name)
-    setIsEditing(open)
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) setName(currentName)
+    onOpenChange(nextOpen)
   }
 
   const handleSubmit = (evt: React.FormEvent) => {
     evt.preventDefault()
-    updateBoard({ name })
+    onSubmit(name)
   }
 
   const handleChangeName = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +37,7 @@ const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
 
   return (
     <Popover
-      open={isEditing}
+      open={open}
       onOpenChange={handleOpenChange}
       trigger={trigger}
       anchor={anchor}
@@ -68,7 +67,7 @@ const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
               value={name}
               onChange={handleChangeName}
               type="text"
-              placeholder={board.name}
+              placeholder={currentName}
               className="block bg-transparent p-3 text-zinc-50 outline-none"
             />
             <div className="p-1">
