@@ -5,7 +5,7 @@ Laravel 9 JSON API for Smarf: users, boards, categories, and heroes. The UI (`..
 ## Commands
 
 ```bash
-valet php --site=smarf artisan serve --port=3001   # or `make start:api` from the root
+valet php --site=smarf artisan serve --host=0.0.0.0 --port=13001   # or `make start:api` from the root
 valet php --site=smarf artisan migrate
 valet php --site=smarf artisan db:seed             # truncates users, creates one admin
 valet php --site=smarf artisan smarf:admin         # create an admin interactively

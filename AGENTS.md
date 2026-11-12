@@ -21,8 +21,8 @@ make install      # install:api + install:web, start the DB, migrate, write the 
 make install:api  # composer install, api/.env, app key, Passport keys
 make install:web  # npm install, ui/.env
 make start:db     # Docker MySQL 8 on 127.0.0.1:3308 (root/root, database smarf)
-make start:api    # http://localhost:3001
-make start:web    # http://localhost:1234
+make start:api    # http://mbp:13001 (all interfaces; mbp = Tailscale MagicDNS)
+make start:web    # http://mbp:13000 (all interfaces)
 ```
 
 ## Structure

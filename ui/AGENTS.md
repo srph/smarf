@@ -8,7 +8,7 @@ React 19, TypeScript, Vite 8, styled-components, React Router 8 (data router, `c
 
 ```bash
 npm install
-npm start           # Vite dev server, http://localhost:1234 (or `make start:web` from the root)
+npm start           # Vite dev server, http://mbp:13000 (or `make start:web` from the root)
 npm run build       # production build to dist/
 npm run typecheck   # tsc --noEmit (Vite doesn't type-check)
 npm test            # Vitest integration tests (npm run test:watch to watch)

@@ -10,14 +10,19 @@ export default defineConfig({
     // `~/src/...` resolves from the ui/ root, same as tsconfig `paths`.
     alias: [{ find: /^~\//, replacement: `${import.meta.dirname}/` }]
   },
+  // Served on every interface so other machines on the tailnet can open http://mbp:13000.
+  // allowedHosts: Vite rejects requests whose Host header isn't listed.
   server: {
-    // Node resolves localhost to ::1 first; browsers use 127.0.0.1. Bind IPv4 like the API does.
-    host: '127.0.0.1',
-    port: 1234,
-    strictPort: true
+    host: '0.0.0.0',
+    port: 13000,
+    strictPort: true,
+    allowedHosts: ['mbp', '.ts.net']
   },
   preview: {
-    port: 1234
+    host: '0.0.0.0',
+    port: 13002,
+    strictPort: true,
+    allowedHosts: ['mbp', '.ts.net']
   },
   test: {
     environment: 'jsdom',
