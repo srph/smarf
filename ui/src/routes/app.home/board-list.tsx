@@ -1,11 +1,10 @@
 import React from 'react'
-import styled from 'styled-components'
+import { cn } from 'cn'
 import { useBoardList } from '~/src/contexts/board-list/board-list-provider'
 import { Icon } from '~/src/components/icon/icon'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
 import { TimeAgo } from '~/src/components/time-ago/time-ago'
 import { Link } from 'react-router'
-import { theme } from '~/src/theme'
 import { Board } from '~/src/types/api'
 import { StarIcon } from '@heroicons/react/20/solid'
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
@@ -19,82 +18,29 @@ const BoardList: React.FC<Props> = ({ title, boards }) => {
   const { favoriteBoard } = useBoardList()
 
   return (
-    <Container>
-      <Heading>{title}</Heading>
+    <div className="mx-auto w-120">
+      <h5 className="mt-5 mb-4 text-xs font-bold text-zinc-300">{title}</h5>
 
       {boards.map((board) => (
-        <Item key={board.id}>
-          <ItemLink to={`/b/${board.id}`}>
-            <ItemTitle>{board.name}</ItemTitle>
-            <ItemLastUpdate>
+        <div
+          key={board.id}
+          className="flex items-center rounded bg-zinc-700 ring-2 ring-transparent transition-all duration-200 not-last:mb-4 hover:ring-sky-500">
+          <Link to={`/b/${board.id}`} className="flex w-full items-center justify-between p-4 pr-0">
+            <h3 className="my-4.5 text-lg font-medium">{board.name}</h3>
+            <span className="text-xs text-zinc-400">
               <TimeAgo time={board.updated_at} />
-            </ItemLastUpdate>
-          </ItemLink>
+            </span>
+          </Link>
 
           <PlainButton type="button" onClick={() => favoriteBoard(board.id)}>
-            <ItemFavorite $color={board.is_favorite ? theme.colors.yellow[500] : theme.colors.neutral[400]}>
+            <div className={cn('p-4', board.is_favorite ? 'text-yellow-500' : 'text-zinc-400')}>
               <Icon icon={board.is_favorite ? StarIcon : StarOutlineIcon} size={24} />
-            </ItemFavorite>
+            </div>
           </PlainButton>
-        </Item>
+        </div>
       ))}
-    </Container>
+    </div>
   )
 }
-
-const Container = styled.div`
-  margin: 0 auto;
-  width: 480px;
-`
-
-const Heading = styled.h5`
-  font-size: ${theme.fontSizes.sm};
-  color: ${theme.colors.neutral[300]};
-  margin-bottom: 16px;
-`
-
-const Item = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${theme.colors.neutral[700]};
-  border-radius: 4px;
-  box-shadow: 0px 0px 0px 2px transparent;
-  transition: all 200ms ease;
-
-  &:hover {
-    box-shadow: 0px 0px 0px 2px ${theme.colors.blue[500]};
-  }
-
-  &:not(:last-child) {
-    margin-bottom: 16px;
-  }
-`
-
-const ItemLink = styled(Link)`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  padding-right: 0;
-  width: 100%;
-  text-decoration: none;
-`
-
-const ItemTitle = styled.h3`
-  color: ${theme.colors.text};
-  font-size: ${theme.fontSizes.lg}px;
-  font-weight: 500;
-`
-
-const ItemLastUpdate = styled.span`
-  font-size: ${theme.fontSizes.sm}px;
-  font-weight: 400;
-  color: ${theme.colors.neutral[400]};
-`
-
-const ItemFavorite = styled.div<{ $color: string }>`
-  padding: 16px;
-  color: ${(props) => props.$color};
-`
 
 export { BoardList }

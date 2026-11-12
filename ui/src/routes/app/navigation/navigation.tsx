@@ -1,6 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
-import { theme } from '~/src/theme'
 import { Button } from '~/src/components/button/button'
 import { Container } from '~/src/components/container/container'
 import { Logo } from '~/src/components/logo/logo'
@@ -15,63 +13,31 @@ const Navigation: React.FC = () => {
   const { isLoading: isHeroListLoading } = useHeroList()
 
   return (
-    <Nav>
-      <NavAccent />
+    <div className="mb-12 border-b border-zinc-800">
+      <div className="h-1 bg-linear-to-r from-primary-600 to-primary-400" />
 
       <Container>
-        <NavContainer>
-          <NavLogoLink to="/">
+        <div className="flex items-center justify-between py-6">
+          <Link to="/">
             <Logo />
-          </NavLogoLink>
+          </Link>
 
-          <NavMenu>
-            <NavMenuSection>
+          <div className="flex items-center">
+            <div className="mr-6">
               <Button
                 icon={SquaresPlusIcon}
                 disabled={isBoardCreating || isHeroListLoading}
                 onClick={() => createBoard()}>
                 New Board
               </Button>
-            </NavMenuSection>
+            </div>
 
             <UserDropdown />
-          </NavMenu>
-        </NavContainer>
+          </div>
+        </div>
       </Container>
-    </Nav>
+    </div>
   )
 }
-
-const NavAccent = styled.div`
-  border-top: 4px solid ${theme.colors.indigo[500]};
-  border-image: linear-gradient(90deg, ${theme.colors.indigo[500]}, ${theme.colors.indigo[300]}) 1;
-`
-
-const Nav = styled.div`
-  margin-bottom: 48px;
-  border-bottom: 1px solid ${theme.colors.neutral[800]};
-`
-
-const NavContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 24px;
-  padding-bottom: 24px;
-`
-
-const NavMenu = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const NavMenuSection = styled.div`
-  margin-right: 24px;
-`
-
-const NavLogoLink = styled(Link)`
-  color: inherit;
-  text-decoration: none;
-`
 
 export { Navigation }

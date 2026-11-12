@@ -1,9 +1,7 @@
 import React from 'react'
-import styled from 'styled-components'
 import { Link } from 'react-router'
 import { Menu } from '@base-ui/react/menu'
 import { AdjustmentsVerticalIcon, ArrowLeftIcon, BoltIcon, HomeIcon } from '@heroicons/react/20/solid'
-import { theme } from '~/src/theme'
 import { Avatar } from '~/src/components/avatar/avatar'
 import { Icon } from '~/src/components/icon/icon'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
@@ -29,93 +27,35 @@ const UserDropdown: React.FC = () => {
       </Menu.Trigger>
 
       <Menu.Portal>
-        <Positioner side="bottom" align="end" sideOffset={24}>
-          <Container>
-            <Heading>
+        <Menu.Positioner side="bottom" align="end" sideOffset={24} className="z-(--z-user-dropdown)">
+          <Menu.Popup className="w-60 rounded border border-zinc-700 bg-zinc-900 outline-none">
+            <div className="flex items-center border-b border-zinc-700 p-4">
               <Avatar src={user.avatar || avatar} />
 
-              <UserInfo>
-                <UserInfoName>{user.name}</UserInfoName>
-                <UserInfoEmail>{user.email}</UserInfoEmail>
-              </UserInfo>
-            </Heading>
+              <div className="ml-4">
+                <h4 className="font-bold">{user.name}</h4>
+                <span className="text-xs text-zinc-400">{user.email}</span>
+              </div>
+            </div>
 
             {LINKS.map((link) => (
-              <LinkItem key={link.to} closeOnClick render={<Link to={link.to} />}>
-                <LinkItemIcon>
+              <Menu.LinkItem
+                key={link.to}
+                closeOnClick
+                render={<Link to={link.to} />}
+                className="flex cursor-pointer items-center border-zinc-700 p-4 transition-colors duration-200 outline-none not-last:border-b data-highlighted:bg-zinc-700">
+                <div className="mr-4 text-zinc-400">
                   <Icon icon={link.icon} />
-                </LinkItemIcon>
+                </div>
 
-                <LinkItemText>{link.label}</LinkItemText>
-              </LinkItem>
+                <div>{link.label}</div>
+              </Menu.LinkItem>
             ))}
-          </Container>
-        </Positioner>
+          </Menu.Popup>
+        </Menu.Positioner>
       </Menu.Portal>
     </Menu.Root>
   )
 }
-
-const Positioner = styled(Menu.Positioner)`
-  z-index: ${theme.zIndex.userDropdown};
-`
-
-const Container = styled(Menu.Popup)`
-  width: 240px;
-  outline: 0;
-  background: ${theme.colors.neutral[900]};
-  border-radius: 4px;
-  border: 1px solid ${theme.colors.neutral[700]};
-`
-
-const Heading = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid ${theme.colors.neutral[700]};
-`
-
-const UserInfo = styled.div`
-  margin-left: 16px;
-`
-
-const UserInfoName = styled.h4`
-  margin: 0;
-`
-
-const UserInfoEmail = styled.span`
-  color: ${theme.colors.neutral[400]};
-  font-size: ${theme.fontSizes.sm}px;
-`
-
-const LinkItem = styled(Menu.LinkItem)`
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  background: transparent;
-  text-decoration: none;
-  cursor: pointer;
-  transition: 200ms background ease;
-
-  outline: 0;
-
-  &[data-highlighted] {
-    background: ${theme.colors.neutral[700]};
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid ${theme.colors.neutral[700]};
-  }
-`
-
-const LinkItemIcon = styled.div`
-  margin-right: 16px;
-  color: ${theme.colors.neutral[400]};
-`
-
-const LinkItemText = styled.div`
-  font-size: ${theme.fontSizes.md}px;
-  color: ${theme.colors.text};
-`
 
 export { UserDropdown }

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import styled from 'styled-components'
 import { useBoardList } from '~/src/contexts/board-list/board-list-provider'
 import { BoardList } from './board-list'
 import { PageTitle } from '~/src/components/page-title/page-title'
@@ -22,9 +21,9 @@ const HomeRoute = () => {
       <>
         <PageTitle title="Your Boards" />
 
-        <Container>
+        <div className="mx-auto flex justify-center p-12">
           <Spinner />
-        </Container>
+        </div>
       </>
     )
   }
@@ -44,12 +43,5 @@ const HomeRoute = () => {
     </>
   )
 }
-
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 0 auto;
-  padding: 48px;
-`
 
 export { HomeRoute }

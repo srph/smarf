@@ -1,29 +1,30 @@
 import React from 'react'
-import styled from 'styled-components'
 import { Link, Outlet, useLocation } from 'react-router'
 import { Spacer } from '~/src/components/spacer/spacer'
 import { Logo } from '~/src/components/logo/logo'
-import { theme } from '~/src/theme'
 import loginBg from '~/src/assets/images/login-bg.png'
 import registerBg from '~/src/assets/images/register-bg.jpg'
+
+const sublink = 'border-b border-transparent pb-1 text-zinc-400 transition-colors duration-200 hover:border-zinc-500'
 
 const AuthRoute = () => {
   const { pathname } = useLocation()
 
   return (
-    <Layout>
-      <LayoutBg $bg={pathname === '/login' ? loginBg : registerBg} />
+    <div className="flex h-screen min-h-192">
+      <div
+        className="h-full w-1/2 bg-cover"
+        style={{ backgroundImage: `url(${pathname === '/login' ? loginBg : registerBg})` }}
+      />
 
-      <LayoutContent>
+      <div className="h-full w-1/2 p-8">
         <Logo />
 
         <Spacer size={24} />
 
-        <LayoutContentContainer>
-          <LayoutContentForm>
-            <LayoutContentFormHeading>
-              {pathname === '/login' ? 'Hi there, welcome back!' : 'Create an account'}
-            </LayoutContentFormHeading>
+        <div className="flex justify-center">
+          <div className="max-w-1/2 min-w-100">
+            <h1 className="text-3xl">{pathname === '/login' ? 'Hi there, welcome back!' : 'Create an account'}</h1>
 
             <Spacer size={4} />
 
@@ -31,69 +32,22 @@ const AuthRoute = () => {
 
             <Spacer size={3} />
 
-            <SublinkContainer>
+            <div className="text-center">
               {pathname === '/login' ? (
-                <Sublink to="/register">New? Create an account here →</Sublink>
+                <Link to="/register" className={sublink}>
+                  New? Create an account here →
+                </Link>
               ) : (
-                <Sublink to="/login">← I'd like to login instead</Sublink>
+                <Link to="/login" className={sublink}>
+                  ← I'd like to login instead
+                </Link>
               )}
-            </SublinkContainer>
-          </LayoutContentForm>
-        </LayoutContentContainer>
-      </LayoutContent>
-    </Layout>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
-
-const Layout = styled.div`
-  display: flex;
-  height: 100vh;
-  min-height: 768px;
-`
-
-const LayoutBg = styled.div<{ $bg: string }>`
-  height: 100%;
-  width: 50%;
-  background-image: url(${(props) => props.$bg});
-  background-size: cover;
-`
-
-const LayoutContent = styled.div`
-  padding: 32px;
-  height: 100%;
-  width: 50%;
-`
-
-const LayoutContentContainer = styled.div`
-  display: flex;
-  justify-content: center;
-`
-
-const LayoutContentForm = styled.div`
-  max-width: 50%;
-  min-width: 400px;
-`
-
-const LayoutContentFormHeading = styled.h1`
-  font-weight: 400;
-  margin: 0;
-`
-
-const SublinkContainer = styled.div`
-  text-align: center;
-`
-
-const Sublink = styled(Link)`
-  padding-bottom: 4px;
-  text-decoration: none;
-  font-size: ${theme.fontSizes.sm};
-  color: ${theme.colors.neutral[400]};
-  border-bottom: 1px solid transparent;
-
-  &:hover {
-    transition: 200ms border-bottom-color ease;
-    border-bottom-color: ${theme.colors.neutral[500]};
-  }
-`
 
 export { AuthRoute }
