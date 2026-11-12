@@ -2,16 +2,17 @@ import React from 'react'
 import styled from 'styled-components'
 import { Link } from 'react-router'
 import { Menu } from '@base-ui/react/menu'
+import { AdjustmentsVerticalIcon, ArrowLeftIcon, BoltIcon, HomeIcon } from '@heroicons/react/20/solid'
 import { theme } from '~/src/theme'
 import { Avatar, Icon, PlainButton } from '~/src/components'
 import { useAuthUser } from '~/src/contexts/AuthUser'
 import avatar from '~/src/assets/images/avatar.png'
 
 const LINKS = [
-  { to: '/', icon: 'home', label: 'Home' },
-  { to: '/account', icon: 'adjustments', label: 'Account Settings' },
-  { to: '/about', icon: 'lightning-bolt', label: 'About & Changelog' },
-  { to: '/logout', icon: 'arrow-left', label: 'Logout' }
+  { to: '/', icon: HomeIcon, label: 'Home' },
+  { to: '/account', icon: AdjustmentsVerticalIcon, label: 'Account Settings' },
+  { to: '/about', icon: BoltIcon, label: 'About & Changelog' },
+  { to: '/logout', icon: ArrowLeftIcon, label: 'Logout' }
 ]
 
 const UserDropdown: React.FC = () => {
@@ -38,7 +39,7 @@ const UserDropdown: React.FC = () => {
             {LINKS.map((link) => (
               <LinkItem key={link.to} closeOnClick render={<Link to={link.to} />}>
                 <LinkItemIcon>
-                  <Icon name={link.icon} />
+                  <Icon icon={link.icon} />
                 </LinkItemIcon>
 
                 <LinkItemText>{link.label}</LinkItemText>

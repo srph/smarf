@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
+import { CheckCircleIcon } from '@heroicons/react/20/solid'
 import { theme } from '~/src/theme'
 import { Container, Icon, Spinner } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
@@ -28,7 +29,7 @@ const ToolbarStatusIndicator = () => {
         {status === 'saved' && (
           <StatusIndicator>
             <StatusIndicatorIcon>
-              <Icon name="check-circle" />
+              <Icon icon={CheckCircleIcon} />
             </StatusIndicatorIcon>
             Saved
           </StatusIndicator>

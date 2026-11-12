@@ -7,6 +7,16 @@ import { useBoardList } from '~/src/contexts/BoardList'
 import { EditPopover } from '../EditPopover'
 import { ToolbarStatusIndicator } from './ToolbarStatusIndicator'
 import { useNavigate } from 'react-router'
+import {
+  ChevronDoubleDownIcon,
+  DocumentDuplicateIcon,
+  PencilIcon,
+  PlusCircleIcon,
+  RectangleGroupIcon,
+  StarIcon,
+  TrashIcon
+} from '@heroicons/react/20/solid'
+import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 
 const ToolbarComponent: React.FC = () => {
   const {
@@ -44,7 +54,7 @@ const ToolbarComponent: React.FC = () => {
             <ToolbarSection>
               <SelectContainer>
                 <SelectIcon>
-                  <Icon name="template" />
+                  <Icon icon={RectangleGroupIcon} />
                 </SelectIcon>
                 <Select value={board.id} onChange={handleBoardChange}>
                   {isBoardListLoading ? (
@@ -59,7 +69,7 @@ const ToolbarComponent: React.FC = () => {
                   )}
                 </Select>
                 <SelectCaret>
-                  <Icon name="chevron-double-down" />
+                  <Icon icon={ChevronDoubleDownIcon} />
                 </SelectCaret>
               </SelectContainer>
 
@@ -69,7 +79,7 @@ const ToolbarComponent: React.FC = () => {
                   title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
                   color={board.is_favorite && theme.colors.yellow[500]}
                   disabled={isFavoriteLoading}>
-                  <Icon name={board.is_favorite ? 'star' : 'starOutline'} />
+                  <Icon icon={board.is_favorite ? StarIcon : StarOutlineIcon} />
                 </IconGroupButton>
               </IconGroup>
             </ToolbarSection>
@@ -77,17 +87,17 @@ const ToolbarComponent: React.FC = () => {
             <ToolbarActions>
               <IconGroup>
                 <IconGroupButton onClick={() => addCategory()} title="New category" disabled={isAddingCategory}>
-                  <Icon name="plus-circle" />
+                  <Icon icon={PlusCircleIcon} />
                 </IconGroupButton>
 
                 <IconGroupButton onClick={() => duplicateBoard()} title="Duplicate board" disabled={isDuplicating}>
-                  <Icon name="duplicate" />
+                  <Icon icon={DocumentDuplicateIcon} />
                 </IconGroupButton>
 
                 <EditPopover
                   trigger={
                     <IconGroupButton title="Edit board name" disabled={isUpdating}>
-                      <Icon name="pencil" />
+                      <Icon icon={PencilIcon} />
                     </IconGroupButton>
                   }
                   anchor={toolbarElement}
@@ -105,7 +115,7 @@ const ToolbarComponent: React.FC = () => {
                   positionMethod="fixed"
                   trigger={
                     <IconGroupButton disabled={isDeleting} title="Delete board">
-                      <Icon name="trash" />
+                      <Icon icon={TrashIcon} />
                     </IconGroupButton>
                   }
                   anchor={toolbarElement}

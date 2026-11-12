@@ -1,22 +1,15 @@
 import React from 'react'
-import { startCase } from 'lodash'
-import * as Icons from '@heroicons/react/solid'
-import * as OutlineIcons from '@heroicons/react/outline'
 
-export interface IconProps {
-  name: string
-  height?: number
-  width?: number
+type IconComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>
+
+interface IconProps {
+  // A heroicon, imported directly, e.g. `import { TrashIcon } from '@heroicons/react/20/solid'`.
+  icon: IconComponent
+  size?: number
 }
 
-const Icon: React.FC<IconProps> = ({ name, height, width }) => {
-  const iconNameInStartCase: string = startCase(name).replace(/\s/g, '')
-  const iconName = `${iconNameInStartCase}Icon` as IconProps['name']
-  const iconHeight = height || width || 18
-  const iconWidth = width || height || 18
-  const SelectedIcon = name.endsWith('Outline') ? OutlineIcons[iconName.replace('Outline', '')] : Icons[iconName]
-
-  return <SelectedIcon style={{ height: iconHeight, width: iconWidth }} />
+const Icon: React.FC<IconProps> = ({ icon: SvgIcon, size = 18 }) => {
+  return <SvgIcon aria-hidden="true" style={{ height: size, width: size }} />
 }
 
-export { Icon }
+export { Icon, type IconProps, type IconComponent }

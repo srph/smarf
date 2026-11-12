@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Icon } from '../Icon'
+import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import { theme } from '../../theme'
 
 interface Props {
@@ -19,7 +20,7 @@ const SearchInput: React.FC<Props> = ({ value, onChange, autoFocus = false, ref 
     <Container>
       <Input ref={ref} type="text" value={value} onChange={handleChange} placeholder="Search..." autoFocus={autoFocus} />
       <SearchIcon>
-        <Icon name="search" width={16} />
+        <Icon icon={MagnifyingGlassIcon} size={16} />
       </SearchIcon>
     </Container>
   )

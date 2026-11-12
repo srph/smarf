@@ -1,14 +1,14 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
 import { theme } from '../../theme'
-import { Icon } from '../Icon'
+import { Icon, type IconComponent } from '../Icon'
 
 type Variant = 'primary' | 'clear' | 'danger'
 
 interface Props {
   block?: boolean
   variant?: Variant
-  icon?: string
+  icon?: IconComponent
   type?: 'button' | 'submit'
   disabled?: boolean
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
@@ -29,7 +29,7 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
     <Element ref={ref} variant={variant} type={type} onClick={onClick} block={block} disabled={disabled}>
       {icon ? (
         <IconContainer>
-          <Icon name={icon} />
+          <Icon icon={icon} />
         </IconContainer>
       ) : null}
       <span>{children}</span>

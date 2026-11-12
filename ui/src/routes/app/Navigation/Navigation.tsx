@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { Button, Container, Logo } from '~/src/components'
 import { Link } from 'react-router'
+import { SquaresPlusIcon } from '@heroicons/react/20/solid'
 import { UserDropdown } from './UserDropdown'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { useHeroList } from '~/src/contexts/HeroList'
@@ -24,7 +25,7 @@ const Navigation: React.FC = () => {
           <NavMenu>
             <NavMenuSection>
               <Button
-                icon="view-grid-add"
+                icon={SquaresPlusIcon}
                 disabled={isBoardCreating || isHeroListLoading}
                 onClick={() => createBoard()}>
                 New Board

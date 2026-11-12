@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
+import { AcademicCapIcon, BoltIcon, FireIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { theme } from '~/src/theme'
 import { Icon, ImageAspectRatio, SearchInput, Popover, PopoverClose, type PopoverProps } from '~/src/components'
 import { Hero } from '~/src/types/api'
@@ -35,7 +36,7 @@ const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigg
       initialFocus={searchRef}>
       <HeroSelectorContainer>
         <HeroSelectorClose title="Close">
-          <Icon name="x" />
+          <Icon icon={XMarkIcon} />
         </HeroSelectorClose>
 
         <HeroSelectorHeading>
@@ -48,7 +49,7 @@ const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigg
             <React.Fragment key={attribute.id}>
               <HeroSelectorGroupHeading>
                 <HeroSelectorGroupHeadingIcon bg={getAttributeIconColor(attribute.name)}>
-                  <Icon name={getAttributeIcon(attribute.name)} />
+                  <Icon icon={getAttributeIcon(attribute.name)} />
                 </HeroSelectorGroupHeadingIcon>
                 <HeroSelectorGroupHeadingText>{attribute.name}</HeroSelectorGroupHeadingText>
               </HeroSelectorGroupHeading>
@@ -94,13 +95,13 @@ const getAttributeIconColor = (name: string) => {
 const getAttributeIcon = (name: string) => {
   switch (name) {
     case 'Strength':
-      return 'fire'
+      return FireIcon
     case 'Agility':
-      return 'lightning-bolt'
+      return BoltIcon
     case 'Intelligence':
-      return 'academic-cap'
+      return AcademicCapIcon
     default:
-      return 'lightning-bolt'
+      return BoltIcon
   }
 }
 

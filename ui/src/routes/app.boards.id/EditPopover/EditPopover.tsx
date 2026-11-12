@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
+import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { theme } from '~/src/theme'
 import { PlainButton, Popover, PopoverClose, type PopoverProps, Icon } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
@@ -47,7 +48,7 @@ const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
       <EditPopoverInner>
         <EditPopoverClose>
           <PopoverClose render={<PlainButton type="button" title="Close" />}>
-            <Icon name="x" />
+            <Icon icon={XMarkIcon} />
           </PopoverClose>
         </EditPopoverClose>
 
@@ -64,7 +65,7 @@ const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
             />
             <InputGroupButtonContainer>
               <InputGroupButton>
-                <Icon name="check" />
+                <Icon icon={CheckIcon} />
               </InputGroupButton>
             </InputGroupButtonContainer>
           </InputGroup>

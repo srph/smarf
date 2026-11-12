@@ -6,6 +6,8 @@ import { Link } from 'react-router'
 import { theme } from '~/src/theme'
 import { Board } from '~/src/types/api'
 import { formatDistanceToNowStrict } from 'date-fns'
+import { StarIcon } from '@heroicons/react/20/solid'
+import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 
 interface Props {
   title: string
@@ -30,7 +32,7 @@ const BoardList: React.FC<Props> = ({ title, boards }) => {
 
           <PlainButton type="button" onClick={() => favoriteBoard(board.id)}>
             <ItemFavorite color={board.is_favorite ? theme.colors.yellow[500] : theme.colors.neutral[400]}>
-              <Icon name={board.is_favorite ? 'star' : 'starOutline'} width={24} />
+              <Icon icon={board.is_favorite ? StarIcon : StarOutlineIcon} size={24} />
             </ItemFavorite>
           </PlainButton>
         </Item>

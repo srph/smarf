@@ -23,6 +23,7 @@ import {
   CATEGORY_HERO_CONTAINER_TOTAL_PADDING,
   CATEGORY_HERO_X_TOTAL_PADDING
 } from '~/src/contexts/BoardList/constants'
+import { ArrowsPointingOutIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
 
 interface Props {
   category: Category
@@ -74,7 +75,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
         <CategoryHeading>
           <CategoryHeadingInfo>
             <CategoryHeadingDragIcon ref={setDraggableNodeRef} {...listeners}>
-              <Icon name="arrows-expand" />
+              <Icon icon={ArrowsPointingOutIcon} />
             </CategoryHeadingDragIcon>
             <CategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
           </CategoryHeadingInfo>
@@ -89,7 +90,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
               sideOffset={16}
               trigger={
                 <CategoryRemove title="Delete category">
-                  <Icon name="trash" />
+                  <Icon icon={TrashIcon} />
                 </CategoryRemove>
               }
             />
@@ -129,7 +130,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
                 trigger={
                   <NewHero>
                     <NewCategoryIcon>
-                      <Icon name="plus-circle" width={16} />
+                      <Icon icon={PlusCircleIcon} size={16} />
                     </NewCategoryIcon>
                     <NewCategoryText>Add</NewCategoryText>
                   </NewHero>
