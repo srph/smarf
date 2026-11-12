@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { StrictMode, useState } from 'react'
 import { createGlobalStyle } from 'styled-components'
 import 'modern-normalize/modern-normalize.css'
 
@@ -84,8 +84,9 @@ const App = () => {
   // Created on mount (not at import) so it reads the current URL; tests render App at different URLs.
   const [router] = useState(() => createBrowserRouter(routes))
 
+  // StrictMode lives here (not in index.tsx) so tests render under it too.
   return (
-    <>
+    <StrictMode>
       <QueryProvider>
         <RouterProvider router={router} />
       </QueryProvider>
@@ -93,7 +94,7 @@ const App = () => {
       <PopoverPortal />
 
       <GlobalStyle />
-    </>
+    </StrictMode>
   )
 }
 

@@ -74,13 +74,16 @@ Versions checked against npm on 2026-11-11.
 
 - [x] `react`/`react-dom` 19.3, `@types/react` 19, Testing Library 16, `@types/styled-components` 5.1.36, `re-resizable` 6.11 (supports 19)
 - [x] `ReactDOM.render` → `createRoot`
-- [ ] Wrap the app in `StrictMode`
+- [x] Wrap the app in `StrictMode` (inside `App`, so tests run under it too)
 - [x] `React.FC` components that take children: add `PropsWithChildren`; `useRef()` calls get an initial value
 - [x] React Router 8 with `createBrowserRouter`; package is `react-router` only (`react-router-dom` removed). Providers that use router hooks render in a root layout route. Unknown URLs now redirect to `/` (before, they rendered a blank page)
 - [x] Replace `react-helmet-async` with React 19's built-in `<title>` via `components/PageTitle`. Pages without one fall back to the `index.html` title (Helmet used to leave the previous page's title)
 - [x] Libraries that cap React below 19 get a temporary `overrides` entry in `package.json` (no global `legacy-peer-deps`): `react-query` (phase 3), `react-helmet-async` (this phase), `react-input-autosize`, `use-cookie-state`, `react-popper` (phase 4)
-- [ ] Fix whatever StrictMode's double effects expose
-- [ ] Browser check
+- [x] Fix whatever StrictMode's double effects expose: nothing broke (tests, popovers, menus, logout all fine)
+- [x] Browser check (Chrome on the Mac, dev server and production preview): everything on the checklist works, no console errors
+  - Drags must be paced like real ones. The browser tool's instant drag does nothing on React 18+, because dnd-kit applies moves after React renders. A drag spread over a few frames works, and so do real ones
+  - Found and fixed a test-helper bug (`installFakeLayout` never cleaned up, so later drag tests broke)
+  - The JS bundle grew from 681 kB to 839 kB (React 19 + React Router 8). Worth code-splitting later
 
 ### 3. Data layer: fetch + TanStack Query 5
 
@@ -125,6 +128,7 @@ Versions checked against npm on 2026-11-11.
 
 ## Later (not part of this upgrade)
 
+- Code-split the bundle (839 kB, about 239 kB gzipped), e.g. lazy-load the board workspace.
 - API: duplicating a board collapses a hero that appears twice in one category (`BoardsController::duplicate` keys pivots by hero id). The UI also allows adding the same hero twice; decide which is intended.
 - `@dnd-kit/react` (0.5, pre-1.0) could replace the custom multi-container collision code.
 - Replace styled-components (it's in maintenance mode).
@@ -134,3 +138,4 @@ Versions checked against npm on 2026-11-11.
 
 - 2026-11-11: Plan written.
 - 2026-11-12: Phase 1 done. 23 tests pass, plus typecheck and build. Browser check passed after fixing the autosize import.
+- 2026-11-12: Phase 2 done: React 19.3, React Router 8, `<title>` instead of Helmet, StrictMode. 26 tests pass, plus typecheck and build; browser check passed.
