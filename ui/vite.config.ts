@@ -1,8 +1,9 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   // Keep the env names the app has always used (also set on Netlify).
   // Anything matching these prefixes is bundled into the client.
   envPrefix: ['API_URL', 'OAUTH_CLIENT_'],

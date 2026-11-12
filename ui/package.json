@@ -24,16 +24,18 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@heroicons/react": "^2.2.0",
+    "@tailwindcss/vite": "^4.3.5",
     "@tanstack/react-query": "^5.107.1",
+    "cn": "^0.5.2",
     "cookie": "^1.1.1",
     "date-fns": "^4.4.0",
     "immer": "^11.2.10",
-    "modern-normalize": "^3.0.1",
     "re-resizable": "^6.11.2",
     "react": "19.3",
     "react-dom": "19.3",
     "react-router": "^8.5.1",
     "styled-components": "^6.6.0",
+    "tailwindcss": "^4.3.5",
     "uuid": "^14.0.3"
   },
   "devDependencies": {
@@ -49,6 +51,7 @@
     "msw": "^3.0.5",
     "oxlint": "^1.93.0",
     "prettier": "^3.10.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0"

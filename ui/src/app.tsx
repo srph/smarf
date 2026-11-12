@@ -1,6 +1,5 @@
 import React, { StrictMode, useState } from 'react'
-import { createGlobalStyle } from 'styled-components'
-import 'modern-normalize/modern-normalize.css'
+import './index.css'
 
 import { AuthUserProvider } from '~/src/contexts/auth-user/auth-user-provider'
 import { QueryProvider } from '~/src/contexts/query/query-provider'
@@ -19,8 +18,6 @@ import { AuthRoute } from './routes/auth/auth-route'
 import { LoginRoute } from './routes/auth.login/login-route'
 import { RegisterRoute } from './routes/auth.register/register-route'
 import { LogoutRoute } from './routes/logout/logout-route'
-
-import { theme } from './theme'
 
 // Providers that use router hooks (useNavigate, useLocation) have to render inside the router.
 const Root = () => {
@@ -90,23 +87,8 @@ const App = () => {
       <QueryProvider>
         <RouterProvider router={router} />
       </QueryProvider>
-
-      <GlobalStyle />
     </StrictMode>
   )
 }
-
-const GlobalStyle = createGlobalStyle`
-  * {
-    box-sizing: border-box;
-  }
-
-  body {
-    font-family: ${theme.fontFamily.sans};
-    font-size: ${theme.fontSizes.md}px;
-    color: ${theme.colors.text};
-    background: ${theme.colors.neutral[900]};
-  }
-`
 
 export { App }

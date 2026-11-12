@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Interstate comes from Adobe Fonts (the Typekit stylesheet in index.html). */
+  --font-sans:
+    'Interstate', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+
+  /* Brand color: the full indigo range, so primary-50 through primary-950 all exist. */
+  --color-primary-50: oklch(96.2% 0.018 272.314);
+  --color-primary-100: oklch(93% 0.034 272.788);
+  --color-primary-200: oklch(87% 0.065 274.039);
+  --color-primary-300: oklch(78.5% 0.115 274.713);
+  --color-primary-400: oklch(67.3% 0.182 276.935);
+  --color-primary-500: oklch(58.5% 0.233 277.117);
+  --color-primary-600: oklch(51.1% 0.262 276.966);
+  --color-primary-700: oklch(45.7% 0.24 277.023);
+  --color-primary-800: oklch(39.8% 0.195 277.366);
+  --color-primary-900: oklch(35.9% 0.144 278.697);
+  --color-primary-950: oklch(25.7% 0.09 281.288);
+}
+
+@layer base {
+  /* Stacking order, lowest first. Use as z-(--z-popover). */
+  :root {
+    --z-board-workspace: 900;
+    --z-board-toolbar: 1000;
+    --z-board-toolbar-icon: 1010;
+    --z-board-toolbar-hovered-icon: 1020;
+    --z-user-dropdown: 1200;
+    --z-popover: 1500;
+  }
+
+  body {
+    @apply bg-zinc-900 text-sm text-zinc-50;
+  }
+}
