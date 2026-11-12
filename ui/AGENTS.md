@@ -2,7 +2,7 @@
 
 React front-end for Smarf: the board list, and the board workspace where users drag heroes between resizable categories.
 
-React 19, TypeScript, Vite 8, styled-components 6, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, Base UI for popovers and menus, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. A dependency upgrade is in progress; see [UPGRADE.md](UPGRADE.md).
+React 19, TypeScript 7, Vite 8, styled-components 6, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, Base UI for popovers and menus, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`. The 2026 dependency upgrade is recorded in [UPGRADE.md](UPGRADE.md).
 
 ## Commands
 

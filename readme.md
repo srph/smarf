@@ -8,73 +8,48 @@ Smarf is a dota hero organizer on your browser
 
 ## Requirements
 
-- Node 26 (via nvm, see `ui/.nvmrc`)
-- Docker
+- PHP 8.1 and Composer 2 (via [Laravel Valet](https://laravel.com/docs/valet), pinned by `api/.valetrc`)
+- Node 26 (via nvm, pinned by `ui/.nvmrc`)
+- Docker with Compose v2 (for MySQL 8)
+- Make
 
-### Running API
+## Getting started
 
-Go to the `/api` directory. Install the dependencies with:
-
-```bash
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v $(pwd):/var/www/html \
-    -w /var/www/html \
-    laravelsail/php81-composer:latest \
-    composer install --ignore-platform-reqs
-```
-
-Create .env file:
-
-```
-cp .env.example .env
-```
-
-Afterwards, run:
+Install everything, start the database, run migrations, and write a Passport client into `ui/.env`:
 
 ```bash
-./vendor/bin/sail up
+make install
 ```
 
-Run migrations and seed data:
+Then start the API and the UI in separate terminals:
 
 ```bash
-./vendor/bin/sail artisan migrate
-./vendor/bin/sail artisan db:seed
+make start:api
 ```
-
-Install Passport keys and and create client id/secret:
-
-```
-sail artisan install
-sail artisan passport:client --password
-```
-
-Copy the output's client id and secret.
-
-### Running UI
-
-Go the `/ui` directory. Create .env file:
-
-```
-cp .env.example .env
-```
-
-Open .env and set `OAUTH_CLIENT_ID` and `OAUTH_CLIENT_SECRET` based on Passport's output.
-
-Afterwards, install dependencies and start the Vite dev server:
 
 ```bash
-npm install && npm start
+make start:web
 ```
 
-### Create an Admin User
+The UI runs on port 13000 and the API on 13001, on all interfaces. The `.env` files point at `http://mbp:13000` and `http://mbp:13001` (a Tailscale MagicDNS name); change `APP_URL` in `api/.env` and `API_URL` in `ui/.env` if your machine has another name.
 
-Go back to the `/api` directory, then run:
+To create an admin user:
 
 ```bash
-php artisan smarf:admin
+cd api && valet php --site=smarf artisan smarf:admin
 ```
+
+## UI
+
+React 19, TypeScript 7, Vite 8, React Router 8, TanStack Query 5, Base UI, styled-components 6, and dnd-kit. From `ui/`:
+
+```bash
+npm test            # Vitest integration tests
+npm run typecheck
+npm run build       # production build to dist/
+```
+
+See [ui/AGENTS.md](ui/AGENTS.md) for how the UI is put together and [ui/UPGRADE.md](ui/UPGRADE.md) for the 2026 upgrade.
 
 ## Why?
 
