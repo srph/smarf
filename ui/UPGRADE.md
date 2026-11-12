@@ -141,3 +141,4 @@ Versions checked against npm on 2026-11-11.
 - 2026-11-11: Plan written.
 - 2026-11-12: Phase 1 done. 23 tests pass, plus typecheck and build. Browser check passed after fixing the autosize import.
 - 2026-11-12: Phase 2 done: React 19.3, React Router 8, `<title>` instead of Helmet, StrictMode. 26 tests pass, plus typecheck and build; browser check passed.
+- 2026-11-12: Phase 3 code done (fetch, TanStack Query 5, auth hooks, cache-backed board, three bug fixes). 33 tests pass, plus typecheck and build. Browser check pending: the servers had stopped and the Mac's Chrome wasn't connected.
