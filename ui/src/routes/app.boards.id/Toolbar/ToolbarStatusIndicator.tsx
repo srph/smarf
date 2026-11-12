@@ -21,7 +21,7 @@ const ToolbarStatusIndicator = () => {
 
   useEffect(() => {
     setStatus(isSaving ? 'loading' : 'saved')
-  }, [isSaving])
+  }, [isSaving, setStatus])
 
   return (
     <Container>

@@ -1,9 +1,12 @@
-import { MutableRefObject, useEffect, useRef } from 'react'
+import { RefObject, useLayoutEffect, useRef } from 'react'
 
-function useLatestValue<T>(value: T): MutableRefObject<T> {
+/** A ref that always holds the latest `value`, for reading from event handlers and subscriptions. */
+function useLatestValue<T>(value: T): RefObject<T> {
   const ref = useRef(value)
 
-  ref.current = value
+  useLayoutEffect(() => {
+    ref.current = value
+  })
 
   return ref
 }

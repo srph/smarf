@@ -4,7 +4,6 @@ import { theme } from '~/src/theme'
 
 interface Props {
   label?: string
-  autoFocus?: boolean
   value?: string
   onChange: (value: string) => void
   placeholder?: string
@@ -12,7 +11,7 @@ interface Props {
   ref?: React.Ref<HTMLInputElement>
 }
 
-const Input: React.FC<Props> = (props) => {
+const Input: React.FC<Props> = ({ ref, ...props }) => {
   const handleChange = (evt) => {
     props.onChange(evt.target.value)
   }
@@ -21,9 +20,8 @@ const Input: React.FC<Props> = (props) => {
     <div>
       {props.label && <Label>{props.label}</Label>}
       <StyledInput
-        ref={props.ref}
+        ref={ref}
         type={props.type || 'text'}
-        autoFocus={props.autoFocus}
         value={props.value}
         onChange={handleChange}
         placeholder={props.placeholder}

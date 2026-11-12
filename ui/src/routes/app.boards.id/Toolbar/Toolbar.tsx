@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
-import { Button, Container, Icon, DeletePopover } from '~/src/components'
+import { Container, Icon, DeletePopover } from '~/src/components'
 import { useBoardWorkspace } from '~/src/routes/app.boards.id/contexts'
 import { useBoardList } from '~/src/contexts/BoardList'
 import { EditPopover } from '../EditPopover'

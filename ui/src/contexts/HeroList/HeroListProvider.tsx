@@ -26,7 +26,7 @@ const HeroListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     enabled: Boolean(token)
   })
 
-  const heroes = heroData?.heroes || []
+  const heroes = useMemo(() => heroData?.heroes ?? [], [heroData])
 
   const heroAttributeGroups: HeroAttributeGroup[] = useMemo(
     () => [

@@ -19,7 +19,7 @@ export const getCategoryBottom = (category: Category): number => {
 }
 
 export const getLowestCategoryBottom = (board: Board): number => {
-  const lowestCategory = [...board.categories].sort((a, b) => {
+  const lowestCategory = board.categories.toSorted((a, b) => {
     return getCategoryBottom(b) - getCategoryBottom(a)
   })[0]
 

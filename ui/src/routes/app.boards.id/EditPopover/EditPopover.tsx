@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { theme } from '~/src/theme'
@@ -19,11 +19,11 @@ const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    if (!isEditing) {
-      setName(board.name)
-    }
-  }, [board.name, isEditing])
+  // Start from the current name each time the editor opens.
+  const handleOpenChange = (open: boolean) => {
+    if (open) setName(board.name)
+    setIsEditing(open)
+  }
 
   const handleSubmit = (evt: React.FormEvent) => {
     evt.preventDefault()
@@ -37,7 +37,7 @@ const EditPopover: React.FC<Props> = ({ trigger, anchor }) => {
   return (
     <Popover
       open={isEditing}
-      onOpenChange={setIsEditing}
+      onOpenChange={handleOpenChange}
       trigger={trigger}
       anchor={anchor}
       positionMethod="fixed"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { theme } from '~/src/theme'
 import { ImageAspectRatio } from '~/src/components'
@@ -16,7 +16,7 @@ interface Props {
   hero: HeroCategoryPivot
 }
 
-const CategoryHero: React.FC<Props> = ({ category, hero }) => {
+const CategoryHero: React.FC<Props> = ({ hero }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: hero.pivot.id })
 
   const style = {

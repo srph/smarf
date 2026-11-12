@@ -3,6 +3,11 @@ import { vi } from 'vitest'
 // Captured once at import, so re-installing in later tests never falls back to a previous mock.
 const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect
 
+const rect = (left: number, top: number, width: number, height: number): DOMRect =>
+  ({ left, top, width, height, x: left, y: top, right: left + width, bottom: top + height, toJSON() {} }) as DOMRect
+
+const cards = () => Array.from(document.querySelectorAll('[aria-roledescription="draggable"]'))
+
 /**
  * jsdom has no layout, so every element measures 0×0 and dnd-kit can't find drop targets.
  * This gives the board workspace a simple fake layout, based on DOM order:
@@ -16,11 +21,6 @@ const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect
  * Call it in `beforeEach`; `tests/setup.ts` restores mocks after every test.
  */
 export function installFakeLayout() {
-  const rect = (left: number, top: number, width: number, height: number): DOMRect =>
-    ({ left, top, width, height, x: left, y: top, right: left + width, bottom: top + height, toJSON() {} }) as DOMRect
-
-  const cards = () => Array.from(document.querySelectorAll('[aria-roledescription="draggable"]'))
-
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
     const allCards = cards()
 

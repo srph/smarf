@@ -6,7 +6,7 @@ const LogoutRoute = () => {
 
   useEffect(() => {
     logout()
-  }, [])
+  }, [logout])
 
   return null
 }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { ID } from '~/src/types/api'
 import { DragStartEvent, DragMoveEvent, DragCancelEvent, DragEndEvent } from '@dnd-kit/core'
 
@@ -38,17 +38,15 @@ const defaultTranslate: Translate = {
  * Encapsulates drag logic for containers
  */
 function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerReturnType {
-  const containerIds: Containers = useMemo(() => {
-    return props.containers.map((container) => props.getContainerId(container))
-  }, [props.containers])
+  const { containers, getContainerId } = props
 
-  const getContainer = (containerId: ID) => {
-    const index = containerIds.indexOf(containerId)
-    return props.containers[index]
-  }
+  const containerIds: Containers = useMemo(() => containers.map(getContainerId), [containers, getContainerId])
 
   const [activeId, setActiveId] = useState<ID | null>(null)
-  const activeContainer = useMemo(() => getContainer(activeId), [props.containers, containerIds, activeId])
+
+  const getContainer = (containerId: ID) => containers[containerIds.indexOf(containerId)]
+
+  const activeContainer = getContainer(activeId)
   const [initialTranslate, setInitialTranslate] = useState<Translate>(defaultTranslate)
   const [initialWindowScroll, setInitialWindowScroll] = useState<Translate>(defaultTranslate)
 

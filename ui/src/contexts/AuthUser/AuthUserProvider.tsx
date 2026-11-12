@@ -29,7 +29,7 @@ const AuthUserProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   // Any 401 (outside login) means the token expired or was revoked.
   const logoutRef = useLatestValue(logout)
-  useEffect(() => onUnauthorized(() => logoutRef.current()), [])
+  useEffect(() => onUnauthorized(() => logoutRef.current()), [logoutRef])
 
   const me = useQuery<{ user: User }>('auth/me', {
     enabled: Boolean(token),

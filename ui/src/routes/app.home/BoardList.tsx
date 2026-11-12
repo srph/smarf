@@ -5,7 +5,6 @@ import { Icon, PlainButton, TimeAgo } from '~/src/components'
 import { Link } from 'react-router'
 import { theme } from '~/src/theme'
 import { Board } from '~/src/types/api'
-import { formatDistanceToNowStrict } from 'date-fns'
 import { StarIcon } from '@heroicons/react/20/solid'
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 

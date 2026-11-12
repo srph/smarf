@@ -1,13 +1,16 @@
 import { useEffect } from 'react'
+import { useLatestValue } from './useLatestValue'
 
-const useInterval = (callback: Function, interval: number) => {
+const useInterval = (callback: () => void, interval: number) => {
+  const callbackRef = useLatestValue(callback)
+
   useEffect(() => {
-    const n = setInterval(callback, interval)
+    const n = setInterval(() => callbackRef.current(), interval)
 
     return () => {
       clearInterval(n)
     }
-  }, [interval])
+  }, [callbackRef, interval])
 }
 
 export { useInterval }

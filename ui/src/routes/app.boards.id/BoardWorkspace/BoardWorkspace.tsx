@@ -12,30 +12,30 @@ import { getLowestCategoryBottom } from '~/src/contexts/BoardList/utils'
 
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, MeasuringStrategy } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { restrictToParentElement } from '@dnd-kit/modifiers'
 import { useGridCollisionDetection } from './useGridCollisionDetection'
 import { useDragContainer } from './useDragContainer'
 import { restrictWithinWorkspace } from './restrictWithinWorkspace'
 import { mergeEvents } from './utils'
 
-// Board functionality
-// -
+// Module-level so they keep their identity across renders (the drag hooks memoize on them).
+const getCategoryId = (category: Category) => category.id
+const getCategoryHeroIds = (category: Category) => category.heroes.map((hero) => hero.pivot.id)
+const getCategoryPosition = (category: Category) => ({ x: category.x_position, y: category.y_position })
+
 const BoardWorkspace: React.FC = () => {
   const { board, moveHero, moveCategory, moveCategoryEnd } = useBoardWorkspace()
 
   const { collisionDetectionStrategy, ...gridCollisionEvents } = useGridCollisionDetection<Category>({
     containers: board.categories,
-    containerIdTransformer: (container) => container.id,
-    containerDataIdTransformer: (container) => container.heroes.map((hero) => hero.pivot.id),
+    containerIdTransformer: getCategoryId,
+    containerDataIdTransformer: getCategoryHeroIds,
     onChange: moveHero
   })
 
   const dragContainerEvents = useDragContainer({
     containers: board.categories,
-    getContainerId: (container) => container.id,
-    getContainerPosition: (container) => {
-      return { x: container.x_position, y: container.y_position }
-    },
+    getContainerId: getCategoryId,
+    getContainerPosition: getCategoryPosition,
     onChange: moveCategory,
     onDragEnd: moveCategoryEnd
   })
@@ -68,6 +68,8 @@ const BoardWorkspace: React.FC = () => {
             strategy: MeasuringStrategy.Always
           }
         }}
+        // The modifier reads workspaceRef while dragging, not during render.
+        // oxlint-disable-next-line react/refs
         modifiers={[restrictWithinWorkspace({ workspaceRef })]}
         {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
         <Workspace ref={workspaceRef} $height={workspaceHeight}>

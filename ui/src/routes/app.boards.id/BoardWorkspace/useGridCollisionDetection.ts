@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 
 import {
   closestCenter,
@@ -27,7 +27,7 @@ interface CustomGridCollisionDetectionProps<T> {
   onChange: (from: CustomGridCollisionDetectionEvent, to: CustomGridCollisionDetectionEvent) => void
 }
 
-interface CustomGridCollisionDetectionReturnType<T> {
+interface CustomGridCollisionDetectionReturnType {
   collisionDetectionStrategy: CollisionDetection
   onDragStart: (e: DragStartEvent) => void
   onDragOver: (e: DragOverEvent) => void
@@ -48,18 +48,20 @@ type PayloadMap = Record<ID, ID[]>
  */
 function useGridCollisionDetection<T>(
   props: CustomGridCollisionDetectionProps<T>
-): CustomGridCollisionDetectionReturnType<T> {
-  const containerIds: ContainerIds = useMemo(() => {
-    return props.containers.map(props.containerIdTransformer)
-  }, [props.containers])
+): CustomGridCollisionDetectionReturnType {
+  const { containers, containerIdTransformer, containerDataIdTransformer } = props
+
+  const containerIds: ContainerIds = useMemo(
+    () => containers.map(containerIdTransformer),
+    [containers, containerIdTransformer]
+  )
 
   const payload: PayloadMap = useMemo(() => {
-    return props.containers.reduce((map, container, i) => {
-      const containerId = containerIds[i]
-      map[containerId] = props.containerDataIdTransformer(container)
+    return containers.reduce((map, container, i) => {
+      map[containerIds[i]] = containerDataIdTransformer(container)
       return map
     }, {})
-  }, [props.containers, containerIds])
+  }, [containers, containerIds, containerDataIdTransformer])
 
   // An active item's starting position so we know how to put it back when user cancels
   const [startEvent, setStartEvent] = useState<CustomGridCollisionDetectionEvent | null>(null)

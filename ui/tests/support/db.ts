@@ -153,7 +153,7 @@ export function categoryJson(category: DbCategory) {
     ...category,
     heroes: db.pivots
       .filter((p) => p.category_id === category.id)
-      .sort((a, b) => a.order - b.order)
+      .toSorted((a, b) => a.order - b.order)
       .map((p) => ({ ...HEROES.find((h) => h.id === p.hero_id)!, pivot: { ...p } }))
   }
 }

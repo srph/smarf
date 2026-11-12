@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 import { clearToken } from '~/src/lib/token'
@@ -7,11 +8,11 @@ function useLogout() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  return () => {
+  return useCallback(() => {
     clearToken()
     queryClient.removeQueries()
     navigate('/login')
-  }
+  }, [queryClient, navigate])
 }
 
 export { useLogout }

@@ -7,25 +7,17 @@ import { theme } from '../../theme'
 interface Props {
   value: string
   onChange: (v: string) => void
-  autoFocus?: boolean
   ref?: React.Ref<HTMLInputElement>
 }
 
-const SearchInput: React.FC<Props> = ({ value, onChange, autoFocus = false, ref }) => {
+const SearchInput: React.FC<Props> = ({ value, onChange, ref }) => {
   const handleChange = (evt) => {
     onChange(evt.target.value)
   }
 
   return (
     <Container>
-      <Input
-        ref={ref}
-        type="text"
-        value={value}
-        onChange={handleChange}
-        placeholder="Search..."
-        autoFocus={autoFocus}
-      />
+      <Input ref={ref} type="text" value={value} onChange={handleChange} placeholder="Search..." />
       <SearchIcon>
         <Icon icon={MagnifyingGlassIcon} size={16} />
       </SearchIcon>

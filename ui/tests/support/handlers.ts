@@ -131,10 +131,10 @@ export const handlers = [
       updated_at: NOW()
     }
     db.boards.push(board)
-    for (const c of db.categories.filter((c) => c.board_id === original.id)) {
+    for (const c of db.categories.filter((category) => category.board_id === original.id)) {
       const copy = { ...c, id: nextId('category'), board_id: board.id }
       db.categories.push(copy)
-      for (const p of db.pivots.filter((p) => p.category_id === c.id)) {
+      for (const p of db.pivots.filter((pivot) => pivot.category_id === c.id)) {
         db.pivots.push({ ...p, id: nextId('pivot'), category_id: copy.id })
       }
     }

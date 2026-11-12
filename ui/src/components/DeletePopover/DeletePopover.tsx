@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Button, Spacer, Input, Popover, type PopoverProps } from '~/src/components'
 import { theme } from '~/src/theme'
@@ -18,7 +18,7 @@ const DeletePopover: React.FC<DeletePopoverProps> = ({
   nameConfirmationPlaceholder,
   ...popoverProps
 }) => {
-  const { open, onOpenChange } = popoverProps
+  const { onOpenChange } = popoverProps
 
   const [name, setName] = useState('')
 
@@ -26,13 +26,15 @@ const DeletePopover: React.FC<DeletePopoverProps> = ({
 
   const cancelRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => {
-    if (!open) setName('')
-  }, [open])
+  // Start with an empty name field each time it opens.
+  const handleOpenChange = (next: boolean) => {
+    if (next) setName('')
+    onOpenChange(next)
+  }
 
   return (
     // Focus the name field, or Cancel, so Enter never deletes by accident.
-    <Popover {...popoverProps} initialFocus={nameConfirmation ? nameRef : cancelRef}>
+    <Popover {...popoverProps} onOpenChange={handleOpenChange} initialFocus={nameConfirmation ? nameRef : cancelRef}>
       <Container>
         <HeadingText>Delete Confirmation</HeadingText>
 

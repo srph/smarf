@@ -61,9 +61,9 @@ const BoardListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     CreateBoardMutationResponse,
     CreateBoardMutationVariables
   >('/boards', 'post', {
-    onSuccess: (data) => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['/boards'] })
-      navigate(`/b/${data.board.id}`)
+      navigate(`/b/${response.board.id}`)
     }
   })
 
@@ -82,7 +82,7 @@ const BoardListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const favoriteBoard = (id: ID) => {
     if (!boards) return null
-    const board = boards.find((board) => board.id === id)
+    const board = boards.find((b) => b.id === id)
     favoriteBoardMutation({ board_id: id, is_favorite: !board.is_favorite })
   }
 

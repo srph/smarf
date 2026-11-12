@@ -13,6 +13,8 @@ export const useUpdateEffect: typeof useEffect = (fn, deps) => {
     }
 
     return fn()
+    // Same contract as useEffect: the caller's deps decide when it runs.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, deps)
 
   // Reset on unmount. StrictMode mounts, unmounts and remounts in development; without this the

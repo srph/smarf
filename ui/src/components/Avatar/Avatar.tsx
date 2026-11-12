@@ -7,10 +7,9 @@ type Sizes = 'sm' | 'md' | 'lg'
 interface Props {
   src: string
   size?: Sizes
-  bordered?: boolean
 }
 
-export const Avatar: React.FC<Props> = ({ src, size = 'md', bordered = false }) => {
+export const Avatar: React.FC<Props> = ({ src, size = 'md' }) => {
   return (
     <Container>
       <Image src={src} $size={size} />
