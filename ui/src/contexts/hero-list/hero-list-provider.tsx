@@ -1,0 +1,68 @@
+import React, { createContext, useContext, useMemo } from 'react'
+import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
+import { useQuery } from '~/src/contexts/query/query-provider'
+import { Hero, HeroAttributeGroup } from '~/src/types/api'
+
+interface HeroListContextType {
+  heroes: Hero[]
+  heroAttributeGroups: HeroAttributeGroup[]
+  isLoading: boolean
+}
+
+interface HeroListQueryResponse {
+  heroes: Hero[]
+}
+
+const HeroListContext = createContext<HeroListContextType>({
+  heroes: [],
+  heroAttributeGroups: [],
+  isLoading: false
+})
+
+const HeroListProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { token } = useAuthUser()
+
+  const { data: heroData, isLoading } = useQuery<HeroListQueryResponse>('/heroes', {
+    enabled: Boolean(token)
+  })
+
+  const heroes = useMemo(() => heroData?.heroes ?? [], [heroData])
+
+  const heroAttributeGroups: HeroAttributeGroup[] = useMemo(
+    () => [
+      {
+        id: '1',
+        name: 'Strength',
+        heroes: heroes.filter((hero) => hero.attribute === 'strength')
+      },
+      {
+        id: '2',
+        name: 'Agility',
+        heroes: heroes.filter((hero) => hero.attribute === 'agility')
+      },
+      {
+        id: '3',
+        name: 'Intelligence',
+        heroes: heroes.filter((hero) => hero.attribute === 'intelligence')
+      }
+    ],
+    [heroes]
+  )
+
+  return (
+    <HeroListContext.Provider
+      value={{
+        heroes,
+        heroAttributeGroups,
+        isLoading
+      }}>
+      {children}
+    </HeroListContext.Provider>
+  )
+}
+
+const useHeroList = () => {
+  return useContext(HeroListContext)
+}
+
+export { HeroListProvider, useHeroList }

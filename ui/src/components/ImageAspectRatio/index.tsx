@@ -1,1 +1,0 @@
-export { ImageAspectRatio } from './ImageAspectRatio'

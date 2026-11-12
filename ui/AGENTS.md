@@ -26,11 +26,11 @@ Before committing, `typecheck`, `lint`, `format:check` and `test` should all pas
 index.html        Vite entry
 public/           copied as-is: favicons, _redirects (Netlify)
 src/
-├── App.tsx       route table + providers; index.tsx only mounts it
+├── app.tsx       route table + providers; index.tsx only mounts it
 ├── assets/       images imported by components
-├── components/   shared UI primitives (Button, Input, Popover, PageTitle, ...)
-├── contexts/     AuthUser (current user, login/logout), BoardList, HeroList, Query
-├── hooks/        generic hooks (useDebouncedEffect, useDelayedState, ...)
+├── components/   shared UI primitives (button/, input/, popover/, page-title/, ...)
+├── contexts/     auth-user (current user, login/logout), board-list, hero-list, query
+├── hooks/        generic hooks (use-debounced-effect.ts, use-delayed-state.ts, ...)
 ├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie)
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId)
 ├── types/        API and board-operation types
@@ -40,6 +40,13 @@ tests/
 ├── *.test.tsx    integration tests: render the whole App at a URL against a fake API
 └── support/      MSW handlers + in-memory db, render helper, fake layout for drag-and-drop
 ```
+
+## Naming
+
+- **Files and folders are kebab-case:** `components/search-input/search-input.tsx`, `hooks/use-interval.ts`. Route folders keep `.` for nesting (`app.boards.id`). Oxlint enforces this for filenames (`unicorn/filename-case`).
+- **No barrel files (`index.ts`).** Import the file that defines the thing: `~/src/components/button/button`, not `~/src/components`. `src/index.tsx` is the Vite entry, not a barrel.
+- **Exports stay PascalCase/camelCase, named after the file:** `boards-id-route.tsx` → `BoardsIdRoute`, `use-login.ts` → `useLogin`.
+- **Shared components get a folder of their own:** `components/time-ago/time-ago.tsx`.
 
 ## Testing
 
@@ -51,9 +58,9 @@ tests/
 
 ## Best practices
 
-- Fetch and mutate through the TanStack Query hooks in `contexts/Query` next to the route that uses them.
+- Fetch and mutate through the TanStack Query hooks in `contexts/query` next to the route that uses them.
 - Board operations (`routes/app.boards.id/contexts`) treat the query cache as the source of truth: read with `getBoard()`, write with `setBoard()` before the request, call `rollback` on error, and pass `mutationKey: boardKey`. Drag and resize go through `setDraft` until they finish.
-- Build popovers and menus on Base UI (`@base-ui/react`); `components/Popover` covers the usual popover. Style its parts with styled-components and its `data-*` state attributes (`data-popup-open`, `data-highlighted`).
+- Build popovers and menus on Base UI (`@base-ui/react`); `components/popover` covers the usual popover. Style its parts with styled-components and its `data-*` state attributes (`data-popup-open`, `data-highlighted`).
 - Keep components route-local until a second route needs them, then move them to `components/`.
 - Import icons from `@heroicons/react/20/solid` and pass the component: `<Icon icon={TrashIcon} />`.
 - Prefix styled-components props that only feed styles with `$` (`$width`, `$color`) so they don't reach the DOM.

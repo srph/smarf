@@ -1,1 +1,0 @@
-export { AppRoute } from './AppRoute'

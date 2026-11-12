@@ -158,3 +158,4 @@ Versions checked against npm on 2026-11-11.
 - 2026-11-12: Phase 5 done (heroicons 2, styled-components 6, dnd-kit 6/10, library bumps, lodash removed). 37 tests pass, plus typecheck and build; browser check passed. Bundle 673 kB.
 - 2026-11-12: Phase 6 done (TypeScript 7.0.2, readme). Upgrade complete: 37 tests, typecheck and build pass; bundle 673 kB (218 kB gzipped).
 - 2026-11-12: After the upgrade: Prettier 3.10 (config fixed, UI formatted), Oxlint 1.93 (findings fixed: refs written during render, setState in effects, hook deps, unused code), and TypeScript strict mode (64 errors fixed). Browser check passed.
+- 2026-11-13: Kebab-case file and folder names, barrel files (`index.ts`) removed, imports point at the defining file (conventions from careflix). Oxlint enforces kebab-case filenames. 37 tests, typecheck, lint, format and build pass; browser check passed.
