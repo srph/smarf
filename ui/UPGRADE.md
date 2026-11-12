@@ -1,6 +1,6 @@
 # UI upgrade plan
 
-Moving `ui/` from Node 16 / React 17 / Parcel to a current stack. Work happens on the `v1.5` branch, one commit (or a few) per phase. Tick items as they land.
+Moving `ui/` from Node 16 / React 17 / Parcel to a current stack. Work happens on the `v1.5` branch, one commit (or a few) per phase. **Done 2026-11-12**; follow-ups are under "Later".
 
 ## Target stack
 
@@ -17,7 +17,7 @@ Versions checked against npm on 2026-11-11.
 | Icons | heroicons 1 | heroicons 2 |
 | Styling | styled-components 5 | styled-components 6 (keeping it for now) |
 | Drag and drop | dnd-kit core 5 / sortable 6 | dnd-kit core 6 / sortable 10 |
-| TypeScript | 4.x (via Parcel) | 6.x first; try 7 (the native compiler) in phase 6 |
+| TypeScript | 4.x (via Parcel) | 7 (the native compiler) |
 | Tests | none | Vitest + Testing Library + MSW |
 
 ## Decisions
@@ -32,17 +32,17 @@ Versions checked against npm on 2026-11-11.
 ## How each phase is verified
 
 - `npm run build`, `npm run typecheck` and `npm test` pass.
-- Browser check in Chrome against the local API (`make start:db`, `make start:api`, `make start:web`; open `http://mbp:13000`):
-  - [ ] Register, log out, log in
-  - [ ] Create a board and rename it
-  - [ ] Favorite, duplicate and delete a board
-  - [ ] Add and rename a category; delete a category
-  - [ ] Add a hero through the hero selector
-  - [ ] Drag a hero within a category and to another category
-  - [ ] Drag a category; resize a category
-  - [ ] Reload the page: changes persisted
-  - [ ] Popovers and the user dropdown open and close (including clicking outside)
-  - [ ] No console errors or warnings
+- Browser check in Chrome against the local API (`make start:db`, `make start:api`, `make start:web`; open `http://mbp:13000`). Each phase checks what it touched, from this list:
+  - Register, log out, log in
+  - Create a board and rename it
+  - Favorite, duplicate and delete a board
+  - Add and rename a category; delete a category
+  - Add a hero through the hero selector
+  - Drag a hero within a category and to another category
+  - Drag a category; resize a category
+  - Reload the page: changes persisted
+  - Popovers and the user dropdown open and close (including clicking outside)
+  - No console errors or warnings
 
 ## Phases
 
@@ -131,9 +131,9 @@ Versions checked against npm on 2026-11-11.
 
 ### 6. Wrap-up
 
-- [ ] Try TypeScript 7; keep 6.x if any tool doesn't support it yet
-- [ ] Update `readme.md`
-- [ ] Every item in this file ticked or moved to "Later"
+- [x] TypeScript 7.0.2: no config changes, no new errors, and `npm run typecheck` takes about half a second. Nothing else depends on it: Vite and Vitest strip types without `tsc`, and msw's optional peer range (`>=5.9`) includes 7
+- [x] Update `readme.md`: Make-based setup (Valet, nvm, Docker MySQL) instead of the old Sail steps, the ports, and the UI stack and scripts. Root `AGENTS.md` said React 17; fixed
+- [x] Every item in this file ticked or moved to "Later"
 
 ## Open questions
 
@@ -156,3 +156,4 @@ Versions checked against npm on 2026-11-11.
 - 2026-11-12: Phase 3 done (fetch, TanStack Query 5, auth hooks, cache-backed board, three bug fixes). 33 tests pass, plus typecheck and build; browser check passed.
 - 2026-11-12: Phase 4 done (Base UI popovers and menu, `field-sizing` titles, no React `overrides` left). 37 tests pass, plus typecheck and build; browser check passed.
 - 2026-11-12: Phase 5 done (heroicons 2, styled-components 6, dnd-kit 6/10, library bumps, lodash removed). 37 tests pass, plus typecheck and build; browser check passed. Bundle 673 kB.
+- 2026-11-12: Phase 6 done (TypeScript 7.0.2, readme). Upgrade complete: 37 tests, typecheck and build pass; bundle 673 kB (218 kB gzipped).
