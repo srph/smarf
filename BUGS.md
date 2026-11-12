@@ -17,3 +17,12 @@ Known issues, flagged for later. Remove an entry when it's fixed.
 
 - **Categories come back unsorted.** `Board::categories()` has no `orderBy` and ids are uuids, so the order differs from creation order and can change between loads.
 - **Hero order can collide (edge case).** `order` is a double. Dropping heroes into the same gap over and over halves it each time, until two heroes share a value and their sort order becomes arbitrary.
+
+## Backlog
+
+Not bugs. Improvements to pick up later.
+
+| Item | Notes |
+| --- | --- |
+| Fractional ordering for heroes | Replace the `double` `order` with fractional index keys (strings that always sort between their neighbours), so orders never collide and never need renumbering. Fixes the hero order collision above. |
+| Refetch the board after saves settle | Once the last pending save finishes, refetch `GET /boards/:id` to resync with the server. Dropped for now: it can visibly reorder categories until they're sorted server-side. |
