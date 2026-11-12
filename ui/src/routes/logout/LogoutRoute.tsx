@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
-import { useAuthUser } from '~/src/contexts/AuthUser'
+import { useLogout } from '~/src/contexts/AuthUser'
 
 const LogoutRoute = () => {
-  const { logout } = useAuthUser()
+  const logout = useLogout()
 
   useEffect(() => {
     logout()

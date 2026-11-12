@@ -91,8 +91,8 @@ Versions checked against npm on 2026-11-11.
 - [x] Remove axios and `useInterceptor`
 - [x] `lib/token.ts`: the token cookie (same name and options, so existing logins carry over) with `useToken()`. Pulled forward from phase 4 because the fetch wrapper needs the token outside React; `use-cookie-state` removed, `cookie` bumped to 1.x
 - [x] `@tanstack/react-query` 5; rewrite the `contexts/Query` wrappers (object-form options, array keys, `isPending` for mutations). Queries pass TanStack's abort signal to `fetch`, so a query with no observers left cancels its request. A late 401 from a finished test was logging out the next one
-- [ ] Auth: user comes from the `['auth/me']` query; `useAuthUser` / `useLogin` / `useLogout` hooks; no blank screen when `auth/me` fails
-- [ ] Login navigates within the app instead of reloading the page
+- [x] Auth: user comes from the `['auth/me']` query; `useAuthUser` (user, token) plus `useLogin` / `useRegister` / `useLogout` hooks. If `auth/me` fails for any reason other than a 401, there's an error with Try again / Log out instead of a blank screen
+- [x] Login navigates within the app instead of reloading the page, back to the page that asked for login
 - [ ] Board workspace: read the board from the query; mutations update the cache optimistically in `onMutate` and roll back in `onError`
 - [ ] Drag and resize: keep in-progress values in local state; save on drop or resize end
 - [ ] Remove `useStateRef` / `boardRef` from board operations

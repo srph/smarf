@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Button, Input, PageTitle, Spacer } from '~/src/components'
-import { useAuthUser } from '~/src/contexts/AuthUser'
+import { useRegister } from '~/src/contexts/AuthUser'
 
 const RegisterRoute = () => {
-  const { register, isRegistering } = useAuthUser()
+  const { register, isRegistering } = useRegister()
 
   const [email, setEmail] = useState('')
 

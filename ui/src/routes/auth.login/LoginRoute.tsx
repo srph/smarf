@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Button, Input, PageTitle, Spacer } from '~/src/components'
-import { useAuthUser } from '~/src/contexts/AuthUser'
+import { useLogin } from '~/src/contexts/AuthUser'
 
 const LoginRoute = () => {
-  const { login, isLoggingIn } = useAuthUser()
+  const { login, isLoggingIn } = useLogin()
 
   const [email, setEmail] = useState('')
 
