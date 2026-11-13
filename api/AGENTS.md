@@ -14,7 +14,7 @@ valet php --site=smarf vendor/bin/phpunit
 
 PHP 8.1 is pinned in `.valetrc`. Valet only reads it for a linked site, so pass `--site=smarf` (`make install:api` links `api/` as `smarf`). The database is the root `compose.yaml` (127.0.0.1:3308, root/root).
 
-Discord sign-in needs `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET` in `.env`, from an app at https://discord.com/developers/applications whose OAuth2 redirects list the UI's `/login/discord` (`http://mbp:13000/login/discord` locally).
+Discord sign-in needs `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET` in `.env`, from an app at https://discord.com/developers/applications whose OAuth2 redirects list the UI's `/login/discord` (`http://mbp.boga-parore.ts.net:13000/login/discord` locally).
 
 ## Structure
 

@@ -3,8 +3,8 @@
 #   make install      install API + web dependencies, start the DB, run migrations
 #   make install:api  composer install, api/.env, app key, Passport keys
 #   make install:web  npm install, ui/.env
-#   make start:api    API on http://mbp:13001 (all interfaces; mbp is Tailscale MagicDNS)
-#   make start:web    web dev server on http://mbp:13000 (all interfaces)
+#   make start:api    API on http://mbp.boga-parore.ts.net:13001 (all interfaces; Tailscale MagicDNS)
+#   make start:web    web dev server on http://mbp.boga-parore.ts.net:13000 (all interfaces)
 #   make start:db     Docker MySQL on 127.0.0.1:3308 (root/root, database: smarf)
 #
 # PHP runs through Valet, which reads api/.valetrc for the version (php@8.1).

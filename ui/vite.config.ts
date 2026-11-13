@@ -8,7 +8,7 @@ export default defineConfig({
     // `~/src/...` resolves from the ui/ root, same as tsconfig `paths`.
     alias: [{ find: /^~\//, replacement: `${import.meta.dirname}/` }]
   },
-  // Served on every interface so other machines on the tailnet can open http://mbp:13000.
+  // Served on every interface so other machines on the tailnet can open http://mbp.boga-parore.ts.net:13000.
   // allowedHosts: Vite rejects requests whose Host header isn't listed.
   server: {
     host: '0.0.0.0',

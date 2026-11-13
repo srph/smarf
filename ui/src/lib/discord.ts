@@ -15,7 +15,7 @@ interface PendingLogin {
 /** Where Discord sends the visitor back to. Each origin must be listed in the Discord app's OAuth2 redirects. */
 const discordRedirectUri = () => `${window.location.origin}/login/discord`
 
-/** A random `state`. getRandomValues, not randomUUID: http://mbp:13000 isn't a secure context. */
+/** A random `state`. getRandomValues, not randomUUID: http://mbp.boga-parore.ts.net:13000 isn't a secure context. */
 const randomState = () =>
   Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, '0')).join('')
 

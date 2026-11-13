@@ -8,7 +8,7 @@ React 19, TypeScript 7, Vite 8, Tailwind CSS 4, React Router 8 (data router, `cr
 
 ```bash
 npm install
-npm start           # Vite dev server, http://mbp:13000 (or `make start:web` from the root)
+npm start           # Vite dev server, http://mbp.boga-parore.ts.net:13000 (or `make start:web` from the root)
 npm run build       # production build to dist/
 npm run typecheck   # tsc --noEmit, strict mode (Vite doesn't type-check)
 npm run lint        # Oxlint (.oxlintrc.json)

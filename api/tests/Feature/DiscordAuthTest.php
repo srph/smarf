@@ -19,7 +19,7 @@ class DiscordAuthTest extends TestCase
     // Tests run against a MySQL database, so roll back instead of refreshing it.
     use DatabaseTransactions;
 
-    private const REDIRECT = 'http://mbp:13000/login/discord';
+    private const REDIRECT = 'http://mbp.boga-parore.ts.net:13000/login/discord';
 
     protected function setUp(): void
     {
