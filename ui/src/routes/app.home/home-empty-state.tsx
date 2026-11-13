@@ -8,7 +8,7 @@ import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
 import { type Hero } from '~/src/types/api'
 import { CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/contexts/board-list/constants'
 
-const FEATURED_HEROES = ['Crystal Maiden', 'Juggernaut', 'Axe']
+const FEATURED_HEROES = ['Crystal Maiden', 'Juggernaut', 'Void Spirit']
 
 /** Three heroes for the art: the featured ones, or the first three if those names aren't in the list. */
 const pickFeatured = (heroes: Hero[]) => {
