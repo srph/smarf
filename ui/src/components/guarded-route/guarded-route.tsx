@@ -26,4 +26,4 @@ const GuardedRoute: React.FC<React.PropsWithChildren<Props>> = ({ children, type
 const getReturnPath = (location: Location) =>
   (location.state as { from?: { pathname?: string } } | null)?.from?.pathname
 
-export { GuardedRoute }
+export { GuardedRoute, getReturnPath }

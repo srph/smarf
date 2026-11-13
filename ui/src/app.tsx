@@ -15,7 +15,7 @@ import { AboutRoute } from './routes/app.about/about-route'
 import { AccountRoute } from './routes/app.account/account-route'
 import { AuthRoute } from './routes/auth/auth-route'
 import { LoginRoute } from './routes/auth.login/login-route'
-import { RegisterRoute } from './routes/auth.register/register-route'
+import { LoginDiscordRoute } from './routes/auth.login.discord/login-discord-route'
 import { LogoutRoute } from './routes/logout/logout-route'
 
 // Providers that use router hooks (useNavigate, useLocation) have to render inside the router.
@@ -57,15 +57,18 @@ const routes: RouteObject[] = [
             )
           },
           {
-            path: '/register',
+            // Discord sends the visitor here after they sign in there.
+            path: '/login/discord',
             element: (
               <GuardedRoute type="guest">
-                <RegisterRoute />
+                <LoginDiscordRoute />
               </GuardedRoute>
             )
           }
         ]
       },
+      // Sign-in is Discord-only; Discord creates the account.
+      { path: '/register', element: <Navigate to="/login" replace /> },
       { path: '/logout', element: <LogoutRoute /> },
       { path: '*', element: <Navigate to="/" replace /> }
     ]

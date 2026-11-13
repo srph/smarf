@@ -39,9 +39,9 @@ export interface DbBoard {
 
 export interface DbUser {
   id: string
+  discord_id: string
   name: string
-  email: string
-  password: string
+  email: string | null
   avatar: string | null
 }
 
@@ -66,12 +66,15 @@ export const HEROES: DbHero[] = [
 export const TEST_USER: DbUser = {
   id: 'user-1',
   name: 'Test User',
+  discord_id: '1001',
   email: 'test@example.com',
-  password: 'password123',
   avatar: null
 }
 
 export const TEST_TOKEN = 'test-token'
+
+/** A code Discord "sent back" for TEST_USER. Like a real one, it works once. */
+export const DISCORD_CODE = 'discord-code'
 
 let seq = 0
 export const nextId = (prefix: string) => `${prefix}-${++seq}`
@@ -82,7 +85,9 @@ export const db = {
   categories: [] as DbCategory[],
   pivots: [] as DbPivot[],
   /** Valid bearer tokens → user id. */
-  tokens: new Map<string, string>()
+  tokens: new Map<string, string>(),
+  /** Unused Discord codes → user id. */
+  discordCodes: new Map<string, string>()
 }
 
 export function resetDb() {
@@ -92,6 +97,7 @@ export function resetDb() {
   db.categories = []
   db.pivots = []
   db.tokens = new Map([[TEST_TOKEN, TEST_USER.id]])
+  db.discordCodes = new Map([[DISCORD_CODE, TEST_USER.id]])
 }
 
 export function findHero(name: string) {

@@ -54,7 +54,9 @@ export type BoardSummary = Omit<Board, 'categories'> & {
 
 export interface User {
   id: ID
-  email: string
+  discord_id: string
+  /** Only when Discord has verified it. */
+  email: string | null
   name: string
-  avatar: string
+  avatar: string | null
 }

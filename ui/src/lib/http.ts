@@ -24,7 +24,7 @@ class HttpError extends Error {
 
 const unauthorizedListeners = new Set<() => void>()
 
-/** Called on any 401 except from the login endpoint (an expired or revoked token). */
+/** Called on any 401 except from the sign-in endpoint (an expired or revoked token). */
 function onUnauthorized(listener: () => void) {
   unauthorizedListeners.add(listener)
   return () => {
@@ -54,7 +54,7 @@ async function http<T = unknown>(path: string, { method = 'GET', body, headers, 
   const data = text ? safeJson(text) : null
 
   if (!response.ok) {
-    if (response.status === 401 && !path.includes('oauth/token')) {
+    if (response.status === 401 && !path.includes('auth/discord')) {
       unauthorizedListeners.forEach((listener) => listener())
     }
     throw new HttpError(response.status, data)

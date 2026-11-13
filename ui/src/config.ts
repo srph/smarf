@@ -9,9 +9,11 @@ const config = {
   },
 
   oauth: {
-    cookieKey: 'smarf-oauth-token',
-    clientId: import.meta.env.OAUTH_CLIENT_ID,
-    clientSecret: import.meta.env.OAUTH_CLIENT_SECRET
+    cookieKey: 'smarf-oauth-token'
+  },
+
+  discord: {
+    clientId: import.meta.env.DISCORD_CLIENT_ID
   }
 }
 

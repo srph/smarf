@@ -27,32 +27,29 @@ function ownedCategory(request: Request, id: string): DbCategory | null {
 type Json = Record<string, any>
 
 export const handlers = [
-  http.post(`${API}/oauth/token`, async ({ request }) => {
+  http.post(`${API}/auth/discord`, async ({ request }) => {
     const body = (await request.json()) as Json
-    const user = db.users.find((u) => u.email === body.username && u.password === body.password)
-    if (!user || body.grant_type !== 'password' || body.client_id !== 'test-client') {
-      return HttpResponse.json({ error: 'invalid_grant' }, { status: 400 })
+    const userId = db.discordCodes.get(body.code)
+    if (!userId || body.redirect_uri !== 'http://smarf.test/login/discord') {
+      return HttpResponse.json(
+        {
+          message: "Discord didn't accept the sign-in. Try again.",
+          errors: { code: ["Discord didn't accept the sign-in. Try again."] }
+        },
+        { status: 422 }
+      )
     }
+    db.discordCodes.delete(body.code)
     const token = nextId('token')
-    db.tokens.set(token, user.id)
-    return HttpResponse.json({ token_type: 'Bearer', expires_in: 3600, access_token: token, refresh_token: 'r' })
-  }),
-
-  http.post(`${API}/auth/register`, async ({ request }) => {
-    const body = (await request.json()) as Json
-    if (db.users.some((u) => u.email === body.username)) {
-      return HttpResponse.json({ message: 'The username has already been taken.' }, { status: 422 })
-    }
-    db.users.push({ id: nextId('user'), name: body.name, email: body.username, password: body.password, avatar: null })
-    return HttpResponse.json({ success: true })
+    db.tokens.set(token, userId)
+    return HttpResponse.json({ token_type: 'Bearer', access_token: token })
   }),
 
   http.get(`${API}/auth/me`, ({ request }) => {
     const userId = userIdFrom(request)
     const user = db.users.find((u) => u.id === userId)
     if (!user) return unauthorized()
-    const { password, ...rest } = user
-    return HttpResponse.json({ user: rest })
+    return HttpResponse.json({ user })
   }),
 
   http.get(`${API}/heroes`, () => HttpResponse.json({ heroes: HEROES })),

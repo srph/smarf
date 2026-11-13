@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   // Keep the env names the app has always used (also set on Netlify).
   // Anything matching these prefixes is bundled into the client.
-  envPrefix: ['API_URL', 'OAUTH_CLIENT_'],
+  envPrefix: ['API_URL', 'DISCORD_CLIENT_ID'],
   resolve: {
     // `~/src/...` resolves from the ui/ root, same as tsconfig `paths`.
     alias: [{ find: /^~\//, replacement: `${import.meta.dirname}/` }]
@@ -33,8 +33,7 @@ export default defineConfig({
     include: ['tests/**/*.test.{ts,tsx}'],
     env: {
       API_URL: 'http://smarf.test/api',
-      OAUTH_CLIENT_ID: 'test-client',
-      OAUTH_CLIENT_SECRET: 'test-secret'
+      DISCORD_CLIENT_ID: 'test-discord-client'
     }
   }
 })

@@ -18,7 +18,9 @@ npm test            # Vitest integration tests (npm run test:watch to watch)
 
 Before committing, `typecheck`, `lint`, `format:check` and `test` should all pass.
 
-`.env` holds `API_URL` and the Passport password client (`OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`). `make install` fills these in. Vite exposes them via `envPrefix` in `vite.config.ts`, so the names stay the same as on Netlify.
+`.env` holds `API_URL` and `DISCORD_CLIENT_ID` (public; the same Discord app as the API's). Vite exposes them via `envPrefix` in `vite.config.ts`, so the names stay the same as on Netlify.
+
+Sign-in is Discord-only. The login page links to Discord (`lib/discord.ts` builds the URL and keeps its `state` and the return path in localStorage); Discord sends the visitor back to `/login/discord`, which checks `state` and posts the code to `auth/discord` for a token.
 
 ## Structure
 
@@ -31,7 +33,7 @@ src/
 ├── components/   shared UI primitives (button/, input/, popover/, page-title/, ...)
 ├── contexts/     auth-user (current user, logout), board-list (layout constants and math), query (QueryProvider)
 ├── hooks/        generic hooks (use-debounced-effect.ts, use-delayed-state.ts, ...)
-├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie)
+├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie), discord.ts (Discord sign-in link and state)
 ├── queries/      React Query hooks (queries and mutations) used by more than one route, a folder per domain (auth/, boards/, heroes/)
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId); a route's own hooks go in its queries/ and mutations/
 ├── types/        API and board-operation types
