@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smarf Wordmark Outline</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1120px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #fafaf9; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+
+  .frame { background: #fafaf9; }
+  .states .sp { margin-left: auto; }
+
+  /* ---------- Sheet layout inside each canvas (neutral captions) ---------- */
+  .sheet { min-width: 1056px; padding: 20px; display: grid; gap: 22px; }
+  .row { display: flex; gap: 24px; align-items: flex-start; }
+  .cap { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 6px; }
+  .cell.grow { flex: 1; min-width: 0; }
+
+  /* ---------- Smarf mockups: matches ui/src (Tailwind 4 zinc, indigo primary, Interstate) ---------- */
+  .app {
+    --z50: #fafafa; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --p100: oklch(93% 0.034 272.788); --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966);
+    --metal: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    --metal-text: linear-gradient(180deg, var(--p100) 0%, var(--p300) 45%, var(--p400) 58%, var(--p200) 100%);
+    --edge: oklch(87% 0.065 274.039 / .4);
+    --glow: oklch(58.5% 0.233 277.117 / 0.7);
+    position: relative; overflow: hidden; background: var(--z900); color: var(--z50);
+    font: 14px/1.43 'Interstate', ui-sans-serif, system-ui, sans-serif; border-radius: 10px;
+  }
+  .app * { box-sizing: border-box; }
+  .lockup { display: flex; align-items: center; }
+
+  /* The badge, as on sign-in: 1px primary-200/40 border, white inset top light, indigo glow */
+  .badge { display: grid; place-items: center; flex: none; position: relative; overflow: hidden; border: 1px solid var(--edge); background: var(--metal); box-shadow: inset 0 1px 1px rgb(255 255 255 / .5); filter: drop-shadow(0 0 var(--glow-r, 24px) var(--glow)); }
+  .badge svg { fill: #fff; display: block; }
+
+  /* The wordmark, in layers: stroke (outer half shows), top light (peeks above), metal fill */
+  .wmx { position: relative; display: inline-block; font-weight: 900; text-transform: uppercase; letter-spacing: .025em; line-height: 1; white-space: nowrap;
+    --sw: max(2px, .04em); --hl: max(1px, .024em); --stroke: oklch(78.5% 0.115 274.713 / .6); }
+  .wmx > span { display: block; padding-top: .08em; }
+  .wmx .s, .wmx .h, .wmx .r { position: absolute; left: 0; top: 0; }
+  .wmx .r { color: transparent; -webkit-text-stroke: max(1.5px, .03em) oklch(93% 0.034 272.788 / .55); }
+  .wmx .s { color: transparent; -webkit-text-stroke: var(--sw) var(--stroke, var(--edge)); }
+  .wmx .h { color: rgb(255 255 255 / .55); transform: translateY(calc(-1 * var(--hl))); }
+  .wmx .f { position: relative; background: var(--metal-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .wmx.glow { filter: drop-shadow(0 0 .32em oklch(58.5% 0.233 277.117 / .55)); }
+  .plate { display: inline-block; padding: .2em .42em .14em; border-radius: .22em; border: 1px solid var(--edge);
+    background: linear-gradient(180deg, oklch(39.8% 0.195 277.366 / .55), oklch(25.7% 0.09 281.288 / .75));
+    box-shadow: inset 0 1px 1px rgb(255 255 255 / .35); filter: drop-shadow(0 0 var(--glow-r, 16px) var(--glow)); }
+
+  /* Sign-in (routes/auth) */
+  .signin { width: 520px; height: 320px; display: grid; place-items: center; background: var(--z950); }
+  .bgi { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .5; }
+  .veil { position: absolute; inset: 0; background: radial-gradient(ellipse 420px 300px at 50% 50%, rgb(9 9 11 / .96) 30%, rgb(9 9 11 / .7) 70%, rgb(9 9 11 / .35) 100%); }
+  .col { position: relative; width: 360px; text-align: center; }
+  .col .lockup { justify-content: center; }
+  .tagline { margin: 16px 0 28px; font-size: 12px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--p200); }
+  .discord { display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 4px; background: var(--p500); padding: 12px 16px; font-size: 16px; font-weight: 700; color: var(--z50); }
+  .discord svg { width: 20px; height: 20px; fill: currentColor; }
+
+  /* Specimen */
+  .spec { width: 512px; height: 320px; background: var(--z950); display: grid; place-items: center; }
+  .spec .close { position: absolute; left: 24px; top: 28px; }
+  .spec [hidden] { display: none; }
+
+  /* Navigation (routes/app/navigation) */
+  .nav { border-bottom: 1px solid var(--z800); }
+  .nav .bar { height: 4px; background: linear-gradient(90deg, var(--p600), var(--p400)); }
+  .nav .row-n { display: flex; align-items: center; justify-content: space-between; padding: 24px 16px; height: 93px; }
+  .nav .right { display: flex; align-items: center; gap: 24px; }
+  .avatar { border-radius: 99px; border: 2px solid var(--z700); padding: 6px; }
+  .avatar i { display: block; width: 40px; height: 40px; border-radius: 99px; background: url(https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/crystal_maiden.png) center/cover, var(--z700); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 4px; padding: 8px 12px; font-weight: 700; color: var(--z50); background: var(--p500); }
+  .btn svg { width: 20px; height: 20px; fill: var(--p200); }
+  .board-names { display: flex; gap: 16px; padding: 20px 16px; }
+  .board-names div { flex: 1; border: 1px solid var(--z800); border-radius: 6px; padding: 14px 16px; background: rgb(39 39 42 / .4); font-weight: 700; }
+  .board-names small { display: block; font-weight: 400; color: var(--z500); }
+
+  /* Loading + share image */
+  .splash { width: 340px; height: 188px; display: grid; place-items: center; }
+  .sheen::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 40%; background: linear-gradient(90deg, transparent, rgb(255 255 255 / .55), transparent); transform: translateX(-170%) skewX(-20deg); animation: sheen 2.4s cubic-bezier(.3,.6,.3,1) infinite; }
+  @keyframes sheen { 0%, 25% { transform: translateX(-170%) skewX(-20deg); } 70%, 100% { transform: translateX(360%) skewX(-20deg); } }
+  @media (prefers-reduced-motion: reduce) { .sheen::after { animation: none; } }
+  .og-box { width: 360px; height: 188px; border-radius: 10px; overflow: hidden; position: relative; }
+  .og { position: absolute; left: 0; top: 0; width: 1200px; height: 628px; transform: scale(.3); transform-origin: 0 0; border-radius: 0; display: grid; place-items: center; }
+  .og .bgi { opacity: .55; }
+  .og .veil { background: radial-gradient(ellipse 620px 360px at 50% 50%, rgb(9 9 11 / .95) 30%, rgb(9 9 11 / .55) 100%); }
+  .og .inner { position: relative; text-align: center; }
+  .og .tagline { margin: 26px 0 0; font-size: 26px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><symbol id="mk" viewBox="0 0 261 261"><g transform="translate(0,261) scale(0.1,-0.1)"><path id="mk-path"/></g></symbol></defs>
+</svg>
+
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>Give the wordmark the badge’s outline</h1>
+    <div class="chips">
+      <div class="chip"><b>Parent</b>Explores from A in 2d9a-logo-everywhere.html.</div>
+      <div class="chip"><b>Badge edge</b>1px primary-200/40 border, white top light, indigo glow.</div>
+      <div class="chip"><b>Two sizes</b>Must hold at the 30px nav and the 48px sign-in.</div>
+    </div>
+  </section>
+
+  <div id="variations"></div>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from A3: a heavier stroke at nav size, hairline at sign-in.</div>
+      <div class="card"><b>Remix</b>Remix A6: add A3’s lit top to the rim.</div>
+      <div class="card"><b>Settle</b>Settle on A3 as a reusable Wordmark component.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/7c3e-wordmark-outline.html';
+const MARK_D = 'M1326 2593 c-1 -1 -62 -3 -135 -4 l-133 -1 -57 -40 -58 -40 -116 1 c-107 1 -118 3 -142 25 -25 23 -25 23 -258 20 -127 -2 -264 -3 -304 -4 l-71 0 -17 -49 c-14 -43 -14 -53 -1 -91 20 -58 20 -280 0 -346 -14 -48 -20 -221 -9 -274 3 -14 7 -35 9 -47 3 -12 9 -31 15 -42 20 -37 22 -89 6 -145 -19 -64 -14 -86 26 -138 48 -61 38 -117 -28 -149 l-44 -21 6 -87 c3 -47 7 -95 9 -106 2 -11 4 -31 5 -44 0 -13 17 -38 36 -57 l35 -33 -6 -73 c-11 -154 -13 -162 -36 -180 -23 -17 -23 -18 -23 -272 0 -251 0 -256 20 -256 12 0 26 -5 33 -12 15 -15 147 -21 173 -7 15 8 24 8 32 0 14 -14 54 -14 59 0 3 9 10 9 27 -1 19 -10 32 -10 64 1 35 12 41 11 52 -4 13 -18 35 -22 50 -8 19 17 61 20 86 7 18 -9 32 -10 43 -4 11 6 22 6 31 -2 11 -9 25 -8 60 6 43 16 48 16 80 1 45 -21 184 -26 196 -6 6 10 11 5 19 -16 13 -35 48 -75 65 -75 6 0 22 11 35 25 28 30 42 31 100 4 25 -12 59 -23 75 -24 17 -2 41 -6 53 -9 18 -4 31 2 51 24 l27 30 144 0 c80 0 154 0 165 0 41 0 161 17 177 24 9 4 37 0 63 -9 35 -11 51 -13 61 -4 10 8 21 7 45 -5 38 -19 78 -20 151 -5 64 14 87 28 64 41 -9 5 -16 13 -16 19 0 18 117 1 193 -29 l76 -29 -4 281 c-2 154 -4 395 -5 534 l-3 252 -36 0 c-34 1 -35 1 -16 16 18 14 20 27 20 168 l0 154 -31 38 c-47 60 -47 60 -13 99 24 27 29 39 20 48 -19 19 -12 35 19 42 16 3 31 14 34 23 11 35 9 557 -1 583 -7 16 -8 31 -2 40 5 8 9 41 7 74 -1 56 -4 62 -37 87 -31 23 -48 27 -131 31 -52 3 -102 8 -111 12 -10 4 -28 -4 -46 -19 -32 -27 -43 -25 -43 6 0 10 -3 18 -7 19 -5 0 -16 2 -25 4 -10 2 -75 6 -145 9 -71 4 -174 9 -230 12 -103 6 -103 6 -104 -18 -1 -27 -6 -58 -11 -63 -2 -2 -28 -5 -59 -8 -53 -5 -57 -4 -73 24 -15 25 -23 29 -64 29 l-47 0 30 20 c17 11 26 20 20 21 -17 3 -167 4 -169 2z m-683 -532 c72 -52 117 -90 117 -101 0 -12 9 -17 31 -18 24 -1 170 -93 613 -390 803 -538 858 -575 870 -594 13 -21 -6 -99 -71 -298 -28 -86 -52 -142 -66 -153 -20 -17 -34 -18 -172 -12 l-150 7 -48 52 c-76 80 -495 521 -577 607 -43 45 -284 298 -364 383 -21 23 -77 82 -125 131 -222 232 -386 407 -389 414 -1 4 22 15 52 25 31 9 58 21 61 26 3 5 27 8 53 6 43 -2 62 -12 165 -85z m1381 28 c36 -24 68 -50 71 -58 5 -12 -37 -276 -52 -324 -3 -13 -12 -18 -27 -15 -21 4 -464 336 -465 348 -1 9 72 34 87 31 7 -1 41 7 75 18 34 11 80 23 102 26 22 3 56 10 75 15 48 12 59 8 134 -41z m-1501 -1051 c93 -87 477 -463 477 -467 0 -3 -67 -31 -148 -61 -137 -50 -153 -54 -230 -53 -81 1 -84 2 -135 42 -29 22 -76 63 -106 90 -62 59 -62 56 1 189 62 133 109 245 111 265 2 21 1 22 30 -5z';
+document.getElementById('mk-path').setAttribute('d', MARK_D);
+
+/* ---------- Pieces ---------- */
+const mk = (s) => `<svg width="${s}" height="${s}"><use href="#mk"/></svg>`;
+const badge = (s, r, mark, extra = '', glow = 24) => `<span class="badge ${extra}" style="width:${s}px;height:${s}px;border-radius:${r}px;--glow-r:${glow}px">${mk(mark)}</span>`;
+/* o: { stroke, hl, glow, plate, rim } */
+const wm = (px, o) => {
+  const word = `<span class="wmx ${o.glow ? 'glow' : ''}" style="font-size:${px}px">${o.stroke ? '<span class="s" aria-hidden="true">Smarf</span>' : ''}${o.hl ? '<span class="h" aria-hidden="true">Smarf</span>' : ''}<span class="f">Smarf</span>${o.rim ? '<span class="r" aria-hidden="true">Smarf</span>' : ''}</span>`;
+  return o.plate ? `<span class="plate" style="font-size:${px}px;--glow-r:${Math.round(px * .4)}px">${word}</span>` : word;
+};
+const DISCORD = '<svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.1 14.1 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.1.246.198.373.292a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>';
+const PLUS = '<svg viewBox="0 0 20 20"><path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/></svg>';
+
+/* ---------- Variations: one wordmark recipe each; the sheet is built from it ---------- */
+const V = [
+  { id: 'Now', name: 'A as it is: metal fill, no edge', o: {},
+    notes: [['good', 'Cleanest letterforms.'], ['bad', 'The badge has an edge and the word doesn’t, so they read as two finishes.']] },
+  { id: 'A2', name: 'Hairline edge', o: { stroke: true },
+    notes: [['good', 'The same faint lavender line as the badge’s border.'], ['good', 'Barely changes the 30px nav.'], ['bad', 'Close to invisible on the dark nav.']] },
+  { id: 'A3', name: 'Edge with a lit top', o: { stroke: true, hl: true },
+    notes: [['good', 'Border plus top light: the badge’s whole edge.'], ['good', 'Letters look cast from the same metal as the badge.'], ['bad', 'The top light thins to a speck at 30px.']] },
+  { id: 'A4', name: 'Lit edge and glow', o: { stroke: true, hl: true, glow: true },
+    notes: [['good', 'Badge and word read as one glowing piece.'], ['bad', 'The glow muddies the nav next to plain board names.'], ['bad', 'Heaviest of the set.']] },
+  { id: 'A5', name: 'Nameplate: the word gets its own tile', o: { plate: true },
+    notes: [['good', 'The outline is unmistakable at any size.'], ['bad', 'Two tiles side by side look like buttons.'], ['bad', 'Wider lockup, so the nav gets crowded.']] },
+  { id: 'A6', name: 'Light rim laid over the letters', o: { rim: true },
+    notes: [['good', 'Sits on the metal like the badge’s border does.'], ['good', 'Sharpens the letters instead of thickening them.'], ['bad', 'Subtle; at 30px it reads as a brighter edge, not an outline.']] }
+];
+
+function sheet(v) {
+  const o = v.o;
+  return `<div class="sheet">
+    <div class="row">
+      <div class="cell"><div class="cap">Sign-in · 48px</div>
+        <div class="app signin"><img class="bgi" src="og-assets/register-bg.jpg" alt=""><div class="veil"></div>
+          <div class="col"><span class="lockup" style="gap:14px">${badge(44, 12, 24)}${wm(48, o)}</span>
+            <p class="tagline">Dota 2 hero organizer</p>
+            <span class="discord">${DISCORD}Continue with Discord</span></div></div></div>
+      <div class="cell"><div class="cap">Specimen · next to the badge</div>
+        <div class="app spec">
+          <span class="lockup zoom-1" style="gap:20px">${badge(72, 20, 40, '', 30)}${wm(80, o)}</span>
+          <span class="close zoom-3" hidden>${wm(360, o)}</span>
+        </div></div>
+    </div>
+    <div class="row"><div class="cell grow"><div class="cap">App navigation · 30px</div>
+      <div class="app"><div class="nav"><div class="bar"></div><div class="row-n">
+        <span class="lockup" style="gap:12px">${badge(36, 10, 20, '', 16)}${wm(30, o)}</span>
+        <div class="right"><span class="btn">${PLUS}New Board</span><span class="avatar"><i></i></span></div>
+      </div></div>
+      <div class="board-names"><div>Carry pool<small>Updated 2 hours ago</small></div><div>Supports I can tolerate<small>Updated yesterday</small></div><div>Turbo picks<small>Updated 3 days ago</small></div></div></div>
+    </div></div>
+    <div class="row">
+      <div class="cell"><div class="cap">Loading · 36px</div><div class="app splash"><span class="lockup" style="gap:12px">${badge(40, 11, 22, 'sheen')}${wm(36, o)}</span></div></div>
+      <div class="cell"><div class="cap">Share image · 1200 × 628 at 30%</div>
+        <div class="og-box"><div class="app og"><img class="bgi" src="og-assets/register-bg.jpg" alt=""><div class="veil"></div>
+          <div class="inner"><span class="lockup" style="gap:32px;justify-content:center">${badge(120, 30, 66, '', 48)}${wm(132, o)}</span><p class="tagline">Dota 2 hero organizer</p></div></div></div></div>
+    </div>
+  </div>`;
+}
+
+const host = document.getElementById('variations');
+V.forEach((v) => {
+  const sec = document.createElement('section');
+  sec.className = 'variation'; sec.id = 'v-' + v.id; sec.dataset.id = v.id; sec.dataset.name = v.name;
+  sec.innerHTML = `<div class="v-head"><span class="v-id">${v.id}</span><h2>${v.name}</h2><button class="pick">Pick</button></div>
+    <div class="states">Specimen <button data-z="1" aria-pressed="true">Lockup</button><button data-z="3" aria-pressed="false">Edge close-up</button></div>
+    <div class="frame">${sheet(v)}</div>
+    <div class="notes">${v.notes.map(([k, t]) => `<div class="note ${k}">${t}</div>`).join('')}</div>`;
+  host.appendChild(sec);
+  sec.querySelectorAll('.states button').forEach((b) => b.addEventListener('click', () => {
+    sec.querySelectorAll('.states button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    sec.querySelector('.zoom-1').hidden = b.dataset.z !== '1';
+    sec.querySelector('.zoom-3').hidden = b.dataset.z !== '3';
+  }));
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
