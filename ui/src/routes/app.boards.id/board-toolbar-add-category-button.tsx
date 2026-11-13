@@ -1,7 +1,6 @@
 import React from 'react'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
-import { Spinner } from '~/src/components/spinner/spinner'
 import { useBoard } from './board-context'
 import { useAddCategoryMutation, newCategory } from './mutations/use-add-category-mutation'
 import { BoardToolbarTooltip } from './board-toolbar-tooltip'
@@ -12,24 +11,20 @@ interface Props {
   locked: boolean
 }
 
-/** The toolbar's primary action, in its own pill beside the dock. */
+/**
+ * The toolbar's primary action, in its own pill beside the dock. No pending state: the category shows on the
+ * board right away, and saves queue in order, so the button stays ready for the next click.
+ */
 const BoardToolbarAddCategoryButton: React.FC<Props> = ({ locked }) => {
   const { board } = useBoard()
 
-  const { mutate: addCategory, isPending } = useAddCategoryMutation(board.id)
+  const { mutate: addCategory } = useAddCategoryMutation(board.id)
 
   return (
     <BoardToolbarTooltip label="Finish editing the board first" disabled={!locked}>
-      <MetalButton
-        size="lg"
-        shine
-        // Stays "New category" while the label reads Adding…, so the button keeps one name.
-        aria-label="New category"
-        disabled={locked}
-        busy={isPending}
-        onClick={() => addCategory(newCategory(board))}>
-        {isPending ? <Spinner /> : <Icon icon={PlusIcon} />}
-        {isPending ? 'Adding…' : 'New category'}
+      <MetalButton size="lg" shine disabled={locked} onClick={() => addCategory(newCategory(board))}>
+        <Icon icon={PlusIcon} />
+        New category
       </MetalButton>
     </BoardToolbarTooltip>
   )
