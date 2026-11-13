@@ -50,7 +50,6 @@ function useBoardWorkspaceDragContainer<T>(
 
   const activeContainer = activeId ? getContainer(activeId) : undefined
   const [initialTranslate, setInitialTranslate] = useState<Translate>(defaultTranslate)
-  const [initialWindowScroll, setInitialWindowScroll] = useState<Translate>(defaultTranslate)
 
   const onDragStart = ({ active }: DragStartEvent) => {
     const container = getContainer(String(active.id))
@@ -58,11 +57,6 @@ function useBoardWorkspaceDragContainer<T>(
     // Avoid conflict with useBoardWorkspaceGridCollisionDetection
     // It means we're not dragging any of the containers
     if (!container) return
-
-    setInitialWindowScroll({
-      x: window.scrollX,
-      y: window.scrollY
-    })
 
     setActiveId(String(active.id))
     const translate = props.getContainerPosition(container)
@@ -74,11 +68,12 @@ function useBoardWorkspaceDragContainer<T>(
     // It means we're not dragging any of the containers
     if (!activeId || !activeContainer) return
 
+    // dnd-kit's delta already includes any scrolling since the drag started.
     props.onChange({
       container: activeContainer,
       translate: {
-        x: initialTranslate.x + delta.x - initialWindowScroll.x,
-        y: initialTranslate.y + delta.y - initialWindowScroll.y
+        x: initialTranslate.x + delta.x,
+        y: initialTranslate.y + delta.y
       }
     })
   }
