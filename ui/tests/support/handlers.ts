@@ -73,6 +73,7 @@ export const handlers = [
       user_id: userId,
       name: body.name,
       is_favorite: null,
+      favorited_at: null,
       created_at: NOW(),
       updated_at: NOW()
     }
@@ -118,6 +119,7 @@ export const handlers = [
     if (!board) return HttpResponse.json({}, { status: 404 })
     const body = (await request.json()) as Json
     board.is_favorite = Boolean(body.is_favorite)
+    board.favorited_at = board.is_favorite ? NOW() : null
     return HttpResponse.json({ board })
   }),
 

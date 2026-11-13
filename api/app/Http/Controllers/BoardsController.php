@@ -95,8 +95,11 @@ class BoardsController extends Controller
 
     public function favorite(FavoriteBoardRequest $request, Board $board)
     {
+        $isFavorite = $request->boolean('is_favorite');
+
         $board->update([
-            'is_favorite' => $request->get('is_favorite')
+            'is_favorite' => $isFavorite,
+            'favorited_at' => $isFavorite ? now() : null
         ]);
 
         return response()->json([

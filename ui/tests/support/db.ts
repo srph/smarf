@@ -32,6 +32,7 @@ export interface DbBoard {
   user_id: string
   name: string
   is_favorite: boolean | null
+  favorited_at: string | null
   created_at: string
   updated_at: string
 }
@@ -103,13 +104,14 @@ export function findHero(name: string) {
 export function seedBoard(
   name: string,
   categories: Array<{ name: string; heroes?: string[]; x?: number; y?: number; width?: number }>,
-  opts: { is_favorite?: boolean; updated_at?: string } = {}
+  opts: { is_favorite?: boolean; favorited_at?: string; updated_at?: string } = {}
 ): DbBoard {
   const board: DbBoard = {
     id: nextId('board'),
     user_id: TEST_USER.id,
     name,
     is_favorite: opts.is_favorite ?? null,
+    favorited_at: opts.is_favorite ? (opts.favorited_at ?? NOW) : null,
     created_at: NOW,
     updated_at: opts.updated_at ?? NOW
   }

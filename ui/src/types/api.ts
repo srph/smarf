@@ -39,6 +39,8 @@ export interface Board {
   id: ID
   name: string
   is_favorite: boolean
+  // When the board was last favorited (ISO 8601); null when it isn't a favorite.
+  favorited_at: string | null
   categories: Category[]
   created_at: string
   updated_at: string

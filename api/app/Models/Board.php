@@ -33,16 +33,19 @@ class Board extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'is_favorite'
+        'is_favorite',
+        'favorited_at'
     ];
 
     /**
      * MySQL stores is_favorite as tinyint(1); the cast sends it as true/false (or null), matching `Board` in ui/src/types/api.ts.
+     * favorited_at goes out as an ISO 8601 string, like created_at.
      *
      * @var array<string, string>
      */
     protected $casts = [
-        'is_favorite' => 'boolean'
+        'is_favorite' => 'boolean',
+        'favorited_at' => 'datetime'
     ];
 
     public function user()

@@ -12,15 +12,32 @@ const boardNames = () => screen.getAllByRole('heading', { level: 3 }).map((headi
 const row = (name: string) => screen.getByRole('heading', { level: 3, name }).closest('a')!.parentElement!
 
 describe('board list', () => {
-  it('lists favorite boards first, each group newest first', async () => {
-    seedBoard('Ranked', [], { is_favorite: true })
+  it('lists favorites first, the latest favorited on top, then the rest newest first', async () => {
+    seedBoard('Ranked', [], { is_favorite: true, favorited_at: '2026-11-03T00:00:00.000000Z' })
     seedBoard('Turbo', [])
-    seedBoard('Captains Mode', [], { is_favorite: true })
+    seedBoard('Captains Mode', [], { is_favorite: true, favorited_at: '2026-11-02T00:00:00.000000Z' })
     seedBoard('Ability Draft', [])
     renderApp('/')
 
     await screen.findByText('Ranked')
-    expect(boardNames()).toEqual(['Captains Mode', 'Ranked', 'Ability Draft', 'Turbo'])
+    expect(boardNames()).toEqual(['Ranked', 'Captains Mode', 'Ability Draft', 'Turbo'])
+  })
+
+  it('puts a newly favorited board above the other favorites, even newer boards', async () => {
+    seedBoard('Turbo', [])
+    seedBoard('Ranked', [], { is_favorite: true })
+    seedBoard('Captains Mode', [], { is_favorite: true })
+    const { user } = renderApp('/')
+
+    await screen.findByText('Turbo')
+    expect(boardNames()).toEqual(['Captains Mode', 'Ranked', 'Turbo'])
+
+    await user.click(within(row('Turbo')).getByTitle('Add board to favorites'))
+
+    // On top right away, and still on top once the list is refetched with the server's favorited_at.
+    expect(boardNames()).toEqual(['Turbo', 'Captains Mode', 'Ranked'])
+    await waitFor(() => expect(db.boards[0].favorited_at).not.toBeNull())
+    await waitFor(() => expect(boardNames()).toEqual(['Turbo', 'Captains Mode', 'Ranked']))
   })
 
   it('favorites a board from the list, moving it to the top', async () => {

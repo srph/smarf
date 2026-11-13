@@ -19,13 +19,16 @@ const useFavoriteBoardMutation = (boardId: ID) => {
     mutationFn: ({ is_favorite }: FavoriteBoardVariables) =>
       http(`boards/${boardId}/favorite`, { method: 'PUT', body: { is_favorite } }),
     onMutate: ({ is_favorite }) => {
+      // The server stamps its own time; this one just puts a new favorite at the top until the refetch.
+      const favorited_at = is_favorite ? new Date().toISOString() : null
       // A refetch already in flight would overwrite this change with older data.
       void queryClient.cancelQueries({ queryKey: boardKeys.list() })
       queryClient.setQueryData<Board[]>(boardKeys.list(), (boards) =>
-        boards?.map((board) => (board.id === boardId ? { ...board, is_favorite } : board))
+        boards?.map((board) => (board.id === boardId ? { ...board, is_favorite, favorited_at } : board))
       )
       update((board) => {
         board.is_favorite = is_favorite
+        board.favorited_at = favorited_at
       })
     },
     onSettled: () => {
