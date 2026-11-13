@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trash Icon Placement</title>
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .parent { font-size: 13px; color: var(--mute); margin: 0 0 8px; }
+  .parent code { font: 12px ui-monospace, Menlo, monospace; }
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 64px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .states .hint { margin-left: auto; }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: matches ui/src (Tailwind 4 zinc, primary indigo, glass dock) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b;
+    --sky: #00a6f4; --red: #fb2c36; --red4: #ff6467; --green: #00c950;
+    --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p950: oklch(25.7% 0.09 281.288);
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    --mx: -999px; --my: -999px; --p: 0;
+    position: relative; width: 1000px; height: 500px; margin: 0 auto; color: var(--z50);
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px;
+    overflow: hidden; user-select: none; -webkit-user-select: none; touch-action: none;
+  }
+  .app svg { display: block; }
+  .app button { font-family: inherit; color: inherit; }
+
+  .cat { position: absolute; left: 0; top: 0; display: inline-block; z-index: 2; }
+  .cat-head { display: flex; align-items: center; margin-bottom: 24px; }
+  .drag-ic { margin-right: 16px; color: var(--z400); cursor: grab; }
+  .cat-body { display: inline-flex; flex-wrap: wrap; padding: 4px; background: var(--z800); border-radius: 4px; transition: box-shadow 150ms; }
+  .hero, .hero-slot { flex-shrink: 0; width: 88px; padding: 4px; overflow: hidden; transition: width 180ms ease, padding 180ms ease, opacity 180ms ease; }
+  .hero { cursor: grab; }
+  .hero-img { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); }
+  .hero-img img { width: 80px; height: 45px; object-fit: cover; display: block; pointer-events: none; }
+  .app:not(.is-dragging) .hero:hover .hero-img { box-shadow: 0 0 0 2px var(--sky); }
+  .hero.lifted .hero-img { opacity: .2; }
+  .removing { width: 0 !important; padding-left: 0 !important; padding-right: 0 !important; opacity: 0; }
+  .hero.restored .hero-img { animation: restored 900ms ease; }
+  @keyframes restored { 0%, 40% { box-shadow: 0 0 0 2px var(--sky); } 100% { box-shadow: 0 0 0 0 var(--sky); } }
+  .add-wrap { padding: 4px; flex-shrink: 0; }
+  .add { display: flex; align-items: center; justify-content: center; width: 80px; height: 45px; padding: 8px; background: var(--z700); border: 2px dashed var(--z500); border-radius: 4px; font-weight: bold; letter-spacing: .025em; font-size: 12px; }
+  .add svg { color: var(--z500); margin-right: 8px; }
+
+  .ghost { position: absolute; z-index: 40; pointer-events: none; transform: rotate(-2deg) scale(1.05); }
+  .ghost .hero-img { box-shadow: 0 0 0 2px var(--sky), 0 12px 28px rgba(0,0,0,.55); transition: box-shadow 120ms, opacity 120ms, filter 120ms; }
+  .is-armed .ghost .hero-img { box-shadow: 0 0 0 2px var(--red), 0 12px 28px rgba(0,0,0,.55); opacity: .75; filter: grayscale(1); }
+  .ghost.settle { transition: left 160ms ease, top 160ms ease, transform 160ms ease, opacity 160ms ease; }
+  .ghost.trash { transform: scale(.4) rotate(-8deg); opacity: 0; }
+  .ghost-badge { position: absolute; top: -7px; right: -7px; width: 22px; height: 22px; border-radius: 50%; background: var(--red); color: #fff; display: none; place-items: center; box-shadow: 0 0 0 2px var(--z900); }
+  .ghost-label { position: absolute; left: 50%; top: 58px; transform: translateX(-50%); white-space: nowrap; font-size: 11px; font-weight: bold; letter-spacing: .025em; color: #fff; background: var(--red); padding: 3px 8px; border-radius: 6px; display: none; }
+
+  /* Poof: dots fly out where the hero was dropped (same motion as the favorite burst). */
+  .poof { position: absolute; z-index: 41; pointer-events: none; }
+  .poof i { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--z400); animation: burst 600ms cubic-bezier(.2, .8, .3, 1) both; }
+  .poof i:nth-child(odd) { background: var(--red4); }
+  @keyframes burst { 0% { opacity: 1; transform: rotate(var(--a)) translateY(-6px) scale(1); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-30px) scale(.3); } }
+
+  /* Dock (board-toolbar.tsx) + New category (metal-button.tsx) */
+  .dock-wrap { position: absolute; left: 0; right: 0; bottom: 24px; z-index: 20; display: flex; justify-content: center; align-items: flex-end; gap: 8px; pointer-events: none; }
+  .dock-wrap > * { pointer-events: auto; }
+  .dock { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.8);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05);
+    backdrop-filter: blur(12px) saturate(1.5); -webkit-backdrop-filter: blur(12px) saturate(1.5); transition: background-color 250ms, border-color 250ms; }
+  .dock-row { height: 44px; display: flex; align-items: center; padding: 0 4px; white-space: nowrap; overflow: hidden; transition: height 300ms var(--ease), opacity 180ms 120ms; }
+  .switcher { display: flex; align-items: center; height: 36px; padding: 0 6px 0 12px; border-radius: 8px; font-weight: 600; }
+  .switcher .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .switcher .name { margin-left: 8px; }
+  .switcher .chev { margin-left: 12px; color: var(--z500); }
+  .ibtns { display: flex; gap: 2px; margin-left: 4px; }
+  .ibtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .metal { position: relative; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px 0 16px; border-radius: 12px; font-weight: bold; color: #fff;
+    border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), 0 4px 6px -4px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgba(255,255,255,.5);
+    text-shadow: 0 1px 1px color-mix(in oklab, var(--p950) 50%, transparent); transition: color 250ms, border-color 250ms, box-shadow 250ms; overflow: hidden; }
+  .metal::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(180deg, #64646d 0%, #48484f 44%, #36363c 56%, #4b4b53 100%); opacity: 0; transition: opacity 250ms; }
+  .metal > * { position: relative; }
+
+  /* C3 without the timer: off a category, a solid red ring marks the drop at once. Only the trash icon's place changes. */
+  .ring { position: absolute; inset: -6px; border-radius: 9px; padding: 3px; display: none; background: var(--red);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .is-armed .ring { display: block; }
+  .ghost-label { align-items: center; gap: 5px; }
+  .ghost-label .ic { display: none; }
+  .veil { position: absolute; left: 0; top: 0; width: 80px; height: 45px; border-radius: 4px; display: none; place-items: center; color: #fff; background: color-mix(in oklab, var(--red) 45%, transparent); }
+  .veil span { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--red); box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+  .src-ic { display: none; }
+  .cursor-chip { position: absolute; z-index: 42; left: calc(var(--mx) + 12px); top: calc(var(--my) + 14px); display: none; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; background: var(--red); color: #fff; font-size: 11px; font-weight: bold; letter-spacing: .025em; box-shadow: 0 0 0 2px var(--z900), 0 4px 12px rgba(0,0,0,.5); pointer-events: none; }
+  .fake-cursor { position: absolute; z-index: 43; left: var(--mx); top: var(--my); display: none; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
+  .frozen .fake-cursor { display: block; }
+
+  /* C3b: corner badge */
+  .place-badge.is-armed .ghost-badge { display: grid; top: -14px; right: -14px; }
+  .place-badge.is-armed .ghost-label { display: block; }
+  /* C3b2: badge centred on the top edge */
+  .place-badge-center.is-armed .ghost-badge { display: grid; top: -14px; right: auto; left: 50%; transform: translateX(-50%); }
+  .place-badge-center.is-armed .ghost-label { display: block; }
+  /* C3c: in the label */
+  .place-label.is-armed .ghost-label { display: flex; padding-left: 6px; }
+  .place-label .ghost-label .ic { display: block; }
+  /* C3d: over the portrait */
+  .place-portrait.is-armed .veil { display: grid; }
+  /* C3e: at the gap it leaves */
+  .place-source.is-armed .hero.lifted .hero-img { opacity: 1; display: grid; place-items: center; color: var(--red4); border: 2px dashed color-mix(in oklab, var(--red) 65%, transparent); background: color-mix(in oklab, var(--red) 12%, var(--z900)); }
+  .place-source.is-armed .hero.lifted img { display: none; }
+  .place-source.is-armed .hero.lifted .src-ic { display: block; }
+  .place-source.is-armed .ghost-label { display: block; }
+  /* C3f: at the cursor */
+  .place-cursor.is-armed .cursor-chip { display: flex; }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <p class="parent">Follows <code>b6f1-drag-off-remove.html</code>, remixing C3 without the hold timer.</p>
+    <h1>Where the trash icon sits on a dragged hero</h1>
+    <div class="chips">
+      <div class="chip"><b>Instant</b>Releasing off a category removes; no hold.</div>
+      <div class="chip"><b>One axis</b>Only the trash icon moves between canvases.</div>
+      <div class="chip"><b>Same ring</b>C3's red outline marks the drop.</div>
+      <div class="chip"><b>No toasts</b>Nothing floats over the board after.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="Heroes can be moved, not removed" data-mode="none" data-place="none" data-states="Idle|Dragging">
+    <div class="v-head"><span class="v-id">Now</span><h2>Heroes can be moved, not removed</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note bad">Once added, a hero stays.</div>
+      <div class="note bad">Dropping on empty board just snaps back.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C3b" data-name="Badge on the corner" data-mode="off" data-place="badge" data-states="Idle|Dragging|Off a category|Removed">
+    <div class="v-head"><span class="v-id">C3b</span><h2>Badge on the corner</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Familiar notification-badge spot; reads at a glance.</div>
+      <div class="note bad">Badge and pill say the same thing twice.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C3b2" data-name="Badge centred on top" data-mode="off" data-place="badge-center" data-states="Idle|Dragging|Off a category|Removed">
+    <div class="v-head"><span class="v-id">C3b2</span><h2>Badge centred on top</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Balanced: icon above, words below, on one axis.</div>
+      <div class="note good">Clear of the pointer when you grab low or to one side.</div>
+      <div class="note bad">Still says it twice: badge and pill.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C3c" data-name="Inside the label" data-mode="off" data-place="label" data-states="Idle|Dragging|Off a category|Removed">
+    <div class="v-head"><span class="v-id">C3c</span><h2>Inside the label</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">One message: icon and words together.</div>
+      <div class="note good">The portrait stays readable.</div>
+      <div class="note bad">Hangs below the hero; can meet the dock.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C3d" data-name="Over the portrait" data-mode="off" data-place="portrait" data-states="Idle|Dragging|Off a category|Removed">
+    <div class="v-head"><span class="v-id">C3d</span><h2>Over the portrait</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The hero itself turns into the bin.</div>
+      <div class="note bad">Hides which hero you're holding.</div>
+      <div class="note bad">Your pointer tends to sit right on the icon.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C3e" data-name="In the gap it leaves" data-mode="off" data-place="source" data-states="Idle|Dragging|Off a category|Removed">
+    <div class="v-head"><span class="v-id">C3e</span><h2>In the gap it leaves</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Shows the result: this slot empties.</div>
+      <div class="note bad">Far from the cursor; easy to miss.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C3f" data-name="Chip at the cursor" data-mode="off" data-place="cursor" data-states="Idle|Dragging|Off a category|Removed">
+    <div class="v-head"><span class="v-id">C3f</span><h2>Chip at the cursor</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Like the OS's copy badge: right at the pointer.</div>
+      <div class="note bad">Covers the hero's lower corner.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from C3c with the label above the hero.</div>
+      <div class="card"><b>Remix</b>Remix C3d: tint only the portrait's bottom half.</div>
+      <div class="card"><b>Settle</b>Settle on C3c: one clear message, portrait intact.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/c9e4-drag-off-trash-placement.html';
+
+/* ---------- Icons: heroicons v2, 20/solid (star is 24/outline, as in FavoriteIcon) ---------- */
+const P = {
+  trash: '<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"/>',
+  plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>',
+  plusCircle: '<path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd"/>',
+  chevronUpDown: '<path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z" clip-rule="evenodd"/>',
+  pencil: '<path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.419a4 4 0 0 0-.885 1.343Z"/>',
+  ellipsis: '<path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>',
+  arrowsOut: '<path d="m13.28 7.78 3.22-3.22v2.69a.75.75 0 0 0 1.5 0v-4.5a.75.75 0 0 0-.75-.75h-4.5a.75.75 0 0 0 0 1.5h2.69l-3.22 3.22a.75.75 0 0 0 1.06 1.06ZM2 17.25v-4.5a.75.75 0 0 1 1.5 0v2.69l3.22-3.22a.75.75 0 0 1 1.06 1.06L4.56 16.5h2.69a.75.75 0 0 1 0 1.5h-4.5a.747.747 0 0 1-.75-.75ZM12.22 13.28l3.22 3.22h-2.69a.75.75 0 0 0 0 1.5h4.5a.747.747 0 0 0 .75-.75v-4.5a.75.75 0 0 0-1.5 0v2.69l-3.22-3.22a.75.75 0 1 0-1.06 1.06ZM3.5 4.56l3.22 3.22a.75.75 0 0 0 1.06-1.06L4.56 3.5h2.69a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 0 1.5 0V4.56Z"/>',
+  uturn: '<path fill-rule="evenodd" d="M7.793 2.232a.75.75 0 0 1-.025 1.06L3.622 7.25h10.003a5.375 5.375 0 0 1 0 10.75H10.75a.75.75 0 0 1 0-1.5h2.875a3.875 3.875 0 0 0 0-7.75H3.622l4.146 3.957a.75.75 0 0 1-1.036 1.085l-5.5-5.25a.75.75 0 0 1 0-1.085l5.5-5.25a.75.75 0 0 1 1.06.025Z" clip-rule="evenodd"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const starOutline = (s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.563.563 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg>`;
+
+/* ---------- Board data ---------- */
+const NAMES = { antimage: 'Anti-Mage', juggernaut: 'Juggernaut', phantom_assassin: 'Phantom Assassin', luna: 'Luna', medusa: 'Medusa',
+  axe: 'Axe', mars: 'Mars', tidehunter: 'Tidehunter', centaur: 'Centaur Warrunner', crystal_maiden: 'Crystal Maiden', lion: 'Lion', witch_doctor: 'Witch Doctor' };
+const thumb = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const BASE = () => [
+  { id: 'carries', name: 'Carries', x: 32, y: 32, w: 536, heroes: ['antimage', 'juggernaut', 'phantom_assassin', 'luna', 'medusa'] },
+  { id: 'offlane', name: 'Offlane', x: 32, y: 176, w: 448, heroes: ['axe', 'mars', 'tidehunter', 'centaur'] },
+  { id: 'supports', name: 'Supports', x: 608, y: 32, w: 360, heroes: ['crystal_maiden', 'lion', 'witch_doctor'] }
+];
+const CURSOR = '<svg width="16" height="22" viewBox="0 0 16 22" aria-hidden="true"><path d="M1 1v17l4.5-4.2 3 6.7 2.7-1.2-3-6.6H14z" fill="#fff" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+
+class Board {
+  constructor(section) {
+    this.mode = section.dataset.mode;
+
+    const states = document.createElement('div');
+    states.className = 'states';
+    section.dataset.states.split('|').forEach((s) => {
+      const b = document.createElement('button');
+      b.textContent = s; b.dataset.state = s; b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', () => this.setState(s));
+      states.appendChild(b);
+    });
+    const hint = document.createElement('span'); hint.className = 'hint'; hint.textContent = 'or drag any hero';
+    states.appendChild(hint);
+    this.states = states;
+
+    const frame = document.createElement('div'); frame.className = 'frame';
+    this.el = document.createElement('div'); this.el.className = `app mode-${this.mode} place-${section.dataset.place}`;
+    frame.appendChild(this.el);
+    const notes = section.querySelector('.notes');
+    section.insertBefore(states, notes);
+    section.insertBefore(frame, notes);
+
+    this.bind();
+    this.setState('Idle');
+  }
+
+  markState(s) { this.states.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.state === s))); }
+
+  render() {
+    const cats = this.model.map((c) => `
+      <div class="cat" data-cat="${c.id}" style="transform:translate3d(${c.x}px,${c.y}px,0)">
+        <div class="cat-head"><span class="drag-ic">${icon('arrowsOut')}</span><span>${c.name}</span></div>
+        <div class="cat-body" style="width:${c.w}px">
+          ${c.heroes.map((h) => `<div class="hero" data-slug="${h}"><div class="hero-img"><img src="${thumb(h)}" alt="${NAMES[h]}" draggable="false"><span class="src-ic">${icon('trash')}</span></div></div>`).join('')}
+          <div class="add-wrap"><div class="add">${icon('plusCircle', 16)}Add</div></div>
+        </div>
+      </div>`).join('');
+
+    const dock = `
+      <div class="dock-wrap">
+        <div class="dock"><div class="dock-row">
+          <div class="switcher"><span class="dot"></span><span class="name">Laning plan</span><span class="chev">${icon('chevronUpDown', 16)}</span></div>
+          <div class="ibtns"><span class="ibtn">${starOutline()}</span><span class="ibtn">${icon('pencil')}</span><span class="ibtn">${icon('ellipsis')}</span></div>
+        </div></div>
+        <div class="metal">${icon('plus')}<span>New category</span></div>
+      </div>`;
+
+    this.el.innerHTML = cats + dock + `<div class="cursor-chip">${icon('trash', 13)}Remove</div><div class="fake-cursor">${CURSOR}</div>`;
+  }
+
+  reset() {
+    this.drag = null;
+    this.model = BASE();
+    this.el.classList.remove('is-dragging', 'is-over', 'is-armed', 'frozen');
+    this.render();
+  }
+
+  setState(s) {
+    this.reset();
+    this.markState(s);
+    if (s === 'Idle') return;
+    if (s === 'Removed') { this.removeHero('carries', 'juggernaut', true); return; }
+    this.el.classList.add('frozen');
+    this.startDrag('carries', 'juggernaut', { x: 40, y: 22 });
+    this.moveGhost(s === 'Dragging' ? { x: 560, y: 360 } : { x: 760, y: 330 });
+  }
+
+  rel(node) {
+    const b = this.el.getBoundingClientRect(), r = node.getBoundingClientRect();
+    return { x: r.left - b.left, y: r.top - b.top, w: r.width, h: r.height };
+  }
+  inside(p, r, pad = 0) { return p.x >= r.x - pad && p.x <= r.x + r.w + pad && p.y >= r.y - pad && p.y <= r.y + r.h + pad; }
+
+  bind() {
+    this.el.addEventListener('pointerdown', (e) => {
+      const hero = e.target.closest('.hero');
+      if (!hero || e.button !== 0) return;
+      e.preventDefault();
+      const r = hero.getBoundingClientRect();
+      this.pending = { slug: hero.dataset.slug, catId: hero.closest('.cat').dataset.cat, off: { x: e.clientX - r.left - 4, y: e.clientY - r.top - 4 }, sx: e.clientX, sy: e.clientY };
+      this.el.setPointerCapture(e.pointerId);
+    });
+    this.el.addEventListener('pointermove', (e) => {
+      const b = this.el.getBoundingClientRect();
+      const p = { x: e.clientX - b.left, y: e.clientY - b.top };
+      if (this.pending) {
+        if (Math.hypot(e.clientX - this.pending.sx, e.clientY - this.pending.sy) < 4) return;
+        const { slug, catId, off } = this.pending;
+        this.pending = null;
+        // Leaving a frozen state: keep the board as it is and start a live drag.
+        if (this.drag) { this.ghost?.remove(); this.drag = null; this.el.classList.remove('is-dragging', 'is-over', 'is-armed'); this.render(); }
+        this.el.classList.remove('frozen');
+        this.markState(null);
+        this.startDrag(catId, slug, off);
+        this.drag.live = true;
+      }
+      if (this.drag && this.drag.live) this.moveGhost(p);
+    });
+    const end = () => { this.pending = null; if (this.drag && this.drag.live) this.drop(); };
+    this.el.addEventListener('pointerup', end);
+    this.el.addEventListener('pointercancel', end);
+  }
+
+  startDrag(catId, slug, off) {
+    this.drag = { catId, slug, off, live: false, armed: false, p: null };
+    this.el.classList.add('is-dragging');
+    const hero = this.el.querySelector(`[data-cat="${catId}"] .hero[data-slug="${slug}"]`);
+    hero.classList.add('lifted');
+    this.drag.home = this.rel(hero);
+    const g = document.createElement('div');
+    g.className = 'ghost';
+    g.innerHTML = `<span class="ring"></span><div class="hero-img"><img src="${thumb(slug)}" alt="" draggable="false"></div><span class="veil"><span>${icon('trash', 16)}</span></span><span class="ghost-badge">${icon('trash', 13)}</span><span class="ghost-label"><span class="ic">${icon('trash', 13)}</span>Release to remove</span>`;
+    this.el.appendChild(g);
+    this.ghost = g;
+  }
+
+  moveGhost(p) {
+    const d = this.drag;
+    d.p = p;
+    this.ghost.style.left = `${p.x - d.off.x}px`;
+    this.ghost.style.top = `${p.y - d.off.y}px`;
+    this.el.style.setProperty('--mx', `${p.x}px`);
+    this.el.style.setProperty('--my', `${p.y}px`);
+    d.armed = this.offCategory(p);
+    this.el.classList.toggle('is-armed', d.armed);
+  }
+
+  offCategory(p) {
+    if (this.mode === 'none') return false;
+    const inCat = [...this.el.querySelectorAll('.cat')].some((c) => this.inside(p, this.rel(c), 12));
+    const inDock = this.inside(p, this.rel(this.el.querySelector('.dock-wrap')));
+    return p.x >= 0 && p.y >= 0 && p.x <= 1000 && p.y <= 500 && !inCat && !inDock;
+  }
+
+  drop() {
+    const d = this.drag, g = this.ghost;
+    this.drag = null;
+    if (d.armed) {
+      g.classList.add('settle', 'trash');
+      this.poof({ x: d.p.x - d.off.x + 40, y: d.p.y - d.off.y + 22 });
+      this.el.classList.remove('is-armed');
+      setTimeout(() => { g.remove(); this.el.classList.remove('is-dragging'); this.removeHero(d.catId, d.slug, false); }, 160);
+      return;
+    }
+    const body = [...this.el.querySelectorAll('.cat-body')].find((b) => this.inside(d.p, this.rel(b), 4));
+    if (body) {
+      const target = this.model.find((c) => c.id === body.closest('.cat').dataset.cat);
+      const src = this.model.find((c) => c.id === d.catId);
+      const tiles = [...body.querySelectorAll('.hero')].filter((h) => h.dataset.slug !== d.slug);
+      let idx = tiles.length;
+      for (let i = 0; i < tiles.length; i++) {
+        const r = this.rel(tiles[i]);
+        if (d.p.y < r.y || (d.p.y <= r.y + r.h && d.p.x < r.x + r.w / 2)) { idx = i; break; }
+      }
+      src.heroes.splice(src.heroes.indexOf(d.slug), 1);
+      const before = tiles[idx]?.dataset.slug;
+      target.heroes.splice(before ? target.heroes.indexOf(before) : target.heroes.length, 0, d.slug);
+      this.el.classList.remove('is-dragging');
+      this.render();
+      return;
+    }
+    g.classList.add('settle');
+    g.style.left = `${d.home.x}px`; g.style.top = `${d.home.y}px`; g.style.transform = 'none';
+    setTimeout(() => { this.el.classList.remove('is-dragging'); this.render(); }, 170);
+  }
+
+  poof(p) {
+    const el = document.createElement('div');
+    el.className = 'poof';
+    el.style.left = `${p.x}px`; el.style.top = `${p.y}px`;
+    el.innerHTML = Array.from({ length: 8 }, (_, i) => `<i style="--a:${i * 45}deg"></i>`).join('');
+    this.el.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  }
+
+  removeHero(catId, slug, instant) {
+    const cat = this.model.find((c) => c.id === catId);
+    const node = this.el.querySelector(`.hero[data-slug="${slug}"]`);
+    const finish = () => { cat.heroes.splice(cat.heroes.indexOf(slug), 1); this.render(); };
+    if (instant || !node) return finish();
+    node.classList.remove('lifted'); node.style.opacity = '0';
+    requestAnimationFrame(() => node.classList.add('removing'));
+    setTimeout(finish, 190);
+  }
+}
+
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((s) => new Board(s));
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
+
