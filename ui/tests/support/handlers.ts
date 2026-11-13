@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
-import { HEROES, boardJson, categoryJson, db, nextId, type DbBoard, type DbCategory } from './db'
+import { HEROES, boardJson, boardSummaryJson, categoryJson, db, nextId, type DbBoard, type DbCategory } from './db'
 
 export const API = 'http://smarf.test/api'
 
@@ -61,7 +61,12 @@ export const handlers = [
     const userId = userIdFrom(request)
     if (!userId) return unauthorized()
     // Newest first, like the API (created_at desc). Seeded boards share one created_at, so newest = added last.
-    return HttpResponse.json({ boards: db.boards.filter((b) => b.user_id === userId).toReversed() })
+    return HttpResponse.json({
+      boards: db.boards
+        .filter((b) => b.user_id === userId)
+        .toReversed()
+        .map(boardSummaryJson)
+    })
   }),
 
   http.post(`${API}/boards`, async ({ request }) => {

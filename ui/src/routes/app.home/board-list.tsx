@@ -1,10 +1,10 @@
 import React from 'react'
-import { Board } from '~/src/types/api'
+import { type BoardSummary } from '~/src/types/api'
 import { BoardListItem } from './board-list-item'
 
 interface Props {
   title: string
-  boards: Board[]
+  boards: BoardSummary[]
 }
 
 const BoardList: React.FC<Props> = ({ title, boards }) => {

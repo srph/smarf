@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
-import { type Board, type ID } from '~/src/types/api'
+import { type BoardSummary, type ID } from '~/src/types/api'
 import { boardKeys } from './board-keys'
 import { useBoardCache } from './use-board-cache'
 
@@ -23,7 +23,7 @@ const useFavoriteBoardMutation = (boardId: ID) => {
       const favorited_at = is_favorite ? new Date().toISOString() : null
       // A refetch already in flight would overwrite this change with older data.
       void queryClient.cancelQueries({ queryKey: boardKeys.list() })
-      queryClient.setQueryData<Board[]>(boardKeys.list(), (boards) =>
+      queryClient.setQueryData<BoardSummary[]>(boardKeys.list(), (boards) =>
         boards?.map((board) => (board.id === boardId ? { ...board, is_favorite, favorited_at } : board))
       )
       update((board) => {

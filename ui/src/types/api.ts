@@ -46,6 +46,12 @@ export interface Board {
   updated_at: string
 }
 
+/** A board as `GET /boards` lists it: no categories, but how many it has and how many heroes they hold. */
+export type BoardSummary = Omit<Board, 'categories'> & {
+  categories_count: number
+  heroes_count: number
+}
+
 export interface User {
   id: ID
   email: string

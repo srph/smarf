@@ -143,6 +143,16 @@ export function seedBoard(
   return board
 }
 
+/** A board as `GET /boards` lists it: no categories, just how many it has and how many heroes they hold. */
+export function boardSummaryJson(board: DbBoard) {
+  const categoryIds = db.categories.filter((c) => c.board_id === board.id).map((c) => c.id)
+  return {
+    ...board,
+    categories_count: categoryIds.length,
+    heroes_count: db.pivots.filter((p) => categoryIds.includes(p.category_id)).length
+  }
+}
+
 export function boardJson(board: DbBoard) {
   return {
     ...board,

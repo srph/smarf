@@ -6,13 +6,13 @@ import { useFavoriteBoardMutation } from '~/src/queries/boards/use-favorite-boar
 import { FavoriteIcon } from '~/src/components/favorite-icon/favorite-icon'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
 import { TimeAgo } from '~/src/components/time-ago/time-ago'
-import { Board } from '~/src/types/api'
+import { type BoardSummary } from '~/src/types/api'
 
 // Starts after the star's pop has begun (FavoriteIcon), so the pop is seen before the row slides away.
 const moveTransition = { duration: 0.3, ease: [0.2, 0.8, 0.3, 1], delay: 0.15 } as const
 
 interface Props {
-  board: Board
+  board: BoardSummary
 }
 
 const BoardListItem: React.FC<Props> = ({ board }) => {

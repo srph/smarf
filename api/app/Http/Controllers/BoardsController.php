@@ -17,6 +17,11 @@ class BoardsController extends Controller
         return response()->json([
             'boards' => request()->user()
                 ->boards()
+                ->withCount([
+                    'categories',
+                    // Each category_hero row is one hero placed in one of the board's categories.
+                    'categories as heroes_count' => fn ($query) => $query->join('category_hero', 'category_hero.category_id', '=', 'categories.id')
+                ])
                 ->orderBy('created_at', 'desc')
                 ->get()
         ]);
