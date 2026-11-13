@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smarf Logo Everywhere</title>
+<link rel="icon" href="logo-assets/favicon-32x32.png">
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1120px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #fafaf9; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Sheet layout inside each canvas (neutral captions) ---------- */
+  .sheet { min-width: 1056px; padding: 20px; display: grid; gap: 22px; }
+  .row { display: flex; gap: 24px; align-items: flex-start; }
+  .cap { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 6px; }
+  .cell.grow { flex: 1; min-width: 0; }
+
+  /* Browser tab strips (Chrome-like, real 16px favicons) */
+  .browser { width: 640px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 10px; font: 12px/1 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .strip { display: flex; align-items: flex-end; height: 40px; padding: 0 8px; }
+  .tab { width: 196px; height: 32px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-radius: 8px 8px 0 0; white-space: nowrap; overflow: hidden; }
+  .tab span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+  .tab img, .tab .dot { width: 16px; height: 16px; flex: none; }
+  .tab .dot { border-radius: 99px; }
+  .tab .x { opacity: .6; }
+  .omni { height: 36px; display: flex; align-items: center; padding: 0 12px; }
+  .omni div { flex: 1; height: 26px; border-radius: 99px; display: flex; align-items: center; padding: 0 12px; gap: 8px; }
+  .browser.dark .strip { background: #202124; color: #e8eaed; }
+  .browser.dark .tab.on, .browser.dark .omni { background: #35363a; color: #e8eaed; }
+  .browser.dark .omni div { background: #202124; color: #bdc1c6; }
+  .browser.dark .dot { background: #5f6368; }
+  .browser.light .strip { background: #dee1e6; color: #3c4043; }
+  .browser.light .tab.on, .browser.light .omni { background: #fff; color: #202124; }
+  .browser.light .omni div { background: #f1f3f4; color: #5f6368; }
+  .browser.light .dot { background: #bdc1c6; }
+
+  /* Favicon zoom */
+  .zoom { display: grid; grid-template-columns: repeat(3, auto); gap: 14px 22px; align-items: end; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+  .zoom figure { margin: 0; text-align: center; font-size: 11px; color: var(--mute); }
+  .zoom figure > div { display: grid; place-items: center; margin-bottom: 6px; border-radius: 6px; }
+  .zoom .on-dark { background: #202124; } .zoom .on-light { background: #f1f3f4; }
+  .zoom canvas { image-rendering: pixelated; display: block; }
+
+  /* Home screen */
+  .home-screen { width: 236px; height: 176px; border-radius: 14px; background: radial-gradient(120% 90% at 20% 0%, #4c3a8a, #1b1636 60%, #0d0b1a); display: flex; gap: 20px; justify-content: center; align-items: center; font: 11px/1.2 -apple-system, system-ui, sans-serif; color: #fff; }
+  .home-screen figure { margin: 0; text-align: center; }
+  .home-screen .ic { width: 60px; height: 60px; border-radius: 14px; overflow: hidden; margin-bottom: 5px; }
+  .home-screen .ic img { width: 100%; height: 100%; display: block; }
+  .home-screen .ghost .ic { background: rgb(255 255 255 / .16); }
+  .home-screen .ghost { opacity: .7; }
+
+  /* Link unfurl (dark chat client) */
+  .unfurl { width: 420px; background: #1a1d21; border-radius: 10px; padding: 14px 16px; font: 13px/1.4 system-ui, -apple-system, sans-serif; color: #d1d2d3; }
+  .unfurl .msg { margin-bottom: 8px; }
+  .unfurl .card { border-left: 4px solid #35373b; padding-left: 12px; }
+  .unfurl .site { display: flex; align-items: center; gap: 6px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+  .unfurl .site img { width: 16px; height: 16px; }
+  .unfurl a { color: #1d9bd1; font-weight: 700; text-decoration: none; }
+  .unfurl p { margin: 2px 0 8px; font-size: 12px; color: #ababad; }
+  .og-box { width: 360px; height: 188px; border-radius: 6px; overflow: hidden; position: relative; }
+  .og-box > img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ---------- Smarf mockups: matches ui/src (Tailwind 4 zinc, indigo primary, Interstate) ---------- */
+  .app {
+    --z50: #fafafa; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --sky: #00a6f4;
+    --p100: oklch(93% 0.034 272.788); --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966);
+    --metal: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    --metal-text: linear-gradient(180deg, var(--p100) 0%, var(--p300) 45%, var(--p400) 58%, var(--p200) 100%);
+    --glow: oklch(58.5% 0.233 277.117 / 0.7);
+    position: relative; overflow: hidden; background: var(--z900); color: var(--z50);
+    font: 14px/1.43 'Interstate', ui-sans-serif, system-ui, sans-serif; border-radius: 10px;
+  }
+  .app * { box-sizing: border-box; }
+  .app svg.i { width: 20px; height: 20px; fill: currentColor; flex: none; }
+
+  /* The two pieces of the sign-in lockup */
+  .badge { display: grid; place-items: center; flex: none; position: relative; overflow: hidden; border: 1px solid oklch(87% 0.065 274.039 / .4); background: var(--metal); box-shadow: inset 0 1px 1px rgb(255 255 255 / .5); filter: drop-shadow(0 0 var(--glow-r, 24px) var(--glow)); }
+  .badge svg { fill: #fff; display: block; }
+  .wm { font-weight: 900; text-transform: uppercase; letter-spacing: .025em; line-height: 1; padding-top: .08em; margin: 0; background: var(--metal-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .wm.plain { background: none; color: var(--z50); }
+  .glyph { display: block; flex: none; fill: url(#metalText); filter: drop-shadow(0 0 var(--glow-r, 12px) var(--glow)); }
+  .lockup { display: flex; align-items: center; }
+
+  /* Navigation (routes/app/navigation) */
+  .nav { border-bottom: 1px solid var(--z800); }
+  .nav .bar { height: 4px; background: linear-gradient(90deg, var(--p600), var(--p400)); }
+  .nav .row-n { display: flex; align-items: center; justify-content: space-between; padding: 24px 16px; height: 93px; }
+  .nav a.home { color: inherit; text-decoration: none; border-radius: 6px; }
+  .now-logo { display: flex; align-items: center; }
+  .now-logo img { width: 32px; height: 32px; margin-right: 16px; }
+  .now-logo span { font-size: 18px; font-weight: 800; letter-spacing: .025em; text-transform: uppercase; }
+  .nav .right { display: flex; align-items: center; gap: 24px; }
+  .avatar { border-radius: 99px; border: 2px solid var(--z700); padding: 6px; }
+  .avatar i { display: block; width: 40px; height: 40px; border-radius: 99px; background: url(https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/crystal_maiden.png) center/cover, var(--z700); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 4px; padding: 8px 12px; font: inherit; font-weight: 700; color: var(--z50); background: var(--p500); }
+  .btn .i { color: var(--p200); }
+  .skel { padding: 0 16px 24px; margin-top: 48px; }
+  .skel h3 { font-size: 18px; font-weight: 500; margin: 0 0 16px; }
+  .skel .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .skel .grid div { height: 64px; border-radius: 6px; border: 1px solid var(--z800); background: rgb(39 39 42 / .4); }
+
+  /* Boot splash */
+  .splash { width: 340px; height: 176px; display: grid; place-items: center; }
+  .spin { position: relative; width: 20px; height: 20px; }
+  .spin i { position: absolute; inset: 2px; border-radius: 99px; border: 2px solid transparent; border-top-color: var(--sky); animation: spin 1.2s cubic-bezier(.5,0,.5,1) infinite; }
+  .spin i:nth-child(1) { animation-delay: -.45s; } .spin i:nth-child(2) { animation-delay: -.3s; } .spin i:nth-child(3) { animation-delay: -.15s; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .breathe { animation: breathe 2.2s ease-in-out infinite; }
+  @keyframes breathe { 50% { --glow-r: 34px; transform: scale(1.04); } }
+  @property --glow-r { syntax: '<length>'; inherits: true; initial-value: 24px; }
+  .sheen::after { content: ""; position: absolute; top: -20%; bottom: -20%; left: 0; width: 40%; background: linear-gradient(90deg, transparent, rgb(255 255 255 / .55), transparent); transform: translateX(-170%) skewX(-20deg); animation: sheen 2.4s cubic-bezier(.3,.6,.3,1) infinite; }
+  @keyframes sheen { 0%, 25% { transform: translateX(-170%) skewX(-20deg); } 70%, 100% { transform: translateX(360%) skewX(-20deg); } }
+  @media (prefers-reduced-motion: reduce) { .breathe, .sheen::after, .spin i { animation: none; } }
+
+  /* OG image, drawn at 1200×628 and scaled to the unfurl */
+  .og { position: absolute; left: 0; top: 0; width: 1200px; height: 628px; transform: scale(.3); transform-origin: 0 0; border-radius: 0; display: grid; place-items: center; }
+  .og .bgi { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+  .og .veil { position: absolute; inset: 0; background: radial-gradient(ellipse 620px 360px at 50% 50%, rgb(9 9 11 / .95) 30%, rgb(9 9 11 / .55) 100%); }
+  .og .inner { position: relative; text-align: center; }
+  .og .tag { margin-top: 26px; font-size: 26px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--p200); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a3b3ff"/><stop offset=".42" stop-color="#7c86ff"/><stop offset=".58" stop-color="#615fff"/><stop offset="1" stop-color="#7c86ff"/>
+    </linearGradient>
+    <linearGradient id="metalText" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0e7ff"/><stop offset=".45" stop-color="#a3b3ff"/><stop offset=".58" stop-color="#7c86ff"/><stop offset="1" stop-color="#c6d2ff"/>
+    </linearGradient>
+    <symbol id="mk" viewBox="0 0 261 261"><g transform="translate(0,261) scale(0.1,-0.1)"><path id="mk-path"/></g></symbol>
+  </defs>
+</svg>
+
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>The sign-in lockup, from a 16px tab to the nav</h1>
+    <div class="chips">
+      <div class="chip"><b>Two pieces</b>The badge and the wordmark are separate; either can stand alone.</div>
+      <div class="chip"><b>16px</b>The favicon must read on light and dark tab bars.</div>
+      <div class="chip"><b>Same finish</b>Indigo metal and Interstate Black, as on sign-in.</div>
+      <div class="chip"><b>Calm nav</b>It sits above boards all day; it shouldn't shout.</div>
+    </div>
+  </section>
+
+  <div id="variations"></div>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from B: a one-colour mark for Safari's pinned tab and the manifest.</div>
+      <div class="card"><b>Remix</b>Remix B: the nav wordmark turns metal only on hover.</div>
+      <div class="card"><b>Settle</b>Settle on B, then generate every favicon size from one SVG.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/2d9a-logo-everywhere.html';
+const MARK_D = 'M1326 2593 c-1 -1 -62 -3 -135 -4 l-133 -1 -57 -40 -58 -40 -116 1 c-107 1 -118 3 -142 25 -25 23 -25 23 -258 20 -127 -2 -264 -3 -304 -4 l-71 0 -17 -49 c-14 -43 -14 -53 -1 -91 20 -58 20 -280 0 -346 -14 -48 -20 -221 -9 -274 3 -14 7 -35 9 -47 3 -12 9 -31 15 -42 20 -37 22 -89 6 -145 -19 -64 -14 -86 26 -138 48 -61 38 -117 -28 -149 l-44 -21 6 -87 c3 -47 7 -95 9 -106 2 -11 4 -31 5 -44 0 -13 17 -38 36 -57 l35 -33 -6 -73 c-11 -154 -13 -162 -36 -180 -23 -17 -23 -18 -23 -272 0 -251 0 -256 20 -256 12 0 26 -5 33 -12 15 -15 147 -21 173 -7 15 8 24 8 32 0 14 -14 54 -14 59 0 3 9 10 9 27 -1 19 -10 32 -10 64 1 35 12 41 11 52 -4 13 -18 35 -22 50 -8 19 17 61 20 86 7 18 -9 32 -10 43 -4 11 6 22 6 31 -2 11 -9 25 -8 60 6 43 16 48 16 80 1 45 -21 184 -26 196 -6 6 10 11 5 19 -16 13 -35 48 -75 65 -75 6 0 22 11 35 25 28 30 42 31 100 4 25 -12 59 -23 75 -24 17 -2 41 -6 53 -9 18 -4 31 2 51 24 l27 30 144 0 c80 0 154 0 165 0 41 0 161 17 177 24 9 4 37 0 63 -9 35 -11 51 -13 61 -4 10 8 21 7 45 -5 38 -19 78 -20 151 -5 64 14 87 28 64 41 -9 5 -16 13 -16 19 0 18 117 1 193 -29 l76 -29 -4 281 c-2 154 -4 395 -5 534 l-3 252 -36 0 c-34 1 -35 1 -16 16 18 14 20 27 20 168 l0 154 -31 38 c-47 60 -47 60 -13 99 24 27 29 39 20 48 -19 19 -12 35 19 42 16 3 31 14 34 23 11 35 9 557 -1 583 -7 16 -8 31 -2 40 5 8 9 41 7 74 -1 56 -4 62 -37 87 -31 23 -48 27 -131 31 -52 3 -102 8 -111 12 -10 4 -28 -4 -46 -19 -32 -27 -43 -25 -43 6 0 10 -3 18 -7 19 -5 0 -16 2 -25 4 -10 2 -75 6 -145 9 -71 4 -174 9 -230 12 -103 6 -103 6 -104 -18 -1 -27 -6 -58 -11 -63 -2 -2 -28 -5 -59 -8 -53 -5 -57 -4 -73 24 -15 25 -23 29 -64 29 l-47 0 30 20 c17 11 26 20 20 21 -17 3 -167 4 -169 2z m-683 -532 c72 -52 117 -90 117 -101 0 -12 9 -17 31 -18 24 -1 170 -93 613 -390 803 -538 858 -575 870 -594 13 -21 -6 -99 -71 -298 -28 -86 -52 -142 -66 -153 -20 -17 -34 -18 -172 -12 l-150 7 -48 52 c-76 80 -495 521 -577 607 -43 45 -284 298 -364 383 -21 23 -77 82 -125 131 -222 232 -386 407 -389 414 -1 4 22 15 52 25 31 9 58 21 61 26 3 5 27 8 53 6 43 -2 62 -12 165 -85z m1381 28 c36 -24 68 -50 71 -58 5 -12 -37 -276 -52 -324 -3 -13 -12 -18 -27 -15 -21 4 -464 336 -465 348 -1 9 72 34 87 31 7 -1 41 7 75 18 34 11 80 23 102 26 22 3 56 10 75 15 48 12 59 8 134 -41z m-1501 -1051 c93 -87 477 -463 477 -467 0 -3 -67 -31 -148 -61 -137 -50 -153 -54 -230 -53 -81 1 -84 2 -135 42 -29 22 -76 63 -106 90 -62 59 -62 56 1 189 62 133 109 245 111 265 2 21 1 22 30 -5z';
+document.getElementById('mk-path').setAttribute('d', MARK_D);
+
+/* ---------- Favicon SVGs (self-contained, hex stops = primary-100…500) ---------- */
+const STOPS_METAL = '<stop offset="0" stop-color="#a3b3ff"/><stop offset=".42" stop-color="#7c86ff"/><stop offset=".58" stop-color="#615fff"/><stop offset="1" stop-color="#7c86ff"/>';
+const gl = (x, y, s, fill) => `<g transform="translate(${x},${y}) scale(${s / 261})"><g transform="translate(0,261) scale(0.1,-0.1)"><path fill="${fill}" d="${MARK_D}"/></g></g>`;
+const svgUri = (vb, body) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vb} ${vb}" width="${vb}" height="${vb}"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">${STOPS_METAL}</linearGradient></defs>${body}</svg>`);
+const FAV = {
+  badge: svgUri(32, `<rect width="32" height="32" rx="7" fill="url(#g)"/><rect x=".5" y=".5" width="31" height="31" rx="6.5" fill="none" stroke="#e0e7ff" stroke-opacity=".55"/>${gl(6, 6, 20, '#fff')}`),
+  badgeTouch: svgUri(180, `<rect width="180" height="180" fill="url(#g)"/>${gl(42, 42, 96, '#fff')}`),
+  glyph: svgUri(32, gl(1, 1, 30, 'url(#g)')),
+  glyphTouch: svgUri(180, `<rect width="180" height="180" fill="#09090b"/>${gl(40, 40, 100, 'url(#g)')}`)
+};
+
+/* ---------- Pieces ---------- */
+const mk = (s) => `<svg width="${s}" height="${s}"><use href="#mk"/></svg>`;
+const badge = (s, r, mark, extra = '', glow = 24) => `<span class="badge ${extra}" style="width:${s}px;height:${s}px;border-radius:${r}px;--glow-r:${glow}px">${mk(mark)}</span>`;
+const wm = (px, cls = '') => `<span class="wm ${cls}" style="font-size:${px}px">Smarf</span>`;
+const glyph = (s, extra = '', glow = 12) => `<svg class="glyph ${extra}" width="${s}" height="${s}" style="--glow-r:${glow}px"><use href="#mk"/></svg>`;
+const ICON_PLUS = '<svg class="i" viewBox="0 0 20 20"><path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/></svg>';
+const ogFrame = (inner) => `<div class="app og"><img class="bgi" src="og-assets/register-bg.jpg" alt=""><div class="veil"></div><div class="inner">${inner}<div class="tag">Dota 2 hero organizer</div></div></div>`;
+
+/* ---------- Variations: one config each; the sheet is built from it ---------- */
+const V = [
+  {
+    id: 'Now', name: 'Grey mark, plain text',
+    fav16: 'logo-assets/favicon-16x16.png', fav32: 'logo-assets/favicon-32x32.png', touch: 'logo-assets/apple-touch-icon.png', touchBg: '#000',
+    nav: `<span class="now-logo"><img src="og-assets/logo.png" alt=""><span>Smarf</span></span>`,
+    splash: `<span class="spin"><i></i><i></i><i></i></span>`,
+    og: `<img src="og-assets/thumbnail.png" alt="">`,
+    notes: [['good', 'The Dota mark is instantly recognisable.'], ['bad', 'Grey favicon and nav share nothing with the indigo sign-in.'], ['bad', 'The brand only shows up before you sign in.']]
+  },
+  {
+    id: 'A', name: 'The sign-in lockup, scaled down',
+    fav16: FAV.badge, fav32: FAV.badge, touch: FAV.badgeTouch,
+    nav: `<span class="lockup" style="gap:12px">${badge(36, 10, 20, '', 16)}${wm(30)}</span>`,
+    splash: `<span class="lockup" style="gap:12px">${badge(40, 11, 22, 'sheen')}${wm(36)}</span>`,
+    og: ogFrame(`<span class="lockup" style="gap:32px;justify-content:center">${badge(120, 30, 66, '', 48)}${wm(132)}</span>`),
+    notes: [['good', 'One lockup everywhere, no rules to remember.'], ['good', 'Metal badge favicon pops on both tab colours.'], ['bad', 'A 30px metal wordmark outshines board names.']]
+  },
+  {
+    id: 'B', name: 'Metal badge, white wordmark in the app',
+    fav16: FAV.badge, fav32: FAV.badge, touch: FAV.badgeTouch,
+    nav: `<span class="lockup" style="gap:12px">${badge(32, 8, 18, '', 12)}${wm(20, 'plain')}</span>`,
+    splash: badge(48, 13, 26, 'breathe'),
+    og: ogFrame(`<span class="lockup" style="gap:32px;justify-content:center">${badge(120, 30, 66, '', 48)}${wm(132)}</span>`),
+    notes: [['good', 'Colour lives in the badge; the wordmark stays quiet.'], ['good', 'Metal text kept special for sign-in and shares.'], ['bad', 'Two wordmark finishes to keep straight.']]
+  },
+  {
+    id: 'C', name: 'The bare glyph, no tile',
+    fav16: FAV.glyph, fav32: FAV.glyph, touch: FAV.glyphTouch,
+    nav: `<span class="lockup" style="gap:12px">${glyph(30)}${wm(24)}</span>`,
+    splash: glyph(52, 'breathe', 20),
+    og: ogFrame(`<span class="lockup" style="gap:32px;justify-content:center">${glyph(120, '', 40)}${wm(132)}</span>`),
+    notes: [['good', 'Lightest touch: just the mark’s own shape.'], ['bad', 'Its pale top washes out on a light tab bar.'], ['bad', 'Loses the badge, the most ownable part of sign-in.']]
+  },
+  {
+    id: 'D', name: 'Each piece alone, by shape',
+    fav16: FAV.badge, fav32: FAV.badge, touch: FAV.badgeTouch,
+    nav: wm(26),
+    splash: badge(48, 13, 26, 'sheen'),
+    og: ogFrame(`<span class="lockup" style="justify-content:center">${wm(160)}</span>`),
+    notes: [['good', 'Square slots get the badge, wide slots the wordmark.'], ['good', 'Cleanest nav of the set.'], ['bad', 'The nav and the tab no longer echo each other.']]
+  }
+];
+
+const TITLE_ON = 'Smarf — Your Boards', TITLE_2 = 'Smarf — Carry pool';
+const browser = (tone, v) => `<div class="browser ${tone}">
+  <div class="strip">
+    <div class="tab on"><img src="${v.fav16}" alt=""><span>${TITLE_ON}</span><b class="x">×</b></div>
+    <div class="tab"><img src="${v.fav16}" alt=""><span>${TITLE_2}</span><b class="x">×</b></div>
+    <div class="tab"><i class="dot"></i><span>Patch notes</span><b class="x">×</b></div>
+  </div>
+  <div class="omni"><div>smarf.kierb.com</div></div>
+</div>`;
+
+function sheet(v) {
+  return `<div class="sheet">
+    <div class="row">
+      <div class="cell"><div class="cap">Browser tabs · real size</div>${browser('dark', v)}${browser('light', v)}</div>
+      <div class="cell"><div class="cap">Favicon pixels</div>
+        <div class="zoom">
+          <figure><div class="on-dark" style="width:40px;height:40px"><img src="${v.fav16}" width="16" height="16" alt=""></div>16</figure>
+          <figure><div class="on-dark" style="width:56px;height:56px"><img src="${v.fav32}" width="32" height="32" alt=""></div>32</figure>
+          <figure><div class="on-dark" style="width:88px;height:88px"><canvas class="px" data-src="${v.fav16}" width="16" height="16" style="width:64px;height:64px"></canvas></div>16 × 4, dark</figure>
+          <figure><div class="on-light" style="width:40px;height:40px"><img src="${v.fav16}" width="16" height="16" alt=""></div>16</figure>
+          <figure><div class="on-light" style="width:56px;height:56px"><img src="${v.fav32}" width="32" height="32" alt=""></div>32</figure>
+          <figure><div class="on-light" style="width:88px;height:88px"><canvas class="px" data-src="${v.fav16}" width="16" height="16" style="width:64px;height:64px"></canvas></div>16 × 4, light</figure>
+        </div>
+      </div>
+    </div>
+    <div class="row"><div class="cell grow"><div class="cap">App navigation · 1016px</div>
+      <div class="app"><div class="nav"><div class="bar"></div><div class="row-n">
+        <a class="home" href="#" onclick="return false">${v.nav}</a>
+        <div class="right"><span class="btn">${ICON_PLUS}New Board</span><span class="avatar"><i></i></span></div>
+      </div></div>
+      <div class="skel"><h3>Your Boards</h3><div class="grid"><div></div><div></div><div></div><div></div></div></div></div>
+    </div></div>
+    <div class="row">
+      <div class="cell"><div class="cap">Home screen</div>
+        <div class="home-screen">
+          <figure class="ghost"><div class="ic"></div>Notes</figure>
+          <figure><div class="ic" style="background:${v.touchBg || 'transparent'}"><img src="${v.touch}" alt=""></div>Smarf</figure>
+          <figure class="ghost"><div class="ic"></div>Discord</figure>
+        </div></div>
+      <div class="cell"><div class="cap">Loading</div><div class="app splash">${v.splash}</div></div>
+      <div class="cell"><div class="cap">Shared link</div>
+        <div class="unfurl"><div class="msg">my hero pools →</div><div class="card">
+          <div class="site"><img src="${v.fav32}" alt="">Smarf</div>
+          <a href="#" onclick="return false">Smarf — Dota 2 Hero Organizer</a>
+          <p>Avid smurfer with multiple play styles? Say no more.</p>
+          <div class="og-box">${v.og}</div>
+        </div></div></div>
+    </div>
+  </div>`;
+}
+
+const host = document.getElementById('variations');
+V.forEach((v) => {
+  const sec = document.createElement('section');
+  sec.className = 'variation'; sec.id = 'v-' + v.id; sec.dataset.id = v.id; sec.dataset.name = v.name;
+  sec.innerHTML = `<div class="v-head"><span class="v-id">${v.id}</span><h2>${v.name}</h2><button class="pick">Pick</button></div>
+    <div class="states"><button class="try" aria-pressed="false">Use as this tab’s favicon</button></div>
+    <div class="frame">${sheet(v)}</div>
+    <div class="notes">${v.notes.map(([k, t]) => `<div class="note ${k}">${t}</div>`).join('')}</div>`;
+  host.appendChild(sec);
+});
+
+/* Real 16px rasterisation, scaled up without smoothing */
+document.querySelectorAll('canvas.px').forEach((c) => {
+  const img = new Image();
+  img.onload = () => { const ctx = c.getContext('2d'); ctx.clearRect(0, 0, 16, 16); ctx.drawImage(img, 0, 0, 16, 16); };
+  img.src = c.dataset.src;
+});
+
+/* Try a variation's favicon on this very tab */
+const iconLink = document.querySelector('link[rel="icon"]');
+document.querySelectorAll('.try').forEach((b) => b.addEventListener('click', () => {
+  const v = V.find((x) => x.id === b.closest('.variation').dataset.id);
+  iconLink.href = v.fav32;
+  document.querySelectorAll('.try').forEach((o) => { o.setAttribute('aria-pressed', String(o === b)); o.textContent = o === b ? 'This tab’s favicon now' : 'Use as this tab’s favicon'; });
+}));
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
