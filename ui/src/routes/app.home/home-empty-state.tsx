@@ -61,8 +61,6 @@ const HomeEmptyState: React.FC = () => {
           {isBoardCreating ? 'Creating…' : 'Create your first board'}
         </Button>
       </div>
-
-      <p className="mt-3 text-xs text-zinc-500">Starts with two sample categories you can rename.</p>
     </div>
   )
 }
