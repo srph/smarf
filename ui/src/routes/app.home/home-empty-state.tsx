@@ -31,8 +31,8 @@ const HomeEmptyState: React.FC = () => {
   const { data: featured, status: heroesStatus } = useHeroesQuery(pickFeatured)
 
   return (
-    <div className="mx-auto w-120 text-center">
-      <div className="mt-10 mb-6 flex justify-center" aria-hidden="true">
+    <div className="mx-auto w-120 py-16 text-center">
+      <div className="mb-8 flex justify-center" aria-hidden="true">
         {tilt.map((className, i) => {
           const hero = featured?.[i]
           return (
@@ -46,8 +46,8 @@ const HomeEmptyState: React.FC = () => {
         })}
       </div>
 
-      <h3 className="mb-2 text-lg font-medium">No boards yet</h3>
-      <p className="mx-auto mb-6 max-w-90 text-zinc-400">
+      <h3 className="mb-3 text-lg font-medium">No boards yet</h3>
+      <p className="mx-auto mb-8 max-w-90 text-zinc-400">
         A board is your own hero grid: categories you size and arrange, each filled with heroes.
       </p>
 
