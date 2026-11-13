@@ -38,7 +38,7 @@ const Navigation: React.FC = () => {
                 <ButtonLoaderIcon>
                   <Icon icon={SquaresPlusIcon} />
                 </ButtonLoaderIcon>
-                <ButtonLoaderText>{isCreating ? 'Creating…' : 'New Board'}</ButtonLoaderText>
+                <ButtonLoaderText>{isCreating ? 'Creating' : 'New Board'}</ButtonLoaderText>
               </ButtonLoader>
             </div>
 

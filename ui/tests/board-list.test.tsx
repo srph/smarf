@@ -167,7 +167,7 @@ describe('board list', () => {
     await waitFor(() => expect(currentPath()).toMatch(/^\/b\//))
   })
 
-  it('shows Creating… only on the button that was clicked', async () => {
+  it('shows Creating only on the button that was clicked', async () => {
     let release!: () => void
     const answered = new Promise<void>((resolve) => (release = resolve))
     server.use(
@@ -181,7 +181,7 @@ describe('board list', () => {
     await waitFor(() => expect(newBoard).toBeEnabled())
     await user.click(newBoard)
 
-    expect(newBoard).toHaveAccessibleName('Creating…')
+    expect(newBoard).toHaveAccessibleName('Creating')
     expect(newBoard).toHaveAttribute('aria-busy', 'true')
     const create = screen.getByRole('button', { name: 'Create your first board' })
     expect(create).toBeDisabled()

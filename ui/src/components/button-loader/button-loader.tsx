@@ -19,7 +19,7 @@ type ButtonLoaderProps = React.PropsWithChildren<Omit<ButtonProps, 'icon' | 'bus
  *
  *   <ButtonLoader busy={isPending} onClick={create}>
  *     <ButtonLoaderIcon><Icon icon={SquaresPlusIcon} /></ButtonLoaderIcon>
- *     <ButtonLoaderText>{isPending ? 'Creating…' : 'New Board'}</ButtonLoaderText>
+ *     <ButtonLoaderText>{isPending ? 'Creating' : 'New Board'}</ButtonLoaderText>
  *   </ButtonLoader>
  */
 const ButtonLoader: React.FC<ButtonLoaderProps> = ({ busy, children, ...props }) => {
@@ -42,7 +42,7 @@ const ButtonLoaderIcon: React.FC<React.PropsWithChildren> = ({ children }) => {
   const busy = use(BusyContext)
 
   return (
-    <span className="mr-2 grid size-5 shrink-0 place-items-center text-primary-200" aria-hidden="true">
+    <span className="mr-2 grid size-5 shrink-0 place-items-center text-primary-200" aria-hidden="true" data-button-icon>
       <span className={cn('col-start-1 row-start-1 flex', swap, busy && hidden)}>{children}</span>
       <span className={cn('col-start-1 row-start-1 flex', swap, !busy && hidden)}>
         <Spinner tone="primary" />
