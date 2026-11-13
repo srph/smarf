@@ -9,7 +9,7 @@ interface Props {
 
 const BoardList: React.FC<Props> = ({ title, boards }) => {
   return (
-    <div className="mx-auto w-120">
+    <div className="mx-auto w-120 pb-12">
       <h5 className="mt-5 mb-4 text-xs font-bold text-zinc-300">{title}</h5>
 
       {boards.map((board) => (
