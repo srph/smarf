@@ -118,33 +118,41 @@ const BoardWorkspace: React.FC = () => {
   }, [board])
 
   return (
-    <Container>
-      <PageTitle title={`${board.name} Board`} />
+    // Clips the dots sideways, so they reach the window's edges without a horizontal scrollbar.
+    <div className="overflow-x-clip">
+      <Container>
+        <PageTitle title={`${board.name} Board`} />
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={collisionDetectionStrategy}
-        measuring={{
-          droppable: {
-            strategy: MeasuringStrategy.Always
-          }
-        }}
-        // The modifier reads workspaceRef while dragging, not during render.
-        // oxlint-disable-next-line react/refs
-        modifiers={[boardWorkspaceRestrict({ workspaceRef })]}
-        {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
-        {/* A dot every 8px, starting at the workspace's top-left corner (where category positions start), to line categories up by eye. */}
-        <div
-          ref={workspaceRef}
-          className="relative z-(--z-board-workspace) bg-[radial-gradient(circle,var(--color-zinc-700)_1px,transparent_1px)] bg-size-[8px_8px] bg-position-[-4px_-4px]"
-          style={{ height: workspaceHeight }}>
-          {board.categories.map((category) => {
-            return <BoardWorkspaceCategoryBody key={category.id} category={category} />
-          })}
-        </div>
-      </DndContext>
-      <div className="pointer-events-none h-100" />
-    </Container>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={collisionDetectionStrategy}
+          measuring={{
+            droppable: {
+              strategy: MeasuringStrategy.Always
+            }
+          }}
+          // The modifier reads workspaceRef while dragging, not during render.
+          // oxlint-disable-next-line react/refs
+          modifiers={[boardWorkspaceRestrict({ workspaceRef })]}
+          {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
+          {/*
+          A dot every 8px, to line categories up by eye. A dot sits on the workspace's top-left corner (where category
+          positions start). The dots fill the page from under the navigation to the bottom, edge to edge: the layer
+          reaches 48px up (the navigation's margin), 400px down (the spacer below) and 2000px to each side, all
+          multiples of 8, so the dots stay lined up with the workspace.
+        */}
+          <div
+            ref={workspaceRef}
+            className="relative z-(--z-board-workspace) before:pointer-events-none before:absolute before:-inset-x-500 before:-top-12 before:-bottom-100 before:-z-10 before:bg-[radial-gradient(circle,var(--color-zinc-700)_1px,transparent_1px)] before:bg-size-[8px_8px] before:bg-position-[-4px_-4px]"
+            style={{ height: workspaceHeight }}>
+            {board.categories.map((category) => {
+              return <BoardWorkspaceCategoryBody key={category.id} category={category} />
+            })}
+          </div>
+        </DndContext>
+        <div className="pointer-events-none h-100" />
+      </Container>
+    </div>
   )
 }
 
