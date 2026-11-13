@@ -221,23 +221,11 @@
   .parent { font-size: 13px; color: var(--mute); margin: 0 0 8px; }
   .parent code { font: 12px ui-monospace, Menlo, monospace; }
   .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--p300); margin-bottom: 10px; }
-  .disc { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--z700); border-radius: 4px; padding: 8px 12px; font: inherit; font-weight: 700; color: var(--z50); background: none; cursor: pointer; transition: box-shadow .2s; white-space: nowrap; }
-  .disc:hover, .disc:focus-visible { box-shadow: 0 0 0 2px var(--sky); outline: none; }
-  .disc svg { width: 20px; height: 20px; fill: currentColor; }
-  .disc.block { display: flex; width: 100%; }
-  .disc.lg { padding: 12px 16px; font-size: 15px; }
-  .disc.solid { background: #5865f2; border-color: #5865f2; }
   .mean { color: var(--z400); }
   .mean a, .mean button { color: var(--p300); font: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: none; }
   .mean a:hover, .mean button:hover { text-decoration: underline; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
-  /* Now: sign-in page */
-  .now-login { display: flex; height: 100%; }
-  .now-login .art { width: 50%; background: url(og-assets/login-bg.png) center / cover; }
-  .now-login .side { width: 50%; padding: 32px; }
-  .now-login .col { max-width: 400px; margin: 96px auto 0; }
-  .now-login h1 { font-size: 30px; font-weight: 400; margin: 0 0 16px; }
   .now-tag { position: absolute; left: 16px; bottom: 16px; font-size: 12px; color: var(--z300); background: rgb(9 9 11 / .8); border: 1px solid var(--z700); border-radius: 4px; padding: 6px 10px; }
 
   /* ----- A: did you mean ----- */
@@ -261,9 +249,6 @@
   .ma-route.best { border-color: oklch(58.5% 0.233 277.117 / .7); background: oklch(58.5% 0.233 277.117 / .1); box-shadow: 0 0 24px -8px var(--p500); }
   .ma-route.best .ico { background: var(--p500); color: var(--z50); }
   .pill { font-size: 11px; font-weight: 700; color: var(--p200); background: oklch(58.5% 0.233 277.117 / .25); border-radius: 99px; padding: 2px 8px; }
-  .ma-route.locked .ico { color: var(--z500); }
-  .ma-foot { margin-top: 20px; display: flex; align-items: center; gap: 12px; }
-  .ma-foot p { margin: 0; color: var(--z500); font-size: 13px; }
 
   /* ----- B: off the map ----- */
   .mb { position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 55%, #1e1b3a 0%, var(--z950) 62%); overflow: hidden; }
@@ -328,7 +313,6 @@
   .md-bar .replay:hover { color: var(--z200); }
   .md-mean { margin: 14px 0 32px; font-size: 13px; }
   .md-alt { margin-top: 12px; }
-  .md-note { margin-top: 12px; text-align: center; font-size: 12px; color: var(--z500); }
 </style>
 </head>
 <body>
@@ -341,7 +325,7 @@
     <div class="chips">
       <div class="chip"><b>Goal</b>Blame the address, not the board or the connection.</div>
       <div class="chip"><b>Goal</b>Suggest the page they most likely meant.</div>
-      <div class="chip"><b>Covers</b>Signed-out visitors too; toggle on each canvas.</div>
+      <div class="chip"><b>Auth-free</b>Same page for everyone: no account nav, one Back to Smarf.</div>
       <div class="chip"><b>Pairs</b>A–D here match A–D in the parent file.</div>
     </div>
   </section>
@@ -350,8 +334,8 @@
     <div class="v-head"><span class="v-id">Now</span><h2>Redirected without a word</h2><button class="pick">Pick</button></div>
     <div class="frame"><div class="app" id="now"></div></div>
     <div class="notes">
-      <div class="note bad">Signed in, <span class="mono">/acount</span> quietly becomes Home.</div>
-      <div class="note bad">Signed out, it becomes sign-in, then Home; the address is lost.</div>
+      <div class="note bad"><span class="mono">/acount</span> quietly becomes Home.</div>
+      <div class="note bad">The typed address is gone, so nobody sees the typo.</div>
     </div>
   </section>
 
@@ -391,7 +375,7 @@
     <div class="notes">
       <div class="note good">The address bar corrects itself, so the fix is visible.</div>
       <div class="note good">New art, so it no longer looks like sign-in.</div>
-      <div class="note good">Signed out, Discord brings you back to the fixed page.</div>
+      <div class="note bad">Two full-width buttons; the fix and Back to Smarf compete.</div>
     </div>
   </section>
 
@@ -400,7 +384,7 @@
     <div class="cards">
       <div class="card"><b>Explore</b>Explore from A with board names in the suggestions, so <code>/ranked</code> finds "Ranked picks".</div>
       <div class="card"><b>Remix</b>Remix B: keep the ping, but use the parent B's fog scene for the background.</div>
-      <div class="card"><b>Settle</b>Settle on D if signed-out visitors matter most.</div>
+      <div class="card"><b>Settle</b>Settle on D if showing the corrected address matters most.</div>
     </div>
   </section>
 </main>
@@ -434,16 +418,15 @@ const NAV = `<div class="nav"><div class="bar"></div><div class="row">${LOGO}<di
 
 
 
-const DISCORD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/></svg>';
 Object.assign(ICON, {
   sliders: '<svg class="i" viewBox="0 0 20 20"><path d="M17 2.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM17 15.75a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5ZM3.75 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 .75-.75ZM4.5 2.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM10 11a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0v-5.5A.75.75 0 0 1 10 11ZM10.75 2.75a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5ZM10 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM3.75 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM16.25 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg>',
   bolt: '<svg class="i" viewBox="0 0 20 20"><path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"/></svg>',
   lock: '<svg class="i" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>',
   chev: '<svg class="i" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/></svg>'
 });
-const NAV_OUT = `<div class="nav"><div class="bar"></div><div class="row">${LOGO}<div class="right"><button class="disc">${DISCORD}Continue with Discord</button></div></div></div>`;
-const nav = (auth) => (auth ? NAV : NAV_OUT);
-const discordBtn = (cls = '') => `<button class="disc ${cls}">${DISCORD}Continue with Discord</button>`;
+/* Auth-free: the logo and nothing tied to an account. Back to Smarf goes to /, and the route guard handles guests. */
+const NAV_PLAIN = `<div class="nav"><div class="bar"></div><div class="row">${LOGO}</div></div>`;
+const BACK = 'Back to Smarf';
 
 /* Real routes and the words people type for them. */
 const ROUTES = [
@@ -479,37 +462,21 @@ const diff = (a, b) => {
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const BEST = rank(PATH)[0];
 
-/* Each canvas gets a Signed in / Signed out toggle above its frame. */
-function withAuth(id, render) {
-  const el = document.getElementById(id);
-  const frame = el.closest('.frame');
-  const row = document.createElement('div'); row.className = 'states';
-  row.innerHTML = '<span>Visitor:</span>';
-  [['Signed in', true], ['Signed out', false]].forEach(([label, auth], i) => {
-    const b = document.createElement('button'); b.textContent = label;
-    b.addEventListener('click', () => { row.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); render(el, auth); });
-    row.appendChild(b);
-    if (i === 0) setTimeout(() => b.click());
-  });
-  frame.before(row);
-}
+const canvas = (id, render) => render(document.getElementById(id));
 
 /* ---------- Now ---------- */
-withAuth('now', (el, auth) => {
-  el.innerHTML = auth
-    ? `${NAV}<div class="home"><h3>Your boards</h3><div class="boards">${[['Ranked picks', 'antimage,invoker,lion'], ['Supports', 'crystal_maiden,dazzle,oracle'], ['Turbo', 'pudge,sven,lina']].map(([n, hs]) => `<div class="board-item"><b>${n}</b><small>Updated 2 days ago</small><div class="tiles">${hs.split(',').map((h) => tile(h)).join('')}</div></div>`).join('')}</div></div><div class="now-tag">Typed <span class="mono">${PATH}</span>, landed on Home</div>`
-    : `<div class="now-login"><div class="art"></div><div class="side">${LOGO}<div class="col"><h1>Hi there, welcome back!</h1>${discordBtn('block')}</div></div></div><div class="now-tag">Typed <span class="mono">${PATH}</span>, landed on sign-in</div>`;
+canvas('now', (el) => {
+  el.innerHTML = `${NAV}<div class="home"><h3>Your boards</h3><div class="boards">${[['Ranked picks', 'antimage,invoker,lion'], ['Supports', 'crystal_maiden,dazzle,oracle'], ['Turbo', 'pudge,sven,lina']].map(([n, hs]) => `<div class="board-item"><b>${n}</b><small>Updated 2 days ago</small><div class="tiles">${hs.split(',').map((h) => tile(h)).join('')}</div></div>`).join('')}</div></div><div class="now-tag">Typed <span class="mono">${PATH}</span>, landed on Home</div>`;
 });
 
 /* ---------- A: did you mean ---------- */
-withAuth('a', (el, auth) => {
-  el.innerHTML = `${nav(auth)}<div class="ma"><div class="ma-col">
+canvas('a', (el) => {
+  el.innerHTML = `${NAV_PLAIN}<div class="ma"><div class="ma-col">
     <div class="eyebrow">404 · Page not found</div>
     <h1>No page at <span class="mono"></span></h1>
     <label class="ma-url"><span>smarf.app</span><input spellcheck="false" autocomplete="off" value="${PATH}" aria-label="Address"><small>Edit to try</small></label>
     <div class="ma-label"></div>
     <div class="ma-list"></div>
-    ${auth ? '' : `<div class="ma-foot">${discordBtn('solid')}<p>Sign in, and we'll take you to the page you pick.</p></div>`}
   </div></div>`;
   const input = el.querySelector('input'), list = el.querySelector('.ma-list'), label = el.querySelector('.ma-label'), shown = el.querySelector('h1 .mono');
   const update = () => {
@@ -517,9 +484,9 @@ withAuth('a', (el, auth) => {
     shown.textContent = norm(input.value);
     label.textContent = close ? 'Did you mean' : 'Where to?';
     const before = new Map([...list.children].map((c) => [c.dataset.path, c.getBoundingClientRect().top]));
-    list.innerHTML = ranked.map((r, i) => `<button class="ma-route ${i === 0 && close ? 'best' : ''} ${auth ? '' : 'locked'}" data-path="${r.path}">
+    list.innerHTML = ranked.map((r, i) => `<button class="ma-route ${i === 0 && close ? 'best' : ''}" data-path="${r.path}">
       <span class="ico">${ICON[r.icon]}</span><span><b>${r.label}</b><small>${r.path}${r.sub ? ' · ' + r.sub : ''}</small></span>
-      <span class="end">${i === 0 && close ? '<span class="pill">Best match</span>' : ''}${auth ? '' : ICON.lock}${ICON.chev}</span></button>`).join('');
+      <span class="end">${i === 0 && close ? '<span class="pill">Best match</span>' : ''}${ICON.chev}</span></button>`).join('');
     if (reduced) return;
     [...list.children].forEach((c) => {
       const was = before.get(c.dataset.path); if (was == null) return;
@@ -561,16 +528,16 @@ const MAP_SVG = (() => {
     ${heroes.map(([h, x, y], i) => `<clipPath id="hc${i}"><circle cx="${x}" cy="${y}" r="11"/></clipPath><circle cx="${x}" cy="${y}" r="13" fill="${i < 3 ? '#2dd4bf' : '#f87171'}"/><image href="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/${h}.png" x="${x - 11}" y="${y - 11}" width="22" height="22" clip-path="url(#hc${i})"/>`).join('')}
   </svg>`;
 })();
-withAuth('b', (el, auth) => {
+canvas('b', (el) => {
   el.innerHTML = `<div class="mb"><div class="mb-stars"></div>
-    <div class="mb-top">${LOGO}${auth ? '<div class="avatar"><i></i></div>' : ''}</div>
+    <div class="mb-top">${LOGO}</div>
     <div class="mb-world"><div class="mb-tilt"><div class="mb-map">${MAP_SVG}</div></div></div>
     <div class="mb-ping"><i></i><i></i><i></i><b></b></div>
     <div class="mb-tag"><span class="path">${PATH}</span><small>You are here</small></div>
     <div class="mb-copy"><div class="eyebrow">404 · Page not found</div><h1>You're off the map</h1>
       <p>There's no page at <span class="path">${PATH}</span>. The address may be mistyped, or the page has moved.</p>
       <p class="mean">Did you mean <a href="#" onclick="return false">${BEST.label} <span class="mono">${BEST.path}</span></a>?</p>
-      <div class="mb-actions">${auth ? `<button class="metal">${ICON.home}Back to your boards</button><button class="link">${ICON.back}Go back</button>` : discordBtn('lg solid')}</div></div></div>`;
+      <div class="mb-actions"><button class="metal">${ICON.home}${BACK}</button><button class="link">${ICON.back}Go back</button></div></div></div>`;
   const tilt = el.querySelector('.mb-tilt'), scene = el.querySelector('.mb');
   if (reduced) return;
   scene.addEventListener('pointermove', (e) => {
@@ -586,13 +553,11 @@ withAuth('b', (el, auth) => {
     4: ['11011', '11011', '11011', '11111', '11111', '00011', '00011'],
     0: ['01110', '11111', '11011', '11011', '11011', '11111', '01110']
   };
-  let stop = () => {};
-  withAuth('c', (el, auth) => {
-    stop();
-    el.innerHTML = `${nav(auth)}<div class="mc-stage"><div class="mc-mosaic">${[4, 0, 4].map((d) => `<div class="mc-digit">${GLYPH[d].map((row) => [...row].map((on) => `<div class="mc-cell ${on === '1' ? 'on' : ''}"></div>`).join('')).join('')}</div>`).join('')}<div class="mc-hero"><div class="t">${img('riki')}</div></div></div>
+  canvas('c', (el) => {
+    el.innerHTML = `${NAV_PLAIN}<div class="mc-stage"><div class="mc-mosaic">${[4, 0, 4].map((d) => `<div class="mc-digit">${GLYPH[d].map((row) => [...row].map((on) => `<div class="mc-cell ${on === '1' ? 'on' : ''}"></div>`).join('')).join('')}</div>`).join('')}<div class="mc-hero"><div class="t">${img('riki')}</div></div></div>
       <div class="mc-copy"><h1>Page not found</h1><p>Even Riki can't find <span class="path">${PATH}</span>.</p>
         <p class="mean">Did you mean <a href="#" onclick="return false">${BEST.label} <span class="mono">${BEST.path}</span></a>?</p>
-        <div class="mc-actions">${auth ? `<button class="btn lg">${ICON.home}Back to your boards</button><button class="btn clear lg">${ICON.back}Go back</button>` : discordBtn('lg solid')}</div></div></div>`;
+        <div class="mc-actions"><button class="btn lg">${ICON.home}${BACK}</button><button class="btn clear lg">${ICON.back}Go back</button></div></div></div>`;
     const mosaic = el.querySelector('.mc-mosaic'), hero = el.querySelector('.mc-hero');
     const cells = [...mosaic.querySelectorAll('.mc-cell.on')];
     let at = cells[0];
@@ -611,16 +576,15 @@ withAuth('b', (el, auth) => {
       hopTo(Math.random() < 0.15 || !near.length ? cells[Math.floor(Math.random() * cells.length)] : near[Math.floor(Math.random() * near.length)]);
     };
     let timer = 0, hovering = false;
-    const loop = () => { if (!hero.isConnected) return; if (!hovering) wander(); timer = setTimeout(loop, 900); };
+    const loop = () => { if (!hovering) wander(); timer = setTimeout(loop, 900); };
     requestAnimationFrame(() => { hero.style.transition = 'none'; hopTo(at); requestAnimationFrame(() => { hero.style.transition = ''; if (!reduced) whenSeen(el, loop); }); });
     mosaic.addEventListener('pointerover', (e) => { const c = e.target.closest('.mc-cell.on'); if (c && c !== at) { hovering = true; hopTo(c); } });
     mosaic.addEventListener('pointerleave', () => { hovering = false; });
-    stop = () => clearTimeout(timer);
   });
 }
 
 /* ---------- D: spot the typo ---------- */
-withAuth('d', (el, auth) => {
+canvas('d', (el) => {
   const ops = diff(norm(PATH), BEST.path);
   const shown = ops.map((o) => (o.t === 'same' ? esc(o.c) : `<${o.t}>${esc(o.c)}</${o.t}>`)).join('');
   el.innerHTML = `<div class="md"><div class="md-art"><div class="md-badge"><i></i>404 · Page not found</div></div>
@@ -628,9 +592,7 @@ withAuth('d', (el, auth) => {
       <p>Smarf has no page at this address. It was probably a typo, so we fixed what we could.</p>
       <div class="md-bar">${ICON.lock}<span><span class="host">smarf.app</span>${shown}</span><button class="replay">Replay</button></div>
       <p class="md-mean mean">Did you mean <b style="color:var(--z200)">${BEST.label}</b>?</p>
-      ${auth
-        ? `<button class="btn block lg">${ICON[BEST.icon]}Go to ${BEST.label}</button><button class="btn clear block lg md-alt">${ICON.home}Back to your boards</button>`
-        : `${discordBtn('block lg solid')}<div class="md-note">Sign in and we'll open ${BEST.label} for you.</div>`}
+      <button class="btn block lg">${ICON[BEST.icon]}Go to ${BEST.label}</button><button class="btn clear block lg md-alt">${ICON.home}${BACK}</button>
     </div></div></div>`;
   const bar = el.querySelector('.md-bar');
   const play = () => { bar.classList.remove('fixed'); void bar.offsetWidth; setTimeout(() => bar.classList.add('fixed'), reduced ? 0 : 900); };
