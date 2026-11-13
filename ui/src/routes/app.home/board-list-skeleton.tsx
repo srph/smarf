@@ -14,8 +14,9 @@ const BoardListSkeleton: React.FC = () => {
     <output className="mx-auto block w-120 motion-safe:animate-pulse">
       <span className="sr-only">Loading your boards…</span>
 
-      {/* Same box as BoardList's heading (mt-5 mb-4, text-xs line) */}
-      <div className="mt-5 mb-4 flex h-4 items-center" aria-hidden="true">
+      {/* Same box as BoardList's heading (mb-4, text-xs line). No top margin: in BoardList it would collapse
+          into the navigation's mb-12, but not through this <output>, so the skeleton would sit 20px lower. */}
+      <div className="mb-4 flex h-4 items-center" aria-hidden="true">
         <div className="h-2 w-24 rounded-sm bg-zinc-800" />
       </div>
 
