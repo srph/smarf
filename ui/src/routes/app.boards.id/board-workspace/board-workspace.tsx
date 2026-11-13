@@ -133,7 +133,11 @@ const BoardWorkspace: React.FC = () => {
         // oxlint-disable-next-line react/refs
         modifiers={[boardWorkspaceRestrict({ workspaceRef })]}
         {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
-        <div ref={workspaceRef} className="relative z-(--z-board-workspace)" style={{ height: workspaceHeight }}>
+        {/* A dot every 8px, starting at the workspace's top-left corner (where category positions start), to line categories up by eye. */}
+        <div
+          ref={workspaceRef}
+          className="relative z-(--z-board-workspace) bg-[radial-gradient(circle,var(--color-zinc-700)_1px,transparent_1px)] bg-size-[8px_8px] bg-position-[-4px_-4px]"
+          style={{ height: workspaceHeight }}>
           {board.categories.map((category) => {
             return <BoardWorkspaceCategoryBody key={category.id} category={category} />
           })}
