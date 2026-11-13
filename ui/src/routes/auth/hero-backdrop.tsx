@@ -31,7 +31,7 @@ const HeroBackdrop: React.FC = () => {
   if (!heroes?.length) return null
 
   return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div className="absolute inset-0 animate-fade-in overflow-hidden motion-reduce:animate-none" aria-hidden="true">
       <div className="absolute top-1/2 left-1/2 flex w-max -translate-x-1/2 -translate-y-1/2 -rotate-12 gap-3">
         {Array.from({ length: COLUMNS }, (_, column) => {
           // Heroes wrap around when there are fewer than the columns need.

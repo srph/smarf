@@ -1,18 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
+import { ExclamationCircleIcon } from '@heroicons/react/20/solid'
+import { DiscordButton } from '~/src/components/discord-button/discord-button'
+import { Icon } from '~/src/components/icon/icon'
 import { PageTitle } from '~/src/components/page-title/page-title'
-import { Spacer } from '~/src/components/spacer/spacer'
-import { Spinner } from '~/src/components/spinner/spinner'
 import { HttpError } from '~/src/lib/http'
 import { clearPendingLogin, discordRedirectUri, readPendingLogin } from '~/src/lib/discord'
 import { useDiscordLoginMutation } from './mutations/use-discord-login-mutation'
 
 type Problem = 'cancelled' | 'expired' | 'rejected' | 'failed'
 
-type Callback = { type: 'ok'; code: string; returnTo: string | null } | { type: Problem }
+/** `returnTo` is kept either way, so a retry still goes back to the page that asked for login. */
+type Callback = { type: 'ok'; code: string; returnTo: string | null } | { type: Problem; returnTo: string | null }
 
 const MESSAGES: Record<Problem, string> = {
-  cancelled: 'Signing in with Discord was cancelled.',
+  cancelled: "Signing in with Discord was cancelled. Try again whenever you're ready.",
   expired: 'This sign-in has expired. Try again.',
   rejected: "Discord didn't accept the sign-in. Try again.",
   failed: "Couldn't sign in with Discord. Check your connection and try again."
@@ -20,18 +22,24 @@ const MESSAGES: Record<Problem, string> = {
 
 /** What Discord sent back, checked against the sign-in the login page started. */
 function readCallback(params: URLSearchParams): Callback {
+  const pending = readPendingLogin()
+  const returnTo = pending?.returnTo ?? null
+
   const error = params.get('error')
   // access_denied: the visitor chose Cancel on Discord.
-  if (error) return { type: error === 'access_denied' ? 'cancelled' : 'failed' }
+  if (error) return { type: error === 'access_denied' ? 'cancelled' : 'failed', returnTo }
 
-  const pending = readPendingLogin()
   const code = params.get('code')
-  if (!code || !pending || pending.state !== params.get('state')) return { type: 'expired' }
+  if (!code || !pending || pending.state !== params.get('state')) return { type: 'expired', returnTo }
 
-  return { type: 'ok', code, returnTo: pending.returnTo }
+  return { type: 'ok', code, returnTo }
 }
 
-/** Discord sends the visitor here (/login/discord) after they sign in there. */
+/**
+ * Discord sends the visitor here (/login/discord) after they sign in there. The Discord button stays
+ * in the same place throughout (pending while signing in, then a retry if that fails), so its label
+ * animates from one to the other.
+ */
 const LoginDiscordRoute = () => {
   const navigate = useNavigate()
 
@@ -49,8 +57,10 @@ const LoginDiscordRoute = () => {
     if (started.current) return
     started.current = true
 
-    clearPendingLogin()
+    // Only a sign-in that's going ahead uses up the saved one. After a problem, the retry button
+    // has already saved its own (child effects run first), which clearing here would throw away.
     if (callback.type !== 'ok') return
+    clearPendingLogin()
 
     // Drop the code from the URL, and leave the return path where GuardedRoute looks once the user loads.
     navigate('/login/discord', {
@@ -69,30 +79,20 @@ const LoginDiscordRoute = () => {
           : 'failed'
         : null
 
-  if (problem) {
-    return (
-      <>
-        <PageTitle title="Sign in" />
-        <div role="alert">
-          <p>{MESSAGES[problem]}</p>
-          <Spacer size={4} />
-          <Link
-            to="/login"
-            className="flex w-full items-center justify-center rounded border border-zinc-700 p-2 text-sm font-bold text-zinc-50 ring-sky-500 transition-shadow duration-200 hover:ring-2 focus:ring-2">
-            Back to sign in
-          </Link>
-        </div>
-      </>
-    )
-  }
-
   return (
     <>
-      <PageTitle title="Signing in" />
-      <div className="flex items-center gap-3 text-zinc-400">
-        <Spinner />
-        <span>Signing in with Discord…</span>
-      </div>
+      <PageTitle title={problem ? 'Sign in' : 'Signing in'} />
+      {problem ? (
+        <div
+          role="alert"
+          className="mb-4 flex animate-rise-in items-start gap-2.5 rounded-md border border-red-400/35 bg-red-950/55 px-3 py-2.5 text-left text-red-300 motion-reduce:animate-none">
+          <span className="mt-px text-red-400">
+            <Icon icon={ExclamationCircleIcon} />
+          </span>
+          <span>{MESSAGES[problem]}</span>
+        </div>
+      ) : null}
+      <DiscordButton returnTo={callback.returnTo} pending={!problem} label="Try again with Discord" />
     </>
   )
 }

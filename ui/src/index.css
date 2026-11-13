@@ -104,6 +104,15 @@
     }
   }
 
+  /* Sign-in: the hero backdrop fades in once the hero list arrives, instead of popping in. */
+  --animate-fade-in: fade-in 0.8s ease both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
   /* Sign-in: the alert rises in; the Discord button's old label lifts out, then the new one rises in after it. */
   --animate-rise-in: rise-in 0.32s var(--ease-morph) both;
   --animate-label-in: rise-in 0.26s var(--ease-morph) 0.14s both;

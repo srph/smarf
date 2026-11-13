@@ -5,6 +5,10 @@ import { API, server } from './support/handlers'
 import { currentPath, getToken, renderApp, screen, setToken } from './support/render'
 
 const discordLink = () => screen.findByRole('link', { name: 'Continue with Discord' })
+const retryLink = () => screen.findByRole('link', { name: 'Try again with Discord' })
+
+/** The `state` a Discord link sends, which Discord would send back. */
+const stateOf = (link: HTMLElement) => new URL(link.getAttribute('href') ?? '').searchParams.get('state') ?? ''
 
 /**
  * Open `path` logged out and follow the login page's Discord link, as far as leaving for Discord.
@@ -12,7 +16,7 @@ const discordLink = () => screen.findByRole('link', { name: 'Continue with Disco
  */
 async function startDiscordLogin(path = '/login') {
   const { unmount } = renderApp(path, { loggedIn: false })
-  const state = new URL((await discordLink()).getAttribute('href') ?? '').searchParams.get('state') ?? ''
+  const state = stateOf(await discordLink())
   unmount()
   return state
 }
@@ -61,16 +65,28 @@ describe('auth', () => {
     expect(currentPath()).toBe(`/b/${board.id}`)
   })
 
-  it('says so when the visitor cancels on Discord', async () => {
+  it('says so when the visitor cancels on Discord, and links straight back to Discord', async () => {
     await startDiscordLogin()
-    const { user } = returnFromDiscord({ error: 'access_denied', state: 'whatever' })
+    returnFromDiscord({ error: 'access_denied', state: 'whatever' })
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Signing in with Discord was cancelled.')
     expect(getToken()).toBeFalsy()
 
-    await user.click(screen.getByRole('link', { name: 'Back to sign in' }))
-    expect(await discordLink()).toBeInTheDocument()
-    expect(currentPath()).toBe('/login')
+    const url = new URL((await retryLink()).getAttribute('href') ?? '')
+    expect(url.origin + url.pathname).toBe('https://discord.com/oauth2/authorize')
+  })
+
+  it('signs in from the retry link, and still returns to the page that asked for login', async () => {
+    const board = seedBoard('Ranked', [{ name: 'Carries', heroes: ['Axe'] }])
+    await startDiscordLogin(`/b/${board.id}`)
+    const { unmount } = returnFromDiscord({ error: 'access_denied', state: 'whatever' })
+    const state = stateOf(await retryLink())
+    unmount()
+
+    returnFromDiscord({ code: DISCORD_CODE, state })
+
+    expect(await screen.findByDisplayValue('Carries')).toBeInTheDocument()
+    expect(currentPath()).toBe(`/b/${board.id}`)
   })
 
   it("doesn't sign in when the state doesn't match the one it sent", async () => {
@@ -88,6 +104,7 @@ describe('auth', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent("Discord didn't accept the sign-in. Try again.")
     expect(getToken()).toBeFalsy()
+    expect(await retryLink()).toBeInTheDocument()
   })
 
   it('takes the code out of the address bar', async () => {
