@@ -142,7 +142,7 @@ const BoardToolbar: React.FC = () => {
 
                 <div className="ml-1 flex items-center gap-0.5">
                   <BoardToolbarIconButton
-                    label={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
+                    label={board.is_favorite ? 'Unfavorite board' : 'Favorite board'}
                     onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}
                     disabled={isFavoriteLoading}>
                     <FavoriteIcon value={board.is_favorite} />

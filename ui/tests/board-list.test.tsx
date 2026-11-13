@@ -32,7 +32,7 @@ describe('board list', () => {
     await screen.findByText('Turbo')
     expect(boardNames()).toEqual(['Captains Mode', 'Ranked', 'Turbo'])
 
-    await user.click(within(row('Turbo')).getByTitle('Add board to favorites'))
+    await user.click(within(row('Turbo')).getByTitle('Favorite board'))
 
     // On top right away, and still on top once the list is refetched with the server's favorited_at.
     expect(boardNames()).toEqual(['Turbo', 'Captains Mode', 'Ranked'])
@@ -49,9 +49,9 @@ describe('board list', () => {
     await screen.findByText('Turbo')
     expect(boardNames()).toEqual(['Ability Draft', 'Turbo', 'Ranked'])
 
-    await user.click(within(row('Turbo')).getByTitle('Add board to favorites'))
+    await user.click(within(row('Turbo')).getByTitle('Favorite board'))
 
-    expect(within(row('Turbo')).getByTitle('Remove board from favorites')).toBeInTheDocument()
+    expect(within(row('Turbo')).getByTitle('Unfavorite board')).toBeInTheDocument()
     expect(boardNames()).toEqual(['Turbo', 'Ability Draft', 'Ranked'])
     await waitFor(() => expect(db.boards.find((b) => b.id === board.id)!.is_favorite).toBe(true))
   })
@@ -70,7 +70,7 @@ describe('board list', () => {
     const { user } = renderApp('/')
 
     await screen.findByText('Turbo')
-    await user.click(within(row('Turbo')).getByTitle('Add board to favorites'))
+    await user.click(within(row('Turbo')).getByTitle('Favorite board'))
 
     // Moved to the top while the request is still pending.
     expect(boardNames()).toEqual(['Turbo', 'Ranked'])
@@ -79,7 +79,7 @@ describe('board list', () => {
 
     // The save failed, so the list is refetched and matches the server again.
     await waitFor(() => expect(boardNames()).toEqual(['Ranked', 'Turbo']))
-    expect(within(row('Turbo')).getByTitle('Add board to favorites')).toBeInTheDocument()
+    expect(within(row('Turbo')).getByTitle('Favorite board')).toBeInTheDocument()
   })
 
   it("offers a retry when the boards can't be loaded", async () => {

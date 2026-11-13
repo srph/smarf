@@ -75,9 +75,9 @@ describe('board workspace', () => {
   it('favorites the board from the toolbar', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByRole('button', { name: 'Add board to favorites' }))
+    await user.click(await screen.findByRole('button', { name: 'Favorite board' }))
 
-    expect(await screen.findByRole('button', { name: 'Remove board from favorites' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Unfavorite board' })).toBeInTheDocument()
     await waitFor(() => expect(findBoard()!.is_favorite).toBe(true))
   })
 
@@ -267,7 +267,7 @@ describe('board workspace', () => {
     })
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByRole('button', { name: 'Add board to favorites' }))
+    await user.click(await screen.findByRole('button', { name: 'Favorite board' }))
     await user.click(screen.getByRole('button', { name: 'New category' }))
 
     // The new category shows right away, but its save waits for the favorite's.

@@ -47,7 +47,7 @@ const BoardListItem: React.FC<Props> = ({ board }) => {
 
       <PlainButton
         type="button"
-        title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
+        title={board.is_favorite ? 'Unfavorite board' : 'Favorite board'}
         onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}>
         <div className="p-4 text-zinc-400">
           <FavoriteIcon value={board.is_favorite} size={24} />
