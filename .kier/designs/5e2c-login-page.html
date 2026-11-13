@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smarf Sign-in Page</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1120px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: matches ui/src (Tailwind 4 zinc, indigo primary, Interstate) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --sky: #00a6f4; --red300: #ffa2a2; --red400: #ff6467; --red950: #460809;
+    --p100: oklch(93% 0.034 272.788); --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p700: oklch(45.7% 0.24 277.023); --p950: oklch(25.7% 0.09 281.288);
+    --blurple: #5865f2;
+    --morph: cubic-bezier(0.3, 0.7, 0.2, 1);
+    position: relative; min-width: 1040px; height: 680px; overflow: hidden;
+    background: var(--z900); color: var(--z50);
+    font: 14px/1.43 'Interstate', ui-sans-serif, system-ui, sans-serif;
+  }
+  .app * { box-sizing: border-box; }
+  .app svg.i { width: 20px; height: 20px; fill: currentColor; flex: none; }
+  .logo { display: flex; align-items: center; }
+  .logo img { width: 32px; height: 32px; margin-right: 16px; }
+  .logo span { font-size: 18px; font-weight: 800; letter-spacing: .025em; text-transform: uppercase; }
+  .muted { color: var(--z400); }
+  .tile { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); flex: none; }
+  .tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Spinner (components/spinner): three staggered rings */
+  .spin { position: relative; display: inline-block; width: 20px; height: 20px; flex: none; }
+  .spin i { position: absolute; margin: 2px; width: 16px; height: 16px; border-radius: 99px; border: 2px solid transparent; border-top-color: var(--sky); animation: spin 1.2s cubic-bezier(.5, 0, .5, 1) infinite; }
+  .spin.p i { border-top-color: var(--p200); }
+  .spin.w i { border-top-color: #fff; }
+  .spin i:nth-child(1) { animation-delay: -.45s; } .spin i:nth-child(2) { animation-delay: -.3s; } .spin i:nth-child(3) { animation-delay: -.15s; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 4px; padding: 8px 12px; font: inherit; font-weight: 700; color: var(--z50); background: var(--p500); cursor: pointer; transition: box-shadow .2s, background .2s; text-decoration: none; white-space: nowrap; }
+  .btn:hover, .btn:focus-visible { box-shadow: 0 0 0 2px var(--sky); outline: none; }
+  .btn.block { display: flex; width: 100%; }
+  .btn.lg { padding: 12px 16px; font-size: 15px; }
+  .btn[aria-disabled="true"] { cursor: default; box-shadow: none; opacity: .85; }
+  .btn.discord { background: var(--blurple); }
+  .btn.outline { background: none; box-shadow: inset 0 0 0 1px var(--z700); font-size: 14px; padding: 8px; }
+  .btn.outline:hover { box-shadow: inset 0 0 0 1px var(--z700), 0 0 0 2px var(--sky); }
+  .metal { position: relative; overflow: hidden; display: flex; width: 100%; align-items: center; justify-content: center; gap: 10px; padding: 13px 18px; border-radius: 6px; border: 0; font: inherit; font-weight: 700; font-size: 15px; color: var(--z950); cursor: pointer; background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: inset 0 1px 0 rgb(255 255 255 / .45), 0 10px 28px -10px var(--p500); text-shadow: 0 1px 0 rgb(255 255 255 / .25); }
+  .metal::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; opacity: 0; background: linear-gradient(90deg, transparent, rgb(255 255 255 / .55), transparent); transform: translateX(-170%) skewX(-20deg); }
+  .metal:hover::after { animation: sheen .85s cubic-bezier(0.3, 0.6, 0.3, 1) both; }
+  .metal:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+  .metal[aria-disabled="true"] { cursor: default; filter: saturate(.7); }
+  @keyframes sheen { 0% { opacity: 1; transform: translateX(-170%) skewX(-20deg); } 100% { opacity: 1; transform: translateX(360%) skewX(-20deg); } }
+
+  .alert { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 6px; background: rgb(70 8 9 / .55); border: 1px solid rgb(255 100 103 / .35); color: var(--red300); font-size: 13px; margin-bottom: 16px; animation: rise .32s var(--morph) both; }
+  .alert svg.i { width: 18px; height: 18px; color: var(--red400); margin-top: 1px; }
+  .fine { font-size: 12px; color: var(--z500); margin-top: 16px; line-height: 1.5; }
+  .fine b { color: var(--z300); font-weight: 500; }
+  .swap { animation: rise .32s var(--morph) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+
+  /* ----- Now: matches routes/auth/auth-route.tsx ----- */
+  .now { display: flex; height: 100%; }
+  .now-art { width: 50%; height: 100%; background: url(og-assets/login-bg.png) center / cover; }
+  .now-side { width: 50%; height: 100%; padding: 32px; }
+  .now-col { width: 400px; margin: 96px auto 0; }
+  .now-col h1 { font-size: 30px; font-weight: 400; line-height: 1.2; margin: 0 0 16px; }
+  .now-wait { display: flex; align-items: center; gap: 12px; color: var(--z400); }
+
+  /* ----- A: centred split, real button ----- */
+  .a { display: flex; height: 100%; }
+  .a-art { position: relative; width: 50%; overflow: hidden; }
+  .a-art .img { position: absolute; inset: 0; background: url(og-assets/login-bg.png) center / cover; }
+  .a-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgb(9 9 11 / .85) 100%); }
+  .a-tag { position: absolute; left: 32px; right: 32px; bottom: 32px; z-index: 1; }
+  .a-tag p { margin: 0; font-size: 20px; font-weight: 500; line-height: 1.3; max-width: 360px; }
+  .a-tag small { display: block; margin-top: 6px; color: var(--z400); font-size: 13px; }
+  .a-side { width: 50%; display: flex; flex-direction: column; padding: 32px; }
+  .a-col { width: 360px; margin: auto; }
+  .a-col h1 { font-size: 30px; font-weight: 400; line-height: 1.2; margin: 0 0 8px; }
+  .a-col .lede { color: var(--z400); margin: 0 0 28px; }
+  .a-foot { font-size: 12px; color: var(--z600); }
+
+  /* ----- B: full-bleed art, floating card ----- */
+  .b { position: absolute; inset: 0; background: var(--z950); }
+  .b-art { position: absolute; inset: -24px; background: radial-gradient(circle at 70% 45%, #3b1f6b, var(--z950) 70%); transition: transform .6s var(--morph); }
+  .b-art::before { content: ""; position: absolute; top: 0; bottom: 0; right: -40px; width: 760px; background: url(og-assets/login-bg.png) right center / cover no-repeat; -webkit-mask: linear-gradient(90deg, transparent, #000 40%); mask: linear-gradient(90deg, transparent, #000 40%); }
+  .b-shade { position: absolute; inset: 0; background: linear-gradient(90deg, var(--z950) 0%, rgb(9 9 11 / .8) 32%, rgb(9 9 11 / .1) 62%, transparent 100%); }
+  .b-top { position: absolute; left: 48px; top: 36px; }
+  .b-card { position: absolute; left: 48px; top: 50%; translate: 0 -50%; width: 400px; padding: 32px; border-radius: 10px; background: rgb(24 24 27 / .72); border: 1px solid rgb(63 63 70 / .8); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 30px 60px -30px #000; }
+  .b-card h1 { font-size: 28px; font-weight: 500; margin: 0 0 8px; line-height: 1.2; }
+  .b-card .lede { color: var(--z300); margin: 0 0 24px; }
+  .b-cred { position: absolute; right: 32px; bottom: 28px; font-size: 12px; color: rgb(212 212 216 / .55); }
+
+  /* ----- C: show the board ----- */
+  .c { display: flex; height: 100%; }
+  .c-demo { position: relative; width: 56%; overflow: hidden; background: var(--z950); border-right: 1px solid var(--z800); }
+  .c-demo::before { content: ""; position: absolute; left: 40%; top: 40%; width: 700px; height: 500px; translate: -50% -50%; background: radial-gradient(closest-side, oklch(58.5% 0.233 277.117 / .18), transparent); }
+  .c-board { position: absolute; left: 50%; top: 50%; width: 562px; height: 292px; translate: -50% -50%; }
+  .c-cat { position: absolute; }
+  .c-cat .head { display: flex; align-items: center; gap: 8px; height: 26px; padding: 0 4px; font-size: 12px; font-weight: 700; color: var(--z300); }
+  .c-cat .head .grip { width: 8px; height: 12px; background: radial-gradient(circle, var(--z500) 1px, transparent 1.5px) 0 0/4px 4px; }
+  .c-cat .body { position: relative; border-radius: 6px; border: 1px solid var(--z700); background: rgb(39 39 42 / .6); }
+  .c-hero { position: absolute; transition: left .7s var(--morph), top .7s var(--morph), box-shadow .3s, transform .3s; }
+  .c-hero.lift { transform: scale(1.12); box-shadow: 0 0 0 2px var(--sky), 0 12px 24px -8px #000; z-index: 2; }
+  .c-side { width: 44%; display: flex; flex-direction: column; padding: 32px 40px; }
+  .c-col { margin: auto 0; max-width: 360px; }
+  .c-col .kick { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--p300); margin-bottom: 12px; }
+  .c-col h1 { font-size: 30px; font-weight: 500; line-height: 1.15; margin: 0 0 12px; letter-spacing: -.01em; }
+  .c-col .lede { color: var(--z400); margin: 0 0 28px; }
+
+  /* ----- D: centred, heroes drifting ----- */
+  .d { position: absolute; inset: 0; background: var(--z950); overflow: hidden; }
+  .d-cols { position: absolute; left: 50%; top: 50%; display: flex; gap: 12px; transform: translate(-50%, -50%) rotate(-12deg); }
+  .d-colm { display: flex; flex-direction: column; gap: 12px; animation: drift 60s linear infinite; }
+  .d-colm:nth-child(even) { animation-direction: reverse; animation-duration: 72s; }
+  .d-colm .tile { width: 128px; height: 72px; border-radius: 6px; opacity: .55; }
+  @keyframes drift { to { transform: translateY(-50%); } }
+  .d-veil { position: absolute; inset: 0; background: radial-gradient(ellipse 420px 300px at 50% 50%, rgb(9 9 11 / .96) 30%, rgb(9 9 11 / .7) 70%, rgb(9 9 11 / .35) 100%); }
+  .d-center { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: 380px; text-align: center; }
+  .d-mark { width: 56px; height: 56px; margin: 0 auto 20px; display: block; filter: drop-shadow(0 0 24px oklch(58.5% 0.233 277.117 / .7)); }
+  .d-center h1 { font-size: 34px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 8px; }
+  .d-center .lede { color: var(--z400); margin: 0 0 28px; }
+  .d-center .alert { text-align: left; }
+
+  /* ----- D2: D with the OG image's E lockup (metal badge + metal wordmark), side by side ----- */
+  .d2-glow { position: absolute; left: 50%; top: 50%; width: 760px; height: 460px; translate: -50% -50%; background: radial-gradient(closest-side, oklch(45.7% 0.24 277.023 / .45), transparent); pointer-events: none; }
+  .d2-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 48px 48px; background-position: -1px -1px;
+    -webkit-mask-image: radial-gradient(360px 220px at 50% 50%, #000, transparent); mask-image: radial-gradient(360px 220px at 50% 50%, #000, transparent); pointer-events: none; }
+  .d2-center { width: 420px; }
+  .lockup { display: flex; align-items: center; justify-content: center; gap: 18px; }
+  .badge { width: 60px; height: 60px; flex: none; border-radius: 15px; display: grid; place-items: center; border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: 0 14px 28px -8px color-mix(in oklab, var(--p500) 60%, transparent), inset 0 1px 2px rgba(255,255,255,.5); }
+  .badge img { width: 30px; height: 30px; filter: brightness(0) invert(1); opacity: .95; }
+  .metal-text { background-image: linear-gradient(180deg, var(--p100) 0%, var(--p300) 45%, var(--p400) 58%, var(--p200) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lockup .word { font-size: 64px; font-weight: 900; letter-spacing: .02em; line-height: .9; text-transform: uppercase; margin: 0; padding-top: 4px; filter: drop-shadow(0 10px 24px color-mix(in oklab, var(--p500) 45%, transparent)); }
+  .d2-sub { margin: 18px 0 32px; font-size: 12px; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; color: var(--p200); }
+
+  /* ----- D2b: D2 at a smaller scale, plain button ----- */
+  .lockup.sm { gap: 14px; }
+  .lockup.sm .badge { width: 44px; height: 44px; border-radius: 11px; }
+  .lockup.sm .badge img { width: 22px; height: 22px; }
+  .lockup.sm .word { font-size: 42px; padding-top: 3px; filter: drop-shadow(0 8px 18px color-mix(in oklab, var(--p500) 40%, transparent)); }
+  .d2-sub.sm { margin: 14px 0 28px; font-size: 11px; letter-spacing: .28em; }
+
+  /* ----- D2c: D2b with D's glow: only the badge glows ----- */
+  .lockup.calm .word { filter: none; }
+  .lockup.calm .badge { box-shadow: inset 0 1px 2px rgba(255,255,255,.5); filter: drop-shadow(0 0 24px oklch(58.5% 0.233 277.117 / .7)); }
+
+  /* ----- D2d: D2c without the grid; columns loop seamlessly ----- */
+  /* Each column repeats one set of 7 heroes 4 times. Tiles use margin (not gap) so one set is exactly 7 × 84px,
+     and the column moves by exactly one set per loop, so the wrap is invisible and the canvas is always covered. */
+  .d2d-colm { display: flex; flex-direction: column; animation: drift-set var(--dur, 40s) linear infinite; }
+  .d2d-colm:nth-child(even) { animation-direction: reverse; }
+  .d2d-colm .tile { width: 128px; height: 72px; margin-bottom: 12px; border-radius: 6px; opacity: .55; }
+  @keyframes drift-set { from { transform: translateY(0); } to { transform: translateY(-588px); } }
+
+  /* ----- D2e: D2d with a spaced spinner and a fade-up swap between button labels ----- */
+  .bc { display: inline-flex; align-items: center; gap: 8px; }
+  .bc.wait { gap: 12px; }
+  .bc.out { animation: bc-out .14s ease-in forwards; }
+  .bc.in { animation: bc-in .26s var(--morph) both; }
+  @keyframes bc-out { to { opacity: 0; transform: translateY(-6px); } }
+  @keyframes bc-in { from { opacity: 0; transform: translateY(6px); } }
+  .d2e .btn { overflow: hidden; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app *, .app *::before, .app *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>Sign-in doesn't say what Smarf is or what Discord shares</h1>
+    <div class="chips">
+      <div class="chip"><b>Goal</b>One obvious action: Continue with Discord.</div>
+      <div class="chip"><b>Goal</b>A first-time visitor knows what they're signing up for.</div>
+      <div class="chip"><b>Covers</b>Sign in, signing in, and a cancelled Discord sign-in.</div>
+      <div class="chip"><b>Style</b>Smarf's zinc and indigo; Interstate; current art.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="now" data-id="Now" data-name="Split, button up top">
+    <div class="v-head"><span class="v-id">Now</span><h2>Split, button up top</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note bad">"Welcome back" greets first-time visitors too.</div>
+      <div class="note bad">The outlined button is the quietest thing on the page.</div>
+      <div class="note bad">Column sits high; the lower half of the right side is empty.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="a" data-id="A" data-name="Same split, centred, with a real button">
+    <div class="v-head"><span class="v-id">A</span><h2>Same split, centred, with a real button</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">Smallest change: same layout and art, just centred and finished.</div>
+      <div class="note good">Fine print answers what Discord shares before they leave.</div>
+      <div class="note bad">Discord blurple sits next to Smarf's indigo; close but not the same.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="b" data-id="B" data-name="Full-bleed art, floating card">
+    <div class="v-head"><span class="v-id">B</span><h2>Full-bleed art, floating card</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">Most atmospheric; the art drifts with the cursor.</div>
+      <div class="note good">Metal button is the board toolbar's, sheen and all.</div>
+      <div class="note bad">The 720px art runs out on wide screens; needs a bigger asset.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="c" data-id="C" data-name="Show the board, not a poster">
+    <div class="v-head"><span class="v-id">C</span><h2>Show the board, not a poster</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">A stranger gets what Smarf does in one glance.</div>
+      <div class="note good">Heroes sort themselves between categories, like a real drag.</div>
+      <div class="note bad">Motion competes with the button; loads 16 thumbnails signed out.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="d" data-id="D" data-name="Centred, heroes drifting behind">
+    <div class="v-head"><span class="v-id">D</span><h2>Centred, heroes drifting behind</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">One column, so it holds up at any width, phones included.</div>
+      <div class="note good">Drops the art asset; the hero pool is the backdrop.</div>
+      <div class="note bad">Says the least about boards and categories.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="d2" data-id="D2" data-name="D with the OG metal lockup, side by side">
+    <div class="v-head"><span class="v-id">D2</span><h2>D with the OG metal lockup, side by side</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">Badge, wordmark and tagline match the OG image (6c1d, E).</div>
+      <div class="note good">Badge beside the wordmark makes one short lockup, so the button rises.</div>
+      <div class="note bad">Two metal surfaces, badge and button, compete for the eye.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="d2b" data-id="D2b" data-name="D2, smaller lockup and a plain button">
+    <div class="v-head"><span class="v-id">D2b</span><h2>D2, smaller lockup and a plain button</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">The badge is the only metal; the button is the app's usual indigo.</div>
+      <div class="note good">Smaller lockup lets the button lead.</div>
+      <div class="note bad">At 42px the wordmark's metal gradient is subtler.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="d2c" data-id="D2c" data-name="D2b, only the badge glows">
+    <div class="v-head"><span class="v-id">D2c</span><h2>D2b, only the badge glows</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">One glow, on the badge, like D's logo.</div>
+      <div class="note good">No indigo haze, so the drifting heroes keep their colour.</div>
+      <div class="note bad">Without the haze the centre feels a little flatter.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="d2d" data-id="D2d" data-name="D2c, no grid, seamless hero columns">
+    <div class="v-head"><span class="v-id">D2d</span><h2>D2c, no grid, seamless hero columns</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">Columns loop with no jump and never leave a gap.</div>
+      <div class="note good">No grid; the heroes are the only texture.</div>
+      <div class="note bad">Loads 63 thumbnails up front, so they don't pop in mid-scroll.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-key="d2e" data-id="D2e" data-name="D2d, spaced spinner, labels fade up">
+    <div class="v-head"><span class="v-id">D2e</span><h2>D2d, spaced spinner, labels fade up</h2><button class="pick">Pick</button></div>
+    <div class="states"></div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">
+      <div class="note good">Spinner sits 12px from its label, clear of the text.</div>
+      <div class="note good">Switching state, the old label lifts away and the new one fades up.</div>
+      <div class="note good">The heroes keep scrolling; only the button changes.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from D2e with the heroes drifting in hero-grid rows, not tilted columns.</div>
+      <div class="card"><b>Remix</b>Remix D2e: put the lockup top-left, so only the button is centred.</div>
+      <div class="card"><b>Settle</b>Settle on D2e if sign-in should match the OG image.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/5e2c-login-page.html';
+const HERO = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const SLUGS = ['antimage','axe','bane','bloodseeker','crystal_maiden','drow_ranger','earthshaker','juggernaut','mirana','nevermore','morphling','phantom_lancer','puck','pudge','razor','sand_king','storm_spirit','sven','tiny','vengefulspirit','windrunner','zuus','kunkka','lina','lich','lion','shadow_shaman','slardar','tidehunter','witch_doctor','riki','enigma','tinker','sniper','necrolyte','warlock','beastmaster','queenofpain','venomancer','faceless_void','skeleton_king','death_prophet','phantom_assassin','pugna','templar_assassin','viper','luna','dragon_knight','dazzle','rattletrap','leshrac','furion','life_stealer','dark_seer','clinkz','omniknight','enchantress','huskar','night_stalker','broodmother','bounty_hunter','weaver','jakiro','batrider','chen','spectre','doom_bringer','ancient_apparition','ursa','spirit_breaker','gyrocopter','alchemist','invoker','silencer','obsidian_destroyer','lycan','brewmaster','shadow_demon','chaos_knight','meepo','treant','ogre_magi','undying','rubick','disruptor','nyx_assassin','naga_siren','keeper_of_the_light','visage','slark','medusa','troll_warlord','centaur','magnataur','bristleback','tusk','skywrath_mage','abaddon','legion_commander','ember_spirit','earth_spirit','terrorblade','phoenix','oracle','winter_wyvern','monkey_king','dark_willow','pangolier','grimstroke','mars','snapfire','void_spirit','hoodwink','dawnbreaker','marci','primal_beast','muerta'];
+const img = (slug) => `<img src="${HERO(slug)}" alt="" loading="lazy" onerror="this.remove()">`;
+const tile = (slug) => `<div class="tile">${img(slug)}</div>`;
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const DISCORD = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.099.246.198.373.292a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03ZM8.02 15.331c-1.183 0-2.157-1.086-2.157-2.42 0-1.332.956-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.419 0 1.333-.956 2.419-2.157 2.419Zm7.975 0c-1.183 0-2.157-1.086-2.157-2.42 0-1.332.955-2.418 2.157-2.418 1.21 0 2.175 1.095 2.157 2.419 0 1.333-.946 2.419-2.157 2.419Z"/></svg>';
+const WARN = '<svg class="i" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/></svg>';
+const LOCK = '<svg class="i" viewBox="0 0 20 20" aria-hidden="true" style="width:14px;height:14px;vertical-align:-2px;margin-right:4px"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>';
+const SPIN = (tone = '') => `<span class="spin ${tone}"><i></i><i></i><i></i></span>`;
+const LOGO = '<div class="logo"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div>';
+const FINE = `<div class="fine">${LOCK}Smarf gets your Discord <b>name, avatar and email</b>, never your password. First time? This makes your account.</div>`;
+const CANCELLED = `<div class="alert" role="alert">${WARN}<span>Signing in with Discord was cancelled. Try again whenever you're ready.</span></div>`;
+
+const STATES = ['Sign in', 'Signing in', 'Cancelled'];
+
+/* Each variation: shell(stateIndex) renders the whole canvas. A shared builder wires the state pills. */
+const VARIANTS = {
+  now: {
+    shell: (s) => `<div class="now"><div class="now-art"></div><div class="now-side">${LOGO}<div class="now-col">
+      <h1>Hi there, welcome back!</h1>
+      ${s === 1 ? `<div class="now-wait">${SPIN()}<span>Signing in with Discord…</span></div>`
+        : s === 2 ? `<p style="margin:0 0 16px">Signing in with Discord was cancelled.</p><a class="btn block outline">Back to sign in</a>`
+        : `<a class="btn block outline" href="#" onclick="return false">${DISCORD}Continue with Discord</a>`}
+    </div></div></div>`
+  },
+  a: {
+    shell: (s) => `<div class="a"><div class="a-art"><div class="img"></div><div class="a-tag"><p>Your hero grid, out of the client and in the browser.</p><small>Boards, categories, heroes. Drag them where they belong.</small></div></div>
+      <div class="a-side">${LOGO}<div class="a-col">
+        <h1>Sign in to Smarf</h1>
+        <p class="lede">Pick up your boards on any computer.</p>
+        <div class="swap" data-swap>${s === 2 ? CANCELLED : ''}
+        ${s === 1 ? `<a class="btn block lg discord" aria-disabled="true">${SPIN('w')}Signing in with Discord…</a>`
+          : `<a class="btn block lg discord" href="#" onclick="return false">${DISCORD}${s === 2 ? 'Try again with Discord' : 'Continue with Discord'}</a>`}</div>
+        ${FINE}
+      </div><div class="a-foot">Not affiliated with Valve. Dota 2 is a trademark of Valve Corporation.</div></div></div>`
+  },
+  b: {
+    shell: (s) => `<div class="b"><div class="b-art"></div><div class="b-shade"></div><div class="b-top">${LOGO}</div>
+      <div class="b-card">
+        <h1>Your heroes, sorted.</h1>
+        <p class="lede">Smarf rebuilds Dota's hero grid in the browser. Sign in to keep your boards.</p>
+        <div class="swap" data-swap>${s === 2 ? CANCELLED : ''}
+        <button class="metal" ${s === 1 ? 'aria-disabled="true"' : ''}>${s === 1 ? `${SPIN('p')}Signing in…` : `${DISCORD}${s === 2 ? 'Try again with Discord' : 'Continue with Discord'}`}</button></div>
+        ${FINE}
+      </div><div class="b-cred">Art: Valve</div></div>`,
+    after: (el) => {
+      if (reduced) return;
+      const art = el.querySelector('.b-art');
+      el.onpointermove = (e) => { const r = el.getBoundingClientRect(); const dx = (e.clientX - r.left) / r.width - .5, dy = (e.clientY - r.top) / r.height - .5; art.style.transform = `translate(${-dx * 20}px, ${-dy * 14}px)`; };
+      el.onpointerleave = () => { art.style.transform = ''; };
+    }
+  },
+  c: {
+    shell: (s) => `<div class="c"><div class="c-demo"><div class="c-board"></div></div>
+      <div class="c-side">${LOGO}<div class="c-col">
+        <div class="kick">Dota 2 hero organizer</div>
+        <h1>Sort your heroes the way the in-game grid does</h1>
+        <p class="lede">Make boards for each play style. Drag heroes into categories you size and place yourself.</p>
+        <div class="swap" data-swap>${s === 2 ? CANCELLED : ''}
+        ${s === 1 ? `<a class="btn block lg" aria-disabled="true">${SPIN('p')}Signing in with Discord…</a>`
+          : `<a class="btn block lg" href="#" onclick="return false">${DISCORD}${s === 2 ? 'Try again with Discord' : 'Continue with Discord'}</a>`}</div>
+        ${FINE}
+      </div></div></div>`,
+    after: (el) => startBoard(el.querySelector('.c-board'), el)
+  },
+  d: {
+    shell: (s) => {
+      const pool = shuffle(SLUGS);
+      const cols = Array.from({ length: 9 }, (_, c) => { const hs = pool.slice(c * 7, c * 7 + 7); return `<div class="d-colm" style="animation-delay:${-c * 7}s">${[...hs, ...hs].map(tile).join('')}</div>`; }).join('');
+      return `<div class="d"><div class="d-cols">${cols}</div><div class="d-veil"></div>
+        <div class="d-center"><img class="d-mark" src="og-assets/logo.png" alt=""><h1>Smarf</h1>
+          <p class="lede">The Dota 2 hero grid, in your browser.</p>
+          <div class="swap" data-swap>${s === 2 ? CANCELLED : ''}
+          ${s === 1 ? `<a class="btn block lg" aria-disabled="true">${SPIN('p')}Signing in with Discord…</a>`
+            : `<a class="btn block lg" href="#" onclick="return false">${DISCORD}${s === 2 ? 'Try again with Discord' : 'Continue with Discord'}</a>`}</div>
+          ${FINE}
+        </div></div>`;
+    }
+  }
+};
+
+/* D2: D's drifting heroes, plus the OG image E lockup. */
+VARIANTS.d2 = {
+  shell: (s) => {
+    const pool = shuffle(SLUGS);
+    const cols = Array.from({ length: 9 }, (_, c) => { const hs = pool.slice(c * 7, c * 7 + 7); return `<div class="d-colm" style="animation-delay:${-c * 7}s">${[...hs, ...hs].map(tile).join('')}</div>`; }).join('');
+    return `<div class="d"><div class="d-cols">${cols}</div><div class="d-veil"></div><div class="d2-glow"></div><div class="d2-grid"></div>
+      <div class="d-center d2-center">
+        <div class="lockup"><div class="badge"><img src="og-assets/logo.png" alt=""></div><h1 class="word metal-text">Smarf</h1></div>
+        <div class="d2-sub">Dota 2 hero organizer</div>
+        <div class="swap" data-swap>${s === 2 ? CANCELLED : ''}
+        <button class="metal" ${s === 1 ? 'aria-disabled="true"' : ''}>${s === 1 ? `${SPIN('p')}Signing in with Discord…` : `${DISCORD}${s === 2 ? 'Try again with Discord' : 'Continue with Discord'}`}</button></div>
+        ${FINE}
+      </div></div>`;
+  }
+};
+
+/* D2b: D2 with a smaller lockup and the app's regular primary button. */
+VARIANTS.d2b = {
+  shell: (s) => {
+    const pool = shuffle(SLUGS);
+    const cols = Array.from({ length: 9 }, (_, c) => { const hs = pool.slice(c * 7, c * 7 + 7); return `<div class="d-colm" style="animation-delay:${-c * 7}s">${[...hs, ...hs].map(tile).join('')}</div>`; }).join('');
+    return `<div class="d"><div class="d-cols">${cols}</div><div class="d-veil"></div><div class="d2-glow"></div><div class="d2-grid"></div>
+      <div class="d-center d2-center">
+        <div class="lockup sm"><div class="badge"><img src="og-assets/logo.png" alt=""></div><h1 class="word metal-text">Smarf</h1></div>
+        <div class="d2-sub sm">Dota 2 hero organizer</div>
+        <div class="swap" data-swap>${s === 2 ? CANCELLED : ''}
+        ${s === 1 ? `<a class="btn block lg" aria-disabled="true">${SPIN('p')}Signing in with Discord…</a>`
+          : `<a class="btn block lg" href="#" onclick="return false">${DISCORD}${s === 2 ? 'Try again with Discord' : 'Continue with Discord'}</a>`}</div>
+        ${FINE}
+      </div></div>`;
+  }
+};
+
+/* D2c: D2b without the backdrop glow or the wordmark's glow; the badge glows like D's logo. */
+VARIANTS.d2c = {
+  shell: (s) => VARIANTS.d2b.shell(s).replace('<div class="d2-glow"></div>', '').replace('lockup sm', 'lockup sm calm')
+};
+
+/* D2d: D2c without the grid. Each column is one set of 7 heroes repeated 4 times, scrolled by exactly one set. */
+VARIANTS.d2d = {
+  shell: (s) => {
+    const pool = shuffle(SLUGS);
+    const eager = (slug) => `<div class="tile"><img src="${HERO(slug)}" alt="" onerror="this.remove()"></div>`;
+    const cols = Array.from({ length: 9 }, (_, c) => {
+      const set = pool.slice(c * 7, c * 7 + 7).map(eager).join('');
+      const dur = 36 + (c % 3) * 6;
+      return `<div class="d2d-colm" style="--dur:${dur}s;animation-delay:${-c * 5}s">${set.repeat(4)}</div>`;
+    }).join('');
+    return VARIANTS.d2c.shell(s)
+      .replace(/<div class="d-cols">[\s\S]*?<div class="d-veil">/, `<div class="d-cols">${cols}</div><div class="d-veil">`)
+      .replace('<div class="d2-grid"></div>', '');
+  }
+};
+
+/* D2e: D2d, but the button's content sits in .bc, and a state change swaps only the centre column:
+   the old label fades up and out, then the new one fades up in. The heroes keep scrolling. */
+VARIANTS.d2e = {
+  shell: (s) => VARIANTS.d2d.shell(s)
+    .replace('<div class="d">', '<div class="d d2e">')
+    .replace(/(<a class="btn block lg"[^>]*>)([\s\S]*?)(<\/a>)/, (_, open, inner, close) => `${open}<span class="bc${s === 1 ? ' wait' : ''}">${inner}</span>${close}`),
+  update(app, s) {
+    const cur = app.querySelector('.d-center');
+    if (!cur) return false;
+    const tmp = document.createElement('div'); tmp.innerHTML = this.shell(s);
+    const next = tmp.querySelector('.d-center');
+    // Alert: drop it, or let it rise in (it has its own rise animation).
+    const oldAlert = cur.querySelector('.alert'), newAlert = next.querySelector('.alert');
+    if (oldAlert && !newAlert) oldAlert.remove();
+    if (!oldAlert && newAlert) cur.querySelector('[data-swap]').prepend(newAlert);
+    // Button: same element, its attributes follow the new state; the label swaps with a fade.
+    const btn = cur.querySelector('.btn'), nb = next.querySelector('.btn');
+    ['aria-disabled', 'href', 'onclick'].forEach((a) => nb.hasAttribute(a) ? btn.setAttribute(a, nb.getAttribute(a)) : btn.removeAttribute(a));
+    const nc = nb.querySelector('.bc');
+    // A click mid-swap drops the label that's leaving and fades the newest one straight in.
+    const oc = btn.querySelector('.bc:not(.out)');
+    clearTimeout(btn._t);
+    btn.querySelectorAll('.bc.out').forEach((x) => x.remove());
+    if (!oc || reduced) { oc?.remove(); btn.append(nc); if (!reduced) nc.classList.add('in'); return true; }
+    oc.classList.remove('in'); oc.classList.add('out');
+    btn._t = setTimeout(() => { oc.replaceWith(nc); nc.classList.add('in'); }, 140);
+    return true;
+  }
+};
+
+/* C's demo board: three categories; every 1.8s a hero lifts and moves to another category. */
+function startBoard(board, root) {
+  const CATS = [{ name: 'Carries', x: 0, y: 0, cols: 4, rows: 2, n: 6 }, { name: 'Mid', x: 378, y: 0, cols: 2, rows: 2, n: 2 }, { name: 'Supports', x: 0, y: 150, cols: 3, rows: 2, n: 4 }, { name: 'Off-lane', x: 290, y: 150, cols: 3, rows: 2, n: 4 }];
+  const W = 80, H = 45, G = 8;
+  const pool = shuffle(SLUGS).slice(0, 16);
+  let at = 0; const cats = CATS.map((c) => ({ ...c, heroes: pool.slice(at, at += c.n) }));
+  board.innerHTML = cats.map((c, i) => `<div class="c-cat" style="left:${c.x}px;top:${c.y}px"><div class="head"><span class="grip"></span>${c.name}</div><div class="body" data-cat="${i}" style="width:${c.cols * (W + G) + G}px;height:${c.rows * (H + G) + G}px"></div></div>`).join('');
+  const el = {};
+  cats.forEach((c, ci) => c.heroes.forEach((h) => { const d = document.createElement('div'); d.className = 'tile c-hero'; d.innerHTML = img(h); el[h] = d; board.appendChild(d); }));
+  const layout = () => cats.forEach((c, ci) => c.heroes.forEach((h, i) => {
+    const d = el[h]; d.style.left = `${c.x + 1 + G + (i % c.cols) * (W + G)}px`; d.style.top = `${c.y + 27 + G + Math.floor(i / c.cols) * (H + G)}px`;
+  }));
+  layout();
+  if (reduced) return;
+  clearInterval(root._t);
+  root._t = setInterval(() => {
+    if (!document.body.contains(board)) return clearInterval(root._t);
+    const froms = cats.filter((c) => c.heroes.length > 1); const from = froms[Math.floor(Math.random() * froms.length)];
+    const to = cats.filter((c) => c !== from && c.heroes.length < c.cols * c.rows);
+    if (!from || !to.length) return;
+    const dest = to[Math.floor(Math.random() * to.length)];
+    const h = from.heroes.splice(Math.floor(Math.random() * from.heroes.length), 1)[0];
+    const d = el[h]; d.classList.add('lift');
+    setTimeout(() => { dest.heroes.splice(Math.floor(Math.random() * (dest.heroes.length + 1)), 0, h); layout(); }, 260);
+    setTimeout(() => d.classList.remove('lift'), 1000);
+  }, 1800);
+}
+
+/* ---------- Build every canvas + its state pills ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const v = VARIANTS[sec.dataset.key];
+  const app = sec.querySelector('.app'), pills = sec.querySelector('.states');
+  pills.innerHTML = '<span>State:</span>';
+  let first = true;
+  STATES.forEach((label, i) => {
+    const b = document.createElement('button'); b.textContent = label;
+    b.addEventListener('click', () => {
+      // C keeps its demo board running across state changes: only swap the column.
+      if (sec.dataset.key === 'c' && app.querySelector('.c-board')) {
+        const tmp = document.createElement('div'); tmp.innerHTML = v.shell(i);
+        app.querySelector('.c-side').replaceWith(tmp.querySelector('.c-side'));
+      } else if (!(v.update && v.update(app, i))) { app.innerHTML = v.shell(i); v.after?.(app); }
+      if (first) app.querySelectorAll('[data-swap]').forEach((s) => s.classList.remove('swap'));
+      pills.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    });
+    pills.appendChild(b);
+  });
+  pills.querySelector('button').click();
+  first = false;
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>

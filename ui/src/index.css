@@ -95,6 +95,38 @@
     }
   }
 
+  /* Sign-in: the hero backdrop's columns scroll by one set of heroes (--drift-set, set by HeroBackdrop), so the loop is seamless. */
+  --animate-hero-drift: hero-drift 40s linear infinite;
+
+  @keyframes hero-drift {
+    to {
+      transform: translateY(calc(-1 * var(--drift-set)));
+    }
+  }
+
+  /* Sign-in: the alert rises in; the Discord button's old label lifts out, then the new one rises in after it. */
+  --animate-rise-in: rise-in 0.32s var(--ease-morph) both;
+  --animate-label-in: rise-in 0.26s var(--ease-morph) 0.14s both;
+  --animate-label-out: rise-out 0.14s ease-in forwards;
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes rise-out {
+    to {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  /* Sign-in lockup: the badge's indigo glow, and the spaced-out tagline under the wordmark. */
+  --drop-shadow-glow: 0 0 24px oklch(58.5% 0.233 277.117 / 0.7);
+  --tracking-spaced: 0.28em;
+
   @keyframes favorite-burst {
     0% {
       opacity: 1;
@@ -121,6 +153,27 @@
 /* The same metal in graphite: MetalButton's finish while disabled. Warmer, slightly lighter steps than zinc. */
 @utility bg-graphite-metal {
   background-image: linear-gradient(180deg, #64646d 0%, #48484f 44%, #36363c 56%, #4b4b53 100%);
+}
+
+/* Text fill for the sign-in wordmark: the indigo metal, lighter. Pair with bg-clip-text text-transparent. */
+@utility bg-indigo-metal-text {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-primary-100) 0%,
+    var(--color-primary-300) 45%,
+    var(--color-primary-400) 58%,
+    var(--color-primary-200) 100%
+  );
+}
+
+/* Sign-in: darkens the hero backdrop most behind the centered column, so the text stays readable. */
+@utility bg-auth-veil {
+  background-image: radial-gradient(
+    ellipse 420px 300px at 50% 50%,
+    rgb(9 9 11 / 0.96) 30%,
+    rgb(9 9 11 / 0.7) 70%,
+    rgb(9 9 11 / 0.35) 100%
+  );
 }
 
 /* A soft light that follows the cursor. Set --x and --y (in px) on the element from pointer events. */
