@@ -3,6 +3,7 @@ import { Spinner } from '~/src/components/spinner/spinner'
 import { useBoard } from './board-context'
 import { useUpdateBoardMutation } from './mutations/use-update-board-mutation'
 import { BoardToolbarKbd, BoardToolbarPanelClose } from './board-toolbar-panel'
+import { MetalButton } from './metal-button'
 
 interface Props {
   onClose: () => void
@@ -61,13 +62,10 @@ const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
           )}
         </span>
 
-        <button
-          type="submit"
-          disabled={!trimmed || isPending}
-          className="flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-primary-200/40 bg-indigo-metal pr-2 pl-3.5 font-bold text-white shadow-md inset-shadow-xs shadow-primary-500/40 inset-shadow-white/50 transition-[filter] text-shadow-primary-950/50 text-shadow-xs hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:brightness-100">
+        <MetalButton type="submit" disabled={!trimmed} busy={isPending}>
           {isPending ? 'Saving…' : 'Save'}
           {isPending ? <Spinner /> : <BoardToolbarKbd tone="light">↵</BoardToolbarKbd>}
-        </button>
+        </MetalButton>
       </div>
     </form>
   )

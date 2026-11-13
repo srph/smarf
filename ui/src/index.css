@@ -71,7 +71,7 @@
   }
 }
 
-/* New category's finish: indigo, lit at the top, darker through the middle, like brushed metal without the lines. */
+/* MetalButton's finish: indigo, lit at the top, darker through the middle, like brushed metal without the lines. */
 @utility bg-indigo-metal {
   background-image: linear-gradient(
     180deg,
@@ -82,7 +82,7 @@
   );
 }
 
-/* The same metal in graphite: New category's finish while it's locked. Warmer, slightly lighter steps than zinc. */
+/* The same metal in graphite: MetalButton's finish while disabled. Warmer, slightly lighter steps than zinc. */
 @utility bg-graphite-metal {
   background-image: linear-gradient(180deg, #64646d 0%, #48484f 44%, #36363c 56%, #4b4b53 100%);
 }
