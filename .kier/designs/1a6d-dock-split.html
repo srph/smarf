@@ -1,0 +1,1422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dock Split</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+/* ================= page chrome (neutral) ================= */
+:root{--bg:#f3f2ee;--card:#fff;--line:#e2e0d9;--ink:#1c1c1a;--mute:#6b6a64;--soft:#f7f6f2;--good:#1f7a4a;--bad:#b4372f}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:1300px;margin:0 auto;padding:56px 32px 120px 72px}
+h1{font-size:44px;line-height:1.08;letter-spacing:-.02em;margin:0 0 20px;max-width:880px;font-weight:650}
+h2{font-size:22px;margin:0 0 12px;letter-spacing:-.01em}
+.goals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:56px}
+.goal{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--mute)}
+.goal b{display:block;color:var(--ink);font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+section.v{margin-bottom:64px;scroll-margin-top:24px}
+.vh{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.vid{font:600 13px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--ink);color:#fff;border-radius:6px;padding:3px 8px}
+.vname{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.grow{flex:1}
+.pick{position:relative}
+.pickbtn{font:500 13px system-ui;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--ink)}
+.pickbtn:hover,.pickbtn[aria-expanded=true]{border-color:#bdbab0}
+.pickmenu{position:absolute;right:0;bottom:calc(100% + 6px);width:270px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:5px;box-shadow:0 12px 32px -8px rgba(0,0,0,.18);z-index:200}
+.pickmenu button{display:block;width:100%;text-align:left;background:none;border:0;border-radius:7px;padding:8px 10px;cursor:pointer;font:500 13px system-ui;color:var(--ink)}
+.pickmenu button span{display:block;font-weight:400;font-size:12px;color:var(--mute)}
+.pickmenu button:hover,.pickmenu button:focus-visible{background:var(--soft);outline:none}
+.pickout{display:flex;align-items:center;gap:10px;margin:-4px 0 12px;font-size:13px}
+.pickout code{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px}
+.pickout input{flex:1;max-width:560px;font:12px ui-monospace,monospace;padding:6px 8px;border:1px solid var(--line);border-radius:6px}
+.pickout em{color:var(--good);font-style:normal;font-weight:600}
+.frame{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+.ctrl{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.chips{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.chip{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:3px 10px;font:12px system-ui;cursor:pointer;color:var(--mute);transition:background .15s,color .15s}
+.chip:hover{color:var(--ink)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip i{font-style:normal;opacity:.55;margin-right:5px;font-size:10px}
+.cbtn{border:1px solid var(--line);background:var(--card);border-radius:7px;padding:3px 9px;font:500 12px system-ui;cursor:pointer;color:var(--ink)}
+.cbtn:hover{background:var(--soft)}
+.cbtn.playing{background:var(--ink);color:#fff;border-color:var(--ink)}
+.nmctl{display:inline-flex;align-items:center;gap:2px;font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:8px;padding:2px 2px 2px 8px;margin-left:4px}
+.nmctl button{border:0;background:none;border-radius:6px;padding:2px 8px;font:12px system-ui;cursor:pointer;color:var(--mute)}
+.nmctl button:hover{color:var(--ink)}
+.nmctl button.on{background:var(--ink);color:#fff}
+.notes{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--mute);cursor:pointer;margin-left:4px;user-select:none}
+.stage-wrap{overflow-x:auto;background:#18181b}
+.foot{display:flex;gap:18px;padding:10px 14px;border-top:1px solid var(--line);align-items:flex-start}
+.cap{font-size:13px;width:290px;flex:none;color:var(--mute)}
+.cap b{display:block;color:var(--ink);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.lg{display:inline-flex;align-items:center;gap:6px;font:12px system-ui;border:1px solid var(--line);border-radius:999px;padding:2px 10px 2px 3px;cursor:pointer;background:var(--card);color:var(--ink);transition:border-color .15s,background .15s}
+.lg i{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font:700 10px system-ui;font-style:normal;color:#fff;background:#d6453d;flex:none}
+.lg.fix i{background:#23a35f}
+.lg:hover{border-color:#bdbab0}
+.lg.hot{background:var(--soft);border-color:#bdbab0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px;margin-top:10px}
+.gb{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;display:flex;gap:8px}
+.gb::before{content:"+";font-weight:700;color:var(--good)}
+.gb.bad::before{content:"−";color:var(--bad)}
+.fa{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fa div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:13px;color:var(--mute)}
+.fa b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
+/* minimap */
+.mm{position:fixed;left:18px;top:50%;transform:translateY(-50%);z-index:300;display:flex;flex-direction:column;gap:9px;padding:10px 8px;border-radius:10px;transition:background .15s,box-shadow .15s}
+.mm a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--mute);font:12px system-ui;height:10px;cursor:pointer}
+.mm a i{display:block;height:2px;width:14px;background:#c4c1b7;border-radius:2px;transition:width .2s,background .2s;flex:none}
+.mm a.on i{width:26px;background:var(--ink)}
+.mm a span{white-space:nowrap;max-width:0;overflow:hidden;opacity:0;transition:opacity .15s}
+.mm:hover{background:var(--card);box-shadow:0 8px 24px -8px rgba(0,0,0,.2);border:1px solid var(--line)}
+.mm:hover a span{max-width:300px;opacity:1}
+.mm a.on span{color:var(--ink);font-weight:600}
+@media (max-width:900px){.goals,.fa{grid-template-columns:1fr 1fr}.foot{flex-direction:column}.cap{width:auto}h1{font-size:32px}}
+
+/* pins (annotation layer – neutral chrome) */
+.pins{position:absolute;inset:0;pointer-events:none;z-index:90}
+.nonotes .pins{display:none}
+.pin{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;display:grid;place-items:center;font:700 10px/1 system-ui;color:#fff;background:#e5484d;box-shadow:0 0 0 2px #18181b,0 2px 6px rgba(0,0,0,.5);pointer-events:auto;cursor:help;opacity:.38;transition:opacity .2s}
+.pin.mv{transition:opacity .2s,left .22s ease,top .22s ease}
+.pins.fix .pin{background:#2fbf71}
+.pin.hot,.pin.lit,.pin:hover{opacity:1;z-index:2}
+.pin.off{opacity:0!important;pointer-events:none}
+.pin b{position:absolute;left:26px;top:50%;transform:translateY(-50%);white-space:nowrap;background:#fff;color:#1c1c1a;font:500 12px/1.3 system-ui;padding:4px 8px;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .15s}
+.pin.l b{left:auto;right:26px}
+.pin.u b{left:50%;top:auto;bottom:26px;transform:translateX(-50%)}
+.pin.d b{left:50%;top:26px;transform:translateX(-50%)}
+.pin:hover b,.pin.lit b,.pin.hot b{opacity:1}
+.pin.edge b{left:auto;right:-6px;transform:none}
+.pin.r.edge b,.pin.l.edge b{right:26px;top:50%;transform:translateY(-50%)}
+.pin.u.edge b{bottom:26px}
+.pin.u.ledge b,.pin.d.ledge b{left:-6px;right:auto;transform:none}
+.pin.l.ledge b{right:auto;left:26px}
+.pin.pulse{animation:pinpulse .8s 2}
+@keyframes pinpulse{0%{box-shadow:0 0 0 2px #18181b,0 0 0 2px rgba(255,255,255,.9)}100%{box-shadow:0 0 0 2px #18181b,0 0 0 16px rgba(255,255,255,0)}}
+
+/* ================= Smarf app (mockups only) ================= */
+.stage{position:relative;height:580px;min-width:1180px;overflow:hidden;background:#18181b;color:#fafafa;font-family:'Interstate',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;outline:none}
+.stage button{font:inherit;color:inherit;margin:0}
+.stage input{font:inherit;margin:0}
+.stage svg.i{width:18px;height:18px;display:block;fill:currentColor;flex:none}
+.stage svg.io{fill:none;stroke:currentColor;stroke-width:1.5}
+.stage kbd{font:600 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#a1a1aa;background:#27272a;border:1px solid #3f3f46;border-bottom-width:2px;border-radius:4px;padding:2px 5px;min-width:18px;text-align:center;display:inline-block}
+.cat{position:absolute}
+.cat-h{display:flex;align-items:center;gap:8px;height:30px;font-weight:600}
+.cat-h svg.i{width:14px;height:14px;color:#71717a}
+.cat-b{background:#27272a;border-radius:4px;padding:4px;display:flex;flex-wrap:wrap}
+.hero{padding:4px}
+.hero>div{width:80px;height:45px;border-radius:4px;background:#3f3f46 center/cover no-repeat;box-shadow:0 0 0 1.5px #0094FF}
+.hero.add>div{box-shadow:none;border:2px dashed #52525b;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:600;color:#d4d4d8}
+.hero.add svg.i{width:14px;height:14px;color:#a1a1aa}
+.tbw{position:absolute;left:0;right:0;bottom:24px;padding:0 16px;z-index:20}
+.ring{display:block;width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(.55)}55%{transform:scale(1.3)}100%{transform:scale(1)}}
+.stage svg.st-on{display:none;color:#EAB308}
+.stage[data-state=fav] svg.st-on{display:block}
+.stage[data-state=fav] svg.st-off{display:none}
+.stage[data-state=fav] svg.st-on.anim{animation:pop .42s cubic-bezier(.3,1.5,.5,1)}
+.burst{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
+.burst i{position:absolute;left:-2px;top:-2px;width:4px;height:4px;border-radius:50%;background:#EAB308;opacity:0}
+.burst i:nth-child(even){background:#fde68a;width:3px;height:3px}
+[data-state=fav] .burst i{animation:burst .6s cubic-bezier(.2,.8,.3,1) .06s both}
+@keyframes burst{0%{opacity:1;transform:rotate(var(--a)) translateY(-4px) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateY(-20px) scale(.3)}}
+/* collapse: animates auto width */
+.cl{display:grid;grid-template-columns:0fr;opacity:0;transition:grid-template-columns .3s cubic-bezier(.3,.8,.3,1),opacity .18s ease}
+.cl>*{min-width:0;overflow:hidden;white-space:nowrap}
+.cl.show{grid-template-columns:1fr;opacity:1}
+/* menus & cards (A/B/C) */
+.menu,.pop{position:absolute;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px) scale(.96);transition:opacity .14s ease,transform .22s cubic-bezier(.2,.9,.3,1.15),visibility 0s .22s}
+.menu.show,.pop.show{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:opacity .14s ease,transform .22s cubic-bezier(.2,.9,.3,1.15),visibility 0s}
+.pop{bottom:calc(100% + 12px);right:16px;width:316px;background:#27272a;border:1px solid #3f3f46;border-radius:8px;padding:14px;box-shadow:0 24px 48px -12px rgba(0,0,0,.75);transform-origin:calc(100% - 20px) 100%}
+.pop-h{display:flex;align-items:center;justify-content:space-between;font-weight:600;margin:-2px 0 10px}
+.pop-h.danger{color:#fca5a5}
+.pop-x{display:grid;place-items:center;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:#71717a;cursor:pointer;margin-right:-6px}
+.pop-x:hover{background:#3f3f46;color:#fafafa}
+.pop-x svg.i{width:16px;height:16px}
+.pop-p{margin:0 0 12px;color:#a1a1aa;font-size:13px;line-height:1.6}
+.pop-hint{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:#71717a}
+.pop-hint kbd{margin-left:6px}
+.pop-hint kbd:first-child{margin-left:0}
+.ig{display:flex;align-items:center;gap:4px;background:#18181b;border:1px solid #3f3f46;border-radius:6px;padding:3px 3px 3px 10px;transition:border-color .15s,box-shadow .15s}
+.ig:focus-within{border-color:#0094FF;box-shadow:0 0 0 3px rgba(0,148,255,.2)}
+.ig input{flex:1;border:0;background:transparent;color:#fafafa;outline:0;height:28px}
+.ig-b{display:grid;place-items:center;width:30px;height:28px;border:0;border-radius:5px;background:#4f46e5;color:#fff;cursor:pointer}
+.ig-b:hover{background:#6366f1}
+.in{display:block;width:100%;height:34px;padding:0 10px;background:#18181b;border:1px solid #3f3f46;border-radius:6px;color:#fafafa;outline:0;transition:border-color .15s,box-shadow .15s}
+.in:focus{border-color:#0094FF;box-shadow:0 0 0 3px rgba(0,148,255,.2)}
+.in.ok{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.2)}
+.pop-act{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;height:34px;border:0;border-radius:6px;font-weight:700!important;font-size:13px!important;cursor:pointer;transition:background .15s,opacity .15s,transform .1s}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.red{background:#ef4444;color:#fff}
+.btn.red:hover:not(:disabled){background:#f05252}
+.btn.red:disabled{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid #3f3f46;color:#fafafa}
+.btn.ghost:hover{background:#3f3f46}
+.tipl{position:absolute;z-index:60;pointer-events:none;display:flex;align-items:center;gap:8px;padding:5px 6px 5px 9px;background:#09090b;border:1px solid #3f3f46;border-radius:6px;font-size:12px;color:#e4e4e7;width:max-content;max-width:380px;line-height:1.4;box-shadow:0 8px 20px -6px rgba(0,0,0,.6);opacity:0;transform:translate(-50%,calc(-100% + 5px));transition:opacity .12s ease,transform .16s cubic-bezier(.2,.9,.3,1)}
+.tipl.show{opacity:1;transform:translate(-50%,-100%)}
+.tipl:not(:has(kbd)){padding-right:9px}
+
+/* ---------- NOW (faithful) ---------- */
+.n-status{display:flex;justify-content:flex-end;margin-bottom:16px;font-size:12px}
+.n-st{display:flex;align-items:center;gap:8px}
+.n-st .ic{color:#00C165}
+.n-st-load{display:none}
+:is([data-state=saving],[data-state=busy]) .n-st-saved{display:none}
+:is([data-state=saving],[data-state=busy]) .n-st-load{display:flex}
+.nspin{position:relative;width:20px;height:20px;display:inline-block}
+.nspin i{position:absolute;width:16px;height:16px;margin:2px;border:2px solid #0094FF;border-color:#0094FF transparent transparent transparent;border-radius:50%;animation:spin 1.2s cubic-bezier(.5,0,.5,1) infinite}
+.nspin i:nth-child(1){animation-delay:-.45s}.nspin i:nth-child(2){animation-delay:-.3s}.nspin i:nth-child(3){animation-delay:-.15s}
+.n-bar{display:flex;align-items:center;padding:8px;background:#3f3f46;border-radius:4px}
+.n-left{display:flex;align-items:center}
+.n-gap{flex:1;align-self:stretch}
+.n-select{position:relative;width:320px;border-radius:4px;box-shadow:0 0 0 2px transparent;transition:200ms all ease;cursor:pointer}
+.n-select:hover,[data-state=switch] .n-select{box-shadow:0 0 0 2px #0094FF}
+.n-select .val{display:block;white-space:nowrap;overflow:hidden;padding-right:32px!important;padding:7px 8px 7px 32px;background:#18181b;border:1px solid #52525b;border-radius:4px}
+.n-select .l,.n-select .r{position:absolute;top:0;bottom:0;padding:8px;color:#71717a;display:flex;align-items:center}
+.n-select .l{left:0}.n-select .r{right:0}
+.n-group{display:flex;margin-left:8px}
+.n-btn{position:relative;display:inline-flex;align-items:center;padding:8px 12px;color:#71717a;background:#18181b;border:0;cursor:pointer;box-shadow:0 0 0 2px transparent;transition:200ms all ease}
+.n-btn:first-child{border-radius:4px 0 0 4px}
+.n-btn:last-child{border-radius:0 4px 4px 0}
+.n-btn:only-child{border-radius:4px}
+.n-btn:not(:last-child){border-right:1px solid #3f3f46}
+.n-btn:hover,.n-btn:focus{z-index:2;box-shadow:0 0 0 2px #0094FF;outline:none}
+[data-state=hover] .n-add,[data-state=hover] .n-dup{z-index:2;box-shadow:0 0 0 2px #0094FF}
+.ntip{position:absolute;left:62%;top:calc(100% + 4px);background:#f0f0f0;color:#111;border:1px solid #b9b9b9;font:12px/1.2 -apple-system,system-ui,sans-serif;padding:3px 6px;border-radius:3px;white-space:nowrap;opacity:0;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.25);z-index:5}
+.n-btn:hover .ntip,[data-state=hover] .n-add .ntip{opacity:1;transition:opacity 0s 1s}
+.n-menu{display:none;position:absolute;left:-2px;bottom:calc(100% + 4px);width:max-content;min-width:calc(100% + 4px);max-width:760px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#2a2a2d;border:1px solid #4a4a4f;border-radius:6px;padding:4px;font:13px/1 -apple-system,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.n-menu div{padding:5px 8px;border-radius:4px;color:#e5e5e5}
+.n-menu div.sel{background:#2463d1;color:#fff}
+.n-menu.show{display:block}
+.n-pop{display:none;position:absolute;right:16px;bottom:calc(100% + 16px)}
+.n-pop.show{display:block}
+.n-x{position:absolute;top:-32px;right:0;background:none;border:0;color:#71717a;cursor:pointer;padding:0}
+.n-form{display:flex;align-items:center;padding:16px;background:#18181b;border:1px solid #3f3f46;border-radius:4px}
+.n-form label{margin-right:16px}
+.n-ig{display:flex;align-items:center;border:1px solid #3f3f46;border-radius:4px}
+.n-ig:hover,.n-ig:focus-within{box-shadow:0 0 0 2px #0094FF}
+.n-ig input{padding:12px;background:transparent;border:0;outline:0;color:#fafafa;width:190px}
+.n-igb{margin:4px;display:inline-flex;padding:4px;border:0;border-radius:4px;background:#71717a;color:#fafafa;cursor:pointer}
+.n-del{width:280px;padding:16px;background:#27272a;border:1px solid #3f3f46;border-radius:4px}
+.n-del h4{font-weight:400;margin:0 0 8px;font-size:14px}
+.n-del p{margin:0 0 16px;color:#a1a1aa;line-height:1.75}
+.n-in{display:block;width:100%;height:32px;padding:8px;background:transparent;border:1px solid #3f3f46;border-radius:4px;color:#fafafa;outline:0;margin-bottom:16px}
+.n-act{display:flex;gap:16px}
+.n-act button{flex:1;padding:8px;border:0;border-radius:4px;font-weight:700;cursor:pointer}
+.n-act .r{background:#ef4444}.n-act .r:disabled{opacity:.75;cursor:not-allowed}
+.n-act .c{background:transparent;border:1px solid #3f3f46}
+[data-state=enter] .n{animation:snap 1.1s steps(1) both}
+@keyframes snap{0%{opacity:0}40%,100%{opacity:1}}
+
+/* ---------- B: centred dock ---------- */
+.b-wrap{position:absolute;left:0;right:0;bottom:24px;display:flex;justify-content:center;z-index:20;pointer-events:none}
+.b-anchor{position:relative;pointer-events:auto}
+.b-dock{display:flex;align-items:center;height:54px;padding:0 7px;background:rgba(39,39,42,.78);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);border:1px solid rgba(255,255,255,.09);border-radius:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 0 1px rgba(0,0,0,.5),0 26px 50px -16px rgba(0,0,0,.85);transition:border-color .25s,background .25s}
+[data-state=delete] .b-dock{border-color:rgba(239,68,68,.55);background:rgba(45,30,32,.86)}
+.b-dock .cl>*{padding:4px;margin:-4px}
+.row{display:flex;align-items:center}
+.b-sw{display:flex;align-items:center;height:40px;padding:0 8px 0 12px;border-radius:9px;cursor:pointer;font-weight:600;transition:background .15s}
+.b-sw:hover,[data-state=switch] .b-sw{background:rgba(255,255,255,.07)}
+.b-sw .lab{padding-left:10px;display:block}
+.b-sw .car{padding-left:6px;color:#71717a;display:block}
+.b-sw .car svg.i{width:16px;height:16px}
+.b-ren{padding-left:10px;display:flex!important;align-items:center;gap:4px}
+.b-in{height:30px;width:170px;padding:0 9px;background:#18181b;border:1px solid #0094FF;box-shadow:0 0 0 3px rgba(0,148,255,.2);border-radius:7px;color:#fafafa;outline:0;font-weight:600}
+.b-ok{display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:7px;background:#4f46e5;color:#fff;cursor:pointer}
+.b-dot{width:8px;height:8px;border-radius:50%;background:#00C165;position:relative;flex:none;transition:background .25s}
+.b-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;opacity:0}
+:is([data-state=saving],[data-state=busy]) .b-dot{background:#0094FF}
+:is([data-state=saving],[data-state=busy]) .b-dot::after{animation:ping 1s cubic-bezier(0,0,.2,1) infinite}
+@keyframes ping{0%{opacity:.75;transform:scale(1)}100%{opacity:0;transform:scale(2.8)}}
+[data-state=error] .b-dot{background:#ef4444}
+[data-prev=saving][data-state=idle] .b-dot{animation:pop .45s cubic-bezier(.3,1.5,.5,1)}
+.b-ib{position:relative;display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:9px;background:transparent;color:#a1a1aa;cursor:pointer;transition:background .15s,color .15s,transform .1s}
+.b-ib:hover,[data-state=hover] .b-dup{background:rgba(255,255,255,.08);color:#fafafa}
+.b-ib:active,.b-add:active{transform:scale(.94)}
+.b-ib:focus{outline:none}.b-ib:focus-visible,.b-add:focus-visible{box-shadow:0 0 0 2px #0094FF;outline:none}
+.b-del:hover{background:rgba(239,68,68,.16);color:#f87171}
+.b-sep{width:1px;height:24px;background:rgba(255,255,255,.1);margin:0 7px;flex:none}
+.b-err .b-errchip{display:flex;align-items:center;gap:6px;height:32px;margin-left:6px;padding:0 4px 0 9px;border-radius:8px;background:rgba(239,68,68,.16);color:#fecaca;font-size:12px;font-weight:600}
+.b-errchip svg.i{width:16px;height:16px;color:#f87171}
+.b-errchip button{height:24px;padding:0 9px;border:0;border-radius:6px;background:#ef4444;color:#fff!important;font-size:11px!important;font-weight:700!important;cursor:pointer}
+.b-add{display:flex;align-items:center;height:40px;padding:0 13px 0 11px;margin-right:4px;border:0;border-radius:9px;background:#4f46e5;color:#fff;font-weight:700!important;font-size:13px!important;cursor:pointer;transition:background .15s,transform .1s}
+.b-add:hover,[data-state=hover] .b2-add:not(.fx){background:#6366f1}
+[data-state=busy] .b-add{background:#4338ca;cursor:progress}
+.b-add .lbl{padding-left:7px;display:block}
+.b-addic{position:relative;width:18px;height:18px;flex:none}
+.b-addic svg.i,.b-addic .ring,.c-addic svg.i,.c-addic .ring{position:absolute;left:0;top:0;transition:opacity .15s,transform .2s}
+.b-addic .ring,.c-addic .ring{width:16px;height:16px;left:1px;top:1px;opacity:0;transform:scale(.5)}
+[data-state=busy] :is(.b-addic,.c-addic) svg.i{opacity:0;transform:scale(.5) rotate(90deg)}
+[data-state=busy] :is(.b-addic,.c-addic) .ring{opacity:1;transform:none}
+.b-delm .row{gap:8px;padding:0 4px 0 8px!important}
+.b-delic{color:#f87171}
+.b-delt{font-weight:600;margin-right:4px}
+.b-delm .b-in{border-color:#3f3f46;box-shadow:none;font-weight:400;width:180px}
+.b-delm .b-in:focus{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.2)}
+.b-btn{height:34px;padding:0 14px;border:0;border-radius:8px;font-weight:700!important;font-size:13px!important;cursor:pointer;transition:background .15s,opacity .15s}
+.b-btn.red{background:#ef4444;color:#fff}.b-btn.red:disabled{opacity:.35;cursor:not-allowed}
+.b-btn.ghost{background:transparent;color:#d4d4d8}.b-btn.ghost:hover{background:rgba(255,255,255,.08)}
+.b-menu{left:0;bottom:calc(100% + 10px);width:330px;padding:6px;background:rgba(39,39,42,.95);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.09);border-radius:12px;box-shadow:0 26px 50px -14px rgba(0,0,0,.85);transform-origin:30px 100%}
+.b-search{display:flex;align-items:center;gap:8px;height:36px;padding:0 8px 0 10px;margin-bottom:4px;border-radius:8px;background:#18181b;border:1px solid #3f3f46;color:#71717a;font-size:13px}
+.b-search svg.i{width:16px;height:16px}
+.b-search span{flex:1}
+.b-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#71717a;padding:8px 10px 4px}
+.b-row{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:7px;cursor:pointer;font-size:13px;color:#e4e4e7}
+.b-row:hover{background:rgba(255,255,255,.06)}
+.b-row.cur{background:rgba(0,148,255,.12)}
+.b-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.b-row .ct{font-size:11px;color:#71717a}
+.b-row svg.i{width:14px;height:14px}
+.b-row .ck{color:#0094FF;width:14px}
+.b-row .sf{color:#EAB308}
+.b-foot{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;margin-top:4px;border-top:1px solid rgba(255,255,255,.07);color:#a5b4fc;font-size:13px;font-weight:600;cursor:pointer}
+.b-foot svg.i{width:14px;height:14px}
+[data-state=switch] .b-menu>*{animation:rowin .26s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i,0)*22ms)}
+@keyframes rowin{from{opacity:0;transform:translateY(6px)}}
+[data-state=enter] .b-dock{animation:dockin .8s cubic-bezier(.2,.9,.3,1.15) both}
+@keyframes dockin{0%,25%{opacity:0;transform:translateY(26px) scale(.92)}100%{opacity:1;transform:none}}
+
+/* ---------- A: refined in place ---------- */
+.a-fade{position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(to bottom,rgba(24,24,27,0),rgba(24,24,27,.94) 64%);pointer-events:none;z-index:10}
+.a-bar{display:flex;align-items:center;padding:8px;background:#3f3f46;border-radius:6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 0 0 1px rgba(0,0,0,.35),0 20px 40px -12px rgba(0,0,0,.75)}
+.a-select{position:relative;display:flex;align-items:center;gap:8px;width:300px;height:36px;padding:0 10px;background:#18181b;border:1px solid #52525b;border-radius:4px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.a-select:hover,[data-state=switch] .a-select{border-color:#71717a}
+[data-state=switch] .a-select{box-shadow:0 0 0 2px #0094FF}
+.a-select>svg.i{color:#71717a}
+.a-select>span{flex:1}
+.a-group{display:flex;margin-left:8px;background:#18181b;border-radius:4px}
+.a-ib{position:relative;display:grid;place-items:center;width:42px;height:36px;border:0;background:#18181b;color:#a1a1aa;cursor:pointer;transition:background .15s,color .15s,transform .1s}
+.a-ib:first-child{border-radius:4px 0 0 4px}.a-ib:last-child{border-radius:0 4px 4px 0}.a-ib:only-child{border-radius:4px}
+.a-ib+.a-ib{box-shadow:inset 1px 0 0 #3f3f46}
+.a-ib:hover,[data-state=hover] .a-add{background:#27272a;color:#fafafa}
+.a-ib:active{transform:translateY(1px)}
+.a-ib:focus{outline:none}
+.a-ib:focus-visible{box-shadow:inset 0 0 0 2px #0094FF}
+.a-group.solo{margin-left:12px}
+.a-del:hover,[data-state=delete] .a-del{color:#f87171;background:rgba(239,68,68,.14)}
+.a-add svg.i{transition:opacity .15s,transform .2s}
+.a-add .ring{position:absolute;left:50%;top:50%;margin:-8px 0 0 -8px;opacity:0;transform:scale(.5);transition:opacity .15s,transform .2s;color:#0094FF}
+[data-state=busy] .a-add svg.i{opacity:0;transform:scale(.5)}
+[data-state=busy] .a-add .ring{opacity:1;transform:none}
+[data-state=busy] .a-add{cursor:progress}
+.a-status{display:flex;align-items:center;margin-right:4px;font-size:12px}
+.a-s{display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;color:#d4d4d8}
+.a-s svg.i{width:16px;height:16px}
+.a-s .ok{color:#00C165}
+.a-s em{font-style:normal;color:#a1a1aa}
+.a-s .ring{width:13px;height:13px;color:#0094FF}
+.a-s.err{background:rgba(239,68,68,.16);color:#fecaca;padding-right:4px}
+.a-s.err svg.i{color:#f87171}
+.a-retry{height:22px;padding:0 9px;border:0;border-radius:999px;background:#ef4444;color:#fff!important;font-weight:700!important;font-size:11px!important;cursor:pointer}
+[data-prev=saving][data-state=idle] .a-s .ok{animation:pop .45s cubic-bezier(.3,1.5,.5,1)}
+.osmenu{display:none;position:absolute;left:-1px;bottom:calc(100% + 6px);width:calc(100% + 2px);background:#2a2a2d;border:1px solid #4a4a4f;border-radius:6px;padding:4px;font:13px/1 -apple-system,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.osmenu.show{display:block}
+.osmenu div{display:flex;gap:6px;padding:5px 8px;border-radius:4px;color:#e5e5e5}
+.osmenu div b{width:12px;font-weight:400}
+.osmenu div.sel{background:#2463d1;color:#fff}
+[data-state=enter] .a-tbw{animation:rise .75s cubic-bezier(.2,.9,.3,1) both}
+[data-state=enter] .a-fade{animation:fadein .75s ease both}
+@keyframes rise{0%,28%{opacity:0;transform:translateY(22px)}100%{opacity:1;transform:none}}
+@keyframes fadein{0%,28%{opacity:0}100%{opacity:1}}
+
+/* ---------- C: two islands ---------- */
+.c-isl{position:absolute;bottom:24px;display:flex;align-items:center;height:54px;padding:0 7px;background:#27272a;border:1px solid #3f3f46;border-radius:10px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 0 1px rgba(0,0,0,.4),0 20px 44px -14px rgba(0,0,0,.85);z-index:20}
+.c-isl .cl>*{padding:4px;margin:-4px}
+.c-left{left:16px}.c-right{right:16px}
+.c-sw{display:flex;align-items:center;height:40px;padding:0 8px;border-radius:7px;cursor:pointer;transition:background .15s}
+.c-sw:hover,[data-state=switch] .c-sw{background:#3f3f46}
+.c-sw .tic{color:#71717a}
+.c-name{display:block;padding-left:9px;font-size:15px;font-weight:700;letter-spacing:-.005em}
+.c-renw{display:flex!important;align-items:center;gap:6px;padding-left:9px!important}
+.c-in{height:30px;width:190px;padding:0 2px;background:transparent;border:0;border-bottom:2px solid #0094FF;color:#fafafa;outline:0;font-size:15px;font-weight:700}
+.c-car{color:#71717a;padding-left:6px;display:block}
+.c-car svg.i{width:16px;height:16px;transition:transform .2s}
+[data-state=switch] .c-car svg.i{transform:rotate(180deg)}
+.c-ib{position:relative;display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:7px;background:transparent;color:#a1a1aa;cursor:pointer;transition:background .15s,color .15s,transform .1s}
+.c-ib:hover,[data-state=more] .c-more{background:#3f3f46;color:#fafafa}
+.c-ib:active,.c-add:active{transform:scale(.95)}
+.c-ib:focus{outline:none}.c-ib:focus-visible,.c-add:focus-visible{box-shadow:0 0 0 2px #0094FF;outline:none}
+.c-sep{width:1px;height:24px;background:#3f3f46;margin:0 8px 0 6px}
+.c-status{display:flex;align-items:center;font-size:12px;padding-right:6px}
+.c-s{display:flex!important;align-items:center;gap:6px;color:#a1a1aa}
+.c-s svg.i{width:15px;height:15px;color:#00C165}
+.c-s.err{color:#fca5a5}
+.c-s.err button{background:none;border:0;padding:0;color:#fff!important;text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-weight:700!important}
+[data-prev=saving][data-state=idle] .c-s svg.i{animation:pop .45s cubic-bezier(.3,1.5,.5,1)}
+.c-line{position:absolute;left:12px;right:12px;bottom:-1px;height:2px;border-radius:2px;overflow:hidden;pointer-events:none}
+.c-line::before{content:"";position:absolute;inset:0;background:transparent}
+:is([data-state=saving],[data-state=busy]) .c-line::before{background:linear-gradient(90deg,transparent,#0094FF,transparent) no-repeat;background-size:45% 100%;animation:sweep 1s linear infinite}
+[data-state=error] .c-line::before{background:#ef4444}
+[data-prev=saving][data-state=idle] .c-line::before{background:#00C165;animation:fadeout 1.4s ease forwards}
+@keyframes sweep{from{background-position:-80% 0}to{background-position:180% 0}}
+@keyframes fadeout{0%,40%{opacity:1}100%{opacity:0}}
+.c-add{display:flex;align-items:center;height:40px;padding:0 12px 0 11px;margin-right:4px;border:0;border-radius:7px;background:#4f46e5;color:#fff;font-weight:700!important;font-size:13px!important;cursor:pointer;transition:background .15s,transform .1s}
+.c-add:hover,[data-state=hover] .c-add{background:#6366f1}
+.c-add .lbl{display:block;padding-left:7px}
+.c-addic{position:relative;width:18px;height:18px;flex:none}
+.c-k{display:grid}
+.c-k kbd{margin-left:8px;color:#e0e7ff;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.18)}
+.c-add:hover .c-k{grid-template-columns:1fr;opacity:1}
+[data-state=busy] .c-add{cursor:progress}
+.c-menu{right:0;bottom:calc(100% + 10px);width:236px;padding:5px;background:#27272a;border:1px solid #3f3f46;border-radius:9px;box-shadow:0 24px 48px -12px rgba(0,0,0,.8);transform-origin:calc(100% - 20px) 100%}
+.c-menu button{display:flex;align-items:center;gap:10px;width:100%;height:34px;padding:0 8px 0 10px;border:0;border-radius:6px;background:transparent;cursor:pointer;font-size:13px!important;text-align:left;color:#e4e4e7}
+.c-menu button span{flex:1}
+.c-menu button svg.i{width:16px;height:16px;color:#a1a1aa}
+.c-menu button:hover{background:#3f3f46}
+.c-menu button.red,.c-menu button.red svg.i{color:#f87171}
+.c-menu button.red:hover{background:rgba(239,68,68,.14)}
+.c-menu hr{border:0;border-top:1px solid #3f3f46;margin:4px 0}
+[data-state=more] .c-menu>*,[data-state=switch] .c-menu2>*{animation:rowin .24s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i,0)*24ms)}
+.c-menu2{left:0;bottom:calc(100% + 10px);width:300px;padding:5px;background:#27272a;border:1px solid #3f3f46;border-radius:9px;box-shadow:0 24px 48px -12px rgba(0,0,0,.8);transform-origin:24px 100%}
+.c-mh{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#71717a;padding:7px 10px 4px}
+.c-row{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:6px;font-size:13px;color:#e4e4e7;cursor:pointer}
+.c-row:hover{background:#3f3f46}
+.c-row .ck{width:14px;color:#0094FF}
+.c-row .ck svg.i{width:14px;height:14px}
+.c-row .nm{flex:1}
+.c-row .ct{font-size:11px;color:#71717a}
+.c-row.cur .nm{font-weight:700}
+.c-mf{display:flex;align-items:center;gap:8px;height:34px;padding:0 10px;margin-top:4px;border-top:1px solid #3f3f46;color:#a1a1aa;font-size:13px}
+.c-mf span{flex:1}
+.c-mf svg.i{width:15px;height:15px}
+.c-right .pop{right:0}
+[data-state=enter] .c-left{animation:slidel .8s cubic-bezier(.2,.9,.3,1) both}
+[data-state=enter] .c-right{animation:slider .8s cubic-bezier(.2,.9,.3,1) .08s both}
+@keyframes slidel{0%,25%{opacity:0;transform:translateX(-28px)}100%{opacity:1;transform:none}}
+@keyframes slider{0%,25%{opacity:0;transform:translateX(28px)}100%{opacity:1;transform:none}}
+
+/* ---------- spacing overlay ---------- */
+.spc{position:absolute;inset:0;pointer-events:none;z-index:84}
+.spc i{position:absolute;display:block}
+.spc i.g,.spc i.v{background:rgba(255,45,135,.32);box-shadow:inset 0 0 0 1px rgba(255,45,135,.9)}
+.spc i.p{background:rgba(56,189,248,.38);box-shadow:inset 0 0 0 1px rgba(56,189,248,.95)}
+.spc b{position:absolute;left:50%;transform:translateX(-50%);font:700 10px/14px ui-monospace,SFMono-Regular,Menlo,monospace;padding:0 4px;border-radius:4px;color:#fff;white-space:nowrap}
+.spc i.g b{top:-18px;background:#ff2d87}
+.spc i.p b{top:var(--lt);background:#0284c7}
+.spc i.v b{left:auto;right:calc(100% + 4px);transform:none;top:50%;margin-top:-7px;background:#ff2d87}
+.rnd{font:500 11px system-ui;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:1px 8px;background:var(--card)}
+h2.rounds{margin:96px 0 28px;padding-top:28px;border-top:1px solid var(--line);font-size:26px}
+/* ---------- B2 / B2b: scoped groups ---------- */
+.b-dock.b2{height:60px;padding:0 8px}
+.b2-seg{display:flex;align-items:center;height:44px;padding:0 3px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);border-radius:11px;transition:border-color .25s,background .25s}
+[data-state=error] .b2-seg{border-color:rgba(239,68,68,.45);background:rgba(239,68,68,.07)}
+.b2-sw{display:flex;align-items:center;height:36px;padding:0 9px 0 12px;border-radius:8px;cursor:pointer;font-weight:600;transition:background .15s}
+.b2-sw:hover,[data-state=switch] .b2-sw,[data-state=hover] .b2b-sw{background:rgba(255,255,255,.08)}
+.b2-name{display:block;padding-left:14px!important;max-width:232px;text-overflow:ellipsis}
+.b2-name.trunc{text-overflow:clip;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}
+.b2-sw .car{display:block;padding-left:8px;color:#71717a}
+.b2-sw .car svg.i{width:16px;height:16px;transition:transform .2s}
+[data-state=switch] .b2b-sw .car svg.i{transform:rotate(180deg)}
+.b2-ren{display:flex!important;align-items:center;gap:6px;padding-left:14px!important}
+.b2-ren .b-in{width:240px}
+.b2-div{width:1px;height:20px;background:rgba(255,255,255,.1);margin:0 5px 0 4px;flex:none}
+.b2-ib{position:relative;display:grid;place-items:center;width:38px;height:36px;border:0;border-radius:8px;background:transparent;color:#a1a1aa;cursor:pointer;transition:background .15s,color .15s,transform .1s}
+.b2-ib+.b2-ib{margin-left:2px}
+.b2-ib:hover,[data-state=hover] .b2-edit,[data-state=more] .b2-moreb{background:rgba(255,255,255,.09);color:#fafafa}
+.b2-ib:active{transform:scale(.94)}
+.b2-ib:focus{outline:none}.b2-ib:focus-visible,.b2-sw:focus-visible{box-shadow:0 0 0 2px #0094FF;outline:none}
+.b2 .b-err .b-errchip{margin-left:10px}
+.b-add.b2-add{height:44px;padding:0 17px 0 14px;border-radius:11px;margin:0 0 0 12px}
+.b2-dn{display:inline-block;max-width:190px;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;white-space:nowrap}
+.b2 .b-delm .b-in{width:150px}
+.mn{bottom:calc(100% + 12px);width:228px;padding:5px;background:rgba(39,39,42,.96);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.09);border-radius:11px;box-shadow:0 24px 48px -12px rgba(0,0,0,.8);transform-origin:calc(100% - 22px) 100%}
+.mn button,.b2b-act{display:flex;align-items:center;gap:10px;width:100%;height:34px;padding:0 8px 0 10px;border:0;border-radius:7px;background:transparent;cursor:pointer;font-size:13px!important;text-align:left;color:#e4e4e7}
+.mn button span,.b2b-act span{flex:1}
+.mn button svg.i,.b2b-act svg.i{width:16px;height:16px;color:#a1a1aa}
+.mn button:hover,.b2b-act:hover{background:rgba(255,255,255,.07)}
+.mn button.red,.mn button.red svg.i,.b2b-act.red,.b2b-act.red svg.i{color:#f87171}
+.mn button.red:hover,.b2b-act.red:hover{background:rgba(239,68,68,.14)}
+.mn hr,.b2b-menu hr{border:0;border-top:1px solid rgba(255,255,255,.08);margin:4px 0}
+[data-state=more] .mn>*{animation:rowin .24s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--i,0)*28ms)}
+.b-menu.b2b-menu{width:340px}
+.b2b-head{padding:6px 10px 10px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.08)}
+.b2b-hn{font-weight:700;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.b2b-hm{font-size:12px;color:#71717a;margin-top:2px}
+/* ---------- B3 / B3b: full-height rules + finishes ---------- */
+.b2-seg.b3-seg{padding:0}
+.b3-seg .b3-sw{height:42px;border-radius:10px 0 0 10px;padding:0 12px 0 14px}
+.b3-div{width:1px;height:42px;background:rgba(255,255,255,.1);flex:none}
+.b3-tools{display:flex;align-items:center;padding:0 3px}
+.b3b .b3-sw{height:44px;border-radius:10px;padding:0 10px 0 12px}
+.b3-rule{width:1px;height:58px;background:rgba(255,255,255,.1);margin:0 8px;flex:none}
+.b3b .b3-tools{padding:0}
+.b3b .b-add.b2-add{margin-left:0}
+.b3b .b-err .b-errchip{margin-left:6px}
+.fx{position:relative;overflow:hidden;isolation:isolate}
+.fx>*{position:relative;z-index:1}
+.fx .fx-spec{position:absolute;inset:0;z-index:0;border-radius:inherit;background:radial-gradient(110px circle at var(--mx,30%) var(--my,0%),rgba(255,255,255,.26),transparent 62%);opacity:0;transition:opacity .25s;pointer-events:none}
+.fx:hover .fx-spec,[data-state=hover] .fx .fx-spec{opacity:1}
+.fx::after{content:"";position:absolute;top:-30%;bottom:-30%;left:0;width:38%;z-index:2;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent);transform:translateX(-170%) skewX(-20deg);opacity:0}
+.fx:hover::after,[data-state=hover] .fx::after{animation:sheen .85s cubic-bezier(.3,.6,.3,1) both}
+[data-state=enter] .fx::after{animation:sheen .85s cubic-bezier(.3,.6,.3,1) .55s both}
+@keyframes sheen{0%{opacity:1;transform:translateX(-170%) skewX(-20deg)}100%{opacity:1;transform:translateX(360%) skewX(-20deg)}}
+.stage[data-finish=solid] .fx::after,.stage[data-finish=solid] .fx .fx-spec{display:none}
+/* glass */
+.stage[data-finish=glass] .fx{color:#fff;background:linear-gradient(180deg,rgba(129,140,248,.46),rgba(79,70,229,.30) 52%,rgba(67,56,202,.46));border:1px solid rgba(165,180,252,.34);box-shadow:inset 0 1px 0 rgba(255,255,255,.34),inset 0 -1px 0 rgba(30,27,75,.55),0 8px 22px -8px rgba(99,102,241,.7);-webkit-backdrop-filter:blur(10px) saturate(1.5);backdrop-filter:blur(10px) saturate(1.5);text-shadow:0 1px 1px rgba(30,27,75,.55);transition:background .2s,box-shadow .2s,transform .1s}
+.stage[data-finish=glass] .fx:hover,.stage[data-finish=glass][data-state=hover] .fx{background:linear-gradient(180deg,rgba(129,140,248,.6),rgba(99,102,241,.42) 52%,rgba(79,70,229,.55));box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(30,27,75,.55),0 10px 28px -8px rgba(99,102,241,.95)}
+/* graphite */
+.stage[data-finish=metal] .fx{color:#f4f4f5;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,rgba(0,0,0,.04) 1px 2px,transparent 2px 4px),linear-gradient(180deg,#64646d 0%,#45454c 46%,#35353b 54%,#4b4b53 100%);border:1px solid rgba(255,255,255,.17);box-shadow:inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.5),0 8px 20px -8px rgba(0,0,0,.95);text-shadow:0 -1px 0 rgba(0,0,0,.55);transition:background .2s,box-shadow .2s,transform .1s}
+.stage[data-finish=metal] .fx .b-addic{color:#a5b4fc;filter:drop-shadow(0 0 5px rgba(129,140,248,.9))}
+.stage[data-finish=metal] .fx:hover,.stage[data-finish=metal][data-state=hover] .fx{background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,rgba(0,0,0,.04) 1px 2px,transparent 2px 4px),linear-gradient(180deg,#72727b 0%,#4f4f57 46%,#3c3c43 54%,#55555e 100%)}
+/* silver */
+.stage[data-finish=silver] .fx{color:#18181b;background:linear-gradient(180deg,#f4f4f5 0%,#d4d4d8 46%,#a1a1aa 54%,#d4d4d8 100%);border:1px solid rgba(255,255,255,.55);box-shadow:inset 0 1px 0 #fff,inset 0 -1px 0 rgba(0,0,0,.25),0 8px 20px -8px rgba(0,0,0,.95);text-shadow:0 1px 0 rgba(255,255,255,.65);transition:background .2s,box-shadow .2s,transform .1s}
+.stage[data-finish=silver] .fx .b-addic{color:#4f46e5}
+.stage[data-finish=silver] .fx:hover,.stage[data-finish=silver][data-state=hover] .fx{background:linear-gradient(180deg,#fff 0%,#e4e4e7 46%,#b4b4bc 54%,#e4e4e7 100%)}
+.stage[data-finish=silver] .fx::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent)}
+/* press + busy (all finishes) */
+.stage .fx:active,.stage[data-state=press] .fx{transform:translateY(1px) scale(.985)!important;box-shadow:inset 0 2px 6px rgba(0,0,0,.4),inset 0 -1px 0 rgba(255,255,255,.08)!important}
+.stage[data-state=busy] .fx{filter:saturate(.75) brightness(.9);cursor:progress}
+/* ---------- B4 / B4b: compact ---------- */
+.stage[data-finish=indigo] .fx{color:#fff;background:linear-gradient(180deg,#9a9cf9 0%,#7174f4 42%,#5b54e8 58%,#6a6df2 100%);border:1px solid rgba(199,210,254,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(30,27,75,.4),0 6px 16px -6px rgba(99,102,241,.75);text-shadow:0 1px 1px rgba(30,27,75,.5);transition:background .2s,box-shadow .2s,transform .1s}
+.stage[data-finish=indigo] .fx:hover,.stage[data-finish=indigo][data-state=hover] .fx{background:linear-gradient(180deg,#a9abfb 0%,#7f82f6 42%,#6560ec 58%,#7679f4 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(30,27,75,.4),0 8px 22px -6px rgba(99,102,241,.95)}
+.stage[data-finish=gm] .fx{color:#f4f4f5;background:linear-gradient(180deg,#64646d 0%,#48484f 44%,#36363c 56%,#4b4b53 100%);border:1px solid rgba(255,255,255,.17);box-shadow:inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.5),0 8px 20px -8px rgba(0,0,0,.95);text-shadow:0 -1px 0 rgba(0,0,0,.55);transition:background .2s,box-shadow .2s,transform .1s}
+.stage[data-finish=gm] .fx .b-addic{color:#a5b4fc;filter:drop-shadow(0 0 5px rgba(129,140,248,.9))}
+.stage[data-finish=gm] .fx:hover,.stage[data-finish=gm][data-state=hover] .fx{background:linear-gradient(180deg,#72727b 0%,#52525a 44%,#3e3e45 56%,#56565e 100%)}
+/* B4: flush cells, dock = control height */
+.b-dock.b4{height:40px;padding:0;overflow:hidden;border-radius:10px}
+.b4 .b3-sw{height:38px;border-radius:0;padding:0 12px 0 14px}
+.b4 .b3-rule{height:38px;margin:0}
+.b4 .row>.b3-rule~.b3-rule{display:none}
+.b4 .b3-tools{padding:0}
+.b4 .b2-ib{width:40px;height:38px;border-radius:0}
+.b4 .b2-ib+.b2-ib{margin-left:0}
+.b4 .b2-ib:focus-visible,.b4 .b3-sw:focus-visible{box-shadow:inset 0 0 0 2px #0094FF}
+.b4 .b-add.b2-add{height:38px;border-radius:0;margin:0;padding:0 16px 0 14px}
+.b4 .fx{border:0!important}
+.b4 .b-err .b-errchip{height:28px;margin:0 6px}
+.b4 .b2-ren .b-in,.b4 .b2-ren .b-ok{height:28px}
+.b4 .b-delm .b-in{height:28px}
+.b4 .b-btn{height:28px;border-radius:6px}
+/* B4b: inset, 46px dock, 36px controls */
+.b-dock.b4b{height:46px;padding:0 4px;border-radius:12px}
+.b4b .b3-sw{height:36px;border-radius:8px;padding:0 10px 0 12px}
+.b4b .b3-rule{height:44px;margin:0 4px}
+.b4b .b3-tools{padding:0}
+.b4b .b2-ib{width:36px;height:36px}
+.b4b .b-add.b2-add{height:36px;border-radius:8px;margin:0;padding:0 14px 0 12px}
+.b4b .b-err .b-errchip{height:28px;margin-left:6px}
+.b4b .b2-ren .b-in,.b4b .b2-ren .b-ok{height:28px}
+.b4b .b-delm .b-in,.b4b .b-btn{height:30px}
+/* ---------- B5: even 4/8 rhythm ---------- */
+.b5 .b3-sw{padding:0 12px}
+.b5 .b2-name,.b5b .b2-name{padding-left:12px!important}
+.b5 .b2-sw .car{padding-left:12px}
+.b5 .b2-ren,.b5b .b2-ren{padding-left:12px!important}
+.b5 .b3-rule{margin:0 8px}
+.b5 .b2-ib+.b2-ib{margin-left:4px}
+.b5 .b-add.b2-add,.b5b .b-add.b2-add{padding:0 15px 0 11px} /* +1px border = 12 / 16 */
+.b5 .b-add .lbl,.b5b .b-add .lbl{padding-left:12px}
+.b5 .b-err .b-errchip{margin-left:8px}
+/* ---------- B5b: tight groups, wide gutters ---------- */
+.b5b .b3-sw{padding:0 10px 0 12px}
+.b5b .b2-sw .car{padding-left:10px}
+.b5b .b3-rule{margin:0 12px}
+.b5b .row>.b3-rule~.b3-rule{display:none}
+.b5b .b2-ib+.b2-ib{margin-left:2px}
+.b5b .b-add.b2-add{margin-left:12px}
+.b5b .b-err .b-errchip{margin-left:12px}
+/* ---------- B6 / B6b: split ---------- */
+.b6 .b3-sw{padding:0 12px}
+.b6 .b2-name{padding-left:12px!important}
+.b6 .b2-sw .car{padding-left:12px}
+.b6 .b2-ren{padding-left:12px!important}
+.b6 .b3-tools{margin-left:4px}
+.b6 .b2-ib+.b2-ib{margin-left:2px}
+.b6-gap{display:flex;align-items:center;min-width:240px;flex:none}
+.b6 .b-err .b-errchip{margin-left:12px}
+.b6 .b-add.b2-add{margin:0;padding:0 15px 0 11px}
+.b6 .b-add .lbl{padding-left:12px}
+.b6-pair{display:flex;align-items:center}
+.b6-addwrap>div{padding:24px;margin:-24px}
+.b6-addwrap{margin-left:8px;transition:grid-template-columns .3s cubic-bezier(.3,.8,.3,1),opacity .18s ease,margin .3s cubic-bezier(.3,.8,.3,1)}
+.b6-addwrap:not(.show){margin-left:0}
+.b6-addwrap .b-add.b2-add{height:46px;margin:0;padding:0 19px 0 15px;border-radius:12px;filter:drop-shadow(0 14px 18px rgba(0,0,0,.55))}
+.b6-addwrap .b-add .lbl{padding-left:8px}
+.stage .b6-addwrap .b-add .cl:not(.show)>*{padding-left:0!important;padding-right:0!important}
+.stage[data-finish=solid] .b6-addwrap .fx,.stage[data-finish=glass] .b6-addwrap .fx{-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
+[data-state=enter] .b6-addwrap .fx{animation:dockin .8s cubic-bezier(.2,.9,.3,1.15) .08s both}
+/* hidden collapses must not leave padding behind */
+.stage .b-dock .cl:not(.show)>*,.stage .c-isl .cl:not(.show)>*{padding-left:4px!important;padding-right:4px!important}
+@media (prefers-reduced-motion:reduce){.stage *{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<nav class="mm" aria-label="Variations"></nav>
+<main>
+  <header>
+    <h1>B5b, split two ways: a wide gap, or a pill of its own.</h1>
+    <div class="goals">
+      <div class="goal"><b>Parent</b>Variation B5b in e7c2-dock-spacing.html.</div>
+      <div class="goal"><b>No separator</b>Star, rename and More hug the switcher.</div>
+      <div class="goal"><b>Distance</b>New category sits at least 240px away, or apart.</div>
+      <div class="goal"><b>Lineage</b>Every earlier round is below, newest first.</div>
+    </div>
+  </header>
+  <div id="variants"></div>
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="fa">
+      <div><b>Explore</b>Explore from B6b: slide the button pill in just after the dock on load.</div>
+      <div><b>Remix</b>Remix B6: put the save status in the 240px gap.</div>
+      <div><b>Settle</b>Settle on B6b to start building it in Toolbar.tsx.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/1a6d-dock-split.html';
+
+/* ---------- icons (heroicons v1, matching the app) ---------- */
+const P = {
+  template:'<path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>',
+  cdd:'<path fill-rule="evenodd" d="M15.707 4.293a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 011.414-1.414L10 8.586l4.293-4.293a1 1 0 011.414 0zm0 6a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 14.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd"/>',
+  cd:'<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>',
+  cu:'<path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>',
+  selector:'<path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>',
+  star:'<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>',
+  plusc:'<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>',
+  plus:'<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>',
+  dup:'<path d="M7 9a2 2 0 012-2h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V9z"/><path d="M5 3a2 2 0 00-2 2v6a2 2 0 002 2V5h8a2 2 0 00-2-2H5z"/>',
+  pencil:'<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>',
+  trash:'<path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>',
+  checkc:'<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>',
+  check:'<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>',
+  x:'<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>',
+  exc:'<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>',
+  search:'<path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>',
+  dots:'<path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/>',
+  expand:'<path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 110-2h4a1 1 0 011 1v4a1 1 0 11-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 112 0v1.586l2.293-2.293a1 1 0 011.414 1.414L6.414 15H8a1 1 0 110 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 110-2h1.586l-2.293-2.293a1 1 0 011.414-1.414L15 13.586V12a1 1 0 011-1z" clip-rule="evenodd"/>'
+};
+const I = (n, c = '') => `<svg class="i ${c}" viewBox="0 0 20 20" aria-hidden="true">${P[n]}</svg>`;
+const STAR = `${I('star','io st-off')}${I('star','st-on anim')}<span class="burst">${[0,45,90,135,180,225,270,315].map(a=>`<i style="--a:${a}deg"></i>`).join('')}</span>`;
+const BOARDS = [
+  {n:'Main v7.30',c:52,f:1,cur:1},{n:'Turbo Smurf',c:31,f:1},{n:'Support Pool',c:18},
+  {n:'Offlane Experiments',c:24},{n:'Ranked Grind',c:36},{n:'Patch 7.37 Drafts',c:12}
+];
+
+/* ---------- board slice (shared) ---------- */
+const HEROES = ['antimage','axe','bane','bloodseeker','crystal_maiden','drow_ranger','earthshaker','juggernaut','mirana','morphling','nevermore','phantom_lancer','puck','pudge','razor','sand_king','storm_spirit','sven','tiny','vengefulspirit','windrunner','zuus','kunkka','lina','lion','shadow_shaman','slardar','tidehunter','witch_doctor','lich','riki','enigma','tinker','sniper','necrolyte','warlock','beastmaster','queenofpain','venomancer','faceless_void','skeleton_king','death_prophet','phantom_assassin','pugna','templar_assassin','viper','luna','dragon_knight','dazzle','rattletrap','leshrac','furion','life_stealer','dark_seer','clinkz','omniknight'];
+const CATS = [
+  {n:'Sidelane Griefer',x:16,y:16,c:5,h:4},{n:'Save Meta',x:496,y:16,c:5,h:4},{n:'Strong Lane',x:976,y:16,c:2,h:5},
+  {n:'Tilted Dotes',x:16,y:124,c:4,h:7},{n:'Roaming',x:408,y:124,c:5,h:9},
+  {n:'Late Game',x:16,y:296,c:6,h:11},{n:'Pos 5 Pool',x:584,y:296,c:5,h:8}
+];
+function board(){
+  let k = 0;
+  return CATS.map(cat => {
+    const hs = Array.from({length:cat.h}, () => `<div class="hero"><div style="background-image:url(https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${HEROES[k++ % HEROES.length]}.png)"></div></div>`).join('');
+    return `<div class="cat" style="left:${cat.x}px;top:${cat.y+110}px"><div class="cat-h">${I('expand')}${cat.n}</div><div class="cat-b" style="width:${cat.c*88+8}px">${hs}<div class="hero add"><div>${I('plusc')}Add</div></div></div></div>`;
+  }).join('');
+}
+
+/* ---------- shared popovers ---------- */
+const renamePop = cls => `<div class="pop ${cls}" data-when="rename">
+  <div class="pop-h"><span>Rename board</span><button class="pop-x" data-go="idle" aria-label="Close">${I('x')}</button></div>
+  <div class="ig"><input value="Main v7.30" data-enter="saving>idle" aria-label="Board name"><button class="ig-b" data-go="saving>idle" aria-label="Save">${I('check')}</button></div>
+  <div class="pop-hint"><kbd>Enter</kbd> save <kbd>Esc</kbd> cancel</div></div>`;
+const deletePop = cls => `<div class="pop ${cls}" data-when="delete">
+  <div class="pop-h danger"><span>Delete “Main v7.30”?</span><button class="pop-x" data-go="idle" aria-label="Close">${I('x')}</button></div>
+  <p class="pop-p">Removes 7 categories and 52 heroes. This can’t be undone.</p>
+  <input class="in" placeholder="Type Main v7.30 to confirm" data-confirm aria-label="Board name">
+  <div class="pop-act"><button class="btn red" data-confirm-btn disabled data-go="saving>idle">Delete board</button><button class="btn ghost" data-go="idle">Cancel</button></div></div>`;
+
+/* ---------- variations ---------- */
+const S = {press:'Press',enter:'Enter',idle:'Idle',hover:'Hover',more:'More menu',busy:'Adding category',saving:'Saving',error:'Save failed',fav:'Favorite',switch:'Switch board',rename:'Rename',delete:'Delete'};
+const NAMES = [
+  {label:'Short', n:'Main v7.30'},
+  {label:'Long', n:'Offlane Experiments — Patch 7.37 Ranked'},
+  {label:'Very long', n:'My definitive ranked hero pool for climbing out of Crusader before the next patch drops, sorted by lane and mood'}
+];
+const switchMenu = (cls = '') => `<div class="b-menu menu ${cls}" data-when="switch">
+  <div class="b-search" style="--i:0">${I('search')}<span>Find a board…</span><kbd>/</kbd></div>
+  <div class="b-lbl" style="--i:1">Favorites</div>
+  ${BOARDS.filter(b=>b.f).map((b,i)=>`<div class="b-row ${b.cur?'cur':''}" style="--i:${i+2}" data-go="idle"><span class="ck">${b.cur?I('check'):''}</span><span class="nm" ${b.cur?'data-bn':''}>${b.n}</span><span class="ct">${b.c} heroes</span><span class="sf">${I('star')}</span></div>`).join('')}
+  <div class="b-lbl" style="--i:4">All boards</div>
+  ${BOARDS.filter(b=>!b.f).map((b,i)=>`<div class="b-row" style="--i:${i+5}" data-go="idle"><span class="ck"></span><span class="nm">${b.n}</span><span class="ct">${b.c} heroes</span></div>`).join('')}
+  <div class="b-foot" style="--i:9">${I('plus')}New board</div>
+</div>`;
+const errChip = `<span class="cl b-err" data-when="error"><span><span class="b-errchip">${I('exc')}Not saved<button data-go="saving>idle">Retry</button></span></span></span>`;
+const delMode = word => `<div class="cl b-delm" data-when="delete"><div class="row">
+  <span class="b-delic">${I('trash')}</span><span class="b-delt">Delete ${word ? '<b class="b2-dn" data-bn></b>' : '<span data-bn></span>'}?</span>
+  <input class="b-in" ${word ? 'placeholder="Type “delete”" data-confirm-word="delete"' : 'data-bn-ph="Type {n}"'} data-confirm aria-label="Confirm">
+  <button class="b-btn red" data-confirm-btn disabled data-go="saving>idle">Delete</button>
+  <button class="b-btn ghost" data-go="idle">Cancel</button>
+</div></div>`;
+const swInner = `<span class="b-dot"></span>
+  <span class="cl show" data-unless="rename"><span class="b2-name" data-bn data-trunc></span></span>
+  <span class="cl" data-when="rename"><span class="b2-ren"><input class="b-in" data-bn-val data-enter="saving>idle" aria-label="Board name"><button class="b-ok" data-go="saving>idle" aria-label="Save">${I('check')}</button></span></span>`;
+const addBtn = `<button class="b-add b2-add" data-go="busy>saving>idle"><span class="b-addic">${I('plus')}<i class="ring"></i></span><span class="cl show" data-unless="busy"><span class="lbl">New category</span></span><span class="cl" data-when="busy"><span class="lbl">Adding…</span></span></button>`;
+
+const tools = `<div class="b3-tools">
+  <button class="b2-ib b2-star" data-toggle="fav" data-tip="Favorite" data-kbd="F">${STAR}</button>
+  <button class="b2-ib b2-edit" data-tip="Rename board" data-kbd="R" data-go="rename">${I('pencil')}</button>
+  <button class="b2-ib b2-moreb" data-toggle="more" data-tip="More" aria-label="More">${I('dots')}</button>
+</div>`;
+const fxAdd = `<button class="b-add b2-add fx" data-go="busy>saving>idle"><span class="fx-spec"></span><span class="b-addic">${I('plus')}<i class="ring"></i></span><span class="cl show" data-unless="busy"><span class="lbl">New category</span></span><span class="cl" data-when="busy"><span class="lbl">Adding…</span></span></button>`;
+const dockHtml = layout => {
+  const sw = `<div class="b2-sw b3-sw" data-toggle="switch" role="button" tabindex="0" data-nametip data-tip-default="Switch board" data-tip="Switch board" data-kbd="B">${swInner}<span class="cl show" data-unless="rename"><span class="car">${I('selector')}</span></span></div>`;
+  const main = layout === 'b3'
+    ? `<div class="b2-seg b3-seg">${sw}<span class="b3-div"></span>${tools}</div>${errChip}${fxAdd}`
+    : `${sw}<span class="b3-rule"></span>${tools}${errChip}<span class="b3-rule"></span>${fxAdd}`;
+  return `<div class="b-wrap"><div class="b-anchor">
+    ${switchMenu()}
+    <div class="menu mn" data-when="more" data-anchor=".b2-moreb">
+      <button style="--i:0" data-go="saving>idle">${I('dup')}<span>Duplicate board</span><kbd>D</kbd></button>
+      <hr style="--i:1">
+      <button class="red" style="--i:2" data-go="delete">${I('trash')}<span>Delete board…</span><kbd>⌫</kbd></button>
+    </div>
+    <div class="b-dock b2 ${layout}">
+      <div class="cl show" data-unless="delete"><div class="row">${main}</div></div>
+      ${delMode(true)}
+    </div>
+  </div></div>`;
+};
+
+const dock6 = layout => {
+  const sw = `<div class="b2-sw b3-sw" data-toggle="switch" role="button" tabindex="0" data-nametip data-tip-default="Switch board" data-tip="Switch board" data-kbd="B">${swInner}<span class="cl show" data-unless="rename"><span class="car">${I('selector')}</span></span></div>`;
+  const menus = `${switchMenu()}
+    <div class="menu mn" data-when="more" data-anchor=".b2-moreb">
+      <button style="--i:0" data-go="saving>idle">${I('dup')}<span>Duplicate board</span><kbd>D</kbd></button>
+      <hr style="--i:1">
+      <button class="red" style="--i:2" data-go="delete">${I('trash')}<span>Delete board…</span><kbd>⌫</kbd></button>
+    </div>`;
+  if (layout === 'gap') return `<div class="b-wrap"><div class="b-anchor">${menus}
+    <div class="b-dock b2 b4b b6">
+      <div class="cl show" data-unless="delete"><div class="row">${sw}${tools}<span class="b6-gap">${errChip}</span>${fxAdd}</div></div>
+      ${delMode(true)}
+    </div></div></div>`;
+  return `<div class="b-wrap"><div class="b-anchor">${menus}
+    <div class="b6-pair">
+      <div class="b-dock b2 b4b b6">
+        <div class="cl show" data-unless="delete"><div class="row">${sw}${tools}${errChip}</div></div>
+        ${delMode(true)}
+      </div>
+      <div class="cl show b6-addwrap" data-unless="delete"><div>${fxAdd}</div></div>
+    </div></div></div>`;
+};
+
+const VARIANTS = [
+{
+  id:'now', round:'Today', letter:'Now', name:'Current full-width bar', cls:'', fix:false,
+  states:['enter','idle','hover','busy','saving','error','fav','switch','rename','delete'],
+  caps:{enter:'Pops in with no transition.',idle:'Status floats above, far right.',hover:'Blue ring; title tooltip after ~1s.',busy:'Request running; button looks idle.',saving:'Triple-ring spinner, “Updating”.',error:'Request failed. Still says Saved.',fav:'Star snaps to yellow.',switch:'Native list with “(Selected)”.',rename:'Popover snaps in; X floats above it.',delete:'Neutral icon, then a confirm card.'},
+  html:`<div class="tbw n">
+    <div class="n-status"><div class="n-st n-st-saved"><span class="ic">${I('checkc')}</span>Saved</div><div class="n-st n-st-load"><span class="nspin"><i></i><i></i><i></i></span>Updating</div></div>
+    <div class="n-bar">
+      <div class="n-left">
+        <div class="n-select" data-go="switch"><span class="l">${I('template')}</span><span class="val">Main v7.30</span><span class="r">${I('cdd')}</span>
+          <div class="n-menu" data-when="switch">${BOARDS.map(b=>`<div class="${b.cur?'sel':''}" data-go="idle">${b.n}${b.cur?' (Selected)':''}</div>`).join('')}</div></div>
+        <div class="n-group"><button class="n-btn n-star" data-toggle="fav">${I('star','io st-off')}${I('star','st-on')}</button></div>
+      </div>
+      <div class="n-gap"></div>
+      <div class="n-group">
+        <button class="n-btn n-add" data-go="busy>saving>idle">${I('plusc')}<span class="ntip">New category</span></button>
+        <button class="n-btn n-dup" data-go="saving>idle">${I('dup')}<span class="ntip">Duplicate board</span></button>
+        <button class="n-btn n-edit" data-go="rename">${I('pencil')}<span class="ntip">Edit board name</span></button>
+        <button class="n-btn n-del" data-go="delete">${I('trash')}<span class="ntip">Delete board</span></button>
+      </div>
+    </div>
+    <div class="n-pop n-editp" data-when="rename"><button class="n-x" data-go="idle">${I('x')}</button><form class="n-form" onsubmit="return false"><label>Name</label><div class="n-ig"><input value="Main v7.30" data-enter="saving>idle"><button type="button" class="n-igb" data-go="saving>idle">${I('check')}</button></div></form></div>
+    <div class="n-pop" data-when="delete"><div class="n-del"><h4>Delete Confirmation</h4><p>Are you sure to do this? This action cannot be undone.</p><input class="n-in" placeholder="Enter board name (Main v7.30)" data-confirm><div class="n-act"><button class="r" data-confirm-btn disabled data-go="saving>idle">Delete</button><button class="c" data-go="idle">Cancel</button></div></div></div>
+  </div>`,
+  pins:[
+    {n:1,t:'Status floats away from the bar',at:'.n-st-saved',s:'idle',side:'u',pos:'tl'},
+    {n:2,t:'Dead middle; actions sit ~800px from the board name',at:'.n-gap',pos:'c',s:'idle',side:'u'},
+    {n:3,t:'Icon-only; native title after ~1s',at:'.n-add',s:'hover',side:'l',pos:'tl'},
+    {n:8,t:'Click leaves a ring; rings overlap',at:'.n-dup',s:'hover',side:'u',pos:'tc'},
+    {n:4,t:'Failed save still reads “Saved”',at:'.n-st-saved',s:'error',side:'l',pos:'tl'},
+    {n:5,t:'Busy button looks unchanged',at:'.n-add',s:'busy',side:'l',pos:'tl'},
+    {n:6,t:'Native list, “(Selected)” suffix, no search',at:'.n-menu',s:'switch',side:'r'},
+    {n:7,t:'Heroes cut off hard under the bar',at:'.n-bar',pos:'tl',s:'idle',side:'u',dx:250},
+    {n:9,t:'Delete looks like every other icon',at:'.n-btn.n-del',s:'delete',side:'l',pos:'tl'},
+    {n:10,t:'Snaps in; close X floats outside',at:'.n-x',s:'rename',side:'l',pos:'tl'}
+  ],
+  cards:[['good','One click to everything; familiar segmented icons.'],['bad','Hides state, reads slowly, never fails loudly.']]
+},
+{
+  id:'b6', round:'Round 6 · new', letter:'B6', name:'No rule, 240px before New category', fix:true, tip:{}, spacing:true,
+  opts:[{k:'finish', label:'Button', def:'indigo', vals:[['indigo','Indigo metal'],['gm','Graphite'],['glass','Glass'],['solid','Solid']]}],
+  states:['enter','idle','hover','press','busy','saving','error','more','switch','rename','delete'],
+  caps:{idle:'Board controls cluster left; 240px of dock, then the button.',error:'Retry fills the gap; the dock doesn’t grow.',delete:'Dock morphs; type “delete” to arm.',enter:'Dock rises; the button catches a sheen.',hover:'Sheen sweeps; light follows the cursor.',press:'Sinks 1px with an inner shadow.',busy:'Label morphs; the finish dims slightly.',saving:'Dot pulses blue.',more:'Duplicate, then delete below a rule.',switch:'Searchable list above the dock.',rename:'Name becomes an input in place.'},
+  html:dock6('gap'),
+  pins:[
+    {n:1,t:'No rule: tools sit 4px from the switcher',at:'.b2-star',s:'idle',pos:'tl',side:'u'},
+    {n:2,t:'240px of open dock before the button',at:'.b6-gap',s:'idle',pos:'c',side:'u'},
+    {n:3,t:'Retry fills the gap; the dock keeps its width',at:'.b-errchip',s:'error',pos:'tc',side:'u'}
+  ],
+  cards:[['good','Board controls read as one cluster.'],['good','Hard to hit New category when reaching for More.'],['bad','240px of empty glass covers board for nothing.'],['bad','About 610px wide with a short name.']]
+},
+{
+  id:'b6b', round:'Round 6 · new', letter:'B6b', name:'New category as its own pill', fix:true, tip:{}, spacing:true,
+  opts:[{k:'finish', label:'Button', def:'indigo', vals:[['indigo','Indigo metal'],['gm','Graphite'],['glass','Glass'],['solid','Solid']]}],
+  states:['enter','idle','hover','press','busy','saving','error','more','switch','rename','delete'],
+  caps:{idle:'Two pills, 8px apart, floating as one.',error:'Retry joins the board pill.',delete:'Button steps aside; the dock asks in place.',enter:'Dock rises; the button catches a sheen.',hover:'Sheen sweeps; light follows the cursor.',press:'Sinks 1px with an inner shadow.',busy:'Label morphs; the finish dims slightly.',saving:'Dot pulses blue.',more:'Duplicate, then delete below a rule.',switch:'Searchable list above the dock.',rename:'Name becomes an input in place.'},
+  html:dock6('pair'),
+  pins:[
+    {n:1,t:'No rule: tools sit 4px from the switcher',at:'.b2-star',s:'idle',pos:'tl',side:'u'},
+    {n:2,t:'Own pill, 8px away, same 46px height',at:'.b6-addwrap .fx',s:'idle',pos:'tr',side:'r'},
+    {n:3,t:'The button steps aside while you delete',at:'.b-delm .b-in',s:'delete',pos:'tc',side:'u'}
+  ],
+  cards:[['good','Two objects, two jobs: manage the board, add to it.'],['good','Covers less board than B6.'],['bad','Two shapes and two shadows to keep in step.'],['bad','The pair centres as one, so long names shift the button.']]
+},
+{
+  id:'b5b', round:'Round 5 · e7c2', letter:'B5b', name:'Tight groups, wide gutters', fix:true, tip:{}, spacing:true, divider:'Earlier rounds, newest first',
+  opts:[{k:'finish', label:'Button', def:'indigo', vals:[['indigo','Indigo metal'],['gm','Graphite'],['glass','Glass'],['solid','Solid']]}],
+  states:['enter','idle','hover','press','busy','saving','error','more','switch','rename','delete'],
+  caps:{idle:'Space does the grouping; one rule confirms it.',enter:'Dock rises; the button catches a sheen.',hover:'Sheen sweeps; light follows the cursor.',press:'Sinks 1px with an inner shadow.',busy:'Label morphs; the finish dims slightly.',saving:'Dot pulses blue.',error:'Retry joins the tools zone.',more:'Duplicate, then delete below a rule.',switch:'Searchable list above the dock.',rename:'Name becomes an input in place.',delete:'Dock morphs; type “delete” to arm.'},
+  html:dockHtml('b3b b4b b5b'),
+  pins:[
+    {n:1,t:'Tight inside a zone: icons 2px apart',at:'.b2-edit',s:'hover',pos:'tc',side:'u'},
+    {n:2,t:'12px gutters around the rule',at:'.b3-rule',s:'idle',pos:'tc',side:'u'},
+    {n:3,t:'No rule before the filled button; 12px gap instead',at:'.fx',s:'idle',pos:'tl',side:'u'},
+    {n:4,t:'8px from icon to text',at:'.fx',s:'press',pos:'tr',side:'r'}
+  ],
+  cards:[['good','Proximity groups; the rule only confirms it.'],['good','One rule fewer: the filled button is its own edge.'],['bad','Gutters add ~16px of width.'],['bad','Icons 2px apart need a precise hover fill.']]
+},
+{
+  id:'b5', round:'Round 5 · e7c2', letter:'B5', name:'Even 4/8 rhythm', fix:true, tip:{}, spacing:true,
+  opts:[{k:'finish', label:'Button', def:'indigo', vals:[['indigo','Indigo metal'],['gm','Graphite'],['glass','Glass'],['solid','Solid']]}],
+  states:['enter','idle','hover','press','busy','saving','error','more','switch','rename','delete'],
+  caps:{idle:'Every gap is 4 or 8.',enter:'Dock rises; the button catches a sheen.',hover:'Sheen sweeps; light follows the cursor.',press:'Sinks 1px with an inner shadow.',busy:'Label morphs; the finish dims slightly.',saving:'Dot pulses blue.',error:'Retry joins the tools zone.',more:'Duplicate, then delete below a rule.',switch:'Searchable list above the dock.',rename:'Name becomes an input in place.',delete:'Dock morphs; type “delete” to arm.'},
+  html:dockHtml('b3b b4b b5'),
+  pins:[
+    {n:1,t:'4px padding all round; corner 12 = 8 + 4',at:'.b-dock',s:'idle',pos:'tl',side:'l'},
+    {n:2,t:'8px either side of each rule',at:'.b3-rule',s:'idle',pos:'tc',side:'u'},
+    {n:3,t:'Icons 4px apart',at:'.b2-moreb',s:'hover',pos:'tc',side:'u'},
+    {n:4,t:'8px from icon to text, everywhere',at:'.fx',s:'idle',pos:'tr',side:'r'}
+  ],
+  cards:[['good','Every gap is 4 or 8: easy to build, easy to keep.'],['good','Concentric corners: dock 12 = control 8 + padding 4.'],['bad','Zones are split by rules only, not by space.']]
+},
+{
+  id:'b4b', round:'Round 4 · d5a1', letter:'B4b', name:'46px dock, every control 36px', fix:true, tip:{}, spacing:true,
+  opts:[{k:'finish', label:'Button', def:'indigo', vals:[['indigo','Indigo metal'],['gm','Graphite'],['glass','Glass'],['solid','Solid']]}],
+  states:['enter','idle','hover','press','busy','saving','error','more','switch','rename','delete'],
+  caps:{enter:'Dock rises; the button catches a sheen.',idle:'4px around every 36px control.',hover:'Sheen sweeps; light follows the cursor.',press:'Sinks 1px with an inner shadow.',busy:'Label morphs; the finish dims slightly.',saving:'Dot pulses blue.',error:'Retry joins the tools zone.',more:'Duplicate, then delete below a rule.',switch:'Searchable list above the dock.',rename:'Name becomes an input in place.',delete:'Dock morphs; type “delete” to arm.'},
+  html:dockHtml('b3b b4b'),
+  pins:[
+    {n:1,t:'46px dock; every control 36px',at:'.b-dock',s:'idle',pos:'tl',side:'l'},
+    {n:1,t:'Rules still run the full height',at:'.b3-rule',s:'idle',pos:'tc',side:'u'},
+    {n:2,t:'Indigo metal, no lines',at:'.fx',s:'idle',pos:'tr',side:'r'},
+    {n:3,t:'Sheen + cursor light',at:'.fx',s:'hover',pos:'tr',side:'r'},
+    {n:3,t:'Sinks 1px with an inner shadow',at:'.fx',s:'press',pos:'tr',side:'r'}
+  ],
+  cards:[['good','Compact, but each control keeps its own shape.'],['good','The primary keeps its rounded pill and glow.'],['bad','6px taller than B4.'],['bad','Rounded controls inside a rounded dock: two edge styles.']]
+},
+{
+  id:'b4', round:'Round 4 · d5a1', letter:'B4', name:'Flush 40px dock, primary as end cap', fix:true, tip:{},
+  opts:[{k:'finish', label:'Button', def:'indigo', vals:[['indigo','Indigo metal'],['gm','Graphite'],['glass','Glass'],['solid','Solid']]}],
+  states:['enter','idle','hover','press','busy','saving','error','more','switch','rename','delete'],
+  caps:{enter:'Dock rises; the end cap catches a sheen.',idle:'Every zone is a 40px cell.',hover:'Sheen sweeps; light follows the cursor.',press:'The cell darkens inward.',busy:'Label morphs; the finish dims slightly.',saving:'Dot pulses blue.',error:'Retry squeezes into the tools zone.',more:'Duplicate, then delete below a rule.',switch:'Searchable list above the dock.',rename:'Name becomes an input in place.',delete:'Dock morphs; type “delete” to arm.'},
+  html:dockHtml('b3b b4'),
+  pins:[
+    {n:1,t:'Dock is 40px: exactly the control height',at:'.b-dock',s:'idle',pos:'tl',side:'l'},
+    {n:1,t:'Hover fills the whole cell, rule to rule',at:'.b2-moreb',s:'idle',pos:'tc',side:'u'},
+    {n:2,t:'Indigo metal: lit top, darker horizon, no lines',at:'.fx',s:'idle',pos:'tr',side:'r'},
+    {n:3,t:'Sheen + cursor light on the end cap',at:'.fx',s:'hover',pos:'tr',side:'r'},
+    {n:3,t:'Press darkens the cell inward',at:'.fx',s:'press',pos:'tr',side:'r'}
+  ],
+  cards:[['good','Shortest dock: covers the least board.'],['good','Reads as one solid instrument.'],['bad','No breathing room; fills run to the edges.'],['bad','The end cap can’t glow past the dock.']]
+},
+{
+  id:'b3b', round:'Round 3 · c3e8', letter:'B3b', name:'Dock-height rules, graphite button', fix:true, tip:{},
+  opts:[{k:'finish', label:'Button', def:'metal', vals:[['glass','Glass'],['metal','Graphite'],['silver','Silver'],['solid','Solid']]}],
+  states:['enter','idle','hover','press','busy','saving','error','more','switch','rename','delete'],
+  caps:{enter:'Dock rises; the button catches a sheen.',idle:'Three zones split by edge-to-edge rules.',hover:'Sheen sweeps; highlight follows the cursor.',press:'Sinks 1px with an inner shadow.',busy:'Label morphs; the finish dims slightly.',saving:'Dot pulses blue.',error:'Retry joins the tools zone.',more:'Duplicate, then delete below a rule.',switch:'Searchable list above the dock.',rename:'Name becomes an input in place.',delete:'Dock morphs; type “delete” to arm.'},
+  html:dockHtml('b3b'),
+  pins:[
+    {n:1,t:'Rules run the dock’s full height',at:'.b3-rule',s:'idle',pos:'tc',side:'u'},
+    {n:1,t:'No box: zones come from the rules',at:'.b3-sw',s:'idle',pos:'bl',side:'l'},
+    {n:2,t:'Lit top edge and depth instead of a flat fill',at:'.fx',s:'idle',pos:'tr',side:'r'},
+    {n:3,t:'Sheen sweeps; highlight follows the cursor',at:'.fx',s:'hover',pos:'tr',side:'r'},
+    {n:4,t:'Presses in 1px with an inner shadow',at:'.fx',s:'press',pos:'tr',side:'r'}
+  ],
+  cards:[['good','Cleanest structure: three zones, two rules.'],['good','Graphite feels premium without new colours.'],['bad','Without the box, “this board” groups less tightly.'],['bad','A graphite primary is quieter than indigo.']]
+},
+{
+  id:'b3', round:'Round 3 · c3e8', letter:'B3', name:'Full-height divider, glass button', fix:true, tip:{},
+  opts:[{k:'finish', label:'Button', def:'glass', vals:[['glass','Glass'],['metal','Graphite'],['silver','Silver'],['solid','Solid']]}],
+  states:['enter','idle','hover','press','busy','saving','error','more','switch','rename','delete'],
+  caps:{enter:'Dock rises; the button catches a sheen.',idle:'Divider meets the segment’s edges.',hover:'Sheen sweeps; highlight follows the cursor.',press:'Sinks 1px with an inner shadow.',busy:'Label morphs; the finish dims slightly.',saving:'Dot pulses blue.',error:'Segment tints red; Retry appears.',more:'Duplicate, then delete below a rule.',switch:'Switcher fills its zone up to the divider.',rename:'Name becomes an input in place.',delete:'Dock morphs; type “delete” to arm.'},
+  html:dockHtml('b3'),
+  pins:[
+    {n:1,t:'Divider runs the full segment height',at:'.b3-div',s:'idle',pos:'tc',side:'u'},
+    {n:2,t:'Same material as the dock: lit top edge, depth',at:'.fx',s:'idle',pos:'tr',side:'r'},
+    {n:3,t:'Sheen sweeps; highlight follows the cursor',at:'.fx',s:'hover',pos:'tr',side:'r'},
+    {n:4,t:'Presses in 1px with an inner shadow',at:'.fx',s:'press',pos:'tr',side:'r'},
+    {n:1,t:'Switcher hover fills its whole zone',at:'.b3-sw',s:'switch',pos:'bl',side:'l'}
+  ],
+  cards:[['good','Divider reads as structure, not decoration.'],['good','The button is made of the same glass as the dock.'],['bad','Glass loses a little contrast over bright heroes.'],['bad','Blur + sheen cost some GPU on low-end machines.']]
+},
+{
+  id:'b2b', round:'Round 2 · 9b41', letter:'B2b', name:'The name is the board menu', fix:true, tip:{hover:'.b2b-sw'},
+  states:['enter','idle','hover','busy','saving','error','fav','switch','rename','delete'],
+  caps:{enter:'Dock rises and scales in.',idle:'Name, star, primary. Nothing else.',hover:'The name opens everything about the board.',busy:'Label morphs to Adding…; dot pulses.',saving:'Dot pulses blue.',error:'Board segment tints red; Retry appears.',fav:'Star pops with a burst.',switch:'Manage this board first, then switch.',rename:'Name becomes an input in place.',delete:'Dock morphs; type “delete” to arm.'},
+  html:`<div class="b-wrap"><div class="b-anchor">
+    <div class="b-menu menu b2b-menu" data-when="switch">
+      <div class="b2b-head" style="--i:0"><div class="b2b-hn" data-bn></div><div class="b2b-hm">52 heroes · 7 categories</div></div>
+      <button class="b2b-act" style="--i:1" data-go="rename">${I('pencil')}<span>Rename</span><kbd>R</kbd></button>
+      <button class="b2b-act" style="--i:2" data-go="saving>idle">${I('dup')}<span>Duplicate</span><kbd>D</kbd></button>
+      <hr style="--i:3">
+      <button class="b2b-act red" style="--i:4" data-go="delete">${I('trash')}<span>Delete board…</span><kbd>⌫</kbd></button>
+      <div class="b-lbl" style="--i:5">Switch to</div>
+      <div class="b-search" style="--i:6">${I('search')}<span>Find a board…</span><kbd>/</kbd></div>
+      ${BOARDS.filter(b=>!b.cur).slice(0,4).map((b,i)=>`<div class="b-row" style="--i:${i+7}" data-go="idle"><span class="nm">${b.n}</span><span class="ct">${b.c} heroes</span>${b.f?`<span class="sf">${I('star')}</span>`:''}</div>`).join('')}
+    </div>
+    <div class="b-dock b2">
+      <div class="cl show" data-unless="delete"><div class="row">
+        <div class="b2-seg">
+          <div class="b2-sw b2b-sw" data-toggle="switch" role="button" tabindex="0" data-nametip data-tip-default="Board menu" data-tip="Board menu" data-kbd="B">${swInner}<span class="cl show" data-unless="rename"><span class="car">${I('cu')}</span></span></div>
+          <span class="b2-div"></span>
+          <button class="b2-ib b2-star" data-toggle="fav" data-tip="Favorite" data-kbd="F">${STAR}</button>
+        </div>
+        ${errChip}
+        ${addBtn}
+      </div></div>
+      ${delMode(true)}
+    </div>
+  </div></div>`,
+  pins:[
+    {n:2,t:'One control for this board and for switching',at:'.b2b-sw',s:'idle',pos:'tl',side:'u'},
+    {n:3,t:'Three controls with room to breathe',at:'.b-dock',s:'idle',pos:'tr',side:'r'},
+    {n:1,t:'Full name wraps to two lines here',at:'.b2b-head',s:'switch',pos:'tr',side:'r'},
+    {n:4,t:'Delete sits below a rule, in red',at:'.b2b-act.red',s:'switch',pos:'tr',side:'r'},
+    {n:4,t:'Type “delete”, not the whole name',at:'.b-delm .b-in',s:'delete',pos:'tc',side:'u'}
+  ],
+  cards:[['good','Calmest dock: three controls.'],['good','Managing and switching a board share one place.'],['bad','Rename, duplicate and delete are hidden until you open it.'],['bad','Opening the name no longer means just “switch”.']]
+},
+{
+  id:'b2', round:'Round 2 · 9b41', letter:'B2', name:'Scoped groups, extras in More', fix:true, tip:{hover:'.b2-edit'},
+  states:['enter','idle','hover','more','busy','saving','error','fav','switch','rename','delete'],
+  caps:{enter:'Dock rises and scales in.',idle:'Two groups: this board, and its contents.',hover:'Board tools share one segment.',more:'Duplicate, then delete below a rule.',busy:'Label morphs to Adding…; dot pulses.',saving:'Dot pulses blue.',error:'Board segment tints red; Retry appears.',fav:'Star pops with a burst.',switch:'Searchable list; long names truncate.',rename:'Name becomes an input in place.',delete:'Dock morphs; type “delete” to arm.'},
+  html:`<div class="b-wrap"><div class="b-anchor">
+    ${switchMenu()}
+    <div class="menu mn" data-when="more" data-anchor=".b2-moreb">
+      <button style="--i:0" data-go="saving>idle">${I('dup')}<span>Duplicate board</span><kbd>D</kbd></button>
+      <hr style="--i:1">
+      <button class="red" style="--i:2" data-go="delete">${I('trash')}<span>Delete board…</span><kbd>⌫</kbd></button>
+    </div>
+    <div class="b-dock b2">
+      <div class="cl show" data-unless="delete"><div class="row">
+        <div class="b2-seg">
+          <div class="b2-sw" data-toggle="switch" role="button" tabindex="0" data-nametip data-tip-default="Switch board" data-tip="Switch board" data-kbd="B">${swInner}<span class="cl show" data-unless="rename"><span class="car">${I('selector')}</span></span></div>
+          <span class="b2-div"></span>
+          <button class="b2-ib b2-star" data-toggle="fav" data-tip="Favorite" data-kbd="F">${STAR}</button>
+          <button class="b2-ib b2-edit" data-tip="Rename board" data-kbd="R" data-go="rename">${I('pencil')}</button>
+          <button class="b2-ib b2-moreb" data-toggle="more" data-tip="More" aria-label="More">${I('dots')}</button>
+        </div>
+        ${errChip}
+        ${addBtn}
+      </div></div>
+      ${delMode(true)}
+    </div>
+  </div></div>`,
+  pins:[
+    {n:2,t:'This board: name, favorite, rename, more',at:'.b2-seg',s:'idle',pos:'tr',side:'u'},
+    {n:2,t:'Its contents: one clear primary',at:'.b2-add',s:'idle',pos:'tr',side:'r'},
+    {n:1,t:'Name caps at 232px, fades; full name on hover',at:'.b2-name',s:'idle',pos:'bl',side:'l'},
+    {n:3,t:'36px targets; 12px between groups',at:'.b2-edit',s:'hover',pos:'bl',side:'l'},
+    {n:4,t:'Duplicate and delete live in More',at:'.mn',s:'more',pos:'tl',side:'l'},
+    {n:4,t:'Type “delete”, not the whole name',at:'.b-delm .b-in',s:'delete',pos:'tc',side:'u'}
+  ],
+  cards:[['good','Groups match scope: this board vs. its contents.'],['good','Delete is two deliberate clicks away.'],['bad','Duplicate now takes two clicks.'],['bad','About 90px wider than B with a short name.']]
+},
+{
+  id:'c', round:'Round 1 · 7f2c', letter:'C', name:'Two islands, rare actions tucked away', cls:'', fix:true, tip:{},
+  states:['enter','idle','hover','more','busy','saving','error','fav','switch','rename','delete'],
+  caps:{enter:'Islands slide in from the corners.',idle:'Middle of the board stays clear.',hover:'Shortcut slides out of the button.',more:'Rare actions with their shortcuts.',busy:'Adding…; progress line sweeps.',saving:'Line sweeps under the name.',error:'Line turns red; Retry inline.',fav:'Star pops with a burst.',switch:'Recent boards; ⌘K for the rest.',rename:'Name becomes an input in place.',delete:'Confirm card above the island.'},
+  html:`<div class="c-isl c-left">
+    <div class="c-sw" data-go="switch" role="button" tabindex="0"><span class="tic">${I('template')}</span>
+      <span class="cl show" data-unless="rename"><span class="c-name">Main v7.30</span></span>
+      <span class="cl" data-when="rename"><span class="c-renw"><input class="c-in" value="Main v7.30" data-enter="saving>idle" aria-label="Board name"><kbd>↵</kbd></span></span>
+      <span class="c-car">${I('cu')}</span></div>
+    <button class="c-ib c-star" data-toggle="fav" data-tip="Favorite" data-kbd="F">${STAR}</button>
+    <span class="c-sep"></span>
+    <div class="c-status">
+      <span class="cl" data-unless="saving busy error"><span class="c-s">${I('checkc')}Saved</span></span>
+      <span class="cl" data-when="saving busy"><span class="c-s">Saving…</span></span>
+      <span class="cl" data-when="error"><span class="c-s err">Not saved · <button data-go="saving>idle">Retry</button></span></span>
+    </div>
+    <span class="c-line"></span>
+    <div class="c-menu2 menu" data-when="switch">
+      <div class="c-mh" style="--i:0">Recent boards</div>
+      ${BOARDS.slice(0,5).map((b,i)=>`<div class="c-row ${b.cur?'cur':''}" style="--i:${i+1}" data-go="idle"><span class="ck">${b.cur?I('check'):''}</span><span class="nm">${b.n}</span><span class="ct">${b.c}</span></div>`).join('')}
+      <div class="c-mf" style="--i:6">${I('search')}<span>Search all boards</span><kbd>⌘K</kbd></div>
+    </div>
+  </div>
+  <div class="c-isl c-right">
+    <button class="c-add" data-go="busy>saving>idle"><span class="c-addic">${I('plus')}<i class="ring"></i></span><span class="cl show" data-unless="busy"><span class="lbl">New category</span></span><span class="cl" data-when="busy"><span class="lbl">Adding…</span></span><span class="cl c-k" data-when="hover"><span><kbd>N</kbd></span></span></button>
+    <button class="c-ib c-more" data-toggle="more" data-tip="More" aria-label="More">${I('dots')}</button>
+    <div class="c-menu menu" data-when="more">
+      <button style="--i:0" data-go="saving>idle">${I('dup')}<span>Duplicate board</span><kbd>D</kbd></button>
+      <button style="--i:1" data-go="rename">${I('pencil')}<span>Rename board</span><kbd>R</kbd></button>
+      <hr style="--i:2">
+      <button class="red" style="--i:3" data-go="delete">${I('trash')}<span>Delete board</span><kbd>⌫</kbd></button>
+    </div>
+    ${deletePop('c-delp')}
+  </div>`,
+  pins:[
+    {n:2,t:'Two islands; the middle stays open',at:'.c-right',s:'idle',side:'u',pos:'tc'},
+    {n:1,t:'Status sits beside the name',at:'.c-status',s:'idle',side:'u',pos:'tc'},
+    {n:3,t:'Labelled; shortcut on hover',at:'.c-add',s:'hover',side:'l',pos:'tl'},
+    {n:9,t:'Delete tucked away, in red',at:'.c-menu .red',s:'more',side:'l',pos:'tl'},
+    {n:5,t:'Spinner + Adding…',at:'.c-add',s:'busy',side:'u',pos:'tc'},
+    {n:1,t:'Progress line under the island',at:'.c-line',s:'saving',side:'r',pos:'br'},
+    {n:4,t:'Red line, Retry inline',at:'.c-s.err',s:'error',side:'u',pos:'tc'},
+    {n:10,t:'Star pops with a burst',at:'.c-star',s:'fav',side:'u',pos:'tc'},
+    {n:6,t:'Recent boards; ⌘K searches all',at:'.c-menu2',s:'switch',side:'r'},
+    {n:10,t:'Rename in place',at:'.c-in',s:'rename',side:'u',pos:'tc'}
+  ],
+  cards:[['good','Board centre stays visible and droppable.'],['good','“New category” is labelled; rare actions hide.'],['bad','Duplicate and delete now take two clicks.'],['bad','Two islands split your eye across the screen.']]
+},
+{
+  id:'b', round:'Round 1 · 7f2c', letter:'B', name:'Centred dock that morphs', cls:'', fix:true, tip:{hover:'.b-dup'},
+  states:['enter','idle','hover','busy','saving','error','fav','switch','rename','delete'],
+  caps:{enter:'Dock rises and scales in.',idle:'One centred dock; the dot means saved.',hover:'Icon tools get instant tooltips.',busy:'Label morphs to Adding…; dot pulses.',saving:'Dot pulses blue.',error:'Dock grows a Retry segment.',fav:'Star pops with a burst.',switch:'Searchable menu, favorites first.',rename:'Name becomes an input in place.',delete:'Dock morphs into the confirm.'},
+  html:`<div class="b-wrap"><div class="b-anchor">
+    <div class="b-menu menu" data-when="switch">
+      <div class="b-search" style="--i:0">${I('search')}<span>Find a board…</span><kbd>/</kbd></div>
+      <div class="b-lbl" style="--i:1">Favorites</div>
+      ${BOARDS.filter(b=>b.f).map((b,i)=>`<div class="b-row ${b.cur?'cur':''}" style="--i:${i+2}" data-go="idle"><span class="ck">${b.cur?I('check'):''}</span><span class="nm">${b.n}</span><span class="ct">${b.c} heroes</span><span class="sf">${I('star')}</span></div>`).join('')}
+      <div class="b-lbl" style="--i:4">All boards</div>
+      ${BOARDS.filter(b=>!b.f).map((b,i)=>`<div class="b-row" style="--i:${i+5}" data-go="idle"><span class="ck"></span><span class="nm">${b.n}</span><span class="ct">${b.c} heroes</span></div>`).join('')}
+      <div class="b-foot" style="--i:9">${I('plus')}New board</div>
+    </div>
+    <div class="b-dock">
+      <div class="cl show" data-unless="delete"><div class="row">
+        <div class="b-sw" data-go="switch" role="button" tabindex="0">
+          <span class="b-dot"></span>
+          <span class="cl" data-unless="rename"><span class="lab">Main v7.30</span></span>
+          <span class="cl" data-when="rename"><span class="b-ren"><input class="b-in" value="Main v7.30" data-enter="saving>idle" aria-label="Board name"><button class="b-ok" data-go="saving>idle" aria-label="Save">${I('check')}</button></span></span>
+          <span class="cl" data-unless="rename"><span class="car">${I('selector')}</span></span>
+        </div>
+        <button class="b-ib b-star" data-toggle="fav" data-tip="Favorite" data-kbd="F">${STAR}</button>
+        <span class="cl b-err" data-when="error"><span><span class="b-errchip">${I('exc')}Not saved<button data-go="saving>idle">Retry</button></span></span></span>
+        <span class="b-sep"></span>
+        <button class="b-add" data-go="busy>saving>idle"><span class="b-addic">${I('plus')}<i class="ring"></i></span><span class="cl" data-unless="busy"><span class="lbl">Category</span></span><span class="cl" data-when="busy"><span class="lbl">Adding…</span></span></button>
+        <button class="b-ib b-dup" data-tip="Duplicate board" data-kbd="D" data-go="saving>idle">${I('dup')}</button>
+        <button class="b-ib b-edit" data-tip="Rename" data-kbd="R" data-go="rename">${I('pencil')}</button>
+        <span class="b-sep"></span>
+        <button class="b-ib b-del" data-tip="Delete board" data-kbd="⌫" data-go="delete">${I('trash')}</button>
+      </div></div>
+      <div class="cl b-delm" data-when="delete"><div class="row">
+        <span class="b-delic">${I('trash')}</span><span class="b-delt">Delete Main v7.30?</span>
+        <input class="b-in" placeholder="Type Main v7.30" data-confirm aria-label="Board name">
+        <button class="b-btn red" data-confirm-btn disabled data-go="saving>idle">Delete</button>
+        <button class="b-btn ghost" data-go="idle">Cancel</button>
+      </div></div>
+    </div>
+  </div></div>`,
+  pins:[
+    {n:2,t:'One compact dock; everything within reach',at:'.b-dock',s:'idle',side:'u',pos:'tc'},
+    {n:7,t:'Blurred glass; board stays visible around it',at:'.b-dock',pos:'tl',s:'idle',side:'l'},
+    {n:3,t:'Primary labelled; icons get instant tooltips',at:'.tipl.show',s:'hover',side:'r',pos:'tr'},
+    {n:5,t:'Label morphs to Adding…',at:'.b-add',s:'busy',side:'u',pos:'tc'},
+    {n:1,t:'Status is a dot on the board name',at:'.b-dot',s:'saving',side:'u',pos:'tc'},
+    {n:4,t:'Dock grows a Retry segment',at:'.b-errchip',s:'error',side:'u',pos:'tc'},
+    {n:10,t:'Star pops with a burst',at:'.b-star',s:'fav',side:'u',pos:'tc'},
+    {n:6,t:'Search, favorites first, hero counts',at:'.b-menu',s:'switch',side:'r'},
+    {n:10,t:'Rename in place, no popover',at:'.b-in',s:'rename',side:'u',pos:'tc'},
+    {n:9,t:'Dock turns red and asks in place',at:'.b-delm',s:'delete',side:'u',pos:'tc'}
+  ],
+  cards:[['good','Covers a fraction of the board; one reach for everything.'],['good','Rename and delete happen in place, no popovers.'],['bad','Most new code: custom menu, morphing, blur.'],['bad','Long board names need truncating at ~22 chars.']]
+},
+{
+  id:'a', round:'Round 1 · 7f2c', letter:'A', name:'Refined in place', cls:'', fix:true, tip:{hover:'.a-add'},
+  states:['enter','idle','hover','busy','saving','error','fav','switch','rename','delete'],
+  caps:{enter:'Bar rises 22px and fades in; board fades under.',idle:'Status pill sits beside the actions.',hover:'Fill on hover, instant tooltip with shortcut.',busy:'Spinner replaces the icon; pill says Saving.',saving:'Pill morphs to Saving…',error:'Pill turns red with Retry.',fav:'Star pops with a small burst.',switch:'Still native: checkmark, no suffix.',rename:'Card grows from the pencil.',delete:'Red card; type the name to arm it.'},
+  html:`<div class="a-fade"></div><div class="tbw a-tbw">
+    <div class="a-bar">
+      <div class="a-select" data-go="switch">${I('template')}<span>Main v7.30</span>${I('cd')}
+        <div class="osmenu" data-when="switch">${BOARDS.map(b=>`<div class="${b.cur?'sel':''}" data-go="idle"><b>${b.cur?'✓':''}</b>${b.n}</div>`).join('')}</div></div>
+      <div class="a-group"><button class="a-ib a-star" data-toggle="fav" data-tip="Favorite" data-kbd="F">${STAR}</button></div>
+      <div class="grow"></div>
+      <div class="a-status">
+        <div class="cl" data-unless="saving busy error"><div><span class="a-s"><span class="ok">${I('checkc')}</span>Saved <em>· just now</em></span></div></div>
+        <div class="cl" data-when="saving busy"><div><span class="a-s"><i class="ring"></i>Saving…</span></div></div>
+        <div class="cl" data-when="error"><div><span class="a-s err">${I('exc')}Couldn’t save <button class="a-retry" data-go="saving>idle">Retry</button></span></div></div>
+      </div>
+      <div class="a-group">
+        <button class="a-ib a-add" data-tip="New category" data-kbd="N" data-go="busy>saving>idle">${I('plusc')}<i class="ring"></i></button>
+        <button class="a-ib a-dup" data-tip="Duplicate board" data-kbd="D" data-go="saving>idle">${I('dup')}</button>
+        <button class="a-ib a-edit" data-tip="Rename board" data-kbd="R" data-go="rename">${I('pencil')}</button>
+      </div>
+      <div class="a-group solo"><button class="a-ib a-del" data-tip="Delete board" data-kbd="⌫" data-go="delete">${I('trash')}</button></div>
+    </div>
+    ${renamePop('a-ren')}${deletePop('a-delp')}
+  </div>`,
+  pins:[
+    {n:1,t:'Status lives in the bar',at:'.a-status',s:'idle',side:'u',pos:'tc'},
+    {n:7,t:'Shadow + fade; board recedes underneath',at:'.a-bar',pos:'tl',s:'idle',side:'u',dx:250},
+    {n:3,t:'Instant tooltip with shortcut',at:'.tipl.show',s:'hover',side:'l',pos:'tl'},
+    {n:8,t:'Hover fills; ring only for keyboard',at:'.a-add',s:'hover',side:'l',pos:'bl'},
+    {n:5,t:'Spinner replaces the icon',at:'.a-add',s:'busy',side:'u',pos:'tc'},
+    {n:4,t:'Red pill with Retry',at:'.a-s.err',s:'error',side:'u',pos:'tc'},
+    {n:10,t:'Star pops with a burst',at:'.a-star',s:'fav',side:'r'},
+    {n:6,t:'No “(Selected)”; checkmark instead',at:'.osmenu',s:'switch',side:'r'},
+    {n:10,t:'Grows from its button; X inside',at:'.a-ren',s:'rename',side:'l',pos:'tl'},
+    {n:9,t:'Set apart; turns red',at:'.a-del',s:'delete',side:'l',pos:'tl'}
+  ],
+  cards:[['good','Smallest diff: same layout, tokens, components.'],['good','Status, busy and errors appear where you look.'],['bad','Still a full-width slab over the board.'],['bad','Native select still can’t search.']]
+}
+];
+
+/* ---------- engine ---------- */
+const DUR = {busy:1200, saving:1000};
+const canvases = [];
+let activeCanvas = null;
+
+function mount(v){
+  const sec = document.createElement('section');
+  sec.className = 'v'; sec.id = 'v-' + v.id;
+  sec.innerHTML = `
+    <div class="vh"><span class="vid">${v.letter}</span><span class="vname">${v.name}</span>${v.round?`<span class="rnd">${v.round}</span>`:''}<span class="grow"></span>
+      <div class="pick"><button class="pickbtn" aria-haspopup="menu" aria-expanded="false">Pick ▾</button><div class="pickmenu" role="menu" hidden></div></div></div>
+    <div class="pickout" hidden></div>
+    <div class="frame">
+      <div class="ctrl">
+        <button class="cbtn prev" aria-label="Previous state">←</button>
+        <div class="chips">${v.states.map((s,i)=>`<button class="chip" data-s="${s}"><i>${i+1}</i>${S[s]}</button>`).join('')}</div>
+        <button class="cbtn next" aria-label="Next state">→</button>
+        <button class="cbtn play">▶ Play</button>
+        <span class="nmctl" role="group" aria-label="Board name length">Name ${NAMES.map((n,i)=>`<button data-nm="${i}">${n.label}</button>`).join('')}</span>
+        ${(v.opts||[]).map(o=>`<span class="nmctl" data-opt="${o.k}">${o.label} ${o.vals.map(([val,l])=>`<button data-ov="${val}">${l}</button>`).join('')}</span>`).join('')}
+        <label class="notes"><input type="checkbox" checked> Notes</label>
+        ${/b-dock/.test(v.html)?`<label class="notes spc-t"><input type="checkbox" ${v.spacing?'checked':''}> Spacing</label>`:''}
+      </div>
+      <div class="stage-wrap"><div class="stage" tabindex="-1">${board()}${v.html}<div class="tipl"></div><div class="spc"></div><div class="pins ${v.fix?'fix':''}"></div></div></div>
+      <div class="foot"><div class="cap"><b></b><span></span></div><div class="legend"></div></div>
+    </div>
+    <div class="cards">${v.cards.map(([k,t])=>`<div class="gb ${k}">${t}</div>`).join('')}</div>`;
+  if (v.divider) { const h = document.createElement('h2'); h.className = 'rounds'; h.textContent = v.divider; document.getElementById('variants').append(h); }
+  document.getElementById('variants').append(sec);
+
+  const stage = sec.querySelector('.stage'), frame = sec.querySelector('.frame');
+  const tip = stage.querySelector('.tipl'), pinsEl = stage.querySelector('.pins');
+  const c = {v, sec, stage, key:null, timers:[], play:null, forcedTip:null, spacing:!!v.spacing};
+  const st = sec.querySelector('.spc-t input'); if (st) st.addEventListener('change', e => { c.spacing = e.target.checked; drawSpacing(c); });
+  canvases.push(c);
+
+  // pins + legend
+  const legend = sec.querySelector('.legend');
+  v.pins.forEach((p, i) => {
+    const el = document.createElement('div');
+    el.className = 'pin ' + (p.side || 'r');
+    el.innerHTML = `${p.n}<b>${p.t}</b>`;
+    pinsEl.append(el); p.el = el;
+    const lg = document.createElement('button');
+    lg.className = 'lg' + (v.fix ? ' fix' : '');
+    lg.innerHTML = `<i>${p.n}</i>${p.t}`;
+    legend.append(lg); p.lg = lg;
+    lg.addEventListener('mouseenter', () => el.classList.add('lit'));
+    lg.addEventListener('mouseleave', () => el.classList.remove('lit'));
+    lg.addEventListener('click', () => { stopPlay(c); set(c, p.s); setTimeout(() => { el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }, 380); });
+  });
+  sec.querySelectorAll('[data-nm]').forEach(b => b.addEventListener('click', () => setName(c, +b.dataset.nm)));
+  sec.querySelectorAll('[data-opt]').forEach(g => g.querySelectorAll('button').forEach(b => b.addEventListener('click', () => setOpt(c, g.dataset.opt, b.dataset.ov))));
+  stage.addEventListener('mousemove', e => { const b = e.target.closest('.fx'); if (!b) return; const r = b.getBoundingClientRect(); b.style.setProperty('--mx', (e.clientX - r.left) + 'px'); b.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
+  sec.querySelector('.notes input').addEventListener('change', e => frame.classList.toggle('nonotes', !e.target.checked));
+
+  // stepper
+  sec.querySelectorAll('.chip').forEach(ch => ch.addEventListener('click', () => { stopPlay(c); set(c, ch.dataset.s); }));
+  sec.querySelector('.prev').addEventListener('click', () => { stopPlay(c); step(c, -1); });
+  sec.querySelector('.next').addEventListener('click', () => { stopPlay(c); step(c, 1); });
+  const playBtn = sec.querySelector('.play');
+  playBtn.addEventListener('click', () => c.play ? stopPlay(c) : startPlay(c));
+  c.playBtn = playBtn;
+  frame.addEventListener('mouseenter', () => activeCanvas = c);
+
+  // interactions inside the mockup
+  stage.addEventListener('click', e => {
+    if (e.target.closest('.pin')) return;
+    const t = e.target;
+    if (t.tagName === 'INPUT') return;
+    stopPlay(c);
+    const tg = t.closest('[data-toggle]'), go = t.closest('[data-go]');
+    if (go && (!tg || tg.contains(go))) { run(c, go.dataset.go); focusField(c); return; }
+    if (tg) { set(c, c.key === tg.dataset.toggle ? 'idle' : tg.dataset.toggle); return; }
+    if (!t.closest('.menu,.pop,.b-dock,.c-isl,.n-pop,.tbw') && ['switch','rename','delete','more'].includes(c.key)) set(c, 'idle');
+  });
+  stage.addEventListener('input', e => {
+    if (!e.target.matches('[data-confirm]')) return;
+    const ok = e.target.value.trim().toLowerCase() === (e.target.dataset.confirmWord || c.name).toLowerCase();
+    const scope = e.target.closest('.pop,.row,.n-del');
+    scope.querySelector('[data-confirm-btn]').disabled = !ok;
+    e.target.classList.toggle('ok', ok);
+  });
+  stage.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.matches('[data-enter]')) { e.preventDefault(); run(c, e.target.dataset.enter); }
+    if (e.key === 'Escape') { set(c, 'idle'); e.stopPropagation(); }
+  });
+  // live tooltips
+  stage.addEventListener('mouseover', e => { const el = e.target.closest('[data-tip]'); if (el) showTip(c, el); });
+  stage.addEventListener('mouseout', e => { const el = e.target.closest('[data-tip]'); if (el && !el.contains(e.relatedTarget)) hideTip(c); });
+  stage.addEventListener('focusin', e => { const el = e.target.closest('[data-tip]'); if (el && el.matches(':focus-visible')) showTip(c, el); });
+  stage.addEventListener('focusout', () => hideTip(c));
+
+  // Pick
+  buildPick(sec, v);
+}
+
+function showTip(c, el){
+  const tip = c.stage.querySelector('.tipl');
+  const sr = c.stage.getBoundingClientRect(), r = el.getBoundingClientRect();
+  tip.innerHTML = `<span>${el.dataset.tip}</span>${el.dataset.kbd ? `<kbd>${el.dataset.kbd}</kbd>` : ''}`;
+  tip.style.left = (r.left - sr.left + r.width / 2) + 'px';
+  tip.style.top = (r.top - sr.top - 8) + 'px';
+  tip.classList.add('show');
+}
+function hideTip(c){
+  if (c.forcedTip && c.v.tip && c.v.tip[c.key]) { showTip(c, c.stage.querySelector(c.v.tip[c.key])); return; }
+  c.stage.querySelector('.tipl').classList.remove('show');
+}
+
+function set(c, key){
+  c.timers.forEach(clearTimeout); c.timers = [];
+  const st = c.stage, prev = c.key;
+  if (prev === key) { st.removeAttribute('data-state'); void st.offsetWidth; }
+  st.dataset.prev = prev || '';
+  st.dataset.state = key;
+  c.key = key;
+  // data-when / data-unless
+  st.querySelectorAll('[data-when],[data-unless]').forEach(el => {
+    const w = el.dataset.when, u = el.dataset.unless;
+    el.classList.toggle('show', w ? w.split(' ').includes(key) : !u.split(' ').includes(key));
+  });
+  if (key === 'idle' || key === 'enter') st.querySelectorAll('[data-confirm]').forEach(i => { i.value = ''; i.classList.remove('ok'); const s = i.closest('.pop,.row,.n-del').querySelector('[data-confirm-btn]'); if (s) s.disabled = true; });
+  // focus inputs for rename/delete
+  // forced tooltip
+  const sel = c.v.tip && c.v.tip[key];
+  c.forcedTip = !!sel;
+  if (sel) setTimeout(() => showTip(c, st.querySelector(sel)), 30); else st.querySelector('.tipl').classList.remove('show');
+  // ui
+  c.sec.querySelectorAll('.chip').forEach(ch => ch.classList.toggle('on', ch.dataset.s === key));
+  c.sec.querySelector('.cap b').textContent = S[key];
+  c.sec.querySelector('.cap span').textContent = c.v.caps[key] || '';
+  c.v.pins.forEach(p => { const hot = p.s === key; p.el.classList.toggle('hot', hot); p.lg.classList.toggle('hot', hot); });
+  trackPins(c);
+}
+
+function focusField(c){
+  const sel = c.key === 'rename' ? '.show [data-enter]' : c.key === 'delete' ? '.show [data-confirm]' : null;
+  const el = sel && c.stage.querySelector(sel);
+  if (el) setTimeout(() => { el.focus({preventScroll:true}); if (c.key === 'rename') el.select(); }, 80);
+}
+function run(c, seq){
+  const steps = seq.split('>');
+  set(c, steps[0]);
+  let t = 0;
+  for (let i = 1; i < steps.length; i++) {
+    t += DUR[steps[i-1]] || 600;
+    const s = steps[i];
+    c.timers.push(setTimeout(() => { const keep = c.timers; set(c, s); c.timers = keep; }, t));
+  }
+}
+function step(c, d){
+  const ss = c.v.states, i = ss.indexOf(c.key);
+  set(c, ss[(i + d + ss.length) % ss.length]);
+}
+function startPlay(c){ c.playBtn.textContent = '❚❚ Pause'; c.playBtn.classList.add('playing'); step(c, 1); c.play = setInterval(() => step(c, 1), 2600); }
+function stopPlay(c){ if (!c.play) return; clearInterval(c.play); c.play = null; c.playBtn.textContent = '▶ Play'; c.playBtn.classList.remove('playing'); }
+
+function visible(el, stage){
+  const r = el.getBoundingClientRect();
+  if (r.width < 1 || r.height < 6) return false;
+  for (let e = el; e && e !== stage; e = e.parentElement) {
+    const cs = getComputedStyle(e);
+    if (cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < .3) return false;
+  }
+  return true;
+}
+function placePins(c){
+  const sr = c.stage.getBoundingClientRect();
+  c.v.pins.forEach(p => {
+    const t = c.stage.querySelector(p.at);
+    if (!t || !visible(t, c.stage)) { p.el.classList.add('off'); return; }
+    const r = t.getBoundingClientRect();
+    const pos = p.pos || 'tr';
+    let x = pos.includes('l') ? r.left + 6 : pos === 'c' || pos.includes('c') ? r.left + r.width / 2 : r.right - 6;
+    let y = pos === 'c' ? r.top + r.height / 2 : pos.startsWith('b') ? r.bottom + 2 : r.top - 2;
+    x += p.dx || 0;
+    p.el.style.left = (x - sr.left) + 'px';
+    p.el.style.top = (y - sr.top) + 'px';
+    p.el.classList.remove('off');
+    p.el.classList.toggle('edge', x - sr.left > sr.width - 260);
+    p.el.classList.toggle('ledge', x - sr.left < 170);
+    if (!p.placed) { p.placed = true; requestAnimationFrame(() => p.el.classList.add('mv')); }
+  });
+}
+function setName(c, i){
+  c.name = NAMES[i].n;
+  c.stage.querySelectorAll('[data-bn]').forEach(e => e.textContent = c.name);
+  c.stage.querySelectorAll('[data-bn-val]').forEach(e => e.value = c.name);
+  c.stage.querySelectorAll('[data-bn-ph]').forEach(e => e.placeholder = e.dataset.bnPh.replace('{n}', c.name));
+  c.sec.querySelectorAll('[data-nm]').forEach(b => b.classList.toggle('on', +b.dataset.nm === i));
+  requestAnimationFrame(() => updateTrunc(c));
+  trackPins(c);
+}
+function setOpt(c, k, val){
+  c.stage.dataset[k] = val;
+  c.sec.querySelectorAll(`[data-opt="${k}"] button`).forEach(b => b.classList.toggle('on', b.dataset.ov === val));
+  trackPins(c);
+}
+function updateTrunc(c){
+  c.stage.querySelectorAll('[data-trunc]').forEach(el => {
+    if (el.clientWidth < 20) return;
+    const t = el.scrollWidth > el.clientWidth + 1;
+    el.classList.toggle('trunc', t);
+    const host = el.closest('[data-nametip]');
+    if (host) host.dataset.tip = t ? c.name : host.dataset.tipDefault;
+  });
+}
+function anchorMenus(c){
+  c.stage.querySelectorAll('[data-anchor]').forEach(m => {
+    const t = c.stage.querySelector(m.dataset.anchor), p = m.offsetParent;
+    if (!t || !p) return;
+    const pr = p.getBoundingClientRect(), tr = t.getBoundingClientRect();
+    m.style.left = (tr.right - pr.left - m.offsetWidth + 6) + 'px';
+  });
+}
+function inkRect(el){
+  if (el.matches('[data-bn],.lbl')) {
+    const rg = document.createRange(); rg.selectNodeContents(el);
+    const t = rg.getBoundingClientRect(), e = el.getBoundingClientRect();
+    return {left:Math.max(t.left, e.left), right:Math.min(t.right, e.right), top:t.top, bottom:t.bottom};
+  }
+  return el.getBoundingClientRect();
+}
+function drawSpacing(c){
+  const L = c.stage.querySelector('.spc'); if (!L) return;
+  L.innerHTML = '';
+  if (!c.spacing) return;
+  const dock = c.stage.querySelector('.b-dock'); if (!dock || !visible(dock, c.stage)) return;
+  const main = [...dock.children].find(e => e.classList.contains('cl') && e.classList.contains('show') && !e.classList.contains('b-delm'));
+  if (!main) return;
+  const row = main.querySelector('.row'); if (!row) return;
+  const sr = c.stage.getBoundingClientRect(), dr = dock.getBoundingClientRect();
+  const bw = parseFloat(getComputedStyle(dock).borderLeftWidth) || 0;
+  const inL = dr.left + bw, inR = dr.right - bw, inT = dr.top + bw, inB = dr.bottom - bw;
+  const mark = (cls, x, y, w, h, n, lt) => {
+    const i = document.createElement('i'); i.className = cls;
+    i.style.cssText = `left:${x - sr.left}px;top:${y - sr.top}px;width:${Math.max(w, 1)}px;height:${h}px` + (lt != null ? `;--lt:${lt}px` : '');
+    i.innerHTML = `<b>${n}</b>`; L.append(i);
+  };
+  const boxes = [];
+  const walk = el => [...el.children].forEach(ch => {
+    if (ch.matches('.b2-seg,.b3-tools,.b6-gap')) { walk(ch); return; }
+    if (ch.matches('.cl')) { if (!ch.classList.contains('show')) return; const inner = ch.querySelector('.b-errchip') || ch.firstElementChild; if (inner && visible(inner, c.stage)) boxes.push(inner); return; }
+    if (visible(ch, c.stage)) boxes.push(ch);
+  });
+  walk(row);
+  const rr = boxes.map(b => b.getBoundingClientRect()).sort((a, b) => a.left - b.left);
+  if (!rr.length) return;
+  const gap = (a, b) => { const w = b - a; if (w < -0.5) return; mark('g', a, inT, w, inB - inT, Math.round(Math.max(w, 0))); };
+  gap(inL, rr[0].left);
+  rr.forEach((r, i) => { if (i) gap(rr[i - 1].right, r.left); });
+  gap(rr[rr.length - 1].right, inR);
+  const ib = dock.querySelector('.b2-ib,.b-ib');
+  if (ib && visible(ib, c.stage)) { const r = ib.getBoundingClientRect(); if (r.top - inT >= 0.5) mark('v', r.left, inT, r.width, r.top - inT, Math.round(r.top - inT)); }
+  const pair = dock.closest('.b6-pair');
+  const pa = pair && pair.querySelector('.b6-addwrap.show .b-add');
+  if (pa && visible(pa, c.stage)) { const r = pa.getBoundingClientRect(); if (r.left > dr.right) mark('g', dr.right, inT, r.left - dr.right, inB - inT, Math.round(r.left - dr.right)); }
+  (pair || dock).querySelectorAll('.b-sw,.b2-sw,.b-add').forEach(el => {
+    if (!visible(el, c.stage) || el.closest('.cl:not(.show)')) return;
+    const er = el.getBoundingClientRect();
+    const ink = [...el.querySelectorAll('.b-dot,[data-bn],.lbl,.car svg,.b-addic svg')].filter(e => visible(e, c.stage) && !e.closest('.cl:not(.show)')).map(inkRect).sort((a, b) => a.left - b.left);
+    if (!ink.length) return;
+    const y = er.top + er.height / 2 - 4, lt = inB - y + 4;
+    const pad = (a, b) => { const w = b - a; if (w < 0.5) return; mark('p', a, y, w, 8, Math.round(w), lt); };
+    pad(er.left, ink[0].left);
+    ink.forEach((r, i) => { if (i) pad(ink[i - 1].right, r.left); });
+    pad(ink[ink.length - 1].right, er.right);
+  });
+}
+function trackPins(c){
+  const end = performance.now() + 700;
+  cancelAnimationFrame(c.raf);
+  const loop = () => { anchorMenus(c); placePins(c); drawSpacing(c); if (performance.now() < end) c.raf = requestAnimationFrame(loop); else updateTrunc(c); };
+  loop();
+}
+
+/* ---------- Pick ---------- */
+let openPick = null;
+function closePick(){ if (!openPick) return; openPick.menu.hidden = true; openPick.btn.setAttribute('aria-expanded','false'); openPick = null; }
+function buildPick(sec, v){
+  const btn = sec.querySelector('.pickbtn'), menu = sec.querySelector('.pickmenu'), out = sec.querySelector('.pickout');
+  const id = v.letter;
+  const acts = [
+    ['Explore from this', 'New variations in this direction.', `Explore from ${id} in ${FILE}`],
+    ['Remix this', 'Fork it and apply your changes.', `Remix ${id} in ${FILE}:`],
+    ['Settle on this', 'Make this the direction.', `Settle on ${id} in ${FILE}`]
+  ];
+  menu.innerHTML = acts.map(([l,h],i) => `<button role="menuitem" data-i="${i}">${l}<span>${h}</span></button>`).join('');
+  const open = () => { closePick(); menu.hidden = false; btn.setAttribute('aria-expanded','true'); openPick = {menu, btn}; menu.querySelector('button').focus(); };
+  btn.addEventListener('click', e => { e.stopPropagation(); openPick && openPick.menu === menu ? closePick() : open(); });
+  menu.addEventListener('click', async e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const text = acts[+b.dataset.i][2];
+    closePick(); btn.focus();
+    out.hidden = false;
+    let copied = false;
+    try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); copied = true; } } catch (_) {}
+    if (copied) { out.innerHTML = `<code></code><em>Copied</em>`; out.querySelector('code').textContent = text; }
+    else { out.innerHTML = `<input readonly aria-label="Prompt"><span>Copy this prompt</span>`; const inp = out.querySelector('input'); inp.value = text; inp.focus(); inp.select(); }
+  });
+  menu.addEventListener('keydown', e => {
+    const items = [...menu.querySelectorAll('button')], i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+  });
+}
+document.addEventListener('click', e => { if (openPick && !openPick.menu.contains(e.target)) closePick(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && openPick) { const b = openPick.btn; closePick(); b.focus(); return; }
+  if (e.target.matches('input,textarea')) return;
+  const c = activeCanvas || nearest();
+  if (!c) return;
+  if (e.key === 'ArrowRight') { stopPlay(c); step(c, 1); }
+  if (e.key === 'ArrowLeft') { stopPlay(c); step(c, -1); }
+  if (!c.v.fix || !activeCanvas) return;
+  const k = e.key.toLowerCase();
+  const map = {n:'busy>saving>idle', d:'saving>idle', r:'rename', backspace:'delete'};
+  if (k === 'f') { stopPlay(c); set(c, c.key === 'fav' ? 'idle' : 'fav'); }
+  else if (map[k]) { e.preventDefault(); stopPlay(c); run(c, map[k]); }
+});
+
+/* ---------- minimap ---------- */
+const mm = document.querySelector('.mm');
+function nearest(){
+  let best = null, bd = Infinity;
+  canvases.forEach(c => { const r = c.sec.getBoundingClientRect(); if (r.bottom < 80) return; const d = Math.abs(r.top); if (d < bd) { bd = d; best = c; } });
+  return best;
+}
+function boot(){
+  VARIANTS.forEach(mount);
+  canvases.forEach(c => {
+    const a = document.createElement('a');
+    a.innerHTML = `<i></i><span>${c.v.letter} · ${c.v.name}</span>`;
+    a.addEventListener('click', () => c.sec.scrollIntoView({behavior:'smooth', block:'start'}));
+    mm.append(a); c.mm = a;
+  });
+  const syncMM = () => { const n = nearest(); canvases.forEach(c => c.mm.classList.toggle('on', c === n)); };
+  addEventListener('scroll', syncMM, {passive:true}); syncMM();
+  addEventListener('resize', () => canvases.forEach(c => { placePins(c); drawSpacing(c); }));
+  addEventListener('load', () => canvases.forEach(drawSpacing));
+  const q = new URLSearchParams(location.search).get('s');
+  const only = new URLSearchParams(location.search).get('v');
+  if (only) canvases.forEach(c => { if (c.v.id !== only) c.sec.remove(); });
+  const ni = Math.min(2, +(new URLSearchParams(location.search).get('n')) || 0);
+  const qp = new URLSearchParams(location.search);
+  canvases.forEach(c => { setName(c, ni); (c.v.opts||[]).forEach(o => setOpt(c, o.k, qp.get(o.k) || o.def)); set(c, q && c.v.states.includes(q) ? q : 'idle'); });
+  // late image/font layout
+  addEventListener('load', () => canvases.forEach(placePins));
+}
+boot();
+</script>
+</body>
+</html>
