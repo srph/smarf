@@ -24,34 +24,68 @@ describe('board workspace', () => {
     const carries = await findCategory('Carries')
     expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Juggernaut'])
     expect(heroesShownIn(await findCategory('Supports'))).toEqual(['Crystal Maiden'])
-    expect(await screen.findByRole('option', { name: 'Ranked (Selected)' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Switch board (current: Ranked)' })).toBeInTheDocument()
+  })
+
+  it('switches boards from the toolbar, listing each with its hero count', async () => {
+    const turbo = seedBoard('Turbo', [{ name: 'Mid', heroes: ['Juggernaut'] }])
+    const { user } = renderApp(`/b/${board.id}`)
+
+    await user.click(await screen.findByRole('button', { name: 'Switch board (current: Ranked)' }))
+    const ranked = await screen.findByRole('button', { name: /^Ranked/ })
+    expect(ranked).toHaveAttribute('aria-current', 'true')
+    expect(within(ranked).getByText('3 heroes')).toBeInTheDocument()
+
+    const turboRow = screen.getByRole('button', { name: /^Turbo/ })
+    expect(within(turboRow).getByText('1 hero')).toBeInTheDocument()
+    await user.click(turboRow)
+
+    await waitFor(() => expect(currentPath()).toBe(`/b/${turbo.id}`))
+    expect(await findCategory('Mid')).toBeInTheDocument()
   })
 
   it('renames the board', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByTitle('Edit board name'))
-    const input = await screen.findByPlaceholderText('Ranked')
+    await user.click(await screen.findByRole('button', { name: 'Rename board' }))
+    const input = await screen.findByRole('textbox', { name: 'Board name' })
+    await waitFor(() => expect(input).toHaveFocus())
     await user.clear(input)
     await user.type(input, 'Ranked Solo{Enter}')
 
     await waitFor(() => expect(findBoard()!.name).toBe('Ranked Solo'))
-    expect(await screen.findByRole('option', { name: 'Ranked Solo (Selected)' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Switch board (current: Ranked Solo)' })).toBeInTheDocument()
+  })
+
+  it('disables New category while the board is being renamed', async () => {
+    const { user } = renderApp(`/b/${board.id}`)
+
+    await user.click(await screen.findByRole('button', { name: 'Rename board' }))
+    const newCategory = screen.getByRole('button', { name: 'New category' })
+    expect(newCategory).toHaveAttribute('aria-disabled', 'true')
+
+    await user.click(newCategory)
+    await new Promise((resolve) => setTimeout(resolve, 100))
+    expect(db.categories.map((c) => c.name)).not.toContain('Untitled')
+
+    await user.keyboard('[Escape]')
+    await waitFor(() => expect(newCategory).not.toHaveAttribute('aria-disabled'))
   })
 
   it('favorites the board from the toolbar', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByTitle('Add board to favorites'))
+    await user.click(await screen.findByRole('button', { name: 'Add board to favorites' }))
 
-    expect(await screen.findByTitle('Remove board from favorites')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Remove board from favorites' })).toBeInTheDocument()
     await waitFor(() => expect(findBoard()!.is_favorite).toBe(true))
   })
 
   it('duplicates the board and opens the copy', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByTitle('Duplicate board'))
+    await user.click(await screen.findByRole('button', { name: 'More board actions' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Duplicate board' }))
 
     await waitFor(() => expect(db.boards).toHaveLength(2))
     const copy = db.boards[1]
@@ -59,24 +93,31 @@ describe('board workspace', () => {
     expect(heroesShownIn(await findCategory('Carries'))).toEqual(['Anti-Mage', 'Juggernaut'])
   })
 
-  it('deletes the board only after its name is typed', async () => {
+  it('deletes the board once Hold to delete is held', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByTitle('Delete board'))
-    const confirm = await screen.findByRole('button', { name: 'Delete' })
-    expect(confirm).toBeDisabled()
+    await user.click(await screen.findByRole('button', { name: 'More board actions' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Delete board…' }))
+    expect(await screen.findByText('2 categories · 3 heroes', { exact: false })).toBeInTheDocument()
 
-    await user.type(screen.getByPlaceholderText('Enter board name (Ranked)'), 'Ranked')
-    await user.click(confirm)
+    // Letting go early backs out.
+    const hold = screen.getByRole('button', { name: 'Hold to delete' })
+    hold.focus()
+    await user.keyboard('{Enter>}')
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    await user.keyboard('{/Enter}')
+    await new Promise((resolve) => setTimeout(resolve, 1200))
+    expect(db.boards).toHaveLength(1)
 
-    await waitFor(() => expect(currentPath()).toBe('/'))
+    await user.keyboard('{Enter>}')
+    await waitFor(() => expect(currentPath()).toBe('/'), { timeout: 3000 })
     expect(db.boards).toHaveLength(0)
   })
 
   it('adds a category', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByTitle('New category'))
+    await user.click(await screen.findByRole('button', { name: 'New category' }))
 
     expect(await findCategory('Untitled')).toBeInTheDocument()
     await waitFor(() => expect(db.categories.map((c) => c.name)).toContain('Untitled'))
@@ -151,7 +192,7 @@ describe('board workspace', () => {
     const title = await screen.findByDisplayValue('Supports')
     await user.clear(title)
     await user.type(title, 'Hard Supports')
-    await user.click(await screen.findByTitle('New category'))
+    await user.click(await screen.findByRole('button', { name: 'New category' }))
 
     expect(await findCategory('Untitled')).toBeInTheDocument()
     await waitFor(() => expect(db.categories.map((c) => c.name)).toEqual(['Carries', 'Hard Supports', 'Untitled']))
@@ -172,7 +213,7 @@ describe('board workspace', () => {
     server.events.removeAllListeners()
   })
 
-  it('shows Updating while a save is pending, then Saved', async () => {
+  it('shows Saving while a save is pending, then Saved', async () => {
     let release!: () => void
     const answered = new Promise<void>((resolve) => (release = resolve))
     server.use(
@@ -184,14 +225,14 @@ describe('board workspace', () => {
     const { user } = renderApp(`/b/${board.id}`)
 
     expect(await screen.findByText('Saved')).toBeInTheDocument()
-    await user.click(await screen.findByTitle('New category'))
-    expect(await screen.findByText('Updating')).toBeInTheDocument()
+    await user.click(await screen.findByRole('button', { name: 'New category' }))
+    expect(await screen.findByText('Saving')).toBeInTheDocument()
 
     release()
 
-    // Stays on Updating for a moment so quick saves don't flicker.
+    // Stays on Saving for a moment so quick saves don't flicker.
     expect(await screen.findByText('Saved', {}, { timeout: 3000 })).toBeInTheDocument()
-    expect(screen.queryByText('Updating')).not.toBeInTheDocument()
+    expect(screen.queryByText('Saving')).not.toBeInTheDocument()
   })
 
   it("offers a retry when the board can't be loaded", async () => {
@@ -226,8 +267,8 @@ describe('board workspace', () => {
     })
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByTitle('Add board to favorites'))
-    await user.click(screen.getByTitle('New category'))
+    await user.click(await screen.findByRole('button', { name: 'Add board to favorites' }))
+    await user.click(screen.getByRole('button', { name: 'New category' }))
 
     // The new category shows right away, but its save waits for the favorite's.
     expect(await findCategory('Untitled')).toBeInTheDocument()
@@ -256,7 +297,7 @@ describe('board workspace', () => {
     const supports = await findCategory('Supports')
     await user.click(within(supports).getByRole('button', { name: 'Add' }))
     await user.click(await screen.findByTitle('Select Lion'))
-    await user.click(screen.getByTitle('New category'))
+    await user.click(screen.getByRole('button', { name: 'New category' }))
 
     release()
 
@@ -272,7 +313,7 @@ describe('board workspace', () => {
     )
     const { user } = renderApp(`/b/${board.id}`)
 
-    await user.click(await screen.findByTitle('New category'))
+    await user.click(await screen.findByRole('button', { name: 'New category' }))
 
     expect(await screen.findByText("Couldn't save. Change undone.", {}, { timeout: 3000 })).toBeInTheDocument()
   })
@@ -302,15 +343,17 @@ describe('board workspace', () => {
       expect(db.categories.map((c) => c.name)).toContain('Supports')
     })
 
-    it('closes the board name editor with its close button', async () => {
+    it('closes the board name editor with its close button, and returns focus to Rename', async () => {
       const { user } = renderApp(`/b/${board.id}`)
 
-      await user.click(await screen.findByTitle('Edit board name'))
-      const input = await screen.findByPlaceholderText('Ranked')
+      const rename = await screen.findByRole('button', { name: 'Rename board' })
+      await user.click(rename)
+      const input = await screen.findByRole('textbox', { name: 'Board name' })
       await waitFor(() => expect(input).toHaveFocus())
 
-      await user.click(screen.getByTitle('Close'))
-      await waitFor(() => expect(screen.queryByPlaceholderText('Ranked')).not.toBeInTheDocument())
+      await user.click(screen.getByRole('button', { name: 'Close' }))
+      await waitFor(() => expect(screen.queryByRole('textbox', { name: 'Board name' })).not.toBeInTheDocument())
+      await waitFor(() => expect(rename).toHaveFocus())
     })
   })
 })

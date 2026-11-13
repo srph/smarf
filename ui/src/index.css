@@ -35,6 +35,30 @@
     }
   }
 
+  /* Board toolbar: a sheen sweeps across New category on hover; the board name glints green after a rename. */
+  --animate-toolbar-sheen: toolbar-sheen 0.85s cubic-bezier(0.3, 0.6, 0.3, 1) both;
+  --animate-name-glint: name-glint 1.1s ease both;
+
+  @keyframes toolbar-sheen {
+    0% {
+      opacity: 1;
+      transform: translateX(-170%) skewX(-20deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(360%) skewX(-20deg);
+    }
+  }
+
+  @keyframes name-glint {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: 0 0;
+    }
+  }
+
   @keyframes favorite-burst {
     0% {
       opacity: 1;
@@ -47,14 +71,43 @@
   }
 }
 
+/* New category's finish: indigo, lit at the top, darker through the middle, like brushed metal without the lines. */
+@utility bg-indigo-metal {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-primary-300) 0%,
+    var(--color-primary-400) 42%,
+    var(--color-primary-500) 58%,
+    var(--color-primary-400) 100%
+  );
+}
+
+/* A soft light that follows the cursor. Set --x and --y (in px) on the element from pointer events. */
+@utility bg-cursor-light {
+  background-image: radial-gradient(
+    110px circle at var(--x, 30%) var(--y, 0%),
+    rgb(255 255 255 / 0.26),
+    transparent 62%
+  );
+}
+
+/* Text fill for animate-name-glint: a green band that sweeps across once. Pair with bg-clip-text text-transparent. */
+@utility bg-name-glint {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-zinc-50) 40%,
+    var(--color-green-300) 50%,
+    var(--color-zinc-50) 60%
+  );
+  background-size: 260% 100%;
+}
+
 @layer base {
   /* Stacking order, lowest first. Use as z-(--z-popover). */
   :root {
     --z-board-list-moving-item: 1;
     --z-board-workspace: 900;
     --z-board-toolbar: 1000;
-    --z-board-toolbar-icon: 1010;
-    --z-board-toolbar-hovered-icon: 1020;
     --z-user-dropdown: 1200;
     --z-popover: 1500;
   }

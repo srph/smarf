@@ -4,7 +4,7 @@ import { useLatestValue } from './use-latest-value'
 type Callback<T> = (previousValue: T, newValue: T) => boolean
 
 // Time-delays a state update.
-// See BoardToolbarStatusIndicator as an example.
+// See useToolbarSaveStatus as an example.
 // This is helpful for us to maintain the "update" phase for a second longer
 // in-case the http requests happen way too fast. If you're interested,
 // no you don't need this in your own project. It's the most useless garbage

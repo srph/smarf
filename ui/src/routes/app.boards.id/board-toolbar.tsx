@@ -1,163 +1,182 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from 'cn'
-import { Container } from '~/src/components/container/container'
+import { useNavigate } from 'react-router'
+import { AnimatePresence, motion, type Transition } from 'motion/react'
+import { Tooltip } from '@base-ui/react/tooltip'
+import { ExclamationCircleIcon, PencilIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
 import { FavoriteIcon } from '~/src/components/favorite-icon/favorite-icon'
-import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
-import { useBoard } from '~/src/routes/app.boards.id/board-context'
-import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
 import { useFavoriteBoardMutation } from '~/src/queries/boards/use-favorite-board-mutation'
-import { useUpdateBoardMutation } from './mutations/use-update-board-mutation'
+import { useBoard } from './board-context'
 import { useDuplicateBoardMutation } from './mutations/use-duplicate-board-mutation'
-import { useDeleteBoardMutation } from './mutations/use-delete-board-mutation'
-import { useAddCategoryMutation, newCategory } from './mutations/use-add-category-mutation'
-import { BoardEditPopover } from './board-edit-popover'
-import { BoardToolbarStatusIndicator } from './board-toolbar-status-indicator'
-import { useNavigate } from 'react-router'
-import {
-  ChevronDoubleDownIcon,
-  DocumentDuplicateIcon,
-  PencilIcon,
-  PlusCircleIcon,
-  RectangleGroupIcon,
-  TrashIcon
-} from '@heroicons/react/20/solid'
+import { BoardToolbarAddCategoryButton } from './board-toolbar-add-category-button'
+import { BoardToolbarDeletePanel } from './board-toolbar-delete-panel'
+import { BoardToolbarMoreMenu } from './board-toolbar-more-menu'
+import { BoardToolbarRenamePanel } from './board-toolbar-rename-panel'
+import { BoardToolbarSwitcher } from './board-toolbar-switcher'
+import { BoardToolbarIconButton } from './board-toolbar-tooltip'
+import { useToolbarSaveStatus } from './use-toolbar-save-status'
 
+type Mode = 'idle' | 'rename' | 'delete'
+
+// How long the name glints after a rename.
+const RENAMED_MS = 1300
+
+// One thing moves at a time: the dock's top edge. Contents only fade, after the edge starts moving.
+const EASE = [0.2, 0.8, 0.2, 1] as const
+const grow: Transition = { height: { duration: 0.32, ease: EASE }, opacity: { duration: 0.18, delay: 0.1 } }
+const shrink: Transition = { height: { duration: 0.3, ease: EASE }, opacity: { duration: 0.1 } }
+const rowBack: Transition = { height: { duration: 0.3, ease: EASE }, opacity: { duration: 0.18, delay: 0.12 } }
+
+/**
+ * The board's floating toolbar: a glass dock (switch board, favorite, rename, more) and New category beside it.
+ * Renaming and deleting grow the dock into a card in place; New category stays put, disabled, until it closes.
+ */
 const BoardToolbar: React.FC = () => {
   const { board } = useBoard()
 
-  const { mutate: favoriteBoard, isPending: isFavoriteLoading } = useFavoriteBoardMutation(board.id)
+  const navigate = useNavigate()
 
-  const { mutate: updateBoard, isPending: isUpdating } = useUpdateBoardMutation(board.id)
+  const status = useToolbarSaveStatus(board.id)
+
+  const { mutate: favoriteBoard, isPending: isFavoriteLoading } = useFavoriteBoardMutation(board.id)
 
   const { mutate: duplicateBoard, isPending: isDuplicating } = useDuplicateBoardMutation(board.id)
 
-  const { mutate: deleteBoard, isPending: isDeleting } = useDeleteBoardMutation(board.id)
+  const [mode, setMode] = useState<Mode>('idle')
 
-  const { mutate: addCategory, isPending: isAddingCategory } = useAddCategoryMutation(board.id)
+  const [isDanger, setIsDanger] = useState(false)
 
-  const [isEditing, setIsEditing] = useState(false)
+  const [justRenamed, setJustRenamed] = useState(false)
 
-  const [toolbarElement, setToolbarElement] = useState<HTMLDivElement | null>(null)
+  const [dockElement, setDockElement] = useState<HTMLDivElement | null>(null)
 
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
+  const renameButtonRef = useRef<HTMLButtonElement>(null)
 
-  const { data: boards, status: boardsStatus } = useBoardsQuery()
+  const moreButtonRef = useRef<HTMLButtonElement>(null)
 
-  const navigate = useNavigate()
+  const previousModeRef = useRef<Mode>(mode)
 
-  const handleBoardChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
-    navigate(`/b/${evt.target.value}`)
+  // Closing a card hands focus back to the button that opened it.
+  useEffect(() => {
+    const previous = previousModeRef.current
+    previousModeRef.current = mode
+    if (mode !== 'idle' || previous === 'idle') return
+    const trigger = previous === 'rename' ? renameButtonRef : moreButtonRef
+    trigger.current?.focus({ preventScroll: true })
+  }, [mode])
+
+  useEffect(() => {
+    if (!justRenamed) return
+    const timer = setTimeout(() => setJustRenamed(false), RENAMED_MS)
+    return () => clearTimeout(timer)
+  }, [justRenamed])
+
+  const close = () => {
+    setMode('idle')
+    setIsDanger(false)
   }
 
+  const handleRenamed = () => {
+    close()
+    setJustRenamed(true)
+  }
+
+  const handleDangerChange = useCallback((danger: boolean) => setIsDanger(danger), [])
+
+  const isEditing = mode !== 'idle'
+
+  // Escape closes an open card, wherever focus is.
+  useEffect(() => {
+    if (!isEditing) return
+    const handleKeyDown = (evt: KeyboardEvent) => {
+      if (evt.key !== 'Escape') return
+      setMode('idle')
+      setIsDanger(false)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isEditing])
+
   return (
-    <>
-      <div className="fixed inset-x-0 bottom-6 z-(--z-board-toolbar)">
-        <BoardToolbarStatusIndicator />
+    <Tooltip.Provider delay={200}>
+      <div className="pointer-events-none fixed inset-x-0 bottom-6 z-(--z-board-toolbar) flex justify-center px-4">
+        <div className="pointer-events-auto flex items-end gap-2">
+          <div
+            ref={setDockElement}
+            className={cn(
+              'relative overflow-hidden rounded-xl border border-white/10 bg-zinc-800/80 shadow-2xl ring-1 inset-shadow-xs shadow-black/70 ring-black/50 inset-shadow-white/5 backdrop-blur-md backdrop-saturate-150',
+              'transition-colors duration-250',
+              isDanger && 'border-red-500/55 bg-red-950/70'
+            )}>
+            {/* The card grows from the dock's top edge. contain-inline-size keeps it to the dock's width: the row sets that. */}
+            <AnimatePresence initial={false}>
+              {isEditing && (
+                <motion.div
+                  key={mode}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1, transition: grow }}
+                  exit={{ height: 0, opacity: 0, transition: shrink }}
+                  className="overflow-hidden contain-inline-size">
+                  {mode === 'rename' ? (
+                    <BoardToolbarRenamePanel onClose={close} onRenamed={handleRenamed} />
+                  ) : (
+                    <BoardToolbarDeletePanel onClose={close} onDangerChange={handleDangerChange} />
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-        <Container>
-          <div ref={setToolbarElement} className="flex items-center justify-between rounded bg-zinc-700 p-2">
-            <div className="flex items-center">
-              <label className="relative w-80 cursor-pointer rounded ring-2 ring-transparent transition-all duration-200 focus-within:ring-sky-500 hover:ring-sky-500">
-                <div className="pointer-events-none absolute inset-y-0 left-0 p-2 text-zinc-500">
-                  <Icon icon={RectangleGroupIcon} />
+            {/* Folded away (not removed) while a card is open, so the dock keeps its width. */}
+            <motion.div
+              initial={false}
+              animate={
+                isEditing
+                  ? { height: 0, opacity: 0, transition: shrink }
+                  : { height: 'auto', opacity: 1, transition: rowBack }
+              }
+              inert={isEditing}
+              className="overflow-hidden">
+              <div className="flex h-11 items-center px-1 whitespace-nowrap">
+                <BoardToolbarSwitcher status={status} justRenamed={justRenamed} anchor={dockElement} />
+
+                <div className="ml-1 flex items-center gap-0.5">
+                  <BoardToolbarIconButton
+                    label={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
+                    onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}
+                    disabled={isFavoriteLoading}>
+                    <FavoriteIcon value={board.is_favorite} />
+                  </BoardToolbarIconButton>
+
+                  <BoardToolbarIconButton ref={renameButtonRef} label="Rename board" onClick={() => setMode('rename')}>
+                    <Icon icon={PencilIcon} />
+                  </BoardToolbarIconButton>
+
+                  <BoardToolbarMoreMenu
+                    ref={moreButtonRef}
+                    isDuplicating={isDuplicating}
+                    onDuplicate={() => duplicateBoard(undefined, { onSuccess: (copy) => navigate(`/b/${copy.id}`) })}
+                    onDelete={() => setMode('delete')}
+                  />
                 </div>
-                <select
-                  value={board.id}
-                  onChange={handleBoardChange}
-                  className="block w-full cursor-pointer appearance-none rounded border border-zinc-600 bg-zinc-900 p-2 pl-8 text-zinc-50">
-                  {boardsStatus === 'pending' && <option>Loading boards...</option>}
-                  {boardsStatus === 'error' && <option>Couldn't load boards</option>}
-                  {boardsStatus === 'success' &&
-                    boards.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.name}
-                        {b.id === board.id ? ' (Selected)' : ''}
-                      </option>
-                    ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 p-2 text-zinc-500">
-                  <Icon icon={ChevronDoubleDownIcon} />
-                </div>
-              </label>
 
-              <div className="ml-2 flex">
-                <IconGroupButton
-                  onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}
-                  title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
-                  disabled={isFavoriteLoading}>
-                  <FavoriteIcon value={board.is_favorite} />
-                </IconGroupButton>
+                {status === 'error' && (
+                  <span className="mr-1 ml-3 flex h-7 items-center gap-1.5 rounded-lg bg-red-500/16 px-2.5 text-xs font-semibold text-red-200">
+                    <span className="text-red-400">
+                      <Icon icon={ExclamationCircleIcon} size={16} />
+                    </span>
+                    Couldn't save. Change undone.
+                  </span>
+                )}
               </div>
-            </div>
-
-            <div className="flex items-center">
-              <div className="ml-2 flex">
-                <IconGroupButton
-                  onClick={() => addCategory(newCategory(board))}
-                  title="New category"
-                  disabled={isAddingCategory}>
-                  <Icon icon={PlusCircleIcon} />
-                </IconGroupButton>
-
-                <IconGroupButton
-                  onClick={() => duplicateBoard(undefined, { onSuccess: (copy) => navigate(`/b/${copy.id}`) })}
-                  title="Duplicate board"
-                  disabled={isDuplicating}>
-                  <Icon icon={DocumentDuplicateIcon} />
-                </IconGroupButton>
-
-                <BoardEditPopover
-                  open={isEditing}
-                  onOpenChange={setIsEditing}
-                  name={board.name}
-                  onSubmit={(name) => updateBoard({ name }, { onSuccess: () => setIsEditing(false) })}
-                  trigger={
-                    <IconGroupButton title="Edit board name" disabled={isUpdating}>
-                      <Icon icon={PencilIcon} />
-                    </IconGroupButton>
-                  }
-                  anchor={toolbarElement}
-                />
-
-                <DeletePopover
-                  open={isDeleteConfirmationOpen}
-                  onOpenChange={setIsDeleteConfirmationOpen}
-                  onConfirm={() => deleteBoard(undefined, { onSuccess: () => navigate('/') })}
-                  nameConfirmation={board.name}
-                  nameConfirmationPlaceholder="Enter board name"
-                  side="top"
-                  align="end"
-                  sideOffset={16}
-                  positionMethod="fixed"
-                  trigger={
-                    <IconGroupButton disabled={isDeleting} title="Delete board">
-                      <Icon icon={TrashIcon} />
-                    </IconGroupButton>
-                  }
-                  anchor={toolbarElement}
-                />
-              </div>
-            </div>
+            </motion.div>
           </div>
-        </Container>
+
+          <BoardToolbarAddCategoryButton locked={isEditing} />
+        </div>
       </div>
-    </>
+    </Tooltip.Provider>
   )
 }
-
-// A component (not just classes) because popover triggers pass it props and a ref.
-const IconGroupButton: React.FC<React.ComponentProps<'button'>> = ({ className, ...props }) => (
-  <button
-    {...props}
-    className={cn(
-      'relative z-(--z-board-toolbar-icon) inline-flex cursor-pointer items-center border-zinc-700 bg-zinc-900 px-3 py-2 ring-2 ring-transparent transition-all duration-200',
-      'not-last:border-r first:rounded-l last:rounded-r',
-      'hover:z-(--z-board-toolbar-hovered-icon) hover:ring-sky-500 focus:z-(--z-board-toolbar-hovered-icon) focus:ring-sky-500',
-      'text-zinc-500',
-      className
-    )}
-  />
-)
 
 export { BoardToolbar }
