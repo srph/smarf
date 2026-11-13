@@ -81,6 +81,27 @@ describe('board workspace', () => {
     await waitFor(() => expect(findBoard()!.is_favorite).toBe(true))
   })
 
+  it('toggles the favorite again while the first save is still pending', async () => {
+    let release!: () => void
+    const answered = new Promise<void>((resolve) => (release = resolve))
+    server.use(
+      http.put(`${API}/boards/:id/favorite`, async () => {
+        await answered
+        return undefined
+      })
+    )
+    const { user } = renderApp(`/b/${board.id}`)
+
+    await user.click(await screen.findByRole('button', { name: 'Favorite board' }))
+    await user.click(screen.getByRole('button', { name: 'Unfavorite board' }))
+    expect(screen.getByRole('button', { name: 'Favorite board' })).toBeEnabled()
+
+    release()
+
+    await waitFor(() => expect(findBoard()!.is_favorite).toBe(false))
+    expect(screen.getByRole('button', { name: 'Favorite board' })).toBeInTheDocument()
+  })
+
   it('duplicates the board and opens the copy', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 

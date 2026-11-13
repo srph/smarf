@@ -39,7 +39,7 @@ const BoardToolbar: React.FC = () => {
 
   const status = useToolbarSaveStatus(board.id)
 
-  const { mutate: favoriteBoard, isPending: isFavoriteLoading } = useFavoriteBoardMutation(board.id)
+  const { mutate: favoriteBoard } = useFavoriteBoardMutation(board.id)
 
   const { mutate: duplicateBoard, isPending: isDuplicating } = useDuplicateBoardMutation(board.id)
 
@@ -143,8 +143,7 @@ const BoardToolbar: React.FC = () => {
                 <div className="ml-1 flex items-center gap-0.5">
                   <BoardToolbarIconButton
                     label={board.is_favorite ? 'Unfavorite board' : 'Favorite board'}
-                    onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}
-                    disabled={isFavoriteLoading}>
+                    onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}>
                     <FavoriteIcon value={board.is_favorite} />
                   </BoardToolbarIconButton>
 
