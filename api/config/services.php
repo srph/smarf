@@ -31,4 +31,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    // Discord sign-in (https://discord.com/developers/applications). The UI's /login/discord page
+    // must be listed as a redirect in the app's OAuth2 settings.
+    'discord' => [
+        'client_id' => env('DISCORD_CLIENT_ID'),
+        'client_secret' => env('DISCORD_CLIENT_SECRET'),
+    ],
+
 ];
