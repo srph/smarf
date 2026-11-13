@@ -136,14 +136,14 @@ const BoardWorkspace: React.FC = () => {
           modifiers={[boardWorkspaceRestrict({ workspaceRef })]}
           {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
           {/*
-          A dot every 8px, to line categories up by eye. A dot sits on the workspace's top-left corner (where category
+          A dot every 16px, to line categories up by eye. A dot sits on the workspace's top-left corner (where category
           positions start). The dots fill the page from under the navigation to the bottom, edge to edge: the layer
           reaches 48px up (the navigation's margin), 400px down (the spacer below) and 2000px to each side, all
-          multiples of 8, so the dots stay lined up with the workspace.
+          multiples of 16, so the dots stay lined up with the workspace.
         */}
           <div
             ref={workspaceRef}
-            className="relative z-(--z-board-workspace) before:pointer-events-none before:absolute before:-inset-x-500 before:-top-12 before:-bottom-100 before:-z-10 before:bg-[radial-gradient(circle,var(--color-zinc-700)_1px,transparent_1px)] before:bg-size-[8px_8px] before:bg-position-[-4px_-4px]"
+            className="relative z-(--z-board-workspace) before:pointer-events-none before:absolute before:-inset-x-500 before:-top-12 before:-bottom-100 before:-z-10 before:bg-[radial-gradient(circle,var(--color-zinc-700)_1px,transparent_1px)] before:bg-size-[16px_16px] before:bg-position-[-8px_-8px]"
             style={{ height: workspaceHeight }}>
             {board.categories.map((category) => {
               return <BoardWorkspaceCategoryBody key={category.id} category={category} />
