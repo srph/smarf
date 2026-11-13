@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pending Buttons</title>
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 64px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .minimap button:focus-visible, .ctl input:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 8px; font-size: 12px; color: var(--mute); }
+  .ctl label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--ink); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; }
+  .minimap:hover ul { background: var(--card); border: 1px solid var(--line); padding: 7px; }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup (ui/src/index.css, Tailwind v4 tokens) ---------- */
+  .mock {
+    --z50: oklch(98.5% 0 0); --z400: oklch(70.5% 0.015 286.067); --z500: oklch(55.2% 0.016 285.938);
+    --z700: oklch(37% 0.013 285.805); --z800: oklch(27.4% 0.006 286.033); --z900: oklch(21% 0.006 285.885);
+    --p50: oklch(96.2% 0.018 272.314); --p200: oklch(87% 0.065 274.039); --p400: oklch(67.3% 0.182 276.935);
+    --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p700: oklch(45.7% 0.24 277.023);
+    --sky: oklch(68.5% 0.169 237.323);
+    background: var(--z900); color: var(--z50);
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 20px;
+  }
+  .mock h1, .mock h3, .mock p { margin: 0; }
+
+  /* State strip */
+  .strip { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); min-width: 720px; border-bottom: 1px solid var(--z800); }
+  .cell { padding: 20px 24px 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .cell + .cell { border-left: 1px solid var(--z800); }
+  .cell h6 { margin: 0 0 2px; font: 600 11px/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--z500); }
+
+  /* In-situ page */
+  .app { position: relative; width: 1040px; height: 520px; overflow: hidden; }
+  .nav { border-bottom: 1px solid var(--z800); margin-bottom: 48px; }
+  .nav-accent { height: 4px; background: linear-gradient(90deg, var(--p600), var(--p400)); }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; padding: 24px 16px; }
+  .logo { display: flex; align-items: center; }
+  .logo img { width: 32px; height: 32px; margin-right: 16px; }
+  .logo h1 { text-transform: uppercase; letter-spacing: .025em; font-weight: 800; font-size: 18px; line-height: 28px; }
+  .nav-menu { display: flex; align-items: center; gap: 24px; }
+  .avatar { border-radius: 50%; border: 2px solid var(--z700); padding: 6px; }
+  .avatar img { width: 40px; height: 40px; border-radius: 50%; display: block; }
+  .empty { width: 480px; margin: 0 auto; padding: 16px 0 64px; text-align: center; }
+  .fan { display: flex; justify-content: center; margin-bottom: 32px; }
+  .fan div { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); box-shadow: 0 0 0 3px var(--z900); }
+  .fan img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .fan div:nth-child(1) { transform: translate(12px, 8px) rotate(-6deg); }
+  .fan div:nth-child(2) { position: relative; z-index: 1; transform: translateY(-4px); }
+  .fan div:nth-child(3) { transform: translate(-12px, 8px) rotate(6deg); }
+  .empty h3 { font-size: 18px; line-height: 28px; font-weight: 500; margin-bottom: 12px; }
+  .empty p { color: var(--z400); max-width: 360px; margin: 0 auto 32px; }
+
+  /* Button (components/button/button.tsx) */
+  .btn { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 8px; border: 0; border-radius: 4px; background: var(--p500); color: var(--z50); font: 700 14px/20px inherit; font-family: inherit; cursor: pointer; white-space: nowrap; transition: box-shadow .2s; }
+  .btn:not(:disabled):hover, .btn:not(:disabled):focus-visible { box-shadow: 0 0 0 2px var(--sky); outline: none; }
+  .btn:disabled { cursor: not-allowed; opacity: .75; }
+  .b-ic { display: grid; width: 20px; height: 20px; margin-right: 8px; color: var(--p200); }
+  .b-ic > * { grid-area: 1 / 1; }
+  .b-label { display: grid; }
+  .b-label > span { grid-area: 1 / 1; }
+  .l-busy, .ic-busy, .spinner { display: none; }
+  .b-fx { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+
+  /* Spinner (components/spinner/spinner.tsx) */
+  .spinner { position: relative; width: 20px; height: 20px; }
+  .spinner i { position: absolute; top: 0; left: 0; display: block; margin: 2px; width: 16px; height: 16px; border: 2px solid transparent; border-top-color: var(--sky); border-radius: 50%; animation: spin 1.2s cubic-bezier(.5,0,.5,1) infinite; }
+  .spinner i:nth-child(1) { animation-delay: -.45s; }
+  .spinner i:nth-child(2) { animation-delay: -.3s; }
+  .spinner i:nth-child(3) { animation-delay: -.15s; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Variations keep full color while pending; only Now dims */
+  .variation:not(.v-now) .btn.is-pending { opacity: 1; cursor: progress; }
+
+  /* Now: nav only dims; the CTA swaps icon for spinner and label for "Creating…" */
+  .v-now .is-pending[data-kind="cta"] .ic-idle, .v-now .is-pending[data-kind="cta"] .l-idle { display: none; }
+  .v-now .is-pending[data-kind="cta"] .spinner, .v-now .is-pending[data-kind="cta"] .l-busy { display: block; }
+
+  /* A: spinner in the icon slot, label kept */
+  .v-a .is-pending .ic-idle { display: none; }
+  .v-a .is-pending .spinner { display: block; }
+  .v-a .spinner i { border-top-color: var(--p200); }
+
+  /* B: icon becomes a 2x2 board whose tiles light up in turn */
+  .v-b .is-pending .ic-idle { display: none; }
+  .v-b .is-pending .ic-busy { display: block; }
+  .ic-busy rect { opacity: .3; animation: tile 1.2s ease-in-out infinite; }
+  .ic-busy rect:nth-child(2) { animation-delay: .3s; }
+  .ic-busy rect:nth-child(3) { animation-delay: .6s; }
+  .ic-busy rect:nth-child(4) { animation-delay: .9s; }
+  @keyframes tile { 0%, 60%, 100% { opacity: .3; } 20% { opacity: 1; } }
+
+  /* C: light sweeps across; label swaps inside a width lock */
+  .v-c .btn { overflow: hidden; }
+  .v-c .l-busy { display: block; visibility: hidden; }
+  .v-c .is-pending .l-idle { visibility: hidden; }
+  .v-c .is-pending .l-busy { visibility: visible; }
+  .v-c .is-pending .b-fx { overflow: hidden; }
+  .v-c .is-pending .b-fx::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 55%; background: linear-gradient(100deg, transparent, oklch(100% 0 0 / .32), transparent); animation: sweep 1.4s ease-in-out infinite; }
+  @keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(190%); } }
+
+  /* D: indeterminate bar along the bottom edge */
+  .v-d .btn { overflow: hidden; }
+  .v-d .is-pending .b-fx { top: auto; height: 3px; border-radius: 0; background: var(--p700); overflow: hidden; }
+  .v-d .is-pending .b-fx::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 40%; background: var(--p200); animation: slide 1.1s ease-in-out infinite; }
+  @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+
+  /* E: the hover ring's blue traces the border */
+  @property --a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+  .v-e .is-pending .b-fx {
+    inset: -2px; border-radius: 6px; padding: 2px;
+    background: conic-gradient(from var(--a), oklch(68.5% 0.169 237.323 / .18) 0deg 200deg, var(--sky) 330deg, oklch(68.5% 0.169 237.323 / .18) 360deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: trace 1.3s linear infinite;
+  }
+  @keyframes trace { to { --a: 360deg; } }
+
+  /* Reduced motion: every variation falls back to a slow fade */
+  .rm .btn *, .rm .btn *::after { animation: none !important; }
+  .rm .btn.is-pending { animation: breathe 1.8s ease-in-out infinite; }
+  @keyframes breathe { 50% { opacity: .8; } }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>Pending buttons should look busy, not broken</h1>
+    <div class="chips">
+      <div class="chip"><b>Both buttons</b>New Board and the empty-state button share one look.</div>
+      <div class="chip"><b>Steady size</b>No width jump while pending.</div>
+      <div class="chip"><b>Reads busy</b>Full color, not the disabled dim.</div>
+      <div class="chip"><b>Calm option</b>A slow fade under reduced motion.</div>
+    </div>
+  </section>
+
+  <section class="variation v-now" id="v-now" data-id="Now" data-name="Dim, and a spinner on one">
+    <div class="notes">
+      <div class="note bad">New Board just dims; looks disabled.</div>
+      <div class="note bad">CTA width jumps to "Creating…".</div>
+      <div class="note bad">Clicking New Board spins the other button.</div>
+    </div>
+  </section>
+
+  <section class="variation v-a" id="v-a" data-id="A" data-name="Spinner in the icon slot">
+    <div class="notes">
+      <div class="note good">Smallest change; reuses Spinner.</div>
+      <div class="note good">Label and width stay put.</div>
+      <div class="note bad">Generic; could be any app.</div>
+    </div>
+  </section>
+
+  <section class="variation v-b" id="v-b" data-id="B" data-name="Board tiles light up in turn">
+    <div class="notes">
+      <div class="note good">On-brand: a board taking shape.</div>
+      <div class="note good">No layout or label change.</div>
+      <div class="note bad">Subtle at 20px.</div>
+    </div>
+  </section>
+
+  <section class="variation v-c" id="v-c" data-id="C" data-name="Shimmer sweep with “Creating…”">
+    <div class="notes">
+      <div class="note good">Whole button reads busy.</div>
+      <div class="note good">Echoes the skeleton's pulse.</div>
+      <div class="note bad">Label swap needs a width lock.</div>
+    </div>
+  </section>
+
+  <section class="variation v-d" id="v-d" data-id="D" data-name="Progress bar along the bottom edge">
+    <div class="notes">
+      <div class="note good">Echoes the nav's accent stripe.</div>
+      <div class="note good">Quiet; label untouched.</div>
+      <div class="note bad">Easy to miss from across the page.</div>
+    </div>
+  </section>
+
+  <section class="variation v-e" id="v-e" data-id="E" data-name="Hover ring traces the border">
+    <div class="notes">
+      <div class="note good">Reuses the hover ring's blue.</div>
+      <div class="note good">Obvious at a glance.</div>
+      <div class="note bad">Needs @property; most CSS here.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from B: tiles that assemble into the plus icon.</div>
+      <div class="card"><b>Remix</b>Remix C: keep the label, shimmer only.</div>
+      <div class="card"><b>Settle</b>Settle on A for the smallest code change.</div>
+    </div>
+  </section>
+</main>
+
+<template id="app-tpl">
+  <div class="app">
+    <div class="nav">
+      <div class="nav-accent"></div>
+      <div class="nav-row">
+        <div class="logo"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAASESURBVHgBxZdraBxVFMfvzGzcR2zRdlsxFRuUUPARmmr7IW3IkqwINaL9ICho8UWkK0aQEkHMOwvBWEXBB/lQi1KxidUK4gcVq0toQAUfhCAK7Zb6QPvILpVsuo+sv7OZkel0ZrIGS/5wuHfu+Z9zz5y599w7mgJ9fX1t5XJ5Ld2AKTrPmuhoM8PDw0eUiZ6enlt1XR9hfD2PVyBBaTVNO1osFvuTyeQp/B1m7Cokg5xBzsLPFgqFj2pqahoCgcC5Uqk0OzAwMKN1d3evCoVCZ0xnrsD4OyYo0RXZhmgevC9pjsPdbb6IE3NIxPY8GgiHwxcwnPMLAIdNqgrAi9HEfCgRR8BbddKQp39OrQD4lL/rZj+nVgbXVwIgdYZDMYUkkVNq+SgiKSTtRVhYWCjpnZ2dNXyLa61Bgtk/ODjYjDxPfwdDH6rq8T3yOP52YF+DtObz+S34edWDXzY6Ojoa6TxtG2xqbW1VXy0iixxqaWkp4qRNLY15ePuY+FtrYHJycr69vf033naPCz+tG4YRdlH0sziftR6oA0kcb6J7SPmjnrefolbstQ+y59d5Geg4dt0BGI1QUBLWMwH9zJvdD/8RJjmrvBGBM4rtASRUmUTXb/Mia+Pj48b09PRp+le7EjTtMSbfbx/DsbzpS3R3KX+cwD4O90UP7uFKRevt7X2b5iEPJ/JdHyCII04Fdk/SPIfUKW9I9SyrSyvjSTJaX9mGRLjKx0EI/QEmu8epwMFrBLcd/Qc+9obL5DLnZ9JaGThBU6/8MYdRfGhoaMpNiY896IcIaK2qDgvwG61C1FOFgSyuj1nhN7spycYbLLbb4XyiqoOcuJusUvx1lUZrmOBTFuENbkrWSRq5i+5enP+xlDNKQFHH2WbIk6p61FFUvpCd4EUgG/vIRjNdX79s9XnJwGpknfoPIAsbCfooQVznxZFsEEgL3W74Gace+xJBXqNzO/FKVUb5Q2rB51TJjX4kghilaRKuuvglDMYeNRoaGs7X1tYmGIg4CE/Q/KD8LxhR0nh3LBZ7nzPjvBcJXSaVSr0DT479O2yqtD42NlYgFQ87bNIzMzMHiX6Afr/yx42yp/kca5bgyWd5geaCfayyCwig7OCOTUxMSAVTVQZxkxlExI+E/ha1eIm9OADSGLUGZPvw/K6dZAbxjPLHFnbHQSbRvQj4vtM5ZpXi3f8O6Po3XK1POokE8TLr4inlA/T30rzlQ3nwkgDkWm6/bBDMTsqq10RvyrmgfCAvg/3r1n+FBbN4bXbyNUkZZLkZO++F/dFodKSrqysPZyvp3UmgcqtZr6oAPsfJ5q/YncZOjntJ/30OWso6jGbV4p+Mm6MyDjR1eXDMWjCee/gyTi4wrAB0tQIguQGZWN5w1jZYNlvJStHG/1v9DyChfyE/mp82UEkvJTIQj8c38Pcqk8+b3Eg2m80Eg8HV/LxGqGI/sRW3UyPCslPQ78LBcfptZsDv8fwnUpAbFpKTQ4j2F9R19BvpB2mP4ecVzpANuVxum1oOZOcglUWbSCSupN+slol/ABTVDqX0XcXRAAAAAElFTkSuQmCC" alt=""><h1>Smarf</h1></div>
+        <div class="nav-menu">
+          <!--BTN:nav-->
+          <div class="avatar"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAA5FSURBVHgBnVhdjFVXFV77nH3+7t+c+YWhBC+tScEUO1AbqQ92MMY01QeamJr41EffGJ70DebBGKNJpzHRNn1oTXxoohF4QEpry1BsbLXIUC2VonApzDAzzNx77s85555/v7UvJaXF0nLJ5d65Z++z1/rWWt/61hF0l68Lx34/renywTSNp6kopqjI3TRJ3TiOyA+7XuAHjaXltcYHi8sLzSA9+exLf5inu3iJL7L4zKEX3IpZmRGmuQ873SLPKc8y2Ffgje95RkkcU+h3KQx7tLbepavXVujD9TZ1k7whbWc+SrLZF196qfF5z/xcBrJhBpkHpSH36dIgYUjsFJSnOWVpSineYRBQnMRkGjpl+AxDnzqdLrWaHVpa92ipE1BmmBRFMUldvjhSq83+/NlnG3c6W7/TgtO/e37G0I1DmqZNa5pO+IRx2Ab04n6flpaB0JVFWltrUuD3qNvrUZJmZEhJjHCWxnAkYQQpzvCGgUWOlBC095Gv7fLePrNw9q4NfOWZn83Zjn1A16WtAWtlHF4pwri2tkaNxiWEswdEDBoeqtKwO0xl0yLkImUwhtfzWioEteFM0I8pRUow+hoJF3fb+/WpHe7fzv7z+P+z4bYhfnpmxq3YxaHJsdHp8bExsiwHRgA9FVqiTrurDHQcm6RhkG07hGMpTvEfUC6SiLK4D5BjCrpd6vg+nV9u0nK7hzRI2VPShKZQlpZO1WppoWRU9szOzXmftEXezsB/Xzx3YsixpqLAJwPhHBkWJGwL9xUoBsAOI8uWCSNiipKE+nGC/CrT+o5HKYIHFThQuvIvsvrLZFgG5b0CSCYqXIKLCd4kxEWVA1yTcrCAURaHcHkP3SnEP3ri8bkRx95bs4EOLLGR2DaQY49VgWCN3+6ovEoAWSeMaMnr0uVWTMvlDbgWknb5Q3LigNyxGowPyWt51Gr7QDinKENR5QXSWGMTyUAEpIkznHL9u9973H31z6/fEm7t43/88LFvPYUE3ic1qYxjY4IwIM9bp17PI90xKQTP4d5I9IR6CF1RqlEHUesHId3z3knadvFN2pJfo7FySkmnSSYg14C6IQXuyftQX/iPqYlP4Kr2oz71UFix0Geee+H5mdsiuHd6ui6E9oJpWG6BPOr6EbxH1eFGjq2TyFOqVYeo4H9ZAkRBM1kBWpE0Ylm02a3R5tEqjdZKNFRzyIQ1BVIgR2h7YUg+CiTmag77lKqKk+RgX15kqBmNnFJJOYJ83v3k95987siRI/1bcrDQ6EAhtHoKT/wioiF3iJauN6kTZ7RpvIaqTHFgRBaqtEBINIR7supSqioTBuNAA8YaOJShSsCFOtcqwskoWEBQY9QUqSs3KUhxPxiX4cy+HygDmyvLbjE6cgBb9t8M8WO7d9eB/FMSnpUNQZtsjSb0lB64x6WdX95IIovpo4JngmA+Q2krYyoVhyrwvlx2gIJFUurKKJELReLMlyYiIkE1klEXXCgEh1FYCLUGdmC+1PFpl2wqlxzspZmnDxxwbxqIQBzgIpCo2BLOHrZsquDKxmqJJnBwBpQkKMFwEAZ0CgEuixEqDjOJAWUwDXGoiAZtj/lvkGcafDEHB+F33oK4Ik1yhRznoA7aCdB1+DcLTm/ffj/t/vb0vpsG4sbTNkLmYKGENyXbpAqMKYH/mFqq5TI55RpCh4MQYsepkgEoEpAvtzsVspyUsQBHtb64HyDkJulYL5A/hmmqfNNRuRl4ht/cGlPAmXHHwZv3RVGkug2oRxWLRHinbcuqs5c6NnH1mhw+zjVOURigC1CBtBQaum6SaeMA3MgHCXPeCCCvmejWDiluY8FQKpfUgSnuKRB2Dr0FlHU4UnDFwlChS2K/Ej4XHibIcx1Ohiiqcrninjjx6rRWKZmPjo1UyTLAS1mqQsTh5L7bRxuLwgSF4WDjoA8rosY1BwhXylXq9wJ0jkQdzLmlKWPQh+FOoaJDymFOYUNnPuX8y1BYMCjJ+DjqQWgwfXHoTS5A8JgPCsOmB2XFklM25wC8zniRwZ4jsWFwBbRiIPQWNgmcVCj1EiG0IUhbqje3ukEBFUpucZh5LSPHRcBGGkCXP018qvCKG5bD2263pwqNi4SZg5HPgXCYBrQaJ9OyVK7UIX2I0B162MALTBzKnjqlMiH8yhAuFG91Rd2o1/PhTILqRY7iWmV0FAoGzQtcWaBakT/qzXYXEqinQqHPxRSnhdKQjLRAOuk6p40kC329XKmo6MQAy3Ycuh5nU9J1rHoJNJED8hRdg+VRhoNKFReLLHxWlacRII8ChBKJz6JmaMM4RwR1A1RgBC5Qio7AlFHAOz5cgBtFyiIiZQ2IkA76Np/Fa5hbK+jhDObExAQxB3MOc4roAClIIlcGvu+yF1w599a30CbXpajtDTqGGPRMRkI3pYKew8Q3ETjAhLEcsvRG5XFLZBRKtYrKYaaRAhTK+ZXiNi2IjxD9O0Xt6YVU1a3uRUJFhqMQAb1qtYr7oQgL3ZVeN6QaYi+Rczu+ukMplaULfWp1WmQhhDHLJpb12KDzJ3soYGzSRfUVyMdIdYE+0NBqNhn2ICXYK2QsDAqpj/TwseZ6q6MoSS90lQ7sPGeCihB4lYVDs9VS6BeISKBVSIZF6nU7bfeR3Y/Q0PAIKk2jaqVGl95foF63BeMilW/U9Em0fFWthmTpPggVE2ABiqpu3UzlyUkSllSHslM8QAV+SCGKaq3ZonWobbg3kG28VyNlaIDry1Dmk6w5gbwPZoiApqX1PIme6W3bfr+7cdMklZCYSnwibPdtf5AunTtLGbjOraIXm1DJUQ+klSlkLC4kp8xNlsRIjazxIdKBHksozjXWfwGKqdlapzYKcL25DpIeVC5/xsx5nLqQdexQhnRidcSK28c+G80hSnoNCVJdcOxyvYLc4apV1MGUPDZOk1vuowtn/6FoYxhGqHbWRlNHJQqsE0BO1Mokh6tkulWlZPME4hTe+wEbhzkFNNKGkdzOKhCvYQ9qJhbq7xRRIAcGm6hcfGd+xLhKOnIw6PqUR1FD6rmc98Nwr85ijVWQIlNdeToysYGGN0xSa/UaiNmh4U2jVIwOw4hcGa2BGsxKCT3aBsnpgxaH9tVHPrU9D4Z5iuw5bYZKzIU28jan1V6sRCq0Jya/Nlkp2ipEQIQOMgZgeBRIMBogQxckBMJZlkZqYkNVChCz4iyWSejFm790L8JuobeGJG0YU8UacJ3OjA+OZB7kamfvkwSDEcLUWl8jr+mR31lXOs/RLOp2WHzCRACwHqyp9dwxeLhiYdGHwz3DV/w3bIyQhTNHqkPz+rmrVxs/ePw7M1u21m3dYLkEA7k7IA850XNILbtcIRt8mCCv+AYSfVoNULrKKtVBmGZayLPVa8vU63jYl6j+WwbCrHqEEp9M4IKudmEQ0GbxwxqSKztlpYP7ZTcUD35q/PQXv9yvBOtDux6a0wz7IDf8gttUOuiRzMgCv6luApqJ4HGn00MjL6E7aIMWJ0jlnOe16Pr1ZXBZBCdMGOeA2MNBN0FuSigkpqClFRjPKgcXFLEDBEx1qgdLFAwL4jIKBH17/qairtjuM7hyULAYyAePMLgaM5bj4CPmyAijZA4DPYTw6uIiuFPpSTVacmj5aYKNdY5dGaDKvAhHEiArJCskW6F3rbuiHFOYImIhD18opCqQrjKCsIH3VGty9qaBW/fs8S6d/vtcXqQzzP7cWZSoLAZAwmYkfqjEZYhh6dVTb1BJsma0aOPEEI2j7XHouRtwmAbdQRuEFaiZzAyIxKXFVTiYKO1Y8HVGVslIoeafLA/JZl0o1l781W/+2LhlJkG2z4o0fQr54rJ3OXpyDKqImdNgrweGZ2794MJFWoXH4xAYJbSrjB35aBjQBso6UcJAqhmYVTYzQ4LrFxZblNwQEpzDHCkNqDrMnzcG7rQQjW6Wz35q7Ny6c6eHnjDLGcpJy/OEanMI3TqeInx4dZFO/uUtevP0GQw78DhleQ4VjpGA9Z5uDKQXV7eNFlmCXrTwNvHdQCVfW+vhAZKvHMq5k9x4piHUox6h5BfvRy4efPnw4canDOTXfQ9/Yw74z+GZH/IALSrsqwdCF/97kf70+hv013PnQREoFoShif6qIaxOpTwQqQghf2ow0DBthZAG9c3MkKH3vt9YRPcolBIacO7AQh4FihvFhh4/d/To0d9+3KZbDFRG7v7m/jgK5iMYGOAR2vX1Jp146x1qBpgfoESYXFNu7rhjgLnEZrHJtCQUy6uJz0Or0lEUwjBVrl24vERXVlqKIXIaoKXSAet5SOLcBSUtHDt+dP8n7fmUgfxK2skTfre30O106J2z79LiWhuViuTlBFbFI1RuNUAZSa5jRsGoCCRW0J6aPN/iOxvLpdBCLz/93gUkvqYQ5FzjTmHgOgtVHgPwmgdV7bmdLZ/5APPXP9739JFXTsysBX0lOrk6ueNwv67wpIcQf+Xee2jPrgeUuOX8E7xGMS0qHwV27NQ71Fht4wkF6IO7BqjLwOia9BPkGw/75tztkPvo9ZnPB4+++fbxkZHhy0EeTyE0LlfZYM4QqpfyCNpFk7dw4MbxYUW+A2mvqxZ26t3zdP7KCkIrlbrmnTzjqMcmlHmGKX/y8vFjs59lwx2fsC5dX1sYrbpHFP3o2hTzI4dGIr/wSFiNoatehxx8nxhxVegjoP3GmfP07n+uDJ6q8vTGOQsurdWqPNHNZVn8xGuvvXbyTud/oYfoU9vq9TjTDwhNn8bYWecQ81s9QgM6u7bVaQxq570PLtNFFAUbqigL+QtnPEi7ubGJkWcOHz7sfd4zv5CBH389vHPnozAMQ78zBb6rJ3laZ5S5MpM09rJC85IsWzClmI/jfOHUqRMn6S5e/wNLEJHOE3HMyAAAAABJRU5ErkJggg==" alt=""></div>
+        </div>
+      </div>
+    </div>
+    <div class="empty">
+      <div class="fan" aria-hidden="true">
+        <div><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/crystal_maiden.png" alt=""></div>
+        <div><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png" alt=""></div>
+        <div><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/void_spirit.png" alt=""></div>
+      </div>
+      <h3>No boards yet</h3>
+      <p>A board is your own hero grid: categories you size and arrange, each filled with heroes.</p>
+      <!--BTN:cta-->
+    </div>
+  </div>
+</template>
+
+<script>
+const FILE = '.kier/designs/c41e-pending-buttons.html';
+const PENDING_MS = 2800;
+
+/* Heroicons 20 solid: squares-plus (idle) and a 2x2 board (B's pending icon) */
+const IC_IDLE = '<svg class="ic-idle" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/></svg>';
+const IC_BUSY = '<svg class="ic-busy" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><rect x="2" y="2" width="7" height="7" rx="2.25"/><rect x="11" y="2" width="7" height="7" rx="2.25"/><rect x="11" y="11" width="7" height="7" rx="2.25"/><rect x="2" y="11" width="7" height="7" rx="2.25"/></svg>';
+const SPINNER = '<span class="spinner"><i></i><i></i><i></i></span>';
+const LABELS = { nav: 'New Board', cta: 'Create your first board' };
+
+const button = (kind) =>
+  `<button class="btn" type="button" data-kind="${kind}"><span class="b-ic">${IC_IDLE}${IC_BUSY}${SPINNER}</span>` +
+  `<span class="b-label"><span class="l-idle">${LABELS[kind]}</span><span class="l-busy">Creating…</span></span><span class="b-fx"></span></button>`;
+
+const appHTML = document.getElementById('app-tpl').innerHTML
+  .replace('<!--BTN:nav-->', button('nav'))
+  .replace('<!--BTN:cta-->', button('cta'));
+
+const sections = [...document.querySelectorAll('.variation')];
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+sections.forEach((sec) => {
+  const isNow = sec.dataset.id === 'Now';
+
+  /* Header */
+  const head = document.createElement('div');
+  head.className = 'v-head';
+  head.innerHTML = `<span class="v-id"></span><h2></h2><button class="pick" aria-expanded="false">Pick</button>`;
+  head.querySelector('.v-id').textContent = sec.dataset.id;
+  head.querySelector('h2').textContent = sec.dataset.name;
+
+  /* Controls */
+  const ctl = document.createElement('div');
+  ctl.className = 'ctl';
+  ctl.append('Click a button in the page to run it.');
+  if (!isNow) {
+    const lab = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.checked = reduced;
+    sec.classList.toggle('rm', reduced);
+    cb.addEventListener('change', () => sec.classList.toggle('rm', cb.checked));
+    lab.append(cb, 'Reduced motion');
+    ctl.append(lab);
+  }
+
+  /* Canvas: state strip + in-situ page */
+  const frame = document.createElement('div');
+  frame.className = 'frame mock';
+  const cells = [['Idle', ''], ['Pending', 'pending'], ['Disabled', 'disabled']]
+    .map(([t, s]) => `<div class="cell" data-state="${s}"><h6>${t}</h6>${button('nav')}${button('cta')}</div>`).join('');
+  frame.innerHTML = `<div class="strip">${cells}</div>${appHTML}`;
+
+  frame.querySelectorAll('.cell').forEach((cell) => {
+    cell.querySelectorAll('.btn').forEach((b) => {
+      if (cell.dataset.state === 'disabled') b.disabled = true;
+      if (cell.dataset.state === 'pending') {
+        // Now: New Board is only disabled while creating; the CTA spins and dims
+        if (isNow) b.disabled = true;
+        b.classList.add('is-pending');
+        if (isNow && b.dataset.kind === 'nav') b.classList.remove('is-pending');
+      }
+      b.tabIndex = -1;
+    });
+  });
+
+  /* In-situ: the clicked button pends, the other disables */
+  const app = frame.querySelector('.app');
+  const btns = [...app.querySelectorAll('.btn')];
+  let timer;
+  btns.forEach((b) => b.addEventListener('click', () => {
+    clearTimeout(timer);
+    btns.forEach((x) => { x.disabled = true; x.classList.remove('is-pending'); });
+    // Now mirrors today's code: the CTA's loading comes from the shared isBoardCreating
+    (isNow ? app.querySelector('[data-kind="cta"]') : b).classList.add('is-pending');
+    timer = setTimeout(() => btns.forEach((x) => { x.disabled = false; x.classList.remove('is-pending'); }), PENDING_MS);
+  }));
+
+  sec.prepend(head, ctl, frame);
+});
+
+/* Pick menus (built from each canvas's id, name, and FILE) */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      const em = document.createElement('em');
+      if (ok) { const c = document.createElement('code'); c.textContent = text; em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* Minimap */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl"></span>`;
+  b.querySelector('.lbl').textContent = `${sec.dataset.id} · ${sec.dataset.name}`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
