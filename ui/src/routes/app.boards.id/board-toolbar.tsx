@@ -173,7 +173,7 @@ const BoardToolbar: React.FC = () => {
             </motion.div>
           </div>
 
-          <div className="flex animate-toolbar-rise-late motion-reduce:animate-none">
+          <div className="flex animate-toolbar-rise motion-reduce:animate-none">
             <BoardToolbarAddCategoryButton locked={isEditing} />
           </div>
         </div>
