@@ -4,31 +4,16 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-use App\Models\User;
-
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Truncate all tables
-     * 
-     * @return void
-     */
-    protected function truncate()
-    {
-        User::truncate();
-    }
-
-    /**
-     * Seed the application's database.
+     * Nothing to seed: users are created when they first sign in with Discord, and hero rows come
+     * from migrations.
      *
      * @return void
      */
     public function run()
     {
-        $this->truncate();
-
-        User::factory()->count(1)
-            ->admin()
-            ->create();
+        //
     }
 }

@@ -7,21 +7,23 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Discord sign-in: link a user to their Discord account. Someone who only ever signs in with
-     * Discord has no password, and no email if Discord's isn't verified.
+     * Sign-in is Discord-only: every user has a Discord id and none has a password. Email is only
+     * kept when Discord has verified it. Needs an empty users table (discord_id is required).
      *
      * @return void
      */
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('discord_id')->nullable()->unique()->after('id');
+            $table->string('discord_id')->unique()->after('id');
             $table->string('email')->nullable()->change();
-            $table->string('password')->nullable()->change();
+            $table->dropColumn('password');
         });
     }
 
     /**
+     * Password and email stay nullable going back: Discord users have no password to restore.
+     *
      * @return void
      */
     public function down()
@@ -29,8 +31,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->dropUnique(['discord_id']);
             $table->dropColumn('discord_id');
-            $table->string('email')->nullable(false)->change();
-            $table->string('password')->nullable(false)->change();
+            $table->string('password')->nullable()->after('email_verified_at');
         });
     }
 };

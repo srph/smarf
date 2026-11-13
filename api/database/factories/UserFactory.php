@@ -18,10 +18,10 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
+            'discord_id' => (string) $this->faker->unique()->numberBetween(10 ** 17, 10 ** 18),
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
         ];
     }
@@ -36,20 +36,6 @@ class UserFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'email_verified_at' => null,
-            ];
-        });
-    }
-
-    /**
-     * Create the admin user
-     * 
-     * @return static
-     */
-    public function admin()
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'email' => 'hi@admin.com'
             ];
         });
     }

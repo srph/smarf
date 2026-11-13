@@ -36,6 +36,9 @@ return [
     'discord' => [
         'client_id' => env('DISCORD_CLIENT_ID'),
         'client_secret' => env('DISCORD_CLIENT_SECRET'),
+        // Socialite requires the key, but the UI sends its redirect with each sign-in.
+        'redirect' => null,
+        'avatar_default_extension' => 'png',
     ],
 
 ];

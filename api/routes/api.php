@@ -20,9 +20,6 @@ use App\Http\Controllers\HeroesController;
 |
 */
 
-Route::get('gm', fn () => \App\Models\User::all());
-
-Route::post('auth/register', [AuthController::class, 'register']);
 Route::post('auth/discord', [DiscordAuthController::class, 'login']);
 Route::middleware('auth:api')->get('auth/me', [AuthController::class, 'me']);
 Route::get('heroes', [HeroesController::class, 'index']);

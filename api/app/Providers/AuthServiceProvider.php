@@ -26,12 +26,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        // Passport::hashClientSecrets();
-
-        Passport::routes(null, ['prefix' => 'api/oauth']);
-
-        Passport::tokensExpireIn(now()->addDays(15));
-        Passport::refreshTokensExpireIn(now()->addDays(30));
-        Passport::personalAccessTokensExpireIn(now()->addMonths(6));
+        // Discord sign-in hands out personal access tokens (DiscordAuthController), so none of
+        // Passport's OAuth routes are registered. Signing in again is one click.
+        Passport::personalAccessTokensExpireIn(now()->addDays(30));
     }
 }
