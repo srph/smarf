@@ -16,6 +16,8 @@ interface UseBoardWorkspaceDragContainerProps<T> {
   containers: T[]
   getContainerId: (container: T) => ID
   getContainerPosition: (container: T) => Translate
+  // Limits where a dragged container can go. Only applied while dragging: a cancel restores the start as it was.
+  clamp?: (container: T, translate: Translate) => Translate
   onChange: (e: UseBoardWorkspaceDragContainerChangeEvent<T>) => void
   onDragEnd: (e: Pick<UseBoardWorkspaceDragContainerChangeEvent<T>, 'container'>) => void
 }
@@ -69,12 +71,14 @@ function useBoardWorkspaceDragContainer<T>(
     if (!activeId || !activeContainer) return
 
     // dnd-kit's delta already includes any scrolling since the drag started.
+    const translate = {
+      x: initialTranslate.x + delta.x,
+      y: initialTranslate.y + delta.y
+    }
+
     props.onChange({
       container: activeContainer,
-      translate: {
-        x: initialTranslate.x + delta.x,
-        y: initialTranslate.y + delta.y
-      }
+      translate: props.clamp ? props.clamp(activeContainer, translate) : translate
     })
   }
 

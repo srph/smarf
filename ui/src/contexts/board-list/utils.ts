@@ -14,6 +14,19 @@ export const getCategoryHeight = ({ categoryWidth, heroCount }: { categoryWidth:
   return CATEGORY_ROW_HEIGHT * rowCount + CATEGORY_HERO_CONTAINER_TOTAL_PADDING
 }
 
+/**
+ * Keeps a dragged category inside the workspace: its whole width within the workspace's width, and its top at or
+ * below the workspace's top. The bottom is open, since the workspace grows to fit. A category wider than the
+ * workspace sits at its left edge.
+ */
+export const clampCategoryPosition = (
+  { x, y }: { x: number; y: number },
+  { categoryWidth, workspaceWidth }: { categoryWidth: number; workspaceWidth: number }
+) => ({
+  x: Math.max(0, Math.min(x, workspaceWidth - categoryWidth)),
+  y: Math.max(0, y)
+})
+
 export const getCategoryBottom = (category: Category): number => {
   return category.y_position + category.height
 }

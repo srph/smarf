@@ -1,18 +1,13 @@
-import { RefObject } from 'react'
 import type { Modifier, ClientRect } from '@dnd-kit/core'
 import type { Transform } from '@dnd-kit/utilities'
 
-export const boardWorkspaceRestrict = ({
-  workspaceRef
-}: {
-  workspaceRef: RefObject<HTMLDivElement | null>
-}): Modifier => {
+export const boardWorkspaceRestrict = ({ workspace }: { workspace: HTMLElement | null }): Modifier => {
   return ({ draggingNodeRect, transform }) => {
-    if (!workspaceRef.current || !draggingNodeRect) {
+    if (!workspace || !draggingNodeRect) {
       return transform
     }
 
-    return restrictToBoundingRect(transform, draggingNodeRect, workspaceRef.current.getBoundingClientRect())
+    return restrictToBoundingRect(transform, draggingNodeRect, workspace.getBoundingClientRect())
   }
 }
 

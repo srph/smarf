@@ -161,4 +161,24 @@ describe('drag and drop', () => {
       expect({ x: category.x_position, y: category.y_position }).toEqual({ x: 300, y: 300 })
     })
   })
+
+  it("stops a dragged category at the workspace's right edge", async () => {
+    // A 1000px workspace: Supports is 300px wide, so its left edge can go no further than 700px.
+    installFakeLayout({ workspaceWidth: 1000 })
+    const { user } = renderApp(`/b/${board.id}`)
+    const supports = await findCategory('Supports')
+    const handle = supports.querySelector('svg')!.parentElement!
+
+    await user.pointer([
+      { keys: '[MouseLeft>]', target: handle, coords: { clientX: 10, clientY: 10 } },
+      { coords: { clientX: 510, clientY: 10 } },
+      { coords: { clientX: 1210, clientY: 10 } },
+      { keys: '[/MouseLeft]' }
+    ])
+
+    await waitFor(() => {
+      const category = db.categories.find((c) => c.name === 'Supports')!
+      expect({ x: category.x_position, y: category.y_position }).toEqual({ x: 700, y: 200 })
+    })
+  })
 })

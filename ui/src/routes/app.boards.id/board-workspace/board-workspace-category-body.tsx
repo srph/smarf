@@ -29,9 +29,11 @@ import { ArrowsPointingOutIcon, PlusCircleIcon, TrashIcon } from '@heroicons/rea
 
 interface Props {
   category: Category
+  // Resizing stops at the workspace's right edge.
+  workspace: HTMLElement | null
 }
 
-const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category }) => {
+const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace }) => {
   const { board, updateDraft, clearDraft } = useBoard()
 
   const { mutate: addHero } = useAddHeroMutation(board.id)
@@ -133,6 +135,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category }) => {
             topLeft: false
           }}
           minWidth={CATEGORY_BODY_INITIAL_WIDTH}
+          bounds={workspace ?? undefined}
           // Height is left to re-resizable (auto); only width is controlled.
           size={{ width: category.width } as Size}
           onResize={handleResize}

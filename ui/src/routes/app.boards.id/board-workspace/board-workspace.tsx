@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Container } from '~/src/components/container/container'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { useQueryClient } from '@tanstack/react-query'
@@ -16,7 +16,7 @@ import { Board, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'
 
 import { BOARD_WORKSPACE_ALLOWANCE } from '~/src/contexts/board-list/constants'
-import { getLowestCategoryBottom } from '~/src/contexts/board-list/utils'
+import { clampCategoryPosition, getLowestCategoryBottom } from '~/src/contexts/board-list/utils'
 
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, MeasuringStrategy } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
@@ -93,10 +93,23 @@ const BoardWorkspace: React.FC = () => {
     onStart: () => updateDraft(() => {})
   })
 
+  // The workspace element, kept in state so categories can bound their resizing by it.
+  const [workspace, setWorkspace] = useState<HTMLDivElement | null>(null)
+
+  // Keep the whole category inside the workspace, not just its drag handle (which is all dnd-kit measures).
+  const clampCategory = (category: Category, position: Translate) =>
+    workspace
+      ? clampCategoryPosition(position, {
+          categoryWidth: category.width,
+          workspaceWidth: workspace.getBoundingClientRect().width
+        })
+      : position
+
   const dragContainerEvents = useBoardWorkspaceDragContainer({
     containers: board.categories,
     getContainerId: getCategoryId,
     getContainerPosition: getCategoryPosition,
+    clamp: clampCategory,
     onChange: handleMoveCategory,
     onDragEnd: handleMoveCategoryEnd
   })
@@ -107,8 +120,6 @@ const BoardWorkspace: React.FC = () => {
       coordinateGetter: sortableKeyboardCoordinates
     })
   )
-
-  const workspaceRef = useRef<HTMLDivElement>(null)
 
   // Provide enough space so users are able to move around the workspace freely.
   // We're not able to achieve this via css because of how we position categories (via `position: relative`).
@@ -131,9 +142,7 @@ const BoardWorkspace: React.FC = () => {
               strategy: MeasuringStrategy.Always
             }
           }}
-          // The modifier reads workspaceRef while dragging, not during render.
-          // oxlint-disable-next-line react/refs
-          modifiers={[boardWorkspaceRestrict({ workspaceRef })]}
+          modifiers={[boardWorkspaceRestrict({ workspace })]}
           {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
           {/*
           A dot grid to line categories up by eye: faint dots every 16px, and a brighter dot every 64px. Both grids have
@@ -143,11 +152,11 @@ const BoardWorkspace: React.FC = () => {
           corner, and the 48px down makes up for the layer starting 48px above the workspace.
         */}
           <div
-            ref={workspaceRef}
+            ref={setWorkspace}
             className="relative z-(--z-board-workspace) before:pointer-events-none before:absolute before:-inset-x-512 before:-top-12 before:-bottom-100 before:-z-10 before:bg-[radial-gradient(circle,var(--color-zinc-500)_1.5px,transparent_1.5px),radial-gradient(circle,color-mix(in_oklab,var(--color-zinc-800),var(--color-zinc-700)_40%)_1px,transparent_1px)] before:bg-size-[64px_64px,16px_16px] before:bg-position-[-32px_16px,-8px_-8px]"
             style={{ height: workspaceHeight }}>
             {board.categories.map((category) => {
-              return <BoardWorkspaceCategoryBody key={category.id} category={category} />
+              return <BoardWorkspaceCategoryBody key={category.id} category={category} workspace={workspace} />
             })}
           </div>
         </DndContext>

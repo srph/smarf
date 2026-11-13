@@ -15,17 +15,17 @@ const cards = () => Array.from(document.querySelectorAll('[aria-roledescription=
  * - category cards sit side by side, 1000px apart
  * - each card's hero area (its droppable) is 900×100
  * - heroes are 50×80 tiles in one row, 60px apart
- * - the workspace is huge, so nothing gets clamped
+ * - the workspace is huge, so nothing gets clamped (pass `workspaceWidth` to test clamping sideways)
  *
  * Only what dnd-kit measures needs a rect; everything else keeps jsdom's zeros.
  * Call it in `beforeEach`; `tests/setup.ts` restores mocks after every test.
  */
-export function installFakeLayout() {
+export function installFakeLayout({ workspaceWidth = 100_000 }: { workspaceWidth?: number } = {}) {
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
     const allCards = cards()
 
     // Workspace: the element holding the cards.
-    if (allCards.length && allCards[0].parentElement === this) return rect(0, 0, 100_000, 100_000)
+    if (allCards.length && allCards[0].parentElement === this) return rect(0, 0, workspaceWidth, 100_000)
 
     const card = this.closest('[aria-roledescription="draggable"]')
     if (card) {
