@@ -45,6 +45,7 @@ help:
 
 install: install-api install-web start-db migrate oauth-client
 	@echo ""
+	@echo "==> Fill in DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET in api/.env, and DISCORD_CLIENT_ID in ui/.env."
 	@echo "==> Done. Run 'make start:api' and 'make start:web' in separate terminals."
 
 install-api:
@@ -72,17 +73,14 @@ install-web:
 migrate:
 	@cd api && $(PHP) artisan migrate --force
 
-# The UI logs in with Passport's password grant. Create a client once and copy
-# its id/secret into ui/.env (skipped when ui/.env already has a client id).
+# Discord sign-in hands out Passport personal access tokens, which need a
+# personal access client. Create one once (skipped when one exists).
 oauth-client:
-	@set -e; \
-	if grep -Eq '^OAUTH_CLIENT_ID=[^[:space:]]' ui/.env; then echo "==> ui/.env already has an OAuth client"; exit 0; fi; \
-	out=$$(cd api && $(PHP) artisan passport:client --password --name="Smarf UI" --provider=users --no-interaction); \
-	id=$$(echo "$$out" | sed -n 's/.*Client ID: *\([A-Za-z0-9-]*\).*/\1/p' | head -1); \
-	secret=$$(echo "$$out" | sed -n 's/.*Client secret: *\([A-Za-z0-9]\{20,\}\).*/\1/p' | head -1); \
-	if [ -z "$$id" ] || [ -z "$$secret" ]; then echo "$$out"; echo "Could not parse the client; copy it into ui/.env by hand."; exit 1; fi; \
-	sed -i '' -e "s/^OAUTH_CLIENT_ID=.*/OAUTH_CLIENT_ID=$$id/" -e "s/^OAUTH_CLIENT_SECRET=.*/OAUTH_CLIENT_SECRET=$$secret/" ui/.env; \
-	echo "==> Wrote OAuth client $$id to ui/.env"
+	@set -e; cd api; \
+	count=$$($(PHP) artisan tinker --execute 'echo DB::table("oauth_personal_access_clients")->count();' 2>/dev/null | tail -1); \
+	if [ -n "$$count" ] && [ "$$count" != "0" ]; then echo "==> Passport personal access client already exists"; exit 0; fi; \
+	$(PHP) artisan passport:client --personal --name="Smarf Personal Access Client" --no-interaction >/dev/null; \
+	echo "==> Created a Passport personal access client"
 
 start-api:
 	@set -e; cd api; \

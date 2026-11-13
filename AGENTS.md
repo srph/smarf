@@ -2,7 +2,7 @@
 
 A Dota 2 hero organizer for the browser. It recreates the in-game hero grid: boards hold resizable, movable categories, and each category holds an ordered list of heroes.
 
-- **API** (`api/`): Laravel 9 on PHP 8.1, with Passport password-grant auth and MySQL 8. See [api/AGENTS.md](api/AGENTS.md).
+- **API** (`api/`): Laravel 9 on PHP 8.1, with Discord-only sign-in (Socialite, issuing Passport tokens) and MySQL 8. See [api/AGENTS.md](api/AGENTS.md).
 - **UI** (`ui/`): React 19 + TypeScript 7, built with Vite 8 and tested with Vitest. See [ui/AGENTS.md](ui/AGENTS.md).
 
 ## Tooling / Dependencies
@@ -17,7 +17,7 @@ A Dota 2 hero organizer for the browser. It recreates the in-game hero grid: boa
 ## Commands
 
 ```bash
-make install      # install:api + install:web, start the DB, migrate, write the OAuth client to ui/.env
+make install      # install:api + install:web, start the DB, migrate, create the Passport personal access client
 make install:api  # composer install, api/.env, app key, Passport keys
 make install:web  # npm install, ui/.env
 make start:db     # Docker MySQL 8 on 127.0.0.1:3308 (root/root, database smarf)
