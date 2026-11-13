@@ -49,6 +49,25 @@ describe('drag and drop', () => {
     await waitFor(() => expect(heroNamesIn('Carries', board.id)).toEqual(['Juggernaut', 'Anti-Mage', 'Axe']))
   })
 
+  it('shows a reorder in one step on drop, without the old order in between', async () => {
+    const { user } = renderApp(`/b/${board.id}`)
+    const carries = await findCategory('Carries')
+
+    heroTile(carries, 'Anti-Mage').focus()
+    await user.keyboard('[Space]')
+    await user.keyboard('[ArrowRight]')
+
+    // Every order the category shows from the drop on.
+    const shown: string[] = []
+    const observer = new MutationObserver(() => shown.push(heroesShownIn(carries).join(',')))
+    observer.observe(carries, { subtree: true, childList: true, attributes: true })
+    await user.keyboard('[Space]')
+    await waitFor(() => expect(heroesShownIn(carries)).toEqual(['Juggernaut', 'Anti-Mage', 'Axe']))
+    observer.disconnect()
+
+    expect(shown).not.toContain('Anti-Mage,Juggernaut,Axe')
+  })
+
   it('moves a hero to another category', async () => {
     const { user } = renderApp(`/b/${board.id}`)
     const carries = await findCategory('Carries')

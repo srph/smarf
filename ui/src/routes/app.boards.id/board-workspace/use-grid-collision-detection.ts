@@ -30,6 +30,8 @@ interface CustomGridCollisionDetectionProps<T> {
   onDrop: (start: CustomGridCollisionDetectionEvent, end: CustomGridCollisionDetectionEvent) => void
   /** Cancelled, or dropped where it started: undo whatever `onMove` showed. */
   onCancel: () => void
+  /** An item was picked up. */
+  onStart?: () => void
 }
 
 interface CustomGridCollisionDetectionReturnType {
@@ -153,6 +155,8 @@ function useGridCollisionDetection<T>(
       container: activeContainer,
       index: payload[activeContainer].indexOf(String(active.id))
     })
+
+    props.onStart?.()
   }
 
   // Responsible for moving an item from array to array

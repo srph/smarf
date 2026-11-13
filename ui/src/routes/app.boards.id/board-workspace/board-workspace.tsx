@@ -87,7 +87,10 @@ const BoardWorkspace: React.FC = () => {
     containerDataIdTransformer: getCategoryHeroIds,
     onMove: handleHeroMove,
     onDrop: handleHeroDrop,
-    onCancel: clearDraft
+    onCancel: clearDraft,
+    // Start every hero drag with a draft (a copy of the cached board). Clearing it on drop then re-renders the
+    // board in the same batch as dnd-kit's own drop reset, so a reorder never shows the old order for a frame.
+    onStart: () => updateDraft(() => {})
   })
 
   const dragContainerEvents = useDragContainer({
