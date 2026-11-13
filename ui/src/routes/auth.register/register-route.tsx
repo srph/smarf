@@ -3,8 +3,8 @@ import { Button } from '~/src/components/button/button'
 import { Input } from '~/src/components/input/input'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { Spacer } from '~/src/components/spacer/spacer'
-import { useLoginMutation } from '~/src/mutations/auth/use-login-mutation'
-import { useRegisterMutation } from '~/src/mutations/auth/use-register-mutation'
+import { useLoginMutation } from '~/src/queries/auth/use-login-mutation'
+import { useRegisterMutation } from '~/src/queries/auth/use-register-mutation'
 
 const RegisterRoute = () => {
   const { mutate: register, isPending: isRegistering } = useRegisterMutation()

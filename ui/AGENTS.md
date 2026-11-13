@@ -32,8 +32,7 @@ src/
 ├── contexts/     auth-user (current user, logout), board-list (layout constants and math), query (QueryProvider)
 ├── hooks/        generic hooks (use-debounced-effect.ts, use-delayed-state.ts, ...)
 ├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie)
-├── mutations/    mutation hooks used by more than one route, a folder per domain (auth/, boards/)
-├── queries/      query hooks and cache helpers used by more than one route, a folder per domain (auth/, boards/, heroes/)
+├── queries/      React Query hooks (queries and mutations) used by more than one route, a folder per domain (auth/, boards/, heroes/)
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId); a route's own hooks go in its queries/ and mutations/
 ├── types/        API and board-operation types
 ├── config.ts     reads env vars
@@ -60,7 +59,7 @@ tests/
 
 ## Best practices
 
-- One hook per request: `useBoardsQuery` (a `queryOptions` factory passed to `useQuery`), `useFavoriteBoardMutation`. Hooks used by more than one route live in `src/queries/<domain>/` or `src/mutations/<domain>/`; hooks used by one route live in that route's `queries/` or `mutations/` folder.
+- One hook per request: `useBoardsQuery` (a `queryOptions` factory passed to `useQuery`), `useFavoriteBoardMutation`. Hooks used by more than one route, queries and mutations alike, live in `src/queries/<domain>/`; hooks used by one route live in that route's `queries/` (queries) or `mutations/` (mutations) folder.
 - Build query keys with the key factories (`boardKeys.list()`), and cache plain data: unwrap the API's `{ boards: [...] }` in `queryFn`. Derive views with `select`, defined at module level.
 - Destructure and rename (`const { data: boards, status: boardsStatus } = useBoardsQuery()`), then handle `pending` (`PageSpinner`), `error` (`ErrorState` with Try again), and success. `data` is typed as defined once the other two are handled.
 - A mutation hook owns its cache work: write the optimistic change in `onMutate`, and give one board's saves ``scope: { id: `board:${id}` }`` so they reach the API in order. UI side effects (navigating, closing a popover) go in the `mutate(vars, { onSuccess })` call.

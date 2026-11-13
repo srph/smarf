@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
 import { type Board, type ID } from '~/src/types/api'
-import { boardKeys } from '~/src/queries/boards/board-keys'
-import { useBoardCache } from '~/src/queries/boards/use-board-cache'
+import { boardKeys } from './board-keys'
+import { useBoardCache } from './use-board-cache'
 
 interface FavoriteBoardVariables {
   is_favorite: boolean
