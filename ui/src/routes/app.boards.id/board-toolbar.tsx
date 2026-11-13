@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { cn } from 'cn'
 import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
+import { FavoriteIcon } from '~/src/components/favorite-icon/favorite-icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
 import { useBoard } from '~/src/routes/app.boards.id/board-context'
 import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
@@ -19,10 +20,8 @@ import {
   PencilIcon,
   PlusCircleIcon,
   RectangleGroupIcon,
-  StarIcon,
   TrashIcon
 } from '@heroicons/react/20/solid'
-import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 
 const BoardToolbar: React.FC = () => {
   const { board } = useBoard()
@@ -86,9 +85,8 @@ const BoardToolbar: React.FC = () => {
                 <IconGroupButton
                   onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}
                   title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
-                  active={board.is_favorite}
                   disabled={isFavoriteLoading}>
-                  <Icon icon={board.is_favorite ? StarIcon : StarOutlineIcon} />
+                  <FavoriteIcon value={board.is_favorite} />
                 </IconGroupButton>
               </div>
             </div>
@@ -149,18 +147,14 @@ const BoardToolbar: React.FC = () => {
 }
 
 // A component (not just classes) because popover triggers pass it props and a ref.
-const IconGroupButton: React.FC<React.ComponentProps<'button'> & { active?: boolean }> = ({
-  active = false,
-  className,
-  ...props
-}) => (
+const IconGroupButton: React.FC<React.ComponentProps<'button'>> = ({ className, ...props }) => (
   <button
     {...props}
     className={cn(
       'relative z-(--z-board-toolbar-icon) inline-flex cursor-pointer items-center border-zinc-700 bg-zinc-900 px-3 py-2 ring-2 ring-transparent transition-all duration-200',
       'not-last:border-r first:rounded-l last:rounded-r',
       'hover:z-(--z-board-toolbar-hovered-icon) hover:ring-sky-500 focus:z-(--z-board-toolbar-hovered-icon) focus:ring-sky-500',
-      active ? 'text-yellow-500' : 'text-zinc-500',
+      'text-zinc-500',
       className
     )}
   />
