@@ -2,7 +2,7 @@ import { RefObject } from 'react'
 import type { Modifier, ClientRect } from '@dnd-kit/core'
 import type { Transform } from '@dnd-kit/utilities'
 
-export const restrictWithinWorkspace = ({
+export const boardWorkspaceRestrict = ({
   workspaceRef
 }: {
   workspaceRef: RefObject<HTMLDivElement | null>

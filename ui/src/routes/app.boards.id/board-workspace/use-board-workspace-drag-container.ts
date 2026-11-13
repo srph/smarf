@@ -7,20 +7,20 @@ export interface Translate {
   y: number
 }
 
-interface UseDragContainerChangeEvent<T> {
+interface UseBoardWorkspaceDragContainerChangeEvent<T> {
   container: T
   translate: Translate
 }
 
-interface UseDragContainerProps<T> {
+interface UseBoardWorkspaceDragContainerProps<T> {
   containers: T[]
   getContainerId: (container: T) => ID
   getContainerPosition: (container: T) => Translate
-  onChange: (e: UseDragContainerChangeEvent<T>) => void
-  onDragEnd: (e: Pick<UseDragContainerChangeEvent<T>, 'container'>) => void
+  onChange: (e: UseBoardWorkspaceDragContainerChangeEvent<T>) => void
+  onDragEnd: (e: Pick<UseBoardWorkspaceDragContainerChangeEvent<T>, 'container'>) => void
 }
 
-interface UseDragContainerReturnType {
+interface UseBoardWorkspaceDragContainerReturnType {
   onDragStart: (e: DragStartEvent) => void
   onDragMove: (e: DragMoveEvent) => void
   onDragEnd: (e: DragCancelEvent) => void
@@ -37,7 +37,9 @@ const defaultTranslate: Translate = {
 /**
  * Encapsulates drag logic for containers
  */
-function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerReturnType {
+function useBoardWorkspaceDragContainer<T>(
+  props: UseBoardWorkspaceDragContainerProps<T>
+): UseBoardWorkspaceDragContainerReturnType {
   const { containers, getContainerId } = props
 
   const containerIds: Containers = useMemo(() => containers.map(getContainerId), [containers, getContainerId])
@@ -53,7 +55,7 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
   const onDragStart = ({ active }: DragStartEvent) => {
     const container = getContainer(String(active.id))
 
-    // Avoid conflict with useGridCollisionDetection
+    // Avoid conflict with useBoardWorkspaceGridCollisionDetection
     // It means we're not dragging any of the containers
     if (!container) return
 
@@ -68,7 +70,7 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
   }
 
   const onDragMove = ({ delta }: DragMoveEvent) => {
-    // Avoid conflict with useGridCollisionDetection
+    // Avoid conflict with useBoardWorkspaceGridCollisionDetection
     // It means we're not dragging any of the containers
     if (!activeId || !activeContainer) return
 
@@ -82,7 +84,7 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
   }
 
   const onDragEnd = () => {
-    // Avoid conflict with useGridCollisionDetection
+    // Avoid conflict with useBoardWorkspaceGridCollisionDetection
     // It means we're not dragging any of the containers
     if (!activeId) return
 
@@ -97,7 +99,7 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
   }
 
   const onDragCancel = () => {
-    // Avoid conflict with useGridCollisionDetection
+    // Avoid conflict with useBoardWorkspaceGridCollisionDetection
     // It means we're not dragging any of the containers
     if (!activeContainer) return
 
@@ -118,4 +120,4 @@ function useDragContainer<T>(props: UseDragContainerProps<T>): UseDragContainerR
   }
 }
 
-export { useDragContainer }
+export { useBoardWorkspaceDragContainer }

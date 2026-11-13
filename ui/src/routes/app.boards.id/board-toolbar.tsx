@@ -6,12 +6,12 @@ import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
 import { useBoard } from '~/src/routes/app.boards.id/board-context'
 import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
 import { useFavoriteBoardMutation } from '~/src/queries/boards/use-favorite-board-mutation'
-import { useUpdateBoardMutation } from '../queries/use-update-board-mutation'
-import { useDuplicateBoardMutation } from '../queries/use-duplicate-board-mutation'
-import { useDeleteBoardMutation } from '../queries/use-delete-board-mutation'
-import { useAddCategoryMutation, newCategory } from '../queries/use-add-category-mutation'
-import { EditPopover } from '../edit-popover/edit-popover'
-import { ToolbarStatusIndicator } from './toolbar-status-indicator'
+import { useUpdateBoardMutation } from './queries/use-update-board-mutation'
+import { useDuplicateBoardMutation } from './queries/use-duplicate-board-mutation'
+import { useDeleteBoardMutation } from './queries/use-delete-board-mutation'
+import { useAddCategoryMutation, newCategory } from './queries/use-add-category-mutation'
+import { BoardEditPopover } from './board-edit-popover'
+import { BoardToolbarStatusIndicator } from './board-toolbar-status-indicator'
 import { useNavigate } from 'react-router'
 import {
   ChevronDoubleDownIcon,
@@ -24,7 +24,7 @@ import {
 } from '@heroicons/react/20/solid'
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 
-const ToolbarComponent: React.FC = () => {
+const BoardToolbar: React.FC = () => {
   const { board } = useBoard()
 
   const { mutate: favoriteBoard, isPending: isFavoriteLoading } = useFavoriteBoardMutation(board.id)
@@ -54,7 +54,7 @@ const ToolbarComponent: React.FC = () => {
   return (
     <>
       <div className="fixed inset-x-0 bottom-6 z-(--z-board-toolbar)">
-        <ToolbarStatusIndicator />
+        <BoardToolbarStatusIndicator />
 
         <Container>
           <div ref={setToolbarElement} className="flex items-center justify-between rounded bg-zinc-700 p-2">
@@ -109,7 +109,7 @@ const ToolbarComponent: React.FC = () => {
                   <Icon icon={DocumentDuplicateIcon} />
                 </IconGroupButton>
 
-                <EditPopover
+                <BoardEditPopover
                   open={isEditing}
                   onOpenChange={setIsEditing}
                   name={board.name}
@@ -166,4 +166,4 @@ const IconGroupButton: React.FC<React.ComponentProps<'button'> & { active?: bool
   />
 )
 
-export { ToolbarComponent as Toolbar }
+export { BoardToolbar }

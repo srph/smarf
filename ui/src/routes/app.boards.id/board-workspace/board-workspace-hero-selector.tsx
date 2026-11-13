@@ -14,7 +14,7 @@ interface Props extends Pick<PopoverProps, 'open' | 'onOpenChange' | 'trigger' |
   onSelectHero: (hero: Hero) => void
 }
 
-const HeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigger, anchor }) => {
+const BoardWorkspaceHeroSelector: React.FC<Props> = ({ open, onOpenChange, onSelectHero, trigger, anchor }) => {
   const [search, setSearch] = useState('')
 
   const searchRef = useRef<HTMLInputElement>(null)
@@ -133,4 +133,4 @@ const getAttributeIcon = (name: string) => {
   }
 }
 
-export { HeroSelector }
+export { BoardWorkspaceHeroSelector }

@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react'
 import { Category, Hero } from '~/src/types/api'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
-import { HeroSelector } from './hero-selector'
-import { CategoryHero } from './category-hero'
+import { BoardWorkspaceHeroSelector } from './board-workspace-hero-selector'
+import { BoardWorkspaceCategoryHero } from './board-workspace-category-hero'
 
 import { useDroppable, useDraggable } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
@@ -13,7 +13,7 @@ import { useUpdateCategoryMutation } from '../queries/use-update-category-mutati
 import { useResizeCategoryMutation } from '../queries/use-resize-category-mutation'
 import { useDeleteCategoryMutation } from '../queries/use-delete-category-mutation'
 import { getCategoryHeight } from '~/src/contexts/board-list/utils'
-import { CategoryTitle } from './category-title'
+import { BoardWorkspaceCategoryTitle } from './board-workspace-category-title'
 
 import { Resizable, type ResizeCallback, type Size } from 're-resizable'
 import { mergeRefs } from '~/src/utils'
@@ -31,7 +31,7 @@ interface Props {
   category: Category
 }
 
-const CategoryBody: React.FC<Props> = ({ category }) => {
+const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category }) => {
   const { board, updateDraft, clearDraft } = useBoard()
 
   const { mutate: addHero } = useAddHeroMutation(board.id)
@@ -99,7 +99,7 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             <div ref={setDraggableNodeRef} {...listeners} className="mr-4 cursor-grabbing text-zinc-400">
               <Icon icon={ArrowsPointingOutIcon} />
             </div>
-            <CategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
+            <BoardWorkspaceCategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
           </div>
 
           <div>
@@ -144,12 +144,12 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
             style={{ padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2, width: category.width }}>
             <SortableContext items={heroIds} strategy={rectSortingStrategy}>
               {category.heroes.map((hero) => (
-                <CategoryHero key={hero.pivot.id} category={category} hero={hero} />
+                <BoardWorkspaceCategoryHero key={hero.pivot.id} category={category} hero={hero} />
               ))}
             </SortableContext>
 
             <div className="shrink-0" style={{ padding: CATEGORY_HERO_X_TOTAL_PADDING / 2 }}>
-              <HeroSelector
+              <BoardWorkspaceHeroSelector
                 open={isHeroSelectorOpen}
                 onOpenChange={setIsHeroSelectorOpen}
                 onSelectHero={(hero: Hero) => {
@@ -175,4 +175,4 @@ const CategoryBody: React.FC<Props> = ({ category }) => {
   )
 }
 
-export { CategoryBody }
+export { BoardWorkspaceCategoryBody }

@@ -7,7 +7,7 @@ interface Props {
   onChange: (v: string) => void
 }
 
-const CategoryTitle: React.FC<Props> = ({ value, onChange }) => {
+const BoardWorkspaceCategoryTitle: React.FC<Props> = ({ value, onChange }) => {
   const [input, setInput] = useState(value)
 
   useDebouncedEffect(
@@ -35,4 +35,4 @@ const CategoryTitle: React.FC<Props> = ({ value, onChange }) => {
   )
 }
 
-export { CategoryTitle }
+export { BoardWorkspaceCategoryTitle }

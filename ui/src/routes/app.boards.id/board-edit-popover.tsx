@@ -13,7 +13,7 @@ interface Props extends Pick<PopoverProps, 'open' | 'onOpenChange' | 'trigger'> 
 
 // @TODO: For slow requests / connections, we should probably prevent
 // the popover from being closed while the board is being updated (?)
-const EditPopover: React.FC<Props> = ({ open, onOpenChange, trigger, anchor, name: currentName, onSubmit }) => {
+const BoardEditPopover: React.FC<Props> = ({ open, onOpenChange, trigger, anchor, name: currentName, onSubmit }) => {
   const [name, setName] = useState(currentName)
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -82,4 +82,4 @@ const EditPopover: React.FC<Props> = ({ open, onOpenChange, trigger, anchor, nam
   )
 }
 
-export { EditPopover }
+export { BoardEditPopover }

@@ -4,12 +4,12 @@ import { Container } from '~/src/components/container/container'
 import { Icon } from '~/src/components/icon/icon'
 import { Spinner } from '~/src/components/spinner/spinner'
 import { useBoard } from '~/src/routes/app.boards.id/board-context'
-import { useBoardSaveStatus } from '../queries/use-board-save-status'
+import { useBoardSaveStatus } from './queries/use-board-save-status'
 import { useDelayedState } from '~/src/hooks/use-delayed-state'
 
 type Status = 'loading' | 'saved' | 'error'
 
-const ToolbarStatusIndicator = () => {
+const BoardToolbarStatusIndicator = () => {
   const { board } = useBoard()
 
   const saveStatus = useBoardSaveStatus(board.id)
@@ -60,4 +60,4 @@ const ToolbarStatusIndicator = () => {
   )
 }
 
-export { ToolbarStatusIndicator }
+export { BoardToolbarStatusIndicator }

@@ -52,7 +52,7 @@ type PayloadMap = Record<ID, ID[]>
  * Moving into another container calls `onMove` as it happens, so the parent can show it; the drop calls
  * `onDrop` once with the start and end positions, so the parent saves once.
  */
-function useGridCollisionDetection<T>(
+function useBoardWorkspaceGridCollisionDetection<T>(
   props: CustomGridCollisionDetectionProps<T>
 ): CustomGridCollisionDetectionReturnType {
   const { containers, containerIdTransformer, containerDataIdTransformer } = props
@@ -142,7 +142,7 @@ function useGridCollisionDetection<T>(
   }
 
   const onDragStart = ({ active }: DragStartEvent) => {
-    // Avoid conflict with useDragContainer
+    // Avoid conflict with useBoardWorkspaceDragContainer
     // This means we're dragging a container, and we don't care about it
     if (String(active.id) in payload) return
 
@@ -162,7 +162,7 @@ function useGridCollisionDetection<T>(
   // Responsible for moving an item from array to array
   // when a user drags an item over to another container
   const onDragOver = ({ active, over }: DragOverEvent) => {
-    // Avoid conflict with useDragContainer
+    // Avoid conflict with useBoardWorkspaceDragContainer
     // This means we're dragging a container, and we don't care about it
     if (!activeId) return
 
@@ -218,7 +218,7 @@ function useGridCollisionDetection<T>(
 
   // Works out where the item ended up and reports the whole move once.
   const onDragEnd = ({ active, over }: DragEndEvent) => {
-    // Avoid conflict with useDragContainer
+    // Avoid conflict with useBoardWorkspaceDragContainer
     // This means we're dragging a container, and we don't care about it
     if (!activeId) return
 
@@ -252,7 +252,7 @@ function useGridCollisionDetection<T>(
   }
 
   const onDragCancel = () => {
-    // Avoid conflict with useDragContainer
+    // Avoid conflict with useBoardWorkspaceDragContainer
     // This means we're dragging a container, and we don't care about it
     if (!activeId) return
 
@@ -275,4 +275,4 @@ function useGridCollisionDetection<T>(
   }
 }
 
-export { useGridCollisionDetection }
+export { useBoardWorkspaceGridCollisionDetection }

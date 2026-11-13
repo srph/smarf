@@ -11,7 +11,7 @@ import {
   type HeroPosition
 } from '../queries/use-move-hero-mutation'
 import { useMoveCategoryMutation } from '../queries/use-move-category-mutation'
-import { CategoryBody } from './category-body'
+import { BoardWorkspaceCategoryBody } from './board-workspace-category-body'
 import { Board, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'
 
@@ -20,10 +20,10 @@ import { getLowestCategoryBottom } from '~/src/contexts/board-list/utils'
 
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, MeasuringStrategy } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { useGridCollisionDetection } from './use-grid-collision-detection'
-import { useDragContainer } from './use-drag-container'
-import { restrictWithinWorkspace } from './restrict-within-workspace'
-import { mergeEvents } from './utils'
+import { useBoardWorkspaceGridCollisionDetection } from './use-board-workspace-grid-collision-detection'
+import { useBoardWorkspaceDragContainer } from './use-board-workspace-drag-container'
+import { boardWorkspaceRestrict } from './board-workspace-restrict'
+import { mergeEvents } from './board-workspace-utils'
 
 // Module-level so they keep their identity across renders (the drag hooks memoize on them).
 const getCategoryId = (category: Category) => category.id
@@ -81,7 +81,7 @@ const BoardWorkspace: React.FC = () => {
     clearDraft()
   }
 
-  const { collisionDetectionStrategy, ...gridCollisionEvents } = useGridCollisionDetection<Category>({
+  const { collisionDetectionStrategy, ...gridCollisionEvents } = useBoardWorkspaceGridCollisionDetection<Category>({
     containers: board.categories,
     containerIdTransformer: getCategoryId,
     containerDataIdTransformer: getCategoryHeroIds,
@@ -93,7 +93,7 @@ const BoardWorkspace: React.FC = () => {
     onStart: () => updateDraft(() => {})
   })
 
-  const dragContainerEvents = useDragContainer({
+  const dragContainerEvents = useBoardWorkspaceDragContainer({
     containers: board.categories,
     getContainerId: getCategoryId,
     getContainerPosition: getCategoryPosition,
@@ -131,11 +131,11 @@ const BoardWorkspace: React.FC = () => {
         }}
         // The modifier reads workspaceRef while dragging, not during render.
         // oxlint-disable-next-line react/refs
-        modifiers={[restrictWithinWorkspace({ workspaceRef })]}
+        modifiers={[boardWorkspaceRestrict({ workspaceRef })]}
         {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
         <div ref={workspaceRef} className="relative z-(--z-board-workspace)" style={{ height: workspaceHeight }}>
           {board.categories.map((category) => {
-            return <CategoryBody key={category.id} category={category} />
+            return <BoardWorkspaceCategoryBody key={category.id} category={category} />
           })}
         </div>
       </DndContext>

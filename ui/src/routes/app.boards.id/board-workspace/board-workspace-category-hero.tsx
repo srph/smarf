@@ -14,7 +14,7 @@ interface Props {
   hero: HeroCategoryPivot
 }
 
-const CategoryHero: React.FC<Props> = ({ hero }) => {
+const BoardWorkspaceCategoryHero: React.FC<Props> = ({ hero }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: hero.pivot.id })
 
   const style = {
@@ -33,4 +33,4 @@ const CategoryHero: React.FC<Props> = ({ hero }) => {
   )
 }
 
-export { CategoryHero }
+export { BoardWorkspaceCategoryHero }
