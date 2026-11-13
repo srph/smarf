@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category Card Plan</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<style>
+  :root { --bg: #f5f5f4; --card: #fff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --new: #15803d; --new-bg: #dcfce7; --mod: #b45309; --mod-bg: #fef3c7; --del: #b91c1c; --del-bg: #fee2e2; --hi: #0284c7; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 48px 16px 96px; }
+  h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -.02em; margin: 0 0 20px; }
+  h2 { font-size: 20px; margin: 56px 0 12px; }
+  .cap { font-size: 13px; color: var(--mute); margin: 8px 0 0; }
+  code, .mono { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .fact { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+  .fact b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 2px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; overflow-x: auto; }
+  svg text { font: 12px ui-sans-serif, system-ui, sans-serif; }
+  .badge { display: inline-block; font: 600 10.5px ui-sans-serif, system-ui; text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px; border-radius: 5px; vertical-align: 1px; margin-left: 6px; }
+  .b-new { color: var(--new); background: var(--new-bg); } .b-mod { color: var(--mod); background: var(--mod-bg); } .b-del { color: var(--del); background: var(--del-bg); }
+  .sev-h { color: #fff; background: #dc2626; } .sev-m { color: #fff; background: #d97706; } .sev-l { color: #fff; background: #65a30d; }
+
+  .tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+  .tree ul { position: relative; padding-left: 20px; }
+  .tree ul::before { content: ""; position: absolute; left: 6px; top: 0; bottom: 14px; border-left: 1px solid var(--line); }
+  .tree li { position: relative; padding-left: 14px; font: 13px/26px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .tree li::before { content: ""; position: absolute; left: -14px; top: 13px; width: 20px; border-top: 1px solid var(--line); }
+  .tree > li { padding-left: 0; } .tree > li::before { display: none; }
+  .tree .dir { font-weight: 700; } .tree .grey { color: #a8a29e; } .tree .gone { text-decoration: line-through; color: var(--del); }
+
+  .timeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin-bottom: 14px; }
+  .tl { position: relative; text-align: center; font-size: 12px; color: var(--mute); padding-top: 26px; }
+  .tl::before { content: ""; position: absolute; top: 9px; left: 0; right: 0; border-top: 2px solid var(--line); }
+  .tl:first-child::before { left: 50%; } .tl:last-child::before { right: 50%; }
+  .tl span { position: absolute; top: 0; left: 50%; translate: -50% 0; width: 20px; height: 20px; border-radius: 50%; background: var(--ink); color: #fff; font: 700 11px/20px ui-sans-serif; }
+  details.phase { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+  details.phase > summary { list-style: none; cursor: pointer; padding: 12px 16px 12px 40px; position: relative; }
+  details.phase > summary::-webkit-details-marker { display: none; }
+  details.phase > summary::before { content: ""; position: absolute; left: 16px; top: 19px; border: 5px solid transparent; border-left: 7px solid var(--mute); transition: transform .15s; transform-origin: 3px 5px; }
+  details.phase[open] > summary::before { transform: rotate(90deg); }
+  .ph-t { font-weight: 700; } .ph-n { color: var(--mute); margin-right: 6px; }
+  .ph-o { display: block; font-size: 13px; color: var(--mute); }
+  .ph-f { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; font: 12px ui-monospace, Menlo, monospace; color: var(--ink); }
+  .ph-f .badge { margin-left: 4px; }
+  .ph-body { padding: 0 16px 16px; }
+  .snip { margin-top: 12px; }
+  .snip-h { font: 12px ui-monospace, Menlo, monospace; color: var(--mute); margin-bottom: 4px; }
+  pre { margin: 0; border-radius: 9px; overflow: auto; }
+  pre code.hljs { font-size: 12.5px; line-height: 1.55; padding: 12px 14px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+  .dc { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13.5px; }
+  .dc h3 { font-size: 14px; margin: 0 0 8px; }
+  .opt { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; color: var(--mute); }
+  .opt.pick { color: var(--ink); font-weight: 600; }
+  .opt::before { content: "○"; } .opt.pick::before { content: "●"; color: var(--hi); }
+  .why { margin-top: 6px; font-size: 12.5px; color: var(--mute); }
+  .risk { display: flex; flex-direction: column; gap: 4px; }
+  .risk .mit { font-size: 12.5px; color: var(--mute); }
+
+  .vg h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin: 18px 0 6px; }
+  .vg ul { list-style: none; margin: 0; padding: 0; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+  .vg li { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .vg li:first-child { border-top: 0; }
+  .vg li::before { content: ""; flex: none; width: 14px; height: 14px; border: 1.5px solid #a8a29e; border-radius: 4px; }
+  .vg li .mono { margin-left: auto; color: var(--mute); background: var(--bg); padding: 1px 6px; border-radius: 5px; white-space: nowrap; }
+  .next { margin-top: 40px; font-size: 15px; }
+
+  /* ---------- Mockup: the B2d2b2 card, as in a8d3-category-delete-state.html ---------- */
+  .board { --z50:#fafafa; --z200:#e4e4e7; --z300:#d4d4d8; --z400:#9f9fa9; --z500:#71717b; --z600:#52525c; --z700:#3f3f46; --z800:#27272a; --z900:#18181b; --sky:#00a6f4; --red:#fb2c36;
+    background: var(--z900) radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px) -8px -8px / 16px 16px;
+    border-radius: 12px; padding: 28px; display: flex; flex-wrap: wrap; gap: 36px 40px; color: var(--z50); font: 14px 'Interstate', ui-sans-serif, system-ui, sans-serif; }
+  .shot { display: flex; flex-direction: column; gap: 10px; }
+  .shot-l { font: 11px ui-sans-serif, system-ui; letter-spacing: .06em; text-transform: uppercase; color: var(--z500); }
+  .k { position: relative; width: 360px; border-radius: 12px; background: rgba(39,39,42,.8); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 1px rgba(0,0,0,.5), 0 10px 15px -3px rgba(0,0,0,.4); }
+  .k.hover { box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), 0 0 0 1px rgba(0,0,0,.5), 0 10px 15px -3px rgba(0,0,0,.4); }
+  .k.active { box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), 0 0 0 2px var(--sky), 0 10px 15px -3px rgba(0,0,0,.4); }
+  .k.del { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--red) 28%, rgba(255,255,255,.06)), 0 0 0 1px rgba(0,0,0,.5), 0 10px 15px -3px rgba(0,0,0,.4); }
+  .k-h { position: relative; height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 8px; }
+  .k-h .g { color: var(--z600); } .hover .k-h .g, .active .k-h .g { color: var(--z300); }
+  .k-h .n { font-weight: 600; } .k-h .t { margin-left: auto; color: var(--z400); width: 28px; height: 28px; display: grid; place-items: center; opacity: 0; } .hover .k-h .t { opacity: 1; }
+  .k-tray { display: flex; flex-wrap: wrap; padding: 3px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px 8px 12px 12px; background: var(--z900); position: relative; }
+  .k-tray .hr { width: 88px; padding: 4px; } .k-tray .hr img, .k-tray .ad { display: block; width: 80px; height: 45px; border-radius: 4px; object-fit: cover; }
+  .k-tray .ad { box-sizing: border-box; border: 2px dashed var(--z500); background: var(--z700); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: bold; }
+  .del .k-tray .hr img { opacity: .35; filter: grayscale(1); }
+  .pill { position: absolute; right: -7px; top: 50%; width: 4px; height: 24px; margin-top: -12px; border-radius: 2px; background: var(--z500); }
+  .pill.on { background: var(--sky); }
+  .cf { position: absolute; inset: 1px 1px -12px 1px; padding: 0 6px 12px 12px; border-radius: 11px 11px 0 0; display: flex; align-items: center; gap: 8px; background: #232326; isolation: isolate; }
+  .cf::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: linear-gradient(90deg, rgba(251,44,54,.34), rgba(251,44,54,.1) 45%, transparent 80%); }
+  .cf .ic { color: #ff6467; } .cf .v { color: var(--z400); } .cf b { font-weight: 600; }
+  .cf .bt { margin-left: auto; display: flex; gap: 6px; }
+  .cf .bt span { height: 24px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: bold; display: grid; place-items: center; background: var(--z700); color: var(--z200); }
+  .cf .bt .d { background: #e7000b; color: #fff; }
+  .hlt { outline: 2px dashed #f59e0b; outline-offset: 6px; border-radius: 14px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <h1>Rebuild category cards as B2d2b2 layer cards</h1>
+  <div class="facts">
+    <div class="fact"><b>Surface</b>Board workspace category card</div>
+    <div class="fact"><b>Shape</b>UI only; no API or schema change</div>
+    <div class="fact"><b>Files</b>1 new · 7 modified · 1 deleted</div>
+    <div class="fact"><b>Rule</b>Tailwind scales, Heroicons, drag math unchanged</div>
+    <div class="fact"><b>Source</b><code>a8d3…delete-state.html</code> B2d2b2</div>
+    <div class="fact"><b>Status</b>Scoped, not started</div>
+  </div>
+
+  <h2>Shape</h2>
+  <div class="panel">
+    <svg viewBox="0 0 980 300" width="100%" role="img" aria-label="Category card before and after">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a8a29e"/></marker></defs>
+      <text x="20" y="22" font-weight="700" fill="#78716c">BEFORE</text>
+      <rect x="20" y="36" width="400" height="26" rx="4" fill="none" stroke="#d6d3d1" stroke-dasharray="4 3"/>
+      <text x="32" y="53" fill="#a8a29e">⤢ move icon · name input · trash (hover)</text>
+      <rect x="20" y="86" width="400" height="60" rx="4" fill="#e7e5e4"/>
+      <text x="32" y="120" fill="#78716c">tray (droppable) · heroes · Add</text>
+      <rect x="250" y="168" width="170" height="78" rx="4" fill="#fff" stroke="#d6d3d1"/>
+      <text x="262" y="190" fill="#a8a29e">DeletePopover</text>
+      <text x="262" y="208" fill="#a8a29e">“Are you sure…”</text>
+      <text x="262" y="226" fill="#a8a29e">Delete · Cancel</text>
+      <line x1="400" y1="62" x2="400" y2="166" stroke="#a8a29e" marker-end="url(#ar)"/>
+      <text x="20" y="276" fill="#a8a29e">no state for move, resize, hero over · delete unmounts at once</text>
+
+      <line x1="490" y1="20" x2="490" y2="290" stroke="#e7e5e4"/>
+
+      <text x="540" y="22" font-weight="700" fill="#0284c7">AFTER</text>
+      <rect x="540" y="36" width="410" height="124" rx="12" fill="#f0f9ff" stroke="#0284c7" stroke-width="2"/>
+      <text x="552" y="60" fill="#0c4a6e">≡ Bars2 grip · name · trash</text>
+      <rect x="760" y="44" width="180" height="26" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-dasharray="4 3"/>
+      <text x="770" y="61" fill="#b91c1c">DeleteConfirm overlay</text>
+      <rect x="541" y="78" width="408" height="81" rx="10" fill="#e0f2fe" stroke="#0284c7"/>
+      <text x="556" y="122" fill="#0c4a6e">tray flush to the card · border 1 + padding 3</text>
+      <rect x="947" y="104" width="6" height="26" rx="3" fill="#0284c7"/>
+      <text x="540" y="186" fill="#0369a1">card ring: idle black/50 · moving, resizing, hero over → 2px sky</text>
+      <text x="540" y="206" fill="#0369a1">right pill: grey on card hover · sky on its own hover</text>
+      <text x="540" y="226" fill="#b91c1c">confirm: red fade · trash tip · words rise</text>
+      <text x="540" y="246" fill="#b91c1c">Delete → card fades still red (240ms) → mutate</text>
+    </svg>
+  </div>
+  <p class="cap">One card element now owns header, tray and every state; the popover goes away.</p>
+
+  <h2>Tree</h2>
+  <div class="panel">
+    <ul class="tree">
+      <li><span class="dir">ui/</span>
+        <ul>
+          <li><span class="dir">src/</span>
+            <ul>
+              <li><span class="dir grey">components/</span>
+                <ul>
+                  <li><span class="dir gone">delete-popover/</span><span class="badge b-del">deleted</span></li>
+                  <li class="grey">icon/, popover/, …</li>
+                </ul>
+              </li>
+              <li><span class="dir grey">contexts/board-list/</span>
+                <ul><li>constants.ts<span class="badge b-mod">modified</span></li><li class="grey">utils.ts</li></ul>
+              </li>
+              <li><span class="dir grey">routes/app.boards.id/board-workspace/</span>
+                <ul>
+                  <li>board-workspace.tsx<span class="badge b-mod">modified</span></li>
+                  <li>board-workspace-category-body.tsx<span class="badge b-mod">modified</span></li>
+                  <li>board-workspace-category-delete-confirm.tsx<span class="badge b-new">new</span></li>
+                  <li>board-workspace-category-title.tsx<span class="badge b-mod">modified</span></li>
+                  <li class="grey">board-workspace-category-hero.tsx</li>
+                  <li>use-board-workspace-grid-collision-detection.ts<span class="badge b-mod">modified</span></li>
+                </ul>
+              </li>
+              <li>index.css<span class="badge b-mod">modified</span></li>
+            </ul>
+          </li>
+          <li><span class="dir grey">tests/</span>
+            <ul>
+              <li>workspace.test.tsx<span class="badge b-mod">modified</span></li>
+              <li class="grey">support/layout.ts (structure kept, so unchanged)</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <p class="cap">The confirm gets its own file because it owns focus, Escape and outside-click; everything else stays in the card.</p>
+
+  <h2>What it looks like</h2>
+  <div class="board">
+    <div class="shot"><span class="shot-l">Idle</span>
+      <div class="k"><div class="k-h"><svg class="g" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg><span class="n">Supports</span><span class="t"></span></div>
+        <div class="k-tray"><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/crystal_maiden.png" alt=""></div><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lion.png" alt=""></div><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/witch_doctor.png" alt=""></div><div class="hr"><span class="ad">⊕ Add</span></div></div></div>
+    </div>
+    <div class="shot"><span class="shot-l">Moving · resizing · hero over</span>
+      <div class="k active hlt"><div class="k-h"><svg class="g" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/></svg><span class="n">Supports</span></div>
+        <div class="k-tray"><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/crystal_maiden.png" alt=""></div><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lion.png" alt=""></div><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/witch_doctor.png" alt=""></div><div class="hr"><span class="ad">⊕ Add</span></div><span class="pill on"></span></div></div>
+    </div>
+    <div class="shot"><span class="shot-l">Confirming delete</span>
+      <div class="k del hlt"><div class="k-h"><span class="cf"><span class="ic"><svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4Z" clip-rule="evenodd"/></svg></span><span><span class="v">Delete</span> <b>Supports</b>?</span><span class="bt"><span>Cancel</span><span class="d">Delete</span></span></span></div>
+        <div class="k-tray"><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/crystal_maiden.png" alt=""></div><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/lion.png" alt=""></div><div class="hr"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/witch_doctor.png" alt=""></div><div class="hr"><span class="ad">⊕ Add</span></div></div></div>
+    </div>
+  </div>
+  <p class="cap">Real size, Bars2 grip; the dashed amber marks the new states.</p>
+
+  <h2>Phases</h2>
+  <div class="timeline">
+    <div class="tl"><span>1</span>Card shell</div>
+    <div class="tl"><span>2</span>Blue states</div>
+    <div class="tl"><span>3</span>Inline confirm</div>
+    <div class="tl"><span>4</span>Red exit</div>
+    <div class="tl"><span>5</span>Verify</div>
+  </div>
+
+  <details class="phase">
+    <summary><span class="ph-n">1</span><span class="ph-t">Card shell</span><span class="ph-o">Glass card, header bar with Bars2 grip, flush tray, dock ring; still the old popover.</span>
+      <span class="ph-f"><span>category-body.tsx<span class="badge b-mod">mod</span></span><span>category-title.tsx<span class="badge b-mod">mod</span></span><span>constants.ts<span class="badge b-mod">mod</span></span></span></summary>
+    <div class="ph-body">
+      <div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/board-workspace/board-workspace-category-body.tsx <span class="badge b-mod">modify</span></div>
+<pre><code class="language-diff">-      className="group absolute inline-block"
++      // B2c layer card: inset rim + the dock's dark outer ring. Header and tray stay children 0 and 1 (tests' fake layout).
++      className="group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg ring-1 ring-black/50 inset-ring inset-ring-white/8 backdrop-blur-sm transition-shadow hover:inset-ring-white/15"
+       style={{ transform: `translate3d(${category.x_position}px, ${category.y_position}px, 0)` }}&gt;
+-        &lt;div className="mb-6 flex items-center justify-between"&gt;
++        &lt;div className="relative flex h-9 items-center gap-2 pr-1.5 pl-2"&gt;
+-            &lt;div ref={setDraggableNodeRef} {...listeners} className="mr-4 cursor-grabbing text-zinc-400"&gt;
+-              &lt;Icon icon={ArrowsPointingOutIcon} /&gt;
++            &lt;div ref={setDraggableNodeRef} {...listeners} className="cursor-grab text-zinc-600 group-hover:text-zinc-300"&gt;
++              &lt;Icon icon={Bars2Icon} /&gt;
+// ...
+-            className="inline-flex flex-wrap rounded bg-zinc-800"
+-            style={{ padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2, width: category.width }}&gt;
++            // Flush to the card: its full border replaces the card's rim, so the corners curve cleanly.
++            className="inline-flex flex-wrap rounded-t-lg rounded-b-xl border border-white/8 bg-zinc-900"
++            style={{ padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2 - CATEGORY_TRAY_BORDER, width: category.width }}&gt;</code></pre></div>
+      <div class="snip"><div class="snip-h">ui/src/contexts/board-list/constants.ts <span class="badge b-mod">modify</span></div>
+<pre><code class="language-diff">-// is removed. Above, the reach covers the heading (its 20px row and 24px margin); elsewhere, a small margin.
++// is removed. Above, the reach covers the card's 36px header plus the 12px edge margin; elsewhere, a small margin.
+ export const CATEGORY_HEADING_REACH = 48
++// The tray's border eats into its padding, so heroes keep their 88px cells.
++export const CATEGORY_TRAY_BORDER = 1</code></pre></div>
+      <div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/board-workspace/board-workspace-category-title.tsx <span class="badge b-mod">modify</span></div>
+<pre><code class="language-diff">-      className="field-sizing-content min-w-[1ch] outline-none"
++      // No pencil: a hover tint says it's editable; focus shows the sky ring.
++      className="-mx-1.5 field-sizing-content min-w-[1ch] rounded-md px-1.5 py-0.5 font-semibold outline-none hover:bg-white/5 focus:bg-zinc-900 focus:ring-2 focus:ring-sky-500"</code></pre></div>
+    </div>
+  </details>
+
+  <details class="phase">
+    <summary><span class="ph-n">2</span><span class="ph-t">Blue states</span><span class="ph-o">2px sky ring while moving, resizing or a hero would land here; right-edge pill turns sky on hover.</span>
+      <span class="ph-f"><span>category-body.tsx<span class="badge b-mod">mod</span></span><span>board-workspace.tsx<span class="badge b-mod">mod</span></span><span>grid-collision-detection.ts<span class="badge b-mod">mod</span></span></span></summary>
+    <div class="ph-body">
+      <div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/board-workspace/use-board-workspace-grid-collision-detection.ts <span class="badge b-mod">modify</span></div>
+<pre><code class="language-diff">-  return { collisionDetectionStrategy, removingId, onDragStart, onDragOver, onDragEnd, onDragCancel }
++  // The dragged hero's id, so its current container can show it would land there.
++  return { collisionDetectionStrategy, activeId, removingId, onDragStart, onDragOver, onDragEnd, onDragCancel }</code></pre></div>
+      <div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/board-workspace/board-workspace-category-body.tsx <span class="badge b-mod">modify</span></div>
+<pre><code class="language-typescript">// The draft moves a dragged hero into whichever category it's over, so "it's in my list" = "it lands here".
+// Dragged off every category, it's removing (red badge) instead.
+const isHeroOver = draggingHeroId != null &amp;&amp; draggingHeroId !== removingHeroId &amp;&amp; heroIds.includes(draggingHeroId)
+const [isResizing, setIsResizing] = useState(false)
+const isActive = isDragging || isResizing || isHeroOver
+
+&lt;div className={cn('group absolute ... ring-1 ring-black/50', isActive &amp;&amp; 'ring-2 ring-sky-500')}&gt;
+// ...
+&lt;Resizable
+  enable={{ right: !isDragging &amp;&amp; !isConfirmingDelete /* left edge dropped */ }}
+  onResizeStart={() =&gt; setIsResizing(true)}
+  onResizeStop={() =&gt; { setIsResizing(false); handleResizeStop() }}
+  handleComponent={{
+    // Grey pill on card hover, sky on its own hover or mid-resize; never taller than 24px.
+    right: &lt;span className={cn('absolute top-1/2 left-0.5 h-6 w-1 -translate-y-1/2 rounded-full bg-zinc-500 opacity-0 group-hover:opacity-100 hover:bg-sky-500', isResizing &amp;&amp; 'bg-sky-500 opacity-100')} /&gt;
+  }}&gt;</code></pre></div>
+    </div>
+  </details>
+
+  <details class="phase">
+    <summary><span class="ph-n">3</span><span class="ph-t">Inline confirm</span><span class="ph-o">Trash opens a header overlay: red fade, trash tip, question and buttons rise; Cancel focused.</span>
+      <span class="ph-f"><span>category-delete-confirm.tsx<span class="badge b-new">new</span></span><span>category-body.tsx<span class="badge b-mod">mod</span></span><span>index.css<span class="badge b-mod">mod</span></span><span>delete-popover/<span class="badge b-del">del</span></span><span>workspace.test.tsx<span class="badge b-mod">mod</span></span></span></summary>
+    <div class="ph-body">
+      <div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/board-workspace/board-workspace-category-delete-confirm.tsx <span class="badge b-new">new</span></div>
+<pre><code class="language-typescript">/** B2d2b2: overlays the card's header. Cancel takes focus, so Enter never deletes by accident. */
+const BoardWorkspaceCategoryDeleteConfirm: React.FC&lt;Props&gt; = ({ name, onCancel, onConfirm }) =&gt; {
+  const ref = useRef&lt;HTMLDivElement&gt;(null)
+  const cancelRef = useRef&lt;HTMLButtonElement&gt;(null)
+
+  useEffect(() =&gt; {
+    cancelRef.current?.focus({ preventScroll: true })
+    const onPointerDown = (evt: PointerEvent) =&gt; ref.current?.contains(evt.target as Node) || onCancel()
+    const onKeyDown = (evt: KeyboardEvent) =&gt; evt.key === 'Escape' &amp;&amp; onCancel()
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () =&gt; { /* remove both */ }
+  }, [onCancel])
+
+  return (
+    // 1px inside the rim; runs 12px under the tray so red fills its rounded corners.
+    &lt;div ref={ref} role="group" aria-label={`Delete ${name}?`}
+      className="absolute inset-x-px top-px -bottom-3 isolate flex items-center gap-2 rounded-t-xl bg-zinc-800 pr-1.5 pb-3 pl-3 before:absolute before:inset-0 before:-z-10 before:rounded-t-xl before:bg-linear-to-r before:from-red-500/35 before:via-red-500/10 before:via-45% before:to-transparent before:to-80% before:animate-confirm-fade motion-reduce:before:animate-none"&gt;
+      &lt;Icon icon={TrashIcon} size={16} className="text-red-400 animate-trash-tip motion-reduce:animate-none" /&gt;
+      &lt;span className="animate-confirm-rise motion-reduce:animate-none"&gt;
+        &lt;span className="text-zinc-400"&gt;Delete&lt;/span&gt; &lt;span className="font-semibold"&gt;{name}&lt;/span&gt;?
+      &lt;/span&gt;
+      &lt;span className="ml-auto flex gap-1.5 animate-confirm-rise-late motion-reduce:animate-none"&gt;
+        &lt;button ref={cancelRef} onClick={onCancel} className="h-6 rounded-md bg-zinc-700 px-2 text-xs font-bold hover:bg-zinc-600"&gt;Cancel&lt;/button&gt;
+        &lt;button onClick={onConfirm} className="h-6 rounded-md bg-red-600 px-2 text-xs font-bold hover:bg-red-500"&gt;Delete&lt;/button&gt;
+      &lt;/span&gt;
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+      <div class="snip"><div class="snip-h">ui/src/index.css <span class="badge b-mod">modify</span></div>
+<pre><code class="language-css">/* Category delete confirm: the red fades in, the trash tips, the words then the buttons rise. */
+--animate-confirm-fade: confirm-fade 0.3s ease both;
+--animate-trash-tip: trash-tip 0.42s var(--ease-morph) both;
+--animate-confirm-rise: confirm-rise 0.32s var(--ease-morph) 60ms both;
+--animate-confirm-rise-late: confirm-rise 0.32s var(--ease-morph) 120ms both;
+
+@keyframes confirm-fade { from { opacity: 0; } }
+@keyframes confirm-rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes trash-tip {
+  0% { opacity: 0; transform: scale(0.6) rotate(-16deg); }
+  60% { opacity: 1; transform: scale(1.12) rotate(5deg); }
+  100% { transform: none; }
+}</code></pre></div>
+    </div>
+  </details>
+
+  <details class="phase">
+    <summary><span class="ph-n">4</span><span class="ph-t">Red exit</span><span class="ph-o">Delete keeps the red on, shrinks and fades the card for 240ms, then saves; no flash.</span>
+      <span class="ph-f"><span>category-body.tsx<span class="badge b-mod">mod</span></span><span>constants.ts<span class="badge b-mod">mod</span></span><span>workspace.test.tsx<span class="badge b-mod">mod</span></span></span></summary>
+    <div class="ph-body">
+      <div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/board-workspace/board-workspace-category-body.tsx <span class="badge b-mod">modify</span></div>
+<pre><code class="language-typescript">// The mutation drops the category from the cache, which unmounts it. Wait out the exit first,
+// with the confirm still showing, so the normal card never flashes back.
+const handleConfirmDelete = () =&gt; {
+  setIsLeaving(true)
+  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  setTimeout(() =&gt; deleteCategory(category.id), reduced ? 0 : CATEGORY_EXIT_MS)
+}
+
+&lt;div className={cn('group absolute ...', isLeaving &amp;&amp; 'pointer-events-none scale-96 opacity-0 transition duration-240')}&gt;</code></pre></div>
+      <div class="snip"><div class="snip-h">ui/tests/workspace.test.tsx <span class="badge b-mod">modify</span></div>
+<pre><code class="language-typescript">it('backs out of deleting a category on Escape and returns focus to the trash', async () =&gt; {
+  // ...open the confirm on Supports
+  await user.keyboard('[Escape]')
+  await waitFor(() =&gt; expect(within(supports).getByTitle('Delete category')).toHaveFocus())
+  expect(db.categories.map((c) =&gt; c.name)).toContain('Supports')
+})</code></pre></div>
+    </div>
+  </details>
+
+  <details class="phase">
+    <summary><span class="ph-n">5</span><span class="ph-t">Verify</span><span class="ph-o">Checks pass, then a browser pass over every state against the mockup.</span>
+      <span class="ph-f"><span>no file changes</span></span></summary>
+    <div class="ph-body"><p class="cap">Run the checklist below; commit after each phase.</p></div>
+  </details>
+
+  <h2>Decisions</h2>
+  <div class="cards">
+    <div class="dc"><h3>Grip icon</h3>
+      <div class="opt pick">Bars2Icon (Heroicons)</div><div class="opt">Custom six-dot SVG</div><div class="opt">Keep ArrowsPointingOutIcon</div>
+      <div class="why">Your pick; stays on Heroicons.</div></div>
+    <div class="dc"><h3>Resize edges</h3>
+      <div class="opt pick">Right edge only</div><div class="opt">Left and right, both with pills</div>
+      <div class="why">Matches the mockup; say if left should stay.</div></div>
+    <div class="dc"><h3>Blue outline for a dragged hero</h3>
+      <div class="opt pick">Wherever it would land, own category included</div><div class="opt">Other categories only</div>
+      <div class="why">One rule: blue means “drops here”; red means remove.</div></div>
+    <div class="dc"><h3>Confirm home</h3>
+      <div class="opt pick">Inline overlay in the header</div><div class="opt">Base UI Popover anchored over it</div>
+      <div class="why">Must sit inside the card's rim and under the tray's corners.</div></div>
+    <div class="dc"><h3>Delete timing</h3>
+      <div class="opt pick">Exit first, then mutate (240ms)</div><div class="opt">Mutate at once, animate a ghost copy</div>
+      <div class="why">No new dependency; the card is still there to animate.</div></div>
+    <div class="dc"><h3>Tray fill</h3>
+      <div class="opt pick">bg-zinc-900</div><div class="opt">#131315 from the mockup</div>
+      <div class="why">Stays on the zinc scale; the difference is a few shades.</div></div>
+  </div>
+
+  <h2>Risks</h2>
+  <div class="cards">
+    <div class="dc risk"><span><span class="badge sev-m">Medium</span></span><b>Header shrinks 52px → 36px, so trays sit 16px higher.</b><span class="mit">Positions are card tops, so nothing jumps; reach stays 48 (36 + 12) and the drag-off tests guard it.</span></div>
+    <div class="dc risk"><span><span class="badge sev-m">Medium</span></span><b>Tests' fake layout finds the tray at card child 1, child 0.</b><span class="mit">Keep the header first and the Resizable second.</span></div>
+    <div class="dc risk"><span><span class="badge sev-l">Low</span></span><b>A 12px radius 1px inside a 12px card may leave a hairline at the corners.</b><span class="mit">Check in the browser; if it shows, use 11px with a comment.</span></div>
+    <div class="dc risk"><span><span class="badge sev-l">Low</span></span><b>jsdom has no animations or matchMedia.</b><span class="mit">The exit uses a timer and guards matchMedia; tests wait with waitFor.</span></div>
+  </div>
+
+  <h2>Verify</h2>
+  <div class="vg">
+    <h3>User</h3>
+    <ul>
+      <li>User sees each category as one layer card with a Bars2 grip, name, and the trash on hover<span class="mono">manual</span></li>
+      <li>User can rename by clicking the name; it tints on hover and rings sky on focus<span class="mono">manual</span></li>
+      <li>User sees a blue outline while moving, resizing, or dragging a hero over a category<span class="mono">manual</span></li>
+      <li>User sees the right-edge pill turn blue on hover, with no outline until resizing<span class="mono">manual</span></li>
+      <li>User sees the red fade, trash tip and rising words when confirming delete<span class="mono">manual</span></li>
+      <li>User can back out with Cancel, Escape or an outside click<span class="mono">npm test</span></li>
+      <li>User sees the card fade out still red after Delete, never the normal card<span class="mono">manual</span></li>
+    </ul>
+    <h3>System</h3>
+    <ul>
+      <li>Heroes still land in 88px cells; 536px still fits six<span class="mono">manual</span></li>
+      <li>A hero dropped on the header still stays; dropped beyond the reach still removes<span class="mono">npm test</span></li>
+      <li>A category delete still saves exactly once<span class="mono">npm test</span></li>
+      <li>Reduced motion: no animations, delete is immediate<span class="mono">manual</span></li>
+    </ul>
+    <h3>Automated</h3>
+    <ul>
+      <li>Types, lint and formatting are clean<span class="mono">npm run typecheck · lint · format:check</span></li>
+      <li>Workspace and drag-and-drop suites pass<span class="mono">npm test</span></li>
+    </ul>
+  </div>
+
+  <p class="next"><b>Next:</b> Phase 1 — rebuild the card shell in <code>board-workspace-category-body.tsx</code>, check it in the browser, commit.</p>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/diff.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+</html>

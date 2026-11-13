@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category Cards</title>
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .states .sp { margin-left: auto; }
+  .live-cap { margin-top: 14px; }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: matches ui/src (Tailwind 4 zinc, sky focus rings, glass dock) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b;
+    --sky: #00a6f4; --red: #fb2c36; --red4: #ff6467; --red6: #e7000b; --green: #00c950;
+    --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p950: oklch(25.7% 0.09 281.288);
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    position: relative; width: 1000px; height: 300px; margin: 0 auto; color: var(--z50);
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  .app.live { height: 460px; touch-action: none; }
+  .app svg { display: block; }
+  .app button { font-family: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+
+  /* Shared category pieces */
+  .cat { position: absolute; left: 0; top: 0; display: inline-block; z-index: 2; transition: opacity .18s, scale .18s; }
+  .cat.is-moving, .cat.is-delete, .cat.is-resizing { z-index: 6; }
+  .cat.is-gone { opacity: 0; scale: .96; }
+  .name { font: inherit; color: inherit; background: none; border: 0; outline: none; padding: 0; margin: 0; field-sizing: content; min-width: 1ch; user-select: text; -webkit-user-select: text; }
+  .body { position: relative; display: flex; flex-wrap: wrap; align-content: flex-start; padding: 4px; transition: background-color .15s, box-shadow .15s; }
+  .hero, .add-wrap { flex-shrink: 0; width: 88px; padding: 4px; }
+  .hero { cursor: grab; }
+  .hero-img { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); transition: opacity .15s, filter .15s; }
+  .hero-img img { width: 80px; height: 45px; object-fit: cover; display: block; pointer-events: none; }
+  .app .hero:hover .hero-img { box-shadow: 0 0 0 2px var(--sky); }
+  .slot .hero-img { background: transparent; }
+  .add { display: flex; align-items: center; justify-content: center; width: 80px; height: 45px; padding: 8px; background: var(--z700) !important; border: 2px dashed var(--z500) !important; border-radius: 4px; font-weight: bold; letter-spacing: .025em; font-size: 12px; }
+  .add svg { color: var(--z500); margin-right: 8px; }
+  .hint { display: none; align-items: center; padding: 0 8px; height: 53px; font-size: 12px; color: var(--z500); white-space: nowrap; }
+  .count { font-variant-numeric: tabular-nums; }
+  .rz { position: absolute; right: -5px; bottom: 0; width: 10px; cursor: col-resize; z-index: 3; }
+  .rz::before { content: ""; position: absolute; left: 3px; top: 50%; width: 4px; height: 24px; margin-top: -12px; border-radius: 2px; background: var(--z500); opacity: 0; transition: opacity .15s, background .15s, height .15s, margin .15s, top .15s; }
+  .cols { position: absolute; left: 16px; top: 50%; translate: 0 -50%; white-space: nowrap; font-size: 11px; font-weight: bold; letter-spacing: .025em; background: var(--z700); color: var(--z200); padding: 3px 8px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.4); display: none; }
+  .is-resizing .rz::before { top: 0; height: 100%; margin-top: 0; background: var(--sky); opacity: 1; }
+  .is-resizing .cols { display: block; }
+  .mini { height: 24px; padding: 0 8px !important; border-radius: 6px; font-size: 12px; font-weight: bold; letter-spacing: .01em; background: var(--z700) !important; color: var(--z200) !important; white-space: nowrap; }
+  .mini:hover { background: var(--z600) !important; }
+  .mini.danger { background: var(--red6) !important; color: #fff !important; }
+  .mini.danger:hover { background: var(--red) !important; }
+  .grip-ic { cursor: grab; touch-action: none; }
+  .is-moving .grip-ic { cursor: grabbing; }
+
+  .origin { position: absolute; z-index: 1; border: 2px dashed var(--z600); pointer-events: none; }
+  .ghost { position: absolute; z-index: 30; pointer-events: none; rotate: -2deg; scale: 1.05; }
+  .ghost .hero-img { box-shadow: 0 0 0 2px var(--sky), 0 12px 28px rgba(0,0,0,.55); }
+  .fake-cursor { position: absolute; z-index: 31; pointer-events: none; filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
+
+  /* Dock (board-toolbar.tsx) + New category (metal-button.tsx) */
+  .dock-wrap { position: absolute; left: 0; right: 0; bottom: 24px; z-index: 20; display: flex; justify-content: center; align-items: flex-end; gap: 8px; pointer-events: none; }
+  .dock { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.6);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05);
+    backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); }
+  .dock-row { height: 44px; display: flex; align-items: center; padding: 0 4px; white-space: nowrap; }
+  .switcher { display: flex; align-items: center; height: 36px; padding: 0 6px 0 12px; border-radius: 8px; font-weight: 600; }
+  .switcher .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .switcher .nm { margin-left: 8px; }
+  .switcher .chev { margin-left: 12px; color: var(--z500); }
+  .ibtns { display: flex; gap: 2px; margin-left: 4px; }
+  .ibtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .metal { position: relative; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px 0 16px; border-radius: 12px; font-weight: bold; color: #fff;
+    border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgba(255,255,255,.5);
+    text-shadow: 0 1px 1px color-mix(in oklab, var(--p950) 50%, transparent); }
+
+  /* ===== Now: board-workspace-category-body.tsx as it is ===== */
+  .v-now .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .v-now .head .l { display: flex; align-items: center; }
+  .v-now .grip-ic { margin-right: 16px; color: var(--z400); cursor: grabbing; }
+  .v-now .del { display: inline-block; border-radius: 4px; background: var(--z700) !important; color: var(--z400) !important; padding: 4px !important; opacity: 0; transition: opacity .2s; }
+  .v-now .del:hover { box-shadow: 0 0 0 2px var(--sky); }
+  .v-now .cat:is(:hover, .is-hover, .is-delete) .del { opacity: 1; }
+  .v-now .body { background: var(--z800); border-radius: 4px; }
+  .v-now .rz { top: 52px; }
+  .v-now .rz::before, .v-now .cols { display: none; }
+  .v-now .pop { display: none; position: absolute; right: 0; top: 44px; width: 280px; padding: 16px; border-radius: 4px; border: 1px solid var(--z700); background: var(--z800); z-index: 10; }
+  .v-now .cat.is-delete .pop { display: block; }
+  .v-now .pop h4 { margin: 0 0 4px; font-weight: normal; font-size: 14px; }
+  .v-now .pop p { margin: 0 0 16px; line-height: 24px; color: var(--z400); }
+  .v-now .pop-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .v-now .pop-btns button { height: 36px; border-radius: 4px; font-weight: bold; }
+  .v-now .pop-btns .danger { background: var(--red6); color: #fff; }
+
+  /* ===== A: folder tab joined to the tray ===== */
+  .v-a .cat { --a-bg: var(--z800); }
+  .v-a .cat:is(:hover, .is-hover) { --a-bg: #2f2f34; }
+  .v-a .tab { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 4px 0 6px; background: var(--a-bg); border-radius: 8px 8px 0 0; transition: background-color .15s; }
+  .v-a .tab::after { content: ""; position: absolute; left: 100%; bottom: 0; width: 8px; height: 8px; background: radial-gradient(circle at 100% 0, transparent 7.5px, var(--a-bg) 8px); transition: background .15s; }
+  .v-a .grip-ic { color: var(--z500); transition: color .15s; }
+  .v-a .cat:is(:hover, .is-hover) .grip-ic { color: var(--z300); }
+  .v-a .name { font-weight: 600; padding: 2px 4px; margin: 0 -4px; border-radius: 4px; }
+  .v-a .name:hover { background: rgba(255,255,255,.05); }
+  .v-a .name:focus, .v-a .is-rename .name { background: var(--z900); box-shadow: 0 0 0 2px var(--sky); }
+  .v-a .count { font-size: 11px; font-weight: bold; color: var(--z400); background: var(--z700); border-radius: 99px; padding: 0 6px; height: 18px; line-height: 18px; margin-left: 2px; transition: background .15s, color .15s; }
+  .v-a .del { width: 0; height: 24px; display: grid; place-items: center; overflow: hidden; opacity: 0; border-radius: 6px; color: var(--z400) !important; transition: width .2s var(--ease), opacity .15s; }
+  .v-a .cat:is(:hover, .is-hover) .del { width: 24px; opacity: 1; }
+  .v-a .del:hover { background: var(--z700) !important; color: var(--red4) !important; }
+  .v-a .confirm { display: none; align-items: center; gap: 6px; color: var(--z200); font-weight: 600; white-space: nowrap; }
+  .v-a .confirm .ic { color: var(--red4); margin-right: 2px; }
+  .v-a .confirm .q { margin-right: 6px; }
+  .v-a .body { background: var(--a-bg); border-radius: 0 8px 8px 8px; }
+  .v-a .rz { top: 32px; }
+  .v-a .cat:is(:hover, .is-hover) .rz::before, .v-a .rz:hover::before { opacity: 1; }
+  .v-a .rz:hover::before { background: var(--z300); }
+  .v-a .is-empty .hint { display: flex; }
+  .v-a .cat.is-drop { --a-bg: color-mix(in oklab, var(--z800), var(--sky) 12%); filter: drop-shadow(1px 0 0 var(--sky)) drop-shadow(-1px 0 0 var(--sky)) drop-shadow(0 1px 0 var(--sky)) drop-shadow(0 -1px 0 var(--sky)); }
+  .v-a .cat.is-drop .count { background: var(--sky); color: var(--z900); }
+  .v-a .slot .hero-img { border: 2px dashed color-mix(in oklab, var(--sky) 70%, transparent); background: color-mix(in oklab, var(--sky) 10%, transparent); }
+  .v-a .cat.is-moving { filter: drop-shadow(0 18px 22px rgba(0,0,0,.6)); rotate: -.6deg; scale: 1.015; --a-bg: #2f2f34; }
+  .v-a .origin { border-radius: 0 8px 8px 8px; }
+  .v-a .cat.is-delete { --a-bg: color-mix(in oklab, var(--z800), var(--red) 16%); }
+  .v-a .cat.is-delete :is(.grip-ic, .name, .count, .del) { display: none; }
+  .v-a .cat.is-delete .confirm { display: flex; }
+  .v-a .cat.is-delete .tab { padding-left: 10px; }
+  .v-a .cat.is-delete .body .hero-img { opacity: .35; filter: grayscale(1); }
+
+  /* ===== B: glass card with a header bar ===== */
+  .v-b .cat { border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(39,39,42,.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 12px 32px -14px rgba(0,0,0,.7), inset 0 1px 1px rgba(255,255,255,.05); transition: border-color .15s, box-shadow .2s, opacity .18s, scale .18s; }
+  .v-b .cat:is(:hover, .is-hover) { border-color: rgba(255,255,255,.16); }
+  .v-b .head { position: relative; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 6px 0 8px; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .v-b .grip-ic { color: var(--z600); transition: color .15s; }
+  .v-b .cat:is(:hover, .is-hover) .grip-ic { color: var(--z300); }
+  .v-b .name { font-weight: 600; padding: 2px 6px; margin: 0 -6px; border-radius: 6px; }
+  .v-b .name:hover { background: rgba(255,255,255,.05); }
+  .v-b .name:focus, .v-b .is-rename .name { background: var(--z900); box-shadow: 0 0 0 2px var(--sky); }
+  .v-b .count { color: var(--z500); font-size: 12px; font-weight: bold; margin-left: 4px; }
+  .v-b .tools { margin-left: auto; display: flex; gap: 2px; opacity: 0; transition: opacity .15s; }
+  .v-b .cat:is(:hover, .is-hover) .tools { opacity: 1; }
+  .v-b .tools button { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .v-b .tools button:hover { background: rgba(255,255,255,.08); color: var(--z50); }
+  .v-b .tools .del:hover { color: var(--red4); }
+  .v-b .confirm { position: absolute; inset: 0; display: none; align-items: center; gap: 8px; padding: 0 6px 0 12px; border-radius: 11px 11px 0 0; background: color-mix(in oklab, var(--red) 14%, rgba(39,39,42,.9)); }
+  .v-b .confirm .ic { color: var(--red4); }
+  .v-b .confirm .q { font-weight: 600; white-space: nowrap; }
+  .v-b .confirm .sub { color: var(--z400); font-size: 12px; white-space: nowrap; }
+  .v-b .confirm .btns { margin-left: auto; display: flex; gap: 6px; }
+  .v-b .rz { top: 40px; right: -6px; }
+  .v-b .cat:is(:hover, .is-hover) .rz::before, .v-b .rz:hover::before { opacity: 1; }
+  .v-b .is-empty .body { margin: 6px; padding: 3px; border: 1px dashed var(--z700); border-radius: 8px; }
+  .v-b .is-empty .hint { display: flex; }
+  .v-b .cat.is-drop { border-color: var(--sky); box-shadow: 0 0 0 1px var(--sky), 0 12px 32px -14px rgba(0,0,0,.7); }
+  .v-b .cat.is-drop .body { background: color-mix(in oklab, var(--sky) 7%, transparent); border-radius: 0 0 11px 11px; }
+  .v-b .cat.is-drop .count { color: var(--sky); }
+  .v-b .slot .hero-img { border: 2px dashed color-mix(in oklab, var(--sky) 70%, transparent); }
+  .v-b .cat.is-moving { border-color: rgba(255,255,255,.18); box-shadow: 0 32px 60px -12px rgba(0,0,0,.85), inset 0 1px 1px rgba(255,255,255,.06); rotate: -.5deg; scale: 1.02; }
+  .v-b .origin { border-radius: 12px; }
+  .v-b .cat.is-resizing { border-right-color: var(--sky); }
+  .v-b .cat.is-delete { border-color: color-mix(in oklab, var(--red) 45%, transparent); }
+  .v-b .cat.is-delete .confirm { display: flex; }
+  .v-b .cat.is-delete .body .hero-img { opacity: .35; filter: grayscale(1); }
+
+  /* ===== C: in-game label with a floating tools pill ===== */
+  .v-c .head { display: flex; align-items: center; gap: 6px; height: 24px; margin-bottom: 8px; }
+  .v-c .grip-ic { color: var(--z600); margin-left: -2px; transition: color .15s; }
+  .v-c .cat:is(:hover, .is-hover) .grip-ic { color: var(--z300); }
+  .v-c .name { font-size: 12px; font-weight: bold; letter-spacing: .08em; text-transform: uppercase; color: var(--z300); padding: 2px 0; }
+  .v-c .name:focus, .v-c .is-rename .name { color: var(--z50); box-shadow: 0 2px 0 var(--sky); }
+  .v-c .count { font-size: 12px; font-weight: bold; color: var(--z500); }
+  .v-c .tools { position: absolute; right: 0; top: -6px; height: 32px; display: flex; align-items: center; padding: 0 3px; border-radius: 10px; opacity: 0; translate: 0 4px; pointer-events: none;
+    border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.6); backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 12px 24px -8px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05); transition: opacity .15s, translate .2s var(--ease), background .2s; }
+  .v-c .cat:is(:hover, .is-hover, .is-delete) .tools { opacity: 1; translate: 0 0; pointer-events: auto; }
+  .v-c .t-idle { display: flex; gap: 2px; }
+  .v-c .t-idle button { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 7px; color: var(--z400); }
+  .v-c .t-idle button:hover { background: rgba(255,255,255,.08); color: var(--z50); }
+  .v-c .t-idle .del:hover { color: var(--red4); }
+  .v-c .t-confirm { display: none; align-items: center; gap: 4px; padding-left: 8px; font-weight: 600; font-size: 13px; white-space: nowrap; }
+  .v-c .t-confirm span { margin-right: 4px; }
+  .v-c .cat.is-delete .t-idle { display: none; }
+  .v-c .cat.is-delete .t-confirm { display: flex; }
+  .v-c .cat.is-delete .tools { background: color-mix(in oklab, var(--red) 18%, rgba(39,39,42,.85)); border-color: color-mix(in oklab, var(--red) 40%, transparent); }
+  .v-c .body { background: rgba(39,39,42,.85); border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+  .v-c .rz { top: 32px; }
+  .v-c .cat:is(:hover, .is-hover) .rz::before, .v-c .rz:hover::before { opacity: 1; }
+  .v-c .is-empty .body { background: transparent; box-shadow: none; outline: 1px dashed var(--z600); outline-offset: -1px; }
+  .v-c .is-empty .hint { display: flex; }
+  .v-c .cat.is-drop .body { box-shadow: inset 0 0 0 2px var(--sky); background: color-mix(in oklab, rgba(39,39,42,.85), var(--sky) 8%); }
+  .v-c .slot { width: 12px; padding: 4px 0; position: relative; }
+  .v-c .slot .hero-img { width: 12px; background: none; position: relative; }
+  .v-c .slot .hero-img::before { content: ""; position: absolute; left: 4px; top: -2px; bottom: -2px; width: 4px; border-radius: 2px; background: var(--sky); box-shadow: 0 0 10px var(--sky); }
+  .v-c .cat.is-moving { rotate: -.5deg; scale: 1.015; }
+  .v-c .cat.is-moving .body { box-shadow: 0 24px 40px -10px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.08); }
+  .v-c .origin { border-radius: 6px; }
+  .v-c .cat.is-delete .body .hero-img { opacity: .35; filter: grayscale(1); }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>Make each category read as one object, in every state</h1>
+    <div class="chips">
+      <div class="chip"><b>Same grid</b>80×45 heroes in 88px cells, so the drag math holds.</div>
+      <div class="chip"><b>Every state</b>Hover, empty, rename, hero over, move, resize, delete.</div>
+      <div class="chip"><b>Board look</b>Zinc trays, sky focus rings, the dock's glass and red.</div>
+      <div class="chip"><b>Quiet at rest</b>Tools stay hidden until you reach for them.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="Floating name over a plain tray" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>Floating name over a plain tray</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note bad">Name, move icon and tray float apart.</div>
+      <div class="note bad">No feedback for hero over, move or resize.</div>
+      <div class="note bad">Delete is a generic popover: “Are you sure to do this?”</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="Folder tab joined to the tray" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>Folder tab joined to the tray</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Tab and tray share one fill, so it reads as one thing.</div>
+      <div class="note good">Count, resize pill and in-tab confirm sit where you look.</div>
+      <div class="note bad">The tab widens with long names.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="Glass card with a header bar" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>Glass card with a header bar</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Same glass and red confirm as the dock.</div>
+      <div class="note good">Every control lives in one header row.</div>
+      <div class="note bad">Heaviest; four cards start to feel boxed in.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="In-game label with a floating tools pill" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>In-game label with a floating tools pill</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Closest to Now; heroes stay the focus.</div>
+      <div class="note good">Insertion bar shows exactly where a hero lands.</div>
+      <div class="note bad">The pill can cover a category stacked close above.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from A, with B's header tools inside the tab.</div>
+      <div class="card"><b>Remix</b>Remix C: show the count only on hover.</div>
+      <div class="card"><b>Settle</b>Settle on B if the dock's glass should run through the board.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/e3a7-category-cards.html';
+
+/* ---------- Icons: heroicons v2, 20/solid (star is 24/outline, as in FavoriteIcon) ---------- */
+const P = {
+  trash: '<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"/>',
+  plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>',
+  plusCircle: '<path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd"/>',
+  chevronUpDown: '<path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z" clip-rule="evenodd"/>',
+  pencil: '<path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.419a4 4 0 0 0-.885 1.343Z"/>',
+  ellipsis: '<path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>',
+  arrowsOut: '<path d="m13.28 7.78 3.22-3.22v2.69a.75.75 0 0 0 1.5 0v-4.5a.75.75 0 0 0-.75-.75h-4.5a.75.75 0 0 0 0 1.5h2.69l-3.22 3.22a.75.75 0 0 0 1.06 1.06ZM2 17.25v-4.5a.75.75 0 0 1 1.5 0v2.69l3.22-3.22a.75.75 0 0 1 1.06 1.06L4.56 16.5h2.69a.75.75 0 0 1 0 1.5h-4.5a.747.747 0 0 1-.75-.75ZM12.22 13.28l3.22 3.22h-2.69a.75.75 0 0 0 0 1.5h4.5a.747.747 0 0 0 .75-.75v-4.5a.75.75 0 0 0-1.5 0v2.69l-3.22-3.22a.75.75 0 1 0-1.06 1.06ZM3.5 4.56l3.22 3.22a.75.75 0 0 0 1.06-1.06L4.56 3.5h2.69a.75.75 0 0 0 0-1.5h-4.5a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 0 1.5 0V4.56Z"/>',
+  grip: '<circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/><circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/><circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const starOutline = (s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.563.563 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg>`;
+const ARROW = '<svg width="16" height="22" viewBox="0 0 16 22" aria-hidden="true"><path d="M1 1v17l4.5-4.2 3 6.7 2.7-1.2-3-6.6H14z" fill="#fff" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+const COLRESIZE = '<svg width="24" height="16" viewBox="0 0 24 16" aria-hidden="true"><path d="M1 8l6-6v4h10V2l6 6-6 6v-4H7v4z" fill="#000" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+
+/* ---------- Board data ---------- */
+const NAMES = { antimage: 'Anti-Mage', juggernaut: 'Juggernaut', phantom_assassin: 'Phantom Assassin', luna: 'Luna', medusa: 'Medusa', slark: 'Slark',
+  axe: 'Axe', mars: 'Mars', tidehunter: 'Tidehunter', centaur: 'Centaur Warrunner', crystal_maiden: 'Crystal Maiden', lion: 'Lion', witch_doctor: 'Witch Doctor' };
+const thumb = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const BOARD = () => [
+  { id: 'carries', name: 'Carries', x: 32, y: 32, w: 536, heroes: ['antimage', 'juggernaut', 'phantom_assassin', 'luna', 'medusa'] },
+  { id: 'offlane', name: 'Offlane', x: 32, y: 192, w: 448, heroes: ['axe', 'mars', 'tidehunter', 'centaur'] },
+  { id: 'supports', name: 'Supports', x: 608, y: 32, w: 360, heroes: ['crystal_maiden', 'lion', 'witch_doctor'] },
+  { id: 'pocket', name: 'Pocket picks', x: 608, y: 192, w: 360, heroes: [] }
+];
+const MIN_W = 360;
+const perRow = (w) => Math.floor((w - 8) / 88);
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const plural = (n) => `${n} hero${n === 1 ? '' : 'es'}`;
+
+/* ---------- Category templates: one per variation, same data hooks ---------- */
+const heroCell = (slug) => `<div class="hero"><div class="hero-img"><img src="${thumb(slug)}" alt="${NAMES[slug]}" draggable="false"></div></div>`;
+const slotCell = '<div class="hero slot"><div class="hero-img"></div></div>';
+const addCell = `<div class="add-wrap"><button class="add" title="Add hero">${icon('plusCircle', 16)}Add</button></div>`;
+const nameInput = (c) => `<input class="name" data-name value="${esc(c.name)}" maxlength="31" size="${Math.max(c.name.length, 1)}" aria-label="Category name" spellcheck="false">`;
+const grip = (n = 'grip') => `<span class="grip-ic" data-grip title="Move category">${icon(n)}</span>`;
+function bodyHTML(c, st) {
+  const cells = c.heroes.map(heroCell);
+  if (st.slotAt != null) cells.splice(st.slotAt, 0, slotCell);
+  return `<div class="body" style="width:${c.w}px">${cells.join('')}${addCell}<span class="hint">Drop heroes here</span></div>`;
+}
+const rz = (c) => `<span class="rz" data-resize title="Resize"><span class="cols">${perRow(c.w)} per row</span></span>`;
+const countOf = (c, st) => c.heroes.length + (st.slotAt != null ? 1 : 0);
+
+const TPL = {
+  now: (c, st) => `
+    <div class="head"><div class="l">${grip('arrowsOut')}${nameInput(c)}</div>
+      <button class="del" data-del title="Delete category">${icon('trash')}</button></div>
+    ${bodyHTML(c, st)}${rz(c)}
+    <div class="pop"><h4>Delete Confirmation</h4><p>Are you sure to do this? This action cannot be undone.</p>
+      <div class="pop-btns"><button class="danger" data-yes>Delete</button><button data-no>Cancel</button></div></div>`,
+
+  a: (c, st) => {
+    const n = countOf(c, st);
+    return `
+    <div class="tab">${grip()}${nameInput(c)}${n ? `<span class="count">${n}</span>` : ''}
+      <button class="del" data-del title="Delete category">${icon('trash', 16)}</button>
+      <span class="confirm"><span class="ic">${icon('trash', 16)}</span><span class="q">Delete ${esc(c.name)}?</span>
+        <button class="mini" data-no>Cancel</button><button class="mini danger" data-yes>Delete</button></span>
+    </div>${bodyHTML(c, st)}${rz(c)}`;
+  },
+
+  b: (c, st) => {
+    const n = countOf(c, st);
+    return `
+    <div class="head">${grip()}${nameInput(c)}${n ? `<span class="count">${n}</span>` : ''}
+      <span class="tools"><button data-rename title="Rename">${icon('pencil', 16)}</button><button class="del" data-del title="Delete category">${icon('trash', 16)}</button></span>
+      <div class="confirm"><span class="ic">${icon('trash', 16)}</span><span class="q">Delete ${esc(c.name)}?</span>${c.heroes.length ? `<span class="sub">${plural(c.heroes.length)}</span>` : ''}
+        <span class="btns"><button class="mini" data-no>Cancel</button><button class="mini danger" data-yes>Delete</button></span></div>
+    </div>${bodyHTML(c, st)}${rz(c)}`;
+  },
+
+  c: (c, st) => {
+    const n = countOf(c, st);
+    return `
+    <div class="head">${grip()}${nameInput(c)}${n ? `<span class="count">${n}</span>` : ''}</div>
+    <div class="tools"><span class="t-idle"><button data-rename title="Rename">${icon('pencil', 16)}</button><button class="del" data-del title="Delete category">${icon('trash', 16)}</button></span>
+      <span class="t-confirm"><span>Delete?</span><button class="mini" data-no>Cancel</button><button class="mini danger" data-yes>Delete</button></span></div>
+    ${bodyHTML(c, st)}${rz(c)}`;
+  }
+};
+const ORIGIN = { now: false, a: true, b: true, c: true };
+
+const catHTML = (v, c, st = {}) =>
+  `<div class="cat ${st.cls || ''} ${c.heroes.length || st.slotAt != null ? '' : 'is-empty'}" data-cat="${c.id}" style="translate:${c.x}px ${c.y}px">${TPL[v](c, st)}</div>`;
+
+const DOCK = `
+  <div class="dock-wrap">
+    <div class="dock"><div class="dock-row">
+      <div class="switcher"><span class="dot"></span><span class="nm">Laning plan</span><span class="chev">${icon('chevronUpDown', 16)}</span></div>
+      <div class="ibtns"><span class="ibtn">${starOutline()}</span><span class="ibtn">${icon('pencil')}</span><span class="ibtn">${icon('ellipsis')}</span></div>
+    </div></div>
+    <div class="metal">${icon('plus')}<span>New category</span></div>
+  </div>`;
+
+/* ---------- Stage: one category, every state at real size ---------- */
+const STATES = ['Idle', 'Hover', 'Empty', 'Renaming', 'Hero over', 'Moving', 'Resizing', 'Deleting'];
+const SX = 232, SY = 72;
+
+function renderStage(app, v, state) {
+  const carries = { ...BOARD()[0], x: SX, y: SY };
+  let c = carries, st = {};
+  if (state === 'Hover') st.cls = 'is-hover';
+  if (state === 'Empty') c = { ...BOARD()[3], x: SX, y: SY };
+  if (state === 'Renaming') { c = { ...carries, name: 'Late-game carries' }; st.cls = 'is-rename'; }
+  if (state === 'Hero over') { st.cls = 'is-drop'; st.slotAt = 2; }
+  if (state === 'Moving') { c = { ...carries, x: SX + 36, y: SY + 22 }; st.cls = 'is-moving is-hover'; }
+  if (state === 'Resizing') { c = { ...carries, w: 452 }; st.cls = 'is-resizing'; }
+  if (state === 'Deleting') st.cls = 'is-delete';
+  app.innerHTML = catHTML(v, c, st);
+  const cat = app.querySelector('.cat');
+  const box = (el) => { const a = app.getBoundingClientRect(), r = el.getBoundingClientRect(); return { x: r.left - a.left, y: r.top - a.top, w: r.width, h: r.height }; };
+  const add = (html) => { const d = document.createElement('div'); d.innerHTML = html; const el = d.firstElementChild; app.appendChild(el); return el; };
+
+  if (state === 'Moving' && ORIGIN[v]) {
+    const o = add('<div class="origin"></div>');
+    o.style.cssText = `left:${SX}px;top:${SY}px;width:${cat.offsetWidth}px;height:${cat.offsetHeight}px`;
+    if (v === 'a') { const tab = cat.querySelector('.tab'); o.style.top = `${SY + tab.offsetHeight}px`; o.style.height = `${cat.offsetHeight - tab.offsetHeight}px`; }
+    if (v === 'c') { const b = cat.querySelector('.body'); o.style.top = `${SY + b.offsetTop}px`; o.style.height = `${b.offsetHeight}px`; }
+  }
+  if (state === 'Hero over') {
+    const s = box(cat.querySelector('.slot'));
+    const gx = s.x + (v === 'c' ? 22 : 18), gy = s.y + (v === 'c' ? 30 : 22);
+    add(`<div class="ghost" style="left:${gx}px;top:${gy}px"><div class="hero-img"><img src="${thumb('slark')}" alt="" draggable="false"></div></div>`);
+    add(`<div class="fake-cursor" style="left:${gx + 44}px;top:${gy + 26}px">${ARROW}</div>`);
+  }
+  if (state === 'Resizing') {
+    const r = box(cat.querySelector('.rz'));
+    add(`<div class="fake-cursor" style="left:${r.x + r.w / 2 - 12}px;top:${r.y + r.h / 2 - 8}px">${COLRESIZE}</div>`);
+  }
+}
+
+/* ---------- Live board: move by the grip, pull the right edge, rename, delete ---------- */
+class Live {
+  constructor(app, v) {
+    this.app = app; this.v = v; this.reset();
+    app.addEventListener('pointerdown', (e) => this.down(e));
+    app.addEventListener('click', (e) => this.click(e));
+    app.addEventListener('input', (e) => {
+      const inp = e.target.closest('[data-name]'); if (!inp) return;
+      this.find(inp).name = inp.value; inp.size = Math.max(inp.value.length, 1);
+    });
+    app.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.matches('[data-name]')) e.target.blur();
+      if (e.key === 'Escape' && this.deleting) { this.deleting = null; this.render(); }
+    });
+  }
+  reset() { this.model = BOARD(); this.deleting = null; this.render(); }
+  find(el) { const id = el.closest('.cat').dataset.cat; return this.model.find((c) => c.id === id); }
+  render() { this.app.innerHTML = this.model.map((c) => catHTML(this.v, c, { cls: c.id === this.deleting ? 'is-delete' : '' })).join('') + DOCK; }
+  click(e) {
+    const t = e.target;
+    if (t.closest('[data-del]')) { this.deleting = this.find(t).id; this.render(); return; }
+    if (t.closest('[data-no]')) { this.deleting = null; this.render(); return; }
+    if (t.closest('[data-yes]')) {
+      const c = this.find(t), el = t.closest('.cat');
+      el.classList.remove('is-delete'); el.classList.add('is-gone');
+      setTimeout(() => { this.model = this.model.filter((m) => m !== c); this.deleting = null; this.render(); }, 180);
+      return;
+    }
+    if (t.closest('[data-rename]')) { const inp = t.closest('.cat').querySelector('[data-name]'); inp.focus(); inp.select(); return; }
+    if (this.deleting && !t.closest('.cat.is-delete')) { this.deleting = null; this.render(); }
+  }
+  down(e) {
+    const g = e.target.closest('[data-grip]'), r = e.target.closest('[data-resize]');
+    if (!g && !r) return;
+    e.preventDefault();
+    const el = e.target.closest('.cat'), c = this.find(el), A = this.app;
+    const sx = e.clientX, sy = e.clientY, ox = c.x, oy = c.y, ow = c.w;
+    let origin = null;
+    const move = (ev) => {
+      const dx = ev.clientX - sx, dy = ev.clientY - sy;
+      if (g) {
+        if (!el.classList.contains('is-moving')) {
+          el.classList.add('is-moving');
+          if (ORIGIN[this.v]) {
+            origin = document.createElement('div'); origin.className = 'origin';
+            const b = this.v === 'b' ? el : el.querySelector('.body');
+            const top = this.v === 'b' ? 0 : b.offsetTop;
+            origin.style.cssText = `left:${ox}px;top:${oy + top}px;width:${b.offsetWidth}px;height:${b.offsetHeight}px`;
+            A.appendChild(origin);
+          }
+        }
+        c.x = Math.round(Math.min(Math.max(ox + dx, 0), A.clientWidth - el.offsetWidth));
+        c.y = Math.round(Math.min(Math.max(oy + dy, 0), A.clientHeight - el.offsetHeight - 8));
+        el.style.translate = `${c.x}px ${c.y}px`;
+      } else {
+        el.classList.add('is-resizing');
+        c.w = Math.round(Math.min(Math.max(ow + dx, MIN_W), A.clientWidth - c.x - 24));
+        el.querySelector('.body').style.width = `${c.w}px`;
+        el.querySelector('.cols').textContent = `${perRow(c.w)} per row`;
+      }
+    };
+    const up = () => {
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+      el.classList.remove('is-moving', 'is-resizing');
+      if (origin) origin.remove();
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  }
+}
+
+/* ---------- Build each canvas ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const v = sec.dataset.v, notes = sec.querySelector('.notes');
+
+  const row = document.createElement('div'); row.className = 'states';
+  const stageFrame = document.createElement('div'); stageFrame.className = 'frame';
+  const stage = document.createElement('div'); stage.className = `app v-${v}`; stageFrame.appendChild(stage);
+  const set = (s) => { row.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.state === s))); renderStage(stage, v, s); };
+  STATES.forEach((s) => { const b = document.createElement('button'); b.textContent = s; b.dataset.state = s; b.addEventListener('click', () => set(s)); row.appendChild(b); });
+
+  const cap = document.createElement('div'); cap.className = 'states live-cap';
+  cap.innerHTML = '<span>Live board: drag the grip, pull the right edge, rename, delete</span><span class="sp"></span>';
+  const resetBtn = document.createElement('button'); resetBtn.textContent = 'Reset'; cap.appendChild(resetBtn);
+  const liveFrame = document.createElement('div'); liveFrame.className = 'frame';
+  const live = document.createElement('div'); live.className = `app live v-${v}`; liveFrame.appendChild(live);
+
+  sec.insertBefore(row, notes); sec.insertBefore(stageFrame, notes); sec.insertBefore(cap, notes); sec.insertBefore(liveFrame, notes);
+  set('Idle');
+  const board = new Live(live, v);
+  resetBtn.addEventListener('click', () => board.reset());
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
