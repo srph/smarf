@@ -62,7 +62,7 @@ const HomeEmptyState: React.FC = () => {
           <ButtonLoaderIcon>
             <Icon icon={SquaresPlusIcon} />
           </ButtonLoaderIcon>
-          <ButtonLoaderText>{isCreating ? 'Creating…' : 'Create your first board'}</ButtonLoaderText>
+          <ButtonLoaderText>{isCreating ? 'Creating' : 'Create your first board'}</ButtonLoaderText>
         </ButtonLoader>
       </div>
     </div>

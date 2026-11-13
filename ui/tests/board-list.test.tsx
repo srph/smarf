@@ -159,7 +159,7 @@ describe('board list', () => {
     await waitFor(() => expect(create).toBeEnabled())
     await user.click(create)
 
-    expect(await screen.findByRole('button', { name: 'Creating…' })).toBeDisabled()
+    expect(await screen.findByRole('button', { name: 'Creating' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'New Board' })).toBeDisabled()
 
     release()
