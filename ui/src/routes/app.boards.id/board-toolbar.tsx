@@ -105,7 +105,7 @@ const BoardToolbar: React.FC = () => {
           <div
             ref={setDockElement}
             className={cn(
-              'relative overflow-hidden rounded-xl border border-white/10 bg-zinc-800/80 shadow-2xl ring-1 inset-shadow-xs shadow-black/70 ring-black/50 inset-shadow-white/5 backdrop-blur-md backdrop-saturate-150',
+              'relative overflow-hidden rounded-xl border border-white/10 bg-zinc-800/60 shadow-2xl ring-1 inset-shadow-xs shadow-black/70 ring-black/50 inset-shadow-white/5 backdrop-blur-lg backdrop-saturate-150',
               'transition-colors duration-250',
               isDanger && 'border-red-500/55 bg-red-950/70'
             )}>
