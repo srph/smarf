@@ -4,9 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  // Keep the env names the app has always used (also set on Netlify).
-  // Anything matching these prefixes is bundled into the client.
-  envPrefix: ['API_URL', 'DISCORD_CLIENT_ID'],
   resolve: {
     // `~/src/...` resolves from the ui/ root, same as tsconfig `paths`.
     alias: [{ find: /^~\//, replacement: `${import.meta.dirname}/` }]
@@ -27,13 +24,13 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    // Same origin as API_URL, so jsdom makes no CORS preflight requests.
+    // Same origin as VITE_API_URL, so jsdom makes no CORS preflight requests.
     environmentOptions: { jsdom: { url: 'http://smarf.test/' } },
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.test.{ts,tsx}'],
     env: {
-      API_URL: 'http://smarf.test/api',
-      DISCORD_CLIENT_ID: 'test-discord-client'
+      VITE_API_URL: 'http://smarf.test/api',
+      VITE_DISCORD_CLIENT_ID: 'test-discord-client'
     }
   }
 })

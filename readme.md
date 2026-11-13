@@ -31,9 +31,9 @@ make start:api
 make start:web
 ```
 
-The UI runs on port 13000 and the API on 13001, on all interfaces. The `.env` files point at `http://mbp:13000` and `http://mbp:13001` (a Tailscale MagicDNS name); change `APP_URL` in `api/.env` and `API_URL` in `ui/.env` if your machine has another name.
+The UI runs on port 13000 and the API on 13001, on all interfaces. The `.env` files point at `http://mbp:13000` and `http://mbp:13001` (a Tailscale MagicDNS name); change `APP_URL` in `api/.env` and `VITE_API_URL` in `ui/.env` if your machine has another name.
 
-Sign-in is Discord-only. Create an app at https://discord.com/developers/applications, add `http://mbp:13000/login/discord` to its OAuth2 redirects, then put its client id and secret in `api/.env` (`DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`) and its client id in `ui/.env` (`DISCORD_CLIENT_ID`). Your account is created the first time you sign in.
+Sign-in is Discord-only. Create an app at https://discord.com/developers/applications, add `http://mbp:13000/login/discord` to its OAuth2 redirects, then put its client id and secret in `api/.env` (`DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`) and its client id in `ui/.env` (`VITE_DISCORD_CLIENT_ID`). Your account is created the first time you sign in.
 
 ## UI
 

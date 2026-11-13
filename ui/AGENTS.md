@@ -18,7 +18,7 @@ npm test            # Vitest integration tests (npm run test:watch to watch)
 
 Before committing, `typecheck`, `lint`, `format:check` and `test` should all pass.
 
-`.env` holds `API_URL` and `DISCORD_CLIENT_ID` (public; the same Discord app as the API's). Vite exposes them via `envPrefix` in `vite.config.ts`, so the names stay the same as on Netlify.
+`.env` holds `VITE_API_URL` and `VITE_DISCORD_CLIENT_ID` (public; the same Discord app as the API's). Vite bundles every `VITE_` variable into the client, so never give a secret that prefix.
 
 Sign-in is Discord-only. The login page links to Discord (`lib/discord.ts` builds the URL and keeps its `state` and the return path in localStorage); Discord sends the visitor back to `/login/discord`, which checks `state` and posts the code to `auth/discord` for a token.
 

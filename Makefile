@@ -45,7 +45,7 @@ help:
 
 install: install-api install-web start-db migrate oauth-client
 	@echo ""
-	@echo "==> Fill in DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET in api/.env, and DISCORD_CLIENT_ID in ui/.env."
+	@echo "==> Fill in DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET in api/.env, and VITE_DISCORD_CLIENT_ID in ui/.env."
 	@echo "==> Done. Run 'make start:api' and 'make start:web' in separate terminals."
 
 install-api:
