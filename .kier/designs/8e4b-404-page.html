@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smarf 404 Page</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1120px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .states .sp { margin-left: auto; }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: matches ui/src (Tailwind 4 zinc, indigo primary, Interstate) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --sky: #00a6f4;
+    --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p950: oklch(25.7% 0.09 281.288);
+    --morph: cubic-bezier(0.3, 0.7, 0.2, 1);
+    position: relative; min-width: 1040px; height: 680px; overflow: hidden;
+    background: var(--z900); color: var(--z50);
+    font: 14px/1.43 'Interstate', ui-sans-serif, system-ui, sans-serif;
+  }
+  .app * { box-sizing: border-box; }
+  .app svg.i { width: 20px; height: 20px; fill: currentColor; flex: none; }
+
+  /* Navigation */
+  .nav { border-bottom: 1px solid var(--z800); }
+  .nav .bar { height: 4px; background: linear-gradient(90deg, var(--p600), var(--p400)); }
+  .nav .row { display: flex; align-items: center; justify-content: space-between; padding: 24px 16px; }
+  .logo { display: flex; align-items: center; }
+  .logo img { width: 32px; height: 32px; margin-right: 16px; }
+  .logo span { font-size: 18px; font-weight: 800; letter-spacing: .025em; text-transform: uppercase; }
+  .nav .right { display: flex; align-items: center; gap: 24px; }
+  .avatar { border-radius: 99px; border: 2px solid var(--z700); padding: 6px; }
+  .avatar i { display: block; width: 40px; height: 40px; border-radius: 99px; background: url(https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/crystal_maiden.png) center/cover, var(--z700); }
+
+  /* Buttons (components/button) */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 4px; padding: 8px 12px; font: inherit; font-weight: 700; color: var(--z50); background: var(--p500); cursor: pointer; transition: box-shadow .2s; text-decoration: none; white-space: nowrap; }
+  .btn:hover, .btn:focus-visible { box-shadow: 0 0 0 2px var(--sky); outline: none; }
+  .btn .i { color: var(--p200); }
+  .btn.clear { background: none; box-shadow: inset 0 0 0 1px var(--z700); }
+  .btn.clear:hover, .btn.clear:focus-visible { box-shadow: inset 0 0 0 1px var(--z700), 0 0 0 2px var(--sky); }
+  .btn.clear .i { color: var(--z400); }
+  .btn.block { display: flex; width: 100%; }
+  .btn.lg { padding: 12px 16px; font-size: 15px; }
+  .path { display: inline-block; font: 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--z300); background: var(--z800); border: 1px solid var(--z700); border-radius: 4px; padding: 5px 8px; }
+  .muted { color: var(--z400); }
+  .tile { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); flex: none; }
+  .tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ----- Now ----- */
+  .now-err { max-width: 360px; margin: 0 auto; padding: 48px 0; text-align: center; }
+  .now-err .btn { width: 100%; margin-top: 8px; }
+  .home { padding: 0 16px; }
+  .home h3 { font-size: 18px; font-weight: 500; margin: 0 0 16px; }
+  .boards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .board-item { border: 1px solid var(--z800); border-radius: 6px; padding: 16px; background: rgb(39 39 42 / .4); }
+  .board-item b { display: block; margin-bottom: 4px; }
+  .board-item small { color: var(--z500); }
+  .board-item .tiles { display: flex; gap: 6px; margin-top: 12px; }
+  .board-item .tile { width: 56px; height: 32px; }
+
+  /* ----- A: the empty slot ----- */
+  .a-stage { display: grid; place-items: center; height: calc(100% - 93px); padding-bottom: 32px; position: relative; }
+  .a-stage::before { content: ""; position: absolute; left: 50%; top: 34%; width: 640px; height: 360px; translate: -50% -50%; background: radial-gradient(closest-side, oklch(58.5% 0.233 277.117 / .22), transparent); pointer-events: none; }
+  .a-col { position: relative; text-align: center; }
+  .cat { display: inline-block; text-align: left; scale: 1.35; transform-origin: 50% 100%; margin-bottom: 52px; }
+  .cat-head { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 4px; font-size: 12px; font-weight: 700; color: var(--z300); }
+  .cat-head .grip { width: 8px; height: 12px; background: radial-gradient(circle, var(--z500) 1px, transparent 1.5px) 0 0/4px 4px; }
+  .cat-head .count { margin-left: auto; font-weight: 400; color: var(--z500); }
+  .cat-body { display: flex; gap: 8px; padding: 8px; border-radius: 6px; border: 1px solid var(--z700); background: rgb(39 39 42 / .7); box-shadow: 0 20px 40px -20px rgb(0 0 0 / .8); }
+  .slot { position: relative; width: 80px; height: 45px; border-radius: 4px; border: 1.5px dashed var(--p400); display: grid; place-items: center; cursor: pointer; overflow: visible; background: oklch(58.5% 0.233 277.117 / .08); }
+  .slot b { font-size: 15px; font-weight: 800; letter-spacing: .08em; color: var(--p300); text-shadow: 0 0 12px var(--p500); opacity: 0; transition: opacity .4s .2s; }
+  .slot.empty b { opacity: 1; animation: a-pulse 2.4s ease-in-out infinite; }
+  .slot .faller { position: absolute; inset: -1.5px; }
+  .slot.empty .faller { animation: a-fall .9s cubic-bezier(.55, 0, .75, .4) forwards; }
+  @keyframes a-fall {
+    0% { transform: none; }
+    18% { transform: rotate(-6deg) translateY(-6px); }
+    32% { transform: rotate(4deg) translateY(-2px); opacity: 1; }
+    100% { transform: translate(28px, 140px) rotate(28deg); opacity: 0; }
+  }
+  @keyframes a-pulse { 50% { text-shadow: 0 0 20px var(--p400); color: var(--p200); } }
+  .cat-body .tile { transition: transform .5s var(--morph); }
+  .slot.empty ~ .x, .cat-body:has(.slot.empty) .tile.lean { transform: translateX(4px) rotate(2deg); }
+  .a-col h1 { font-size: 30px; font-weight: 500; margin: 0 0 8px; letter-spacing: -.01em; }
+  .a-col p { max-width: 400px; margin: 0 auto 24px; color: var(--z400); }
+  .a-actions { display: flex; gap: 12px; justify-content: center; }
+  .a-hint { margin-top: 20px; font-size: 12px; color: var(--z600); }
+
+  /* ----- B: fog of war ----- */
+  .b-scene { position: absolute; inset: 0; background: var(--z950); cursor: crosshair; }
+  .b-art { position: absolute; inset: -20px; background: url(og-assets/login-bg.png) right 18% center / auto 120% no-repeat, radial-gradient(circle at 75% 45%, #3b1f6b, var(--z950) 70%); filter: saturate(.95) brightness(.8); }
+  .b-fogs { position: absolute; inset: 0; pointer-events: none; }
+  .b-fog { position: absolute; width: 140%; height: 70%; left: -20%; border-radius: 50%; filter: blur(40px); background: radial-gradient(closest-side, rgb(212 212 216 / .22), transparent); animation: b-drift 18s ease-in-out infinite alternate; }
+  .b-fog:nth-child(1) { top: 45%; }
+  .b-fog:nth-child(2) { top: 10%; animation-duration: 26s; animation-direction: alternate-reverse; opacity: .7; }
+  .b-fog:nth-child(3) { top: 65%; animation-duration: 22s; opacity: .9; }
+  @keyframes b-drift { from { transform: translateX(-8%); } to { transform: translateX(8%); } }
+  .b-veil { position: absolute; inset: 0; background: rgb(9 9 11 / .9); -webkit-mask: radial-gradient(circle 190px at var(--x, 76%) var(--y, 40%), transparent 30%, #000 100%); mask: radial-gradient(circle 190px at var(--x, 76%) var(--y, 40%), transparent 30%, #000 100%); transition: -webkit-mask-position .1s; pointer-events: none; }
+  .b-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgb(9 9 11 / .85) 0%, rgb(9 9 11 / .3) 50%, transparent 70%); pointer-events: none; }
+  .b-top { position: absolute; left: 32px; top: 32px; right: 32px; display: flex; align-items: center; justify-content: space-between; }
+  .b-copy { position: absolute; left: 64px; bottom: 72px; max-width: 460px; }
+  .b-404 { font-size: 168px; line-height: .8; font-weight: 800; letter-spacing: -.04em; margin: 0 0 20px -6px; background: linear-gradient(180deg, var(--p200) 0%, var(--p300) 30%, var(--p400) 52%, var(--p500) 60%, var(--p400) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 32px oklch(58.5% 0.233 277.117 / .45)); }
+  .b-copy h1 { font-size: 30px; font-weight: 500; margin: 0 0 8px; }
+  .b-copy p { color: var(--z300); margin: 0 0 28px; font-size: 15px; }
+  .b-actions { display: flex; align-items: center; gap: 20px; }
+  .metal { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: 6px; border: 0; font: inherit; font-weight: 700; font-size: 15px; color: var(--z950); cursor: pointer; background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: inset 0 1px 0 rgb(255 255 255 / .45), 0 8px 24px -8px var(--p500); text-shadow: 0 1px 0 rgb(255 255 255 / .25); }
+  .metal::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; opacity: 0; background: linear-gradient(90deg, transparent, rgb(255 255 255 / .55), transparent); transform: translateX(-170%) skewX(-20deg); }
+  .metal:hover::after { animation: sheen .85s cubic-bezier(0.3, 0.6, 0.3, 1) both; }
+  .metal:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+  @keyframes sheen { 0% { opacity: 1; transform: translateX(-170%) skewX(-20deg); } 100% { opacity: 1; transform: translateX(360%) skewX(-20deg); } }
+  .link { color: var(--z300); text-decoration: none; display: inline-flex; gap: 6px; align-items: center; background: none; border: 0; font: inherit; cursor: pointer; padding: 0; }
+  .link:hover { color: var(--z50); }
+  .b-hint { position: absolute; right: 32px; bottom: 32px; font-size: 12px; color: var(--z500); }
+
+  /* ----- C: hero mosaic ----- */
+  .c-stage { position: relative; height: calc(100% - 93px); display: flex; flex-direction: column; align-items: center; padding-top: 28px; }
+  .c-stage::before { content: ""; position: absolute; left: 50%; top: 120px; width: 900px; height: 420px; translate: -50% -50%; background: radial-gradient(closest-side, oklch(58.5% 0.233 277.117 / .16), transparent); pointer-events: none; }
+  .mosaic { position: relative; display: flex; gap: 28px; }
+  .digit { display: grid; grid-template-columns: repeat(5, 40px); grid-auto-rows: 23px; gap: 4px; }
+  .cell { border-radius: 3px; background: rgb(39 39 42 / .45); }
+  .cell.on { background: var(--z700); overflow: hidden; position: relative; opacity: 0; transform: translateY(-14px) scale(.7); transition: transform .5s var(--morph), opacity .4s ease, box-shadow .2s; }
+  .cell.on.in { opacity: 1; transform: none; }
+  .cell.on img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cell.on:hover { transform: translateY(-3px) scale(1.35); z-index: 2; box-shadow: 0 0 0 2px var(--sky), 0 10px 20px -6px #000; transition-duration: .2s; }
+  .c-copy { position: relative; margin-top: 40px; text-align: center; }
+  .c-copy h1 { font-size: 26px; font-weight: 500; margin: 0 0 8px; }
+  .c-copy p { color: var(--z400); margin: 0 0 24px; }
+  .c-actions { display: flex; gap: 12px; justify-content: center; align-items: center; }
+  .c-shuffle { margin-top: 18px; font-size: 12px; color: var(--z500); }
+  .c-shuffle:hover { color: var(--z200); }
+
+  /* ----- D: split, like sign-in ----- */
+  .d { display: flex; height: 100%; }
+  .d-art { position: relative; width: 50%; overflow: hidden; }
+  .d-art .bgimg { position: absolute; inset: -24px; background: url(og-assets/login-bg.png) center / cover; transition: transform .6s var(--morph); }
+  .d-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgb(24 24 27 / .75) 100%), linear-gradient(90deg, transparent 70%, var(--z900) 100%); }
+  .d-404 { position: absolute; left: 36px; bottom: 6px; z-index: 1; font-size: 220px; line-height: 1; font-weight: 800; letter-spacing: -.05em; color: transparent; -webkit-text-stroke: 2px rgb(255 255 255 / .75); transition: transform .6s var(--morph); mix-blend-mode: screen; }
+  .d-404 span { display: inline-block; animation: d-float 6s ease-in-out infinite; }
+  .d-404 span:nth-child(2) { animation-delay: -2s; }
+  .d-404 span:nth-child(3) { animation-delay: -4s; }
+  @keyframes d-float { 50% { transform: translateY(-10px); } }
+  .d-side { width: 50%; padding: 32px; }
+  .d-col { max-width: 400px; margin: 96px auto 0; }
+  .d-col h1 { font-size: 30px; font-weight: 400; margin: 0 0 16px; }
+  .d-col p { color: var(--z400); margin: 0 0 16px; }
+  .d-col .path { margin-bottom: 32px; }
+  .d-alt { margin-top: 16px; text-align: center; font-size: 13px; color: var(--z500); }
+  .d-alt a { color: var(--p300); text-decoration: none; }
+  .d-alt a:hover { text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .app *, .app *::before, .app *::after { animation: none !important; transition: none !important; }
+    .cell.on { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>A dead link strands people with no way back</h1>
+    <div class="chips">
+      <div class="chip"><b>Goal</b>Say plainly the page doesn't exist.</div>
+      <div class="chip"><b>Goal</b>One obvious way back to your boards.</div>
+      <div class="chip"><b>Covers</b>Unknown URLs and boards that are gone.</div>
+      <div class="chip"><b>Style</b>Smarf's zinc and indigo, with real hero art.</div>
+    </div>
+  </section>
+
+  <section class="variation" id="v-now" data-id="Now" data-name="Silent redirect or a misleading retry">
+    <div class="v-head"><span class="v-id">Now</span><h2>Silent redirect or a misleading retry</h2><button class="pick">Pick</button></div>
+    <div class="states" id="now-states"><span>URL:</span></div>
+    <div class="frame"><div class="app" id="now"></div></div>
+    <div class="notes">
+      <div class="note bad">A deleted board blames your connection, and Try again can never work.</div>
+      <div class="note bad">A typo'd URL lands on Home with no word about why.</div>
+    </div>
+  </section>
+
+  <section class="variation" id="v-a" data-id="A" data-name="The empty slot">
+    <div class="v-head"><span class="v-id">A</span><h2>The empty slot</h2><button class="pick">Pick</button></div>
+    <div class="frame"><div class="app" id="a"></div></div>
+    <div class="notes">
+      <div class="note good">Speaks the app's own language: a category with a hero missing.</div>
+      <div class="note good">Keeps the nav, so New Board and the account menu still work.</div>
+      <div class="note bad">The 1.35× category reads a little toy-like next to the real board.</div>
+    </div>
+  </section>
+
+  <section class="variation" id="v-b" data-id="B" data-name="Lost in the fog">
+    <div class="v-head"><span class="v-id">B</span><h2>Lost in the fog</h2><button class="pick">Pick</button></div>
+    <div class="frame"><div class="app" id="b"></div></div>
+    <div class="notes">
+      <div class="note good">The prettiest: your cursor clears the fog to find the hero.</div>
+      <div class="note good">The metal button is the board toolbar's, sheen and all.</div>
+      <div class="note bad">Full-bleed drops the nav; Back is the only way out.</div>
+    </div>
+  </section>
+
+  <section class="variation" id="v-c" data-id="C" data-name="404 spelled in heroes">
+    <div class="v-head"><span class="v-id">C</span><h2>404 spelled in heroes</h2><button class="pick">Pick</button></div>
+    <div class="frame"><div class="app" id="c"></div></div>
+    <div class="notes">
+      <div class="note good">80 heroes drop in like a grid filling; hover one to lift it.</div>
+      <div class="note good">The number does the talking, so the copy can stay short.</div>
+      <div class="note bad">Loads 80 thumbnails for a page nobody wants to be on.</div>
+    </div>
+  </section>
+
+  <section class="variation" id="v-d" data-id="D" data-name="Split, like sign-in">
+    <div class="v-head"><span class="v-id">D</span><h2>Split, like sign-in</h2><button class="pick">Pick</button></div>
+    <div class="frame"><div class="app" id="d"></div></div>
+    <div class="notes">
+      <div class="note good">Reuses the sign-in layout, so it also fits signed-out visitors.</div>
+      <div class="note good">Outlined 404 floats over the art; it drifts with the cursor.</div>
+      <div class="note bad">Same art as sign-in, so it can feel like you were logged out.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from B with other scenes behind the fog, picked at random.</div>
+      <div class="card"><b>Remix</b>Remix A: drag the fallen hero back into the slot to go home.</div>
+      <div class="card"><b>Settle</b>Settle on C if the 404 should feel like the hero grid itself.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/8e4b-404-page.html';
+const PATH = '/b/9f3k';
+const HERO = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const SLUGS = ['antimage','axe','bane','bloodseeker','crystal_maiden','drow_ranger','earthshaker','juggernaut','mirana','nevermore','morphling','phantom_lancer','puck','pudge','razor','sand_king','storm_spirit','sven','tiny','vengefulspirit','windrunner','zuus','kunkka','lina','lich','lion','shadow_shaman','slardar','tidehunter','witch_doctor','riki','enigma','tinker','sniper','necrolyte','warlock','beastmaster','queenofpain','venomancer','faceless_void','skeleton_king','death_prophet','phantom_assassin','pugna','templar_assassin','viper','luna','dragon_knight','dazzle','rattletrap','leshrac','furion','life_stealer','dark_seer','clinkz','omniknight','enchantress','huskar','night_stalker','broodmother','bounty_hunter','weaver','jakiro','batrider','chen','spectre','doom_bringer','ancient_apparition','ursa','spirit_breaker','gyrocopter','alchemist','invoker','silencer','obsidian_destroyer','lycan','brewmaster','shadow_demon','chaos_knight','meepo','treant','ogre_magi','undying','rubick','disruptor','nyx_assassin','naga_siren','keeper_of_the_light','visage','slark','medusa','troll_warlord','centaur','magnataur','bristleback','tusk','skywrath_mage','abaddon','legion_commander','ember_spirit','earth_spirit','terrorblade','phoenix','oracle','winter_wyvern','monkey_king','dark_willow','pangolier','grimstroke','mars','snapfire','void_spirit','hoodwink','dawnbreaker','marci','primal_beast','muerta'];
+const img = (slug) => `<img src="${HERO(slug)}" alt="" loading="lazy" onerror="this.remove()">`;
+const tile = (slug, cls = '') => `<div class="tile ${cls}">${img(slug)}</div>`;
+const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+// Run fn once when el is at least 40% on screen (also checked on load, for a direct #hash link).
+const whenSeen = (el, fn) => {
+  let done = false;
+  const go = () => { if (!done) { done = true; io.disconnect(); fn(); } };
+  const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) go(); }, { threshold: .4 });
+  io.observe(el);
+  addEventListener('load', () => { const r = el.getBoundingClientRect(); if (r.top < innerHeight * .6 && r.bottom > innerHeight * .4) go(); });
+};
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const ICON = {
+  home: '<svg class="i" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd"/></svg>',
+  plus: '<svg class="i" viewBox="0 0 20 20"><path d="M2 4.5A2.5 2.5 0 0 1 4.5 2h2A2.5 2.5 0 0 1 9 4.5v2A2.5 2.5 0 0 1 6.5 9h-2A2.5 2.5 0 0 1 2 6.5v-2Zm9 0A2.5 2.5 0 0 1 13.5 2h2A2.5 2.5 0 0 1 18 4.5v2A2.5 2.5 0 0 1 15.5 9h-2A2.5 2.5 0 0 1 11 6.5v-2Zm-9 9A2.5 2.5 0 0 1 4.5 11h2A2.5 2.5 0 0 1 9 13.5v2A2.5 2.5 0 0 1 6.5 18h-2A2.5 2.5 0 0 1 2 15.5v-2Zm12-1.75a.75.75 0 0 0-1.5 0v1.5h-1.5a.75.75 0 0 0 0 1.5h1.5v1.5a.75.75 0 0 0 1.5 0v-1.5h1.5a.75.75 0 0 0 0-1.5h-1.5v-1.5Z"/></svg>',
+  back: '<svg class="i" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd"/></svg>'
+};
+const LOGO = '<div class="logo"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div>';
+const NAV = `<div class="nav"><div class="bar"></div><div class="row">${LOGO}<div class="right"><button class="btn">${ICON.plus}New Board</button><div class="avatar"><i></i></div></div></div></div>`;
+
+/* ---------- Now ---------- */
+{
+  const el = document.getElementById('now');
+  const states = document.getElementById('now-states');
+  const VIEWS = {
+    [`${PATH} (deleted board)`]: `${NAV}<div class="now-err"><p>Couldn't load this board. Check your connection and try again.</p><button class="btn">Try again</button></div>`,
+    '/bords (typo)': `${NAV}<div class="home"><h3>Your boards</h3><div class="boards">${[['Ranked picks', 'antimage,invoker,lion'], ['Supports', 'crystal_maiden,dazzle,oracle'], ['Turbo', 'pudge,sven,lina']].map(([n, hs]) => `<div class="board-item"><b>${n}</b><small>Updated 2 days ago</small><div class="tiles">${hs.split(',').map((h) => tile(h)).join('')}</div></div>`).join('')}</div><p class="muted" style="margin-top:24px;font-size:12px">↑ Redirected to Home. Nothing says the link was wrong.</p></div>`
+  };
+  Object.keys(VIEWS).forEach((k, i) => {
+    const b = document.createElement('button'); b.textContent = k;
+    b.addEventListener('click', () => { el.innerHTML = VIEWS[k]; states.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); });
+    states.appendChild(b);
+    if (i === 0) b.click();
+  });
+}
+
+/* ---------- A: the empty slot ---------- */
+{
+  const el = document.getElementById('a');
+  el.innerHTML = `${NAV}<div class="a-stage"><div class="a-col">
+    <div class="cat"><div class="cat-head"><span class="grip"></span>Carries<span class="count">3 heroes</span></div>
+      <div class="cat-body">${tile('juggernaut')}${tile('phantom_assassin')}${tile('faceless_void', 'lean')}<div class="slot" title="Replay"><b>404</b><div class="faller">${tile('pudge')}</div></div></div></div>
+    <h1>Nothing in this slot</h1>
+    <p>There's no page at <span class="path">${PATH}</span>. The board may have been deleted, or the link is off by a letter.</p>
+    <div class="a-actions"><button class="btn lg">${ICON.home}Back to your boards</button><button class="btn clear lg">${ICON.plus}New board</button></div>
+    <div class="a-hint">Click the empty slot to replay</div>
+  </div></div>`;
+  const slot = el.querySelector('.slot');
+  const play = () => { slot.classList.remove('empty'); void slot.offsetWidth; setTimeout(() => slot.classList.add('empty'), reduced ? 0 : 700); };
+  slot.addEventListener('click', play);
+  whenSeen(el, play);
+}
+
+/* ---------- B: lost in the fog ---------- */
+{
+  const el = document.getElementById('b');
+  el.innerHTML = `<div class="b-scene"><div class="b-art"></div><div class="b-fogs"><div class="b-fog"></div><div class="b-fog"></div><div class="b-fog"></div></div><div class="b-veil"></div><div class="b-shade"></div>
+    <div class="b-top">${LOGO}<div class="avatar"><i></i></div></div>
+    <div class="b-copy"><div class="b-404">404</div><h1>Lost in the fog</h1><p>Nothing lives at <span class="path">${PATH}</span>. The board may be gone, or the link took a wrong turn.</p>
+      <div class="b-actions"><button class="metal">${ICON.home}Back to your boards</button><button class="link">${ICON.back}Go back</button></div></div>
+    <div class="b-hint">Move your cursor to clear the fog</div></div>`;
+  const scene = el.querySelector('.b-scene'), veil = el.querySelector('.b-veil'), art = el.querySelector('.b-art');
+  let tx = 0.76, ty = 0.4, x = tx, y = ty, raf = 0;
+  const tick = () => {
+    x += (tx - x) * 0.12; y += (ty - y) * 0.12;
+    veil.style.setProperty('--x', `${x * 100}%`); veil.style.setProperty('--y', `${y * 100}%`);
+    art.style.transform = `translate(${(0.5 - x) * 16}px, ${(0.5 - y) * 12}px)`;
+    raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.001 ? requestAnimationFrame(tick) : 0;
+  };
+  scene.addEventListener('pointermove', (e) => {
+    const r = scene.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width; ty = (e.clientY - r.top) / r.height;
+    if (reduced) { x = tx; y = ty; } if (!raf) raf = requestAnimationFrame(tick);
+  });
+  scene.addEventListener('pointerleave', () => { tx = 0.76; ty = 0.4; if (!raf) raf = requestAnimationFrame(tick); });
+}
+
+/* ---------- C: 404 spelled in heroes ---------- */
+{
+  const el = document.getElementById('c');
+  const GLYPH = {
+    4: ['11011', '11011', '11011', '11111', '11111', '00011', '00011'],
+    0: ['01110', '11111', '11011', '11011', '11011', '11111', '01110']
+  };
+  el.innerHTML = `${NAV}<div class="c-stage"><div class="mosaic"></div>
+    <div class="c-copy"><h1>Page not found</h1><p>No board or page lives at <span class="path">${PATH}</span>.</p>
+      <div class="c-actions"><button class="btn lg">${ICON.home}Back to your boards</button><button class="btn clear lg">${ICON.plus}New board</button></div>
+      <button class="link c-shuffle">Shuffle heroes</button></div></div>`;
+  const mosaic = el.querySelector('.mosaic');
+  const build = () => {
+    const pool = shuffle(SLUGS); let n = 0;
+    mosaic.innerHTML = [4, 0, 4].map((d, di) => `<div class="digit">${GLYPH[d].map((row, r) => [...row].map((on, c) => on === '1' ? `<div class="cell on" data-d="${di * 5 + c + r}">${img(pool[n++ % pool.length])}</div>` : '<div class="cell"></div>').join('')).join('')}</div>`).join('');
+    mosaic.querySelectorAll('.cell.on').forEach((cell) => setTimeout(() => cell.classList.add('in'), reduced ? 0 : 120 + Number(cell.dataset.d) * 38 + Math.random() * 60));
+  };
+  el.querySelector('.c-shuffle').addEventListener('click', build);
+  whenSeen(el, build);
+}
+
+/* ---------- D: split, like sign-in ---------- */
+{
+  const el = document.getElementById('d');
+  el.innerHTML = `<div class="d"><div class="d-art"><div class="bgimg"></div><div class="d-404"><span>4</span><span>0</span><span>4</span></div></div>
+    <div class="d-side">${LOGO}<div class="d-col"><h1>This link leads nowhere</h1><p>We couldn't find a page at this address. The board may have been deleted, or the link was copied wrong.</p><span class="path">smarf.app${PATH}</span>
+      <button class="btn block lg">${ICON.home}Back to your boards</button>
+      <div class="d-alt">or <a href="#" onclick="return false">start a new board</a></div></div></div></div>`;
+  const art = el.querySelector('.d-art'), bg = el.querySelector('.bgimg'), num = el.querySelector('.d-404');
+  if (!reduced) {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect(); const dx = (e.clientX - r.left) / r.width - 0.5, dy = (e.clientY - r.top) / r.height - 0.5;
+      bg.style.transform = `translate(${-dx * 24}px, ${-dy * 16}px) scale(1.02)`;
+      num.style.transform = `translate(${dx * 18}px, ${dy * 12}px)`;
+    });
+    el.addEventListener('pointerleave', () => { bg.style.transform = ''; num.style.transform = ''; });
+  }
+}
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>

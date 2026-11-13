@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smarf OG Image</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;500;600;700;800;900&display=swap">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+  .frame { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1200 / 630; background: #18181b; box-shadow: 0 0 0 1px var(--line), 0 20px 40px -24px rgba(0,0,0,.35); }
+  .below { display: grid; grid-template-columns: 420px 1fr; gap: 12px; margin-top: 12px; align-items: start; }
+  @media (max-width: 760px) { .below { grid-template-columns: 1fr; } }
+  .notes { display: grid; gap: 8px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- In-situ: a generic dark chat unfurl (mockup) ---------- */
+  .feed { background: #232428; border-radius: 12px; padding: 14px; font-family: ui-sans-serif, system-ui, sans-serif; color: #dbdee1; }
+  .feed .msg { font-size: 13px; margin: 0 0 8px; }
+  .feed .msg a { color: #00a8fc; text-decoration: none; }
+  .embed { background: #2b2d31; border-left: 4px solid #6366f1; border-radius: 6px; padding: 10px 12px 12px; }
+  .embed .site { font-size: 11px; color: #b5bac1; }
+  .embed .t { font-size: 14px; font-weight: 600; color: #00a8fc; margin: 2px 0 2px; }
+  .embed .d { font-size: 12px; color: #dbdee1; margin-bottom: 10px; line-height: 1.4; }
+  .embed .img { position: relative; width: 100%; aspect-ratio: 1200 / 630; border-radius: 6px; overflow: hidden; }
+
+  /* ---------- OG mockups: Smarf's look (zinc, indigo metal, glass dock, sky ring) ---------- */
+  .og {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --sky: #00a6f4; --green: #00c950;
+    --p100: oklch(93% 0.034 272.788); --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p700: oklch(45.7% 0.24 277.023); --p800: oklch(39.8% 0.195 277.366); --p900: oklch(35.9% 0.144 278.697); --p950: oklch(25.7% 0.09 281.288);
+    position: absolute; left: 0; top: 0; width: 1200px; height: 630px; overflow: hidden; transform-origin: 0 0; transform: scale(var(--s, 1));
+    background: var(--z900); color: var(--z50);
+    font-family: 'Interstate', 'Overpass', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.4;
+  }
+  .og * { box-sizing: border-box; }
+  .og svg { display: block; }
+  .og img { display: block; }
+  .dots {
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+  }
+  .wm { display: flex; align-items: center; gap: 14px; }
+  .wm img { width: 32px; height: 32px; }
+  .wm span { font-size: 22px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .metal-text { background-image: linear-gradient(180deg, var(--p100) 0%, var(--p300) 45%, var(--p400) 58%, var(--p200) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .og h1 { margin: 0; font-weight: 800; letter-spacing: -.025em; line-height: 1.02; }
+  .og p { margin: 0; }
+
+  /* Category layer card (board-workspace-category-body.tsx) */
+  .cat { position: absolute; display: inline-block; border-radius: 12px; background: rgba(39,39,42,.8);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 1px rgba(0,0,0,.5), 0 10px 15px -3px rgba(0,0,0,.35), 0 4px 6px -4px rgba(0,0,0,.35);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .cat-h { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 6px 0 8px; }
+  .cat-h .grip { color: var(--z600); }
+  .cat-h .nm { font-weight: 600; font-size: 14px; white-space: nowrap; }
+  .tray { display: flex; flex-wrap: wrap; padding: 3px; border-radius: 8px 8px 12px 12px; border: 1px solid rgba(255,255,255,.08); background: var(--z900); }
+  .hero { flex: none; width: 88px; padding: 4px; }
+  .hero img, .hero .ph { width: 80px; height: 45px; border-radius: 4px; object-fit: cover; background: var(--z700); }
+  .hero.slot .ph { background: color-mix(in oklab, var(--sky) 10%, transparent); border: 2px dashed color-mix(in oklab, var(--sky) 70%, transparent); }
+  .hero.add .ph { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--z700); border: 2px dashed var(--z500); font-size: 12px; font-weight: 700; letter-spacing: .025em; }
+  .hero.add svg { color: var(--z500); }
+  .cat.active { box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), 0 0 0 2px var(--sky), 0 10px 15px -3px rgba(0,0,0,.35); }
+
+  /* Dock (board-toolbar.tsx) + New category (metal-button.tsx) */
+  .dock-row-wrap { display: flex; align-items: flex-end; gap: 8px; }
+  .dock { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.6);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05);
+    backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); }
+  .dock-row { height: 44px; display: flex; align-items: center; padding: 0 4px; white-space: nowrap; }
+  .switcher { display: flex; align-items: center; height: 36px; padding: 0 6px 0 12px; border-radius: 8px; font-weight: 600; }
+  .switcher .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .switcher .bn { margin-left: 8px; }
+  .switcher .chev { margin-left: 12px; color: var(--z500); }
+  .ibtns { display: flex; gap: 2px; margin-left: 4px; }
+  .ibtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .metal { position: relative; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px 0 16px; border-radius: 12px; font-weight: 700; color: #fff; white-space: nowrap;
+    border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgba(255,255,255,.5);
+    text-shadow: 0 1px 1px color-mix(in oklab, var(--p950) 50%, transparent); }
+  .tile { flex: none; border-radius: 6px; overflow: hidden; background: var(--z800); }
+  .tile img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ===== Now ===== */
+  .og-now img { width: 1200px; height: 630px; }
+
+  /* ===== A: product shot, window bleeding right ===== */
+  .og-a::before { content: ""; position: absolute; inset: 0; background: radial-gradient(700px 420px at 12% 18%, color-mix(in oklab, var(--p600) 30%, transparent), transparent 70%); }
+  .og-a .copy { position: absolute; left: 72px; top: 64px; bottom: 64px; width: 480px; display: flex; flex-direction: column; }
+  .og-a h1 { font-size: 60px; margin-top: auto; }
+  .og-a p { font-size: 22px; color: var(--z400); margin-top: 22px; margin-bottom: auto; }
+  .og-a .url { font-size: 16px; color: var(--z500); font-weight: 600; letter-spacing: .02em; }
+  .og-a .win { position: absolute; left: 600px; top: 64px; width: 760px; height: 502px; border-radius: 18px; overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 0 0 1px rgba(0,0,0,.6), 0 40px 80px -20px rgba(0,0,0,.8), 0 0 120px -20px color-mix(in oklab, var(--p500) 40%, transparent); }
+  .og-a .win .dock-row-wrap { position: absolute; left: 36px; bottom: 24px; }
+
+  /* ===== B: tilted board plane ===== */
+  .og-b { background: radial-gradient(900px 520px at 78% 78%, color-mix(in oklab, var(--p600) 38%, transparent), transparent 65%), var(--z950); }
+  .og-b .plane-wrap { position: absolute; inset: 0; perspective: 1700px; -webkit-mask-image: linear-gradient(115deg, transparent 22%, #000 48%); mask-image: linear-gradient(115deg, transparent 22%, #000 48%); }
+  .og-b .plane { position: absolute; left: 330px; top: -40px; width: 1300px; height: 860px; border-radius: 24px; transform: rotateX(46deg) rotateZ(-24deg); transform-origin: 50% 50%;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .og-b .copy { position: absolute; left: 72px; top: 72px; }
+  .og-b h1 { font-size: 76px; margin-top: 56px; }
+  .og-b p { font-size: 22px; color: var(--z400); margin-top: 22px; max-width: 420px; }
+
+  /* ===== C: hero art split ===== */
+  .og-c { background: var(--z950); }
+  .og-c .art { position: absolute; right: -170px; top: 0; width: 1120px; height: 630px; object-fit: cover; object-position: 50% 20%;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 42%); mask-image: linear-gradient(90deg, transparent 0%, #000 42%); }
+  .og-c::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(9,9,11,.7), transparent 40%); pointer-events: none; }
+  .og-c .copy { position: absolute; left: 72px; top: 64px; width: 560px; z-index: 2; }
+  .og-c h1 { font-size: 62px; margin-top: 64px; }
+  .og-c p { font-size: 21px; color: var(--z400); margin-top: 20px; max-width: 440px; }
+  .og-c .cat { left: 72px; top: 438px; z-index: 3; }
+
+  /* ===== D: hero wall ===== */
+  .og-d { background: var(--z950); }
+  .og-d .wall { position: absolute; left: 50%; top: 50%; width: 1932px; display: flex; flex-wrap: wrap; gap: 10px; transform: translate(-50%, -50%) rotate(-9deg); }
+  .og-d .wall .tile { width: 128px; height: 72px; filter: saturate(.8) brightness(.62); }
+  .og-d .wall .tile.lit { filter: none; box-shadow: 0 0 0 3px var(--sky), 0 12px 30px rgba(0,0,0,.6); position: relative; z-index: 1; }
+  .og-d .shade { position: absolute; inset: 0; background: radial-gradient(520px 300px at 50% 50%, rgba(9,9,11,.82), rgba(9,9,11,.35) 70%, rgba(9,9,11,.75)); }
+  .og-d .panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 560px; padding: 44px 48px 40px; text-align: center; border-radius: 24px;
+    border: 1px solid rgba(255,255,255,.12); background: rgba(24,24,27,.55); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    box-shadow: 0 40px 80px -20px rgba(0,0,0,.85), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.08); }
+  .og-d .panel img { width: 56px; height: 56px; margin: 0 auto 18px; }
+  .og-d .panel .big { font-size: 72px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1; }
+  .og-d .panel p { margin-top: 14px; font-size: 21px; color: var(--z300); }
+
+  /* ===== E: indigo metal wordmark ===== */
+  .og-e { background: radial-gradient(900px 520px at 50% -10%, var(--p700), transparent 70%), linear-gradient(180deg, var(--p950), #0b0a1a); }
+  .og-e .grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 48px 48px; background-position: -1px -1px;
+    -webkit-mask-image: radial-gradient(560px 320px at 50% 40%, #000, transparent); mask-image: radial-gradient(560px 320px at 50% 40%, #000, transparent); }
+  .og-e .mid { position: absolute; left: 0; right: 0; top: 70px; display: flex; flex-direction: column; align-items: center; }
+  .og-e .badge { width: 72px; height: 72px; border-radius: 18px; display: grid; place-items: center; border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: 0 16px 30px -8px color-mix(in oklab, var(--p500) 60%, transparent), inset 0 1px 2px rgba(255,255,255,.5); }
+  .og-e .badge img { width: 36px; height: 36px; filter: brightness(0) invert(1); opacity: .95; }
+  .og-e .word { font-size: 200px; font-weight: 900; letter-spacing: .02em; line-height: .9; text-transform: uppercase; margin-top: 30px; filter: drop-shadow(0 12px 30px color-mix(in oklab, var(--p500) 45%, transparent)); }
+  .og-e .sub { margin-top: 20px; font-size: 20px; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; color: var(--p200); }
+  .og-e .strip { position: absolute; left: -40px; right: -40px; bottom: 48px; display: flex; gap: 12px; justify-content: center;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent); mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent); }
+  .og-e .strip .tile { width: 112px; height: 63px; box-shadow: 0 0 0 1px rgba(255,255,255,.1); }
+
+  /* ===== F: mid-drag macro ===== */
+  .og-f .zoom { position: absolute; left: 0; top: 0; width: 600px; height: 315px; transform: scale(2); transform-origin: 0 0; }
+  .og-f .ghost { position: absolute; left: 246px; top: 98px; width: 80px; height: 45px; border-radius: 4px; overflow: hidden; rotate: -4deg; scale: 1.08;
+    box-shadow: 0 0 0 2px var(--sky), 0 14px 28px rgba(0,0,0,.65); }
+  .og-f .ghost img { width: 80px; height: 45px; object-fit: cover; }
+  .og-f .cursor { position: absolute; left: 300px; top: 124px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
+  .og-f .fade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(9,9,11,.96) 6%, rgba(9,9,11,.55) 34%, transparent 58%); }
+  .og-f .copy { position: absolute; left: 64px; right: 64px; bottom: 54px; display: flex; align-items: flex-end; justify-content: space-between; }
+  .og-f h1 { font-size: 64px; max-width: 760px; }
+
+  /* ===== G: purple art + quote ===== */
+  .og-g .art { position: absolute; inset: 0; width: 1200px; height: 630px; object-fit: cover; object-position: 50% 36%; }
+  .og-g::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(9,9,11,.92) 0%, rgba(9,9,11,.7) 42%, transparent 72%); }
+  .og-g .copy { position: absolute; left: 72px; top: 0; bottom: 0; width: 600px; display: flex; flex-direction: column; justify-content: center; z-index: 2; }
+  .og-g .q { font-size: 64px; font-weight: 800; letter-spacing: -.025em; line-height: 1.02; }
+  .og-g .q .metal-text { display: block; margin-top: 10px; }
+  .og-g .wm { margin-top: 44px; }
+  .og-g .wm i { font-style: normal; color: var(--z400); font-size: 18px; font-weight: 500; margin-left: 4px; padding-left: 16px; border-left: 1px solid rgba(255,255,255,.2); }
+
+  /* ===== H: inline-image type ===== */
+  .og-h { background: radial-gradient(700px 360px at 0% 100%, color-mix(in oklab, var(--p700) 30%, transparent), transparent 70%), var(--z950); padding: 64px 72px 60px; display: flex; flex-direction: column; }
+  .og-h .top { display: flex; justify-content: space-between; align-items: center; }
+  .og-h .top i { font-style: normal; color: var(--z500); font-size: 18px; font-weight: 600; }
+  .og-h .lines { margin-top: auto; font-size: 86px; font-weight: 800; letter-spacing: -.03em; line-height: 1.12; }
+  .og-h .ln { display: flex; align-items: center; gap: 20px; white-space: nowrap; }
+  .og-h .ln.dim { color: var(--z600); }
+  .og-h .inl { display: inline-flex; gap: 8px; }
+  .og-h .inl .tile { width: 124px; height: 70px; border-radius: 10px; box-shadow: 0 0 0 1px rgba(255,255,255,.1); }
+  .og-h .inl .tile.lit { box-shadow: 0 0 0 3px var(--sky); }
+
+  /* ===== I: constellation of cards ===== */
+  .og-i { background: radial-gradient(520px 340px at 50% 50%, color-mix(in oklab, var(--p600) 34%, transparent), transparent 75%), var(--z950); }
+  .og-i .cat.far { filter: blur(2.5px) brightness(.6); }
+  .og-i .cat.mid { filter: blur(1px) brightness(.8); }
+  .og-i .mid-copy { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 5; }
+  .og-i .mid-copy .wm { justify-content: center; }
+  .og-i .mid-copy .wm img { width: 44px; height: 44px; }
+  .og-i .mid-copy .wm span { font-size: 64px; letter-spacing: .05em; }
+  .og-i .mid-copy p { font-size: 22px; color: var(--z300); margin-top: 14px; }
+
+  /* ===== J: board switcher macro ===== */
+  .og-j { background: var(--z950); }
+  .og-j .wall { position: absolute; left: 50%; top: 50%; width: 1500px; display: flex; flex-wrap: wrap; gap: 14px; transform: translate(-50%, -50%) rotate(-6deg) scale(1.1); filter: blur(22px) saturate(1.4) brightness(.5); }
+  .og-j .wall .tile { width: 168px; height: 95px; }
+  .og-j::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(9,9,11,.85), rgba(9,9,11,.3) 60%, rgba(9,9,11,.1)); }
+  .og-j .copy { position: absolute; left: 72px; top: 64px; bottom: 64px; width: 480px; display: flex; flex-direction: column; z-index: 2; }
+  .og-j h1 { font-size: 60px; margin-top: auto; }
+  .og-j p { font-size: 21px; color: var(--z300); margin-top: 20px; }
+  .og-j .ui { position: absolute; right: 72px; bottom: 72px; z-index: 3; transform: scale(1.45); transform-origin: 100% 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .og-j .bm { width: 280px; padding: 6px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.7); backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05); }
+  .og-j .bm .row { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+  .og-j .bm .row.on { background: rgba(255,255,255,.08); }
+  .og-j .bm .row .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .og-j .bm .row .n { margin-left: auto; color: var(--z500); font-size: 12px; font-weight: 700; }
+  .og-j .bm .lbl { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--z500); padding: 6px 10px 4px; }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>A link preview that makes Smarf worth clicking</h1>
+    <div class="chips">
+      <div class="chip"><b>Size</b>1200×630, still readable at 400px in a feed.</div>
+      <div class="chip"><b>Brand</b>Zinc, indigo metal, glass dock, real hero art.</div>
+      <div class="chip"><b>Says</b>“Dota 2 hero organizer” by name.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="Cropped board screenshot">
+    <div class="v-head"><span class="v-id">Now</span><h2>Cropped board screenshot</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-now"><img src="og-assets/thumbnail.png" alt=""></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note bad">No name or tagline anywhere.</div>
+      <div class="note bad">Shows the old toolbar and flat categories.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="Product shot bleeding off the right">
+    <div class="v-head"><span class="v-id">A</span><h2>Product shot bleeding off the right</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-a dots">
+      <div class="copy">
+        <div class="wm"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div>
+        <h1>Your Dota&nbsp;2 <span class="metal-text">hero grid</span>, in the browser.</h1>
+        <p>A board for every play style. Drag, sort, resize.</p>
+        <div class="url">smarf.kierb.com</div>
+      </div>
+      <div class="win dots">
+        <div class="cat" style="left:36px;top:36px" data-n="Mid comfort" data-c="4" data-h="nevermore storm_spirit ember_spirit puck invoker queenofpain templar_assassin void_spirit"></div>
+        <div class="cat" style="left:432px;top:36px" data-n="Pos 5 when tired" data-c="4" data-h="crystal_maiden lion dazzle witch_doctor jakiro" data-add></div>
+        <div class="cat" style="left:36px;top:224px" data-n="Carry farm" data-c="5" data-h="antimage phantom_assassin juggernaut faceless_void spectre medusa"></div>
+        <div class="cat" style="left:520px;top:224px" data-n="Turbo stomps" data-c="3" data-h="pudge huskar ursa"></div>
+        <div class="dock-row-wrap" data-dock="Main account"></div>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Shows the real product, today’s look.</div>
+      <div class="note bad">The familiar SaaS layout; least memorable.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="Board tilted into perspective">
+    <div class="v-head"><span class="v-id">B</span><h2>Board tilted into perspective</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-b">
+      <div class="plane-wrap"><div class="plane dots">
+        <div class="cat" style="left:80px;top:60px" data-n="Mid comfort" data-c="4" data-h="nevermore storm_spirit ember_spirit puck invoker queenofpain templar_assassin"></div>
+        <div class="cat" style="left:480px;top:60px" data-n="Offlane" data-c="4" data-h="axe mars centaur tidehunter dark_seer primal_beast abyssal_underlord"></div>
+        <div class="cat active" style="left:880px;top:60px" data-n="Pos 5 when tired" data-c="3" data-h="crystal_maiden lion dazzle witch_doctor jakiro shadow_shaman"></div>
+        <div class="cat" style="left:80px;top:250px" data-n="Carry farm" data-c="5" data-h="antimage phantom_assassin juggernaut faceless_void spectre medusa terrorblade luna morphling"></div>
+        <div class="cat" style="left:568px;top:250px" data-n="Turbo stomps" data-c="3" data-h="pudge huskar ursa bristleback legion_commander skeleton_king"></div>
+        <div class="cat" style="left:880px;top:250px" data-n="Hoodwink + friends" data-c="4" data-h="hoodwink windrunner snapfire marci muerta dawnbreaker"></div>
+        <div class="cat" style="left:80px;top:440px" data-n="Smurf spam" data-c="4" data-h="meepo arc_warden techies broodmother" data-add></div>
+        <div class="cat" style="left:480px;top:440px" data-n="Learning" data-c="5" data-h="invoker rubick earth_spirit tinker chen visage oracle"></div>
+        <div class="cat" style="left:80px;top:580px" data-n="Roamers" data-c="6" data-h="spirit_breaker bounty_hunter riki nyx_assassin tusk earthshaker mirana clinkz"></div>
+        <div class="cat" style="left:656px;top:580px" data-n="Pubstars" data-c="5" data-h="slark troll_warlord life_stealer sven drow_ranger lina sniper"></div>
+      </div></div>
+      <div class="copy">
+        <div class="wm"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div>
+        <h1>Every play<br>style, <span class="metal-text">sorted.</span></h1>
+        <p>The Dota 2 hero grid, in your browser.</p>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Depth and glow feel premium.</div>
+      <div class="note good">Headline stays big at feed size.</div>
+      <div class="note bad">Heroes turn to texture; less “Dota” at a glance.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="Hero art split with a floating card">
+    <div class="v-head"><span class="v-id">C</span><h2>Hero art split with a floating card</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-c">
+      <img class="art" src="og-assets/register-bg.jpg" alt="">
+      <div class="copy">
+        <div class="wm"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div>
+        <h1>Your heroes, sorted by how you play.</h1>
+        <p>The Dota 2 hero organizer, in the browser.</p>
+      </div>
+      <div class="cat" data-n="Mid comfort" data-c="5" data-h="lina nevermore storm_spirit puck invoker"></div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Art makes it instantly Dota.</div>
+      <div class="note good">One card explains the product.</div>
+      <div class="note bad">Fan art; check it’s OK to reuse.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="Hero wall behind a glass panel">
+    <div class="v-head"><span class="v-id">D</span><h2>Hero wall behind a glass panel</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-d">
+      <div class="wall" data-wall="168" data-lit="22,51,87,118"></div>
+      <div class="shade"></div>
+      <div class="panel">
+        <img src="og-assets/logo.png" alt="">
+        <div class="big">Smarf</div>
+        <p>The Dota 2 hero organizer</p>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Reads as Dota from across the room.</div>
+      <div class="note bad">Doesn’t show what the app does.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="E" data-name="Indigo metal wordmark">
+    <div class="v-head"><span class="v-id">E</span><h2>Indigo metal wordmark</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-e">
+      <div class="grid"></div>
+      <div class="mid">
+        <div class="badge"><img src="og-assets/logo.png" alt=""></div>
+        <div class="word metal-text">Smarf</div>
+        <div class="sub">Dota 2 hero organizer</div>
+      </div>
+      <div class="strip" data-strip="windrunner hoodwink nevermore pudge crystal_maiden invoker juggernaut lina axe mirana marci void_spirit"></div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Boldest brand moment; the New category metal, blown up.</div>
+      <div class="note bad">Indigo field isn’t the app’s zinc.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="F" data-name="Macro shot of a hero mid-drag">
+    <div class="v-head"><span class="v-id">F</span><h2>Macro shot of a hero mid-drag</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-f">
+      <div class="zoom dots">
+        <div class="cat" style="left:24px;top:20px" data-n="Turbo stomps" data-c="3" data-h="pudge huskar ursa"></div>
+        <div class="cat active" style="left:300px;top:118px" data-n="Carry farm" data-c="4" data-h="antimage phantom_assassin _slot spectre"></div>
+        <div class="ghost"><img src="https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/juggernaut.png" alt=""></div>
+        <svg class="cursor" width="18" height="22" viewBox="0 0 18 22"><path d="M2 1.5v16.2l4.2-4 2.9 6.6 3-1.3-2.9-6.5h5.8z" fill="#fff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="fade"></div>
+      <div class="copy">
+        <h1>Drag heroes where they belong.</h1>
+        <div class="wm"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Shows the one thing you do in Smarf.</div>
+      <div class="note good">Big tiles survive feed size.</div>
+      <div class="note bad">Wordmark is small and last.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="G" data-name="Purple art with the tagline as a quote">
+    <div class="v-head"><span class="v-id">G</span><h2>Purple art with the tagline as a quote</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-g">
+      <img class="art" src="og-assets/login-bg.png" alt="">
+      <div class="copy">
+        <div class="q">Avid smurfer with multiple play styles?<span class="metal-text">Say no more.</span></div>
+        <div class="wm"><img src="og-assets/logo.png" alt=""><span>Smarf</span><i>Dota 2 hero organizer</i></div>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Voice of the existing meta description.</div>
+      <div class="note good">Matches the login screen.</div>
+      <div class="note bad">Upscaled art goes soft at 1200px.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="H" data-name="Category names set with inline heroes">
+    <div class="v-head"><span class="v-id">H</span><h2>Category names set with inline heroes</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-h">
+      <div class="top"><div class="wm"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div><i>Dota 2 hero organizer</i></div>
+      <div class="lines">
+        <div class="ln">Mid comfort <span class="inl" data-inl="nevermore storm_spirit puck"></span></div>
+        <div class="ln"><span class="inl" data-inl="crystal_maiden lion" data-lit="1"></span> Pos 5 when tired</div>
+        <div class="ln dim">Turbo stomps <span class="inl" data-inl="pudge huskar ursa"></span></div>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Most distinctive; the board told as a sentence.</div>
+      <div class="note bad">Product UI is implied, not shown.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="I" data-name="Wordmark in a field of floating cards">
+    <div class="v-head"><span class="v-id">I</span><h2>Wordmark in a field of floating cards</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-i">
+      <div class="cat far" style="left:-60px;top:24px;rotate:-5deg;scale:.8" data-n="Learning" data-c="4" data-h="rubick earth_spirit tinker chen"></div>
+      <div class="cat far" style="left:860px;top:450px;rotate:4deg;scale:.8" data-n="Smurf spam" data-c="4" data-h="meepo arc_warden techies broodmother"></div>
+      <div class="cat mid" style="left:840px;top:40px;rotate:5deg;scale:.9" data-n="Offlane" data-c="4" data-h="axe mars centaur tidehunter dark_seer primal_beast"></div>
+      <div class="cat mid" style="left:-30px;top:420px;rotate:3deg;scale:.9" data-n="Pos 5 when tired" data-c="3" data-h="crystal_maiden lion dazzle witch_doctor jakiro"></div>
+      <div class="cat" style="left:150px;top:150px;rotate:-3deg" data-n="Mid comfort" data-c="3" data-h="nevermore storm_spirit puck"></div>
+      <div class="cat" style="left:740px;top:330px;rotate:2deg" data-n="Carry farm" data-c="3" data-h="antimage juggernaut faceless_void"></div>
+      <div class="mid-copy">
+        <div class="wm"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div>
+        <p>The Dota 2 hero organizer</p>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Calm center, busy edges; depth via blur.</div>
+      <div class="note bad">Cards behind the wordmark crowd it at small sizes.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="J" data-name="Board switcher over blurred heroes">
+    <div class="v-head"><span class="v-id">J</span><h2>Board switcher over blurred heroes</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-j">
+      <div class="wall" data-wall="80"></div>
+      <div class="copy">
+        <div class="wm"><img src="og-assets/logo.png" alt=""><span>Smarf</span></div>
+        <h1>One board for every <span class="metal-text">smurf.</span></h1>
+        <p>The Dota 2 hero grid, in your browser.</p>
+      </div>
+      <div class="ui">
+        <div class="bm">
+          <div class="lbl">Your boards</div>
+          <div class="row on"><span class="dot" style="background:#00c950"></span>Main account<span class="n">42</span></div>
+          <div class="row"><span class="dot" style="background:#00a6f4"></span>Support smurf<span class="n">18</span></div>
+          <div class="row"><span class="dot" style="background:#fe9a00"></span>Turbo with friends<span class="n">27</span></div>
+          <div class="row"><span class="dot" style="background:#ad46ff"></span>Patch 7.38 tryouts<span class="n">9</span></div>
+        </div>
+        <div class="dock-row-wrap" data-dock="Main account"></div>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Speaks to smurfers: many boards, one place.</div>
+      <div class="note good">Blur gives colour without busy detail.</div>
+      <div class="note bad">Menu text is small at feed size.</div>
+    </div></div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from H: other category sentences, light and dark.</div>
+      <div class="card"><b>Remix</b>Remix C: swap the fan art for the hero wall from D.</div>
+      <div class="card"><b>Settle</b>Settle on F, then render it to a PNG for the meta tags.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/6c1d-og-image.html';
+const CDN = (n) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${n}.png`;
+const HEROES = 'antimage axe crystal_maiden drow_ranger earthshaker juggernaut mirana morphling nevermore phantom_lancer puck pudge razor sand_king storm_spirit sven tiny vengefulspirit windrunner zuus kunkka lina lion shadow_shaman slardar tidehunter witch_doctor lich riki enigma tinker sniper necrolyte warlock beastmaster queenofpain venomancer faceless_void skeleton_king death_prophet phantom_assassin pugna templar_assassin viper luna dragon_knight dazzle rattletrap leshrac furion life_stealer dark_seer clinkz omniknight enchantress huskar night_stalker broodmother bounty_hunter weaver jakiro batrider chen spectre ancient_apparition doom_bringer ursa spirit_breaker gyrocopter alchemist invoker silencer obsidian_destroyer lycan brewmaster shadow_demon lone_druid chaos_knight meepo treant ogre_magi undying rubick disruptor nyx_assassin naga_siren keeper_of_the_light wisp visage slark medusa troll_warlord centaur magnataur shredder bristleback tusk skywrath_mage abaddon elder_titan legion_commander techies ember_spirit earth_spirit abyssal_underlord terrorblade phoenix oracle winter_wyvern arc_warden monkey_king dark_willow pangolier grimstroke hoodwink void_spirit snapfire mars dawnbreaker marci primal_beast muerta'.split(' ');
+
+const ICON = {
+  grip: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"/></svg>',
+  plus: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/></svg>',
+  chev: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"/></svg>',
+  pencil: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"/></svg>',
+  dots: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>',
+  folder: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.75 3A1.75 1.75 0 0 0 2 4.75v10.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0 0 18 15.25v-8.5A1.75 1.75 0 0 0 16.25 5h-4.836a.25.25 0 0 1-.177-.073L9.823 3.513A1.75 1.75 0 0 0 8.586 3H3.75ZM10 8a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 10 8Z"/></svg>'
+};
+
+/* ---------- Mockup builders ---------- */
+document.querySelectorAll('.og .cat[data-n]').forEach((el) => {
+  const cols = +el.dataset.c;
+  const tiles = el.dataset.h.split(' ').map((n) => n === '_slot'
+    ? '<div class="hero slot"><div class="ph"></div></div>'
+    : `<div class="hero"><img src="${CDN(n)}" alt=""></div>`).join('');
+  const add = el.hasAttribute('data-add') ? `<div class="hero add"><div class="ph">${ICON.plus}Add</div></div>` : '';
+  el.innerHTML = `<div class="cat-h"><span class="grip">${ICON.grip}</span><span class="nm">${el.dataset.n}</span></div>
+    <div class="tray" style="width:${cols * 88 + 8}px">${tiles}${add}</div>`;
+});
+document.querySelectorAll('.og [data-dock]').forEach((el) => {
+  el.innerHTML = `<div class="dock"><div class="dock-row">
+      <div class="switcher"><span class="dot"></span><span class="bn">${el.dataset.dock}</span><span class="chev">${ICON.chev}</span></div>
+      <div class="ibtns"><span class="ibtn">${ICON.pencil}</span><span class="ibtn">${ICON.dots}</span></div>
+    </div></div>
+    <div class="metal">${ICON.folder}New category</div>`;
+});
+document.querySelectorAll('.og [data-wall]').forEach((el) => {
+  const n = +el.dataset.wall, lit = (el.dataset.lit || '').split(',').map(Number);
+  let html = '';
+  for (let i = 0; i < n; i++) html += `<div class="tile${lit.includes(i) ? ' lit' : ''}"><img src="${CDN(HEROES[(i * 7) % HEROES.length])}" alt=""></div>`;
+  el.innerHTML = html;
+});
+document.querySelectorAll('.og [data-strip], .og [data-inl]').forEach((el) => {
+  const lit = el.dataset.lit ? +el.dataset.lit : -1;
+  el.innerHTML = (el.dataset.strip || el.dataset.inl).split(' ').map((n, i) => `<span class="tile${i === lit ? ' lit' : ''}"><img src="${CDN(n)}" alt=""></span>`).join('');
+});
+
+/* ---------- Feed-size preview: clone each OG into a chat unfurl ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const og = sec.querySelector('.frame .og');
+  const slot = sec.querySelector('.slot-feed');
+  slot.innerHTML = `<div class="feed"><p class="msg">try this for your smurfs <a>https://smarf.kierb.com</a></p>
+    <div class="embed"><div class="site">smarf.kierb.com</div><div class="t">Smarf — Dota 2 Hero Organizer</div>
+    <div class="d">Avid smurfer with multiple play styles? Say no more.</div><div class="img"></div></div></div>`;
+  slot.querySelector('.img').appendChild(og.cloneNode(true));
+});
+
+/* ---------- Scale every 1200×630 OG to its box ---------- */
+const ro = new ResizeObserver((entries) => entries.forEach((e) => {
+  const og = e.target.querySelector(':scope > .og');
+  if (og) og.style.setProperty('--s', e.contentRect.width / 1200);
+}));
+document.querySelectorAll('.frame, .embed .img').forEach((box) => ro.observe(box));
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
