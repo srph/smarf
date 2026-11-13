@@ -23,9 +23,10 @@ import {
   CATEGORY_HERO_HEIGHT,
   CATEGORY_HERO_WIDTH,
   CATEGORY_HERO_CONTAINER_TOTAL_PADDING,
-  CATEGORY_HERO_X_TOTAL_PADDING
+  CATEGORY_HERO_X_TOTAL_PADDING,
+  CATEGORY_TRAY_BORDER
 } from '~/src/contexts/board-list/constants'
-import { ArrowsPointingOutIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
+import { Bars2Icon, PlusCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
 
 interface Props {
   category: Category
@@ -94,19 +95,26 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
 
   return (
     <React.Fragment>
+      {/*
+        A layer card: a glass header over a hero tray that runs flush to its edges. The rim is an inset ring (not a
+        border) so the tray can sit right on it, plus the dock's dark outer ring. The header and the Resizable must stay
+        the card's first and second children: the tests' fake layout finds the tray there.
+      */}
       <div
         {...attributes}
-        className="group absolute inline-block"
+        className="group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg ring-1 inset-ring ring-black/50 inset-ring-white/8 backdrop-blur-sm transition-shadow hover:inset-ring-white/15"
         style={{ transform: `translate3d(${category.x_position}px, ${category.y_position}px, 0)` }}>
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center">
-            <div ref={setDraggableNodeRef} {...listeners} className="mr-4 cursor-grabbing text-zinc-400">
-              <Icon icon={ArrowsPointingOutIcon} />
-            </div>
-            <BoardWorkspaceCategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
+        <div className="relative flex h-9 items-center gap-2 pr-1.5 pl-2">
+          <div
+            ref={setDraggableNodeRef}
+            {...listeners}
+            title="Move category"
+            className="cursor-grab text-zinc-600 transition-colors group-hover:text-zinc-300">
+            <Icon icon={Bars2Icon} size={20} />
           </div>
+          <BoardWorkspaceCategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
 
-          <div>
+          <div className="ml-auto">
             <DeletePopover
               open={isDeleteConfirmationOpen}
               onOpenChange={setIsDeleteConfirmationOpen}
@@ -117,8 +125,8 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
               trigger={
                 <button
                   title="Delete category"
-                  className="inline-block cursor-pointer rounded bg-zinc-700 p-1 text-zinc-400 opacity-0 ring-sky-500 transition-opacity duration-200 group-hover:opacity-100 hover:ring-2 focus:ring-2 focus:outline-none data-popup-open:opacity-100">
-                  <Icon icon={TrashIcon} />
+                  className="grid size-7 cursor-pointer place-items-center rounded-lg text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100 data-popup-open:opacity-100">
+                  <Icon icon={TrashIcon} size={16} />
                 </button>
               }
             />
@@ -144,9 +152,13 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
           onResizeStop={handleResizeStop}>
           <div
             ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)}
-            className="inline-flex flex-wrap rounded bg-zinc-800"
-            // Sizes come from constants the drag-and-drop math also uses, so they stay inline.
-            style={{ padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2, width: category.width }}>
+            className="flex flex-wrap rounded-t-lg rounded-b-xl border border-white/8 bg-zinc-900"
+            // Sizes come from constants the drag-and-drop math also uses, so they stay inline. The border comes out of
+            // the padding, so heroes keep their cells.
+            style={{
+              padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2 - CATEGORY_TRAY_BORDER,
+              width: category.width
+            }}>
             <SortableContext items={heroIds} strategy={rectSortingStrategy}>
               {category.heroes.map((hero) => (
                 <BoardWorkspaceCategoryHero
