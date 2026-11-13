@@ -28,8 +28,9 @@ const ButtonLoader: React.FC<ButtonLoaderProps> = ({ busy, children, ...props })
   return (
     <Button {...props} busy={busy}>
       <BusyContext value={busy}>
-        {/* Start-aligned and clipped: the width tweens, so centered content would jump. */}
-        <span ref={contentRef} className="flex items-center overflow-hidden whitespace-nowrap">
+        {/* Start-aligned: the width tweens, so centered content would jump. Its overflow runs through
+            the padding and is clipped by the button's own edge, which also leaves room for the blur. */}
+        <span ref={contentRef} className="flex items-center whitespace-nowrap">
           {children}
         </span>
       </BusyContext>

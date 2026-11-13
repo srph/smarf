@@ -5,8 +5,9 @@ const DURATION = 300
 /**
  * Tween an element's width to its new natural width whenever `key` changes, instead of snapping.
  *
- * The element should start-align and clip its content: the width moves over 300ms, so centered
- * content would jump to its new center on the first frame. Skipped under reduced motion.
+ * The element should start-align its content, and it or an ancestor should clip it: the width moves
+ * over 300ms, so centered content would jump to its new center on the first frame, and unclipped
+ * content would spill out while the width catches up. Skipped under reduced motion.
  */
 const useWidthTransition = <T extends HTMLElement>(key: unknown) => {
   const ref = useRef<T>(null)
