@@ -1,5 +1,6 @@
 import React from 'react'
-import { Button } from '~/src/components/button/button'
+import { ButtonLoader, ButtonLoaderIcon, ButtonLoaderText } from '~/src/components/button-loader/button-loader'
+import { Icon } from '~/src/components/icon/icon'
 import { Container } from '~/src/components/container/container'
 import { Logo } from '~/src/components/logo/logo'
 import { Link, useNavigate } from 'react-router'
@@ -11,7 +12,8 @@ import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
 const Navigation: React.FC = () => {
   const navigate = useNavigate()
 
-  const { mutate: createBoard } = useCreateBoardMutation()
+  // isCreating is this button's own request, so only this button morphs; isBoardCreating disables both.
+  const { mutate: createBoard, isPending: isCreating } = useCreateBoardMutation()
   const isBoardCreating = useIsBoardCreating()
 
   // The starter board uses the first heroes, so wait for the hero list.
@@ -29,12 +31,15 @@ const Navigation: React.FC = () => {
 
           <div className="flex items-center">
             <div className="mr-6">
-              <Button
-                icon={SquaresPlusIcon}
+              <ButtonLoader
+                busy={isCreating}
                 disabled={isBoardCreating || heroesStatus === 'pending'}
                 onClick={() => createBoard(undefined, { onSuccess: (board) => navigate(`/b/${board.id}`) })}>
-                New Board
-              </Button>
+                <ButtonLoaderIcon>
+                  <Icon icon={SquaresPlusIcon} />
+                </ButtonLoaderIcon>
+                <ButtonLoaderText>{isCreating ? 'Creating…' : 'New Board'}</ButtonLoaderText>
+              </ButtonLoader>
             </div>
 
             <UserDropdown />

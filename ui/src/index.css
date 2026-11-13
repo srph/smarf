@@ -19,6 +19,9 @@
   --color-primary-900: oklch(35.9% 0.144 278.697);
   --color-primary-950: oklch(25.7% 0.09 281.288);
 
+  /* ButtonLoader: fast out, long settle, for the width tween and the blur swap. */
+  --ease-morph: cubic-bezier(0.3, 0.7, 0.2, 1);
+
   /* FavoriteIcon: the star pops, and dots (each rotated by its --angle) fly out from its center. */
   --animate-favorite-pop: favorite-pop 0.42s cubic-bezier(0.3, 1.5, 0.5, 1);
   --animate-favorite-burst: favorite-burst 0.6s cubic-bezier(0.2, 0.8, 0.3, 1) 0.06s both;

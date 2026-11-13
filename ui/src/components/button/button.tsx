@@ -1,18 +1,17 @@
 import React from 'react'
 import { cn } from 'cn'
 import { Icon, type IconComponent } from '../icon/icon'
-import { Spinner } from '../spinner/spinner'
 
 type Variant = 'primary' | 'clear' | 'danger'
 
-interface Props {
+interface ButtonProps {
   block?: boolean
   variant?: Variant
   icon?: IconComponent
   type?: 'button' | 'submit'
   disabled?: boolean
-  /** Shows a spinner in place of the icon and disables the button. */
-  loading?: boolean
+  /** Working on its action: disables the button but keeps it at full color, with a progress cursor. ButtonLoader shows the spinner. */
+  busy?: boolean
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
   ref?: React.Ref<HTMLButtonElement>
 }
@@ -23,7 +22,7 @@ const variants: Record<Variant, string> = {
   clear: 'border border-zinc-700'
 }
 
-const Button: React.FC<React.PropsWithChildren<Props>> = ({
+const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({
   children,
   icon,
   variant = 'primary',
@@ -31,7 +30,7 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
   onClick,
   block = false,
   disabled = false,
-  loading = false,
+  busy = false,
   ref
 }) => {
   return (
@@ -39,19 +38,15 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
       ref={ref}
       type={type}
       onClick={onClick}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
+      disabled={disabled || busy}
+      aria-busy={busy || undefined}
       className={cn(
         'w-full cursor-pointer items-center justify-center rounded p-2 text-center text-sm font-bold text-zinc-50 ring-sky-500 transition-shadow duration-200',
-        'enabled:hover:ring-2 enabled:focus:ring-2 disabled:cursor-not-allowed disabled:opacity-75',
+        'enabled:hover:ring-2 enabled:focus:ring-2 disabled:not-aria-busy:cursor-not-allowed disabled:not-aria-busy:opacity-75 aria-busy:cursor-progress',
         block ? 'flex' : 'inline-flex',
         variants[variant]
       )}>
-      {loading ? (
-        <div className="mr-2 flex">
-          <Spinner />
-        </div>
-      ) : icon ? (
+      {icon ? (
         <div className="mr-2 text-primary-200">
           <Icon icon={icon} />
         </div>
@@ -61,4 +56,4 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
   )
 }
 
-export { Button }
+export { Button, type ButtonProps }
