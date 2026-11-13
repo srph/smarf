@@ -19,7 +19,7 @@ const HomeRoute = () => {
     return (
       <>
         <PageTitle title="Your Boards" />
-        <BoardListSkeleton />
+        <BoardListSkeleton title="Your Boards" />
       </>
     )
   }
