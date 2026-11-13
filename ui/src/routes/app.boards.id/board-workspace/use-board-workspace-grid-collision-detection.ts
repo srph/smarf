@@ -44,6 +44,8 @@ interface CustomGridCollisionDetectionProps<T> {
 
 interface CustomGridCollisionDetectionReturnType {
   collisionDetectionStrategy: CollisionDetection
+  /** The dragged item's id while it's being dragged, else null. Container drags don't count. */
+  activeId: ID | null
   /** The dragged item's id while the pointer is off every container (dropping it there removes it), else null. */
   removingId: ID | null
   onDragStart: (e: DragStartEvent) => void
@@ -324,6 +326,7 @@ function useBoardWorkspaceGridCollisionDetection<T>(
 
   return {
     collisionDetectionStrategy,
+    activeId,
     removingId: activeId && isOff ? activeId : null,
     onDragStart,
     onDragMove,

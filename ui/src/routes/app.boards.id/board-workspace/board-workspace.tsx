@@ -97,7 +97,7 @@ const BoardWorkspace: React.FC = () => {
     clearDraft()
   }
 
-  const { collisionDetectionStrategy, removingId, ...gridCollisionEvents } =
+  const { collisionDetectionStrategy, activeId, removingId, ...gridCollisionEvents } =
     useBoardWorkspaceGridCollisionDetection<Category>({
       containers: board.categories,
       containerIdTransformer: getCategoryId,
@@ -180,6 +180,7 @@ const BoardWorkspace: React.FC = () => {
                   key={category.id}
                   category={category}
                   workspace={workspace}
+                  draggingHeroId={activeId}
                   removingHeroId={removingId}
                 />
               )

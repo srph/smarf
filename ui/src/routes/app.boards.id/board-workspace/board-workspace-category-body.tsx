@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { cn } from 'cn'
 import { Category, Hero, ID } from '~/src/types/api'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
@@ -32,11 +33,13 @@ interface Props {
   category: Category
   // Resizing stops at the workspace's right edge.
   workspace: HTMLElement | null
+  // The pivot id of the hero being dragged, if any.
+  draggingHeroId: ID | null
   // The pivot id of a hero being dragged off every category (dropping it removes it), if any.
   removingHeroId: ID | null
 }
 
-const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, removingHeroId }) => {
+const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, draggingHeroId, removingHeroId }) => {
   const { board, updateDraft, clearDraft } = useBoard()
 
   const { mutate: addHero } = useAddHeroMutation(board.id)
@@ -50,6 +53,8 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
 
   const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
+
+  const [isResizing, setIsResizing] = useState(false)
 
   const handleUpdateCategoryName = (value: string) => {
     updateCategory({ id: category.id, name: value })
@@ -75,6 +80,13 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
     id: category.id
   })
 
+  // A dragged hero is previewed in whichever category it's over, so if it's in this one, a drop lands here.
+  // Off every category it's being removed instead (its own red state), so no category claims it.
+  const isHeroOver = draggingHeroId != null && draggingHeroId !== removingHeroId && heroIds.includes(draggingHeroId)
+
+  // Moving, resizing, or about to receive a hero: the card swaps its dark ring for a sky one.
+  const isActive = isDragging || isResizing || isHeroOver
+
   // While resizing: show the new size as a draft (saved when the resize stops).
   const handleResize: ResizeCallback = (_event, _direction, ref) => {
     const width = ref.getBoundingClientRect().width
@@ -89,6 +101,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
 
   // `category` comes from the shown board, so it already has the resized width and height.
   const handleResizeStop = () => {
+    setIsResizing(false)
     resizeCategory({ category_id: category.id, width: category.width, height: category.height })
     clearDraft()
   }
@@ -102,7 +115,12 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
       */}
       <div
         {...attributes}
-        className="group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg ring-1 inset-ring ring-black/50 inset-ring-white/8 backdrop-blur-sm transition-shadow hover:inset-ring-white/15"
+        className={cn(
+          'group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg inset-ring backdrop-blur-sm transition-shadow',
+          isActive
+            ? 'ring-2 ring-sky-500 inset-ring-white/15'
+            : 'ring-1 ring-black/50 inset-ring-white/8 hover:inset-ring-white/15'
+        )}
         style={{ transform: `translate3d(${category.x_position}px, ${category.y_position}px, 0)` }}>
         <div className="relative flex h-9 items-center gap-2 pr-1.5 pl-2">
           <div
@@ -138,7 +156,8 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
             top: false,
             right: !isDragging,
             bottom: false,
-            left: !isDragging,
+            // Right edge only: moving the card is how its left edge changes.
+            left: false,
             topRight: false,
             bottomRight: false,
             bottomLeft: false,
@@ -148,8 +167,24 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, remo
           bounds={workspace ?? undefined}
           // Height is left to re-resizable (auto); only width is controlled.
           size={{ width: category.width } as Size}
+          onResizeStart={() => setIsResizing(true)}
           onResize={handleResize}
-          onResizeStop={handleResizeStop}>
+          onResizeStop={handleResizeStop}
+          handleClasses={{ right: 'group/handle' }}
+          handleComponent={{
+            // A pill on the edge: grey while the card is hovered, sky on its own hover or while resizing. It stays
+            // 24px tall; the card's sky ring is what marks a resize.
+            right: (
+              <span
+                className={cn(
+                  'absolute inset-x-0 top-1/2 mx-auto h-6 w-1 -translate-y-1/2 rounded-full transition-colors',
+                  isResizing
+                    ? 'bg-sky-500'
+                    : 'bg-zinc-500 opacity-0 group-hover:opacity-100 group-hover/handle:bg-sky-500'
+                )}
+              />
+            )
+          }}>
           <div
             ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)}
             className="flex flex-wrap rounded-t-lg rounded-b-xl border border-white/8 bg-zinc-900"
