@@ -8,7 +8,7 @@ import { useAddCategoryMutation, newCategory } from './mutations/use-add-categor
 import { BoardToolbarTooltip } from './board-toolbar-tooltip'
 
 interface Props {
-  // While the board is being renamed or deleted: stays in place, takes on the dock's glass, and ignores clicks.
+  // While the board is being renamed or deleted: stays in place, turns graphite, and ignores clicks.
   locked: boolean
 }
 
@@ -47,12 +47,12 @@ const BoardToolbarAddCategoryButton: React.FC<Props> = ({ locked }) => {
           'transition-[filter,translate,scale,color,border-color,box-shadow] duration-250 hover:brightness-110 active:translate-y-px active:scale-99',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
           isPending && 'cursor-progress brightness-90 saturate-75 hover:brightness-90',
-          // The glass look: the gradient stops at the padding edge, so the border shows the board, not indigo.
-          'aria-disabled:cursor-not-allowed aria-disabled:border-white/10 aria-disabled:bg-clip-padding aria-disabled:text-zinc-500 aria-disabled:shadow-black/60 aria-disabled:inset-shadow-white/4 aria-disabled:text-shadow-none',
+          // Graphite: the indigo stops at the padding edge, so the border shows the board, not indigo.
+          'aria-disabled:cursor-not-allowed aria-disabled:border-white/17 aria-disabled:bg-clip-padding aria-disabled:text-zinc-400 aria-disabled:shadow-black/90 aria-disabled:inset-shadow-white/30 aria-disabled:text-shadow-black/55',
           'aria-disabled:hover:brightness-100 aria-disabled:active:translate-y-0 aria-disabled:active:scale-100'
         )}>
-        {/* The dock's glass, faded in over the indigo while locked. */}
-        <span className="absolute inset-0 bg-zinc-800 opacity-0 backdrop-blur-md transition-opacity duration-250 group-aria-disabled:opacity-100" />
+        {/* Graphite, faded in over the indigo while locked. */}
+        <span className="absolute inset-0 bg-graphite-metal opacity-0 transition-opacity duration-250 group-aria-disabled:opacity-100" />
         {/* Hover: a soft light under the cursor, and a sheen that sweeps across once. */}
         <span className="pointer-events-none absolute inset-0 bg-cursor-light opacity-0 transition-opacity duration-250 group-hover:opacity-100 group-aria-disabled:hidden" />
         <span className="pointer-events-none absolute -inset-y-3 left-0 w-2/5 bg-linear-to-r from-transparent via-white/40 to-transparent opacity-0 group-hover:animate-toolbar-sheen group-aria-disabled:hidden" />
