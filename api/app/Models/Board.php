@@ -36,6 +36,15 @@ class Board extends Model
         'is_favorite'
     ];
 
+    /**
+     * MySQL stores is_favorite as tinyint(1); the cast sends it as true/false (or null), matching `Board` in ui/src/types/api.ts.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'is_favorite' => 'boolean'
+    ];
+
     public function user()
     {
         return $this->hasMany(User::class);
