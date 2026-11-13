@@ -42,6 +42,17 @@
   --animate-toolbar-sheen: toolbar-sheen 0.85s cubic-bezier(0.3, 0.6, 0.3, 1) both;
   --animate-name-glint: name-glint 1.1s ease both;
 
+  /* Board toolbar: the dock fades up as the board loads, then New category just after it. */
+  --animate-toolbar-rise: toolbar-rise 0.5s var(--ease-morph) 0.1s both;
+  --animate-toolbar-rise-late: toolbar-rise 0.5s var(--ease-morph) 0.18s both;
+
+  @keyframes toolbar-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
   @keyframes toolbar-sheen {
     0% {
       opacity: 1;

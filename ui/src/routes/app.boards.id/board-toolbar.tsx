@@ -105,6 +105,8 @@ const BoardToolbar: React.FC = () => {
           <div
             ref={setDockElement}
             className={cn(
+              // The rise sits on the dock itself, not a wrapper: an ancestor's opacity would cut off its backdrop blur.
+              'animate-toolbar-rise motion-reduce:animate-none',
               'relative overflow-hidden rounded-xl border border-white/10 bg-zinc-800/60 shadow-2xl ring-1 inset-shadow-xs shadow-black/70 ring-black/50 inset-shadow-white/5 backdrop-blur-lg backdrop-saturate-150',
               'transition-colors duration-250',
               isDanger && 'border-red-500/55 bg-red-950/70'
@@ -171,7 +173,9 @@ const BoardToolbar: React.FC = () => {
             </motion.div>
           </div>
 
-          <BoardToolbarAddCategoryButton locked={isEditing} />
+          <div className="flex animate-toolbar-rise-late motion-reduce:animate-none">
+            <BoardToolbarAddCategoryButton locked={isEditing} />
+          </div>
         </div>
       </div>
     </Tooltip.Provider>
