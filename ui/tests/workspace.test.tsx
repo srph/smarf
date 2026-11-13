@@ -162,6 +162,9 @@ describe('board workspace', () => {
     await user.click(within(supports).getByTitle('Delete category'))
     await user.click(await screen.findByRole('button', { name: 'Delete' }))
 
+    // It fades out still asking, rather than flashing back to the normal card first.
+    expect(within(supports).getByRole('alertdialog', { name: 'Delete Supports?' })).toBeInTheDocument()
+
     await waitFor(() => expect(screen.queryByDisplayValue('Supports')).not.toBeInTheDocument())
     await waitFor(() => expect(db.categories.map((c) => c.name)).not.toContain('Supports'))
   })
