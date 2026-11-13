@@ -15,7 +15,7 @@ import { type ToolbarSaveStatus } from './use-toolbar-save-status'
 
 interface Props {
   status: ToolbarSaveStatus
-  // True for a moment after a rename is saved: a check pops and the name glints.
+  // True for a moment after a rename is saved: the name glints.
   justRenamed: boolean
   // The dock, so the menu lines up with its left edge rather than the button's.
   anchor: Element | null
@@ -71,12 +71,6 @@ const BoardToolbarSwitcher: React.FC<Props> = ({ status, justRenamed, anchor }) 
             {board.name}
           </span>
         </BoardToolbarTooltip>
-
-        {justRenamed && (
-          <span className="ml-2 animate-favorite-pop text-green-500">
-            <Icon icon={CheckIcon} size={16} />
-          </span>
-        )}
 
         <span className="ml-3 text-zinc-500">
           <Icon icon={ChevronUpDownIcon} size={16} />
