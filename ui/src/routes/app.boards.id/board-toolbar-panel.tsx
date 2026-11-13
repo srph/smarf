@@ -1,5 +1,4 @@
 import React from 'react'
-import { cn } from 'cn'
 import { XMarkIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
 
@@ -14,23 +13,4 @@ const BoardToolbarPanelClose: React.FC<{ onClick: () => void }> = ({ onClick }) 
   </button>
 )
 
-const KBD_TONES = {
-  dark: 'border-zinc-700 bg-zinc-800 text-zinc-400',
-  light: 'border-white/20 bg-white/14 text-primary-100'
-}
-
-/** A key hint, like Esc or ↵. */
-const BoardToolbarKbd: React.FC<React.PropsWithChildren<{ tone?: keyof typeof KBD_TONES }>> = ({
-  tone = 'dark',
-  children
-}) => (
-  <kbd
-    className={cn(
-      'inline-block min-w-5 rounded border border-b-2 px-1 py-px text-center font-mono text-xs leading-none font-semibold',
-      KBD_TONES[tone]
-    )}>
-    {children}
-  </kbd>
-)
-
-export { BoardToolbarPanelClose, BoardToolbarKbd }
+export { BoardToolbarPanelClose }

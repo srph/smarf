@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Spinner } from '~/src/components/spinner/spinner'
 import { useBoard } from './board-context'
 import { useUpdateBoardMutation } from './mutations/use-update-board-mutation'
-import { BoardToolbarKbd, BoardToolbarPanelClose } from './board-toolbar-panel'
+import { BoardToolbarPanelClose } from './board-toolbar-panel'
 import { MetalButton } from './metal-button'
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
   onRenamed: () => void
 }
 
-/** The dock as a rename form: the whole name, pre-selected. Enter saves, Escape (handled by the dock) cancels. */
+/** The dock as a rename form: the whole name, pre-selected, with Cancel and Save. */
 const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
   const { board } = useBoard()
 
@@ -51,20 +51,19 @@ const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
         className="block h-10 w-full rounded-lg border border-sky-500 bg-zinc-900 px-3 font-semibold text-zinc-50 ring-3 ring-sky-500/20 outline-none selection:bg-sky-500/45"
       />
 
-      <div className="mt-3 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-xs text-zinc-500">
-          {isError ? (
-            <span className="text-red-400">Couldn't rename. Try again.</span>
-          ) : (
-            <>
-              <BoardToolbarKbd>Esc</BoardToolbarKbd> to cancel
-            </>
-          )}
-        </span>
+      <div className="mt-3 flex items-center gap-2">
+        {isError && <span className="text-xs text-red-400">Couldn't rename. Try again.</span>}
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="ml-auto h-9 cursor-pointer rounded-lg px-3.5 font-bold text-zinc-300 transition-colors hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-sky-500">
+          Cancel
+        </button>
 
         <MetalButton type="submit" disabled={!trimmed} busy={isPending}>
           {isPending ? 'Saving…' : 'Save'}
-          {isPending ? <Spinner /> : <BoardToolbarKbd tone="light">↵</BoardToolbarKbd>}
+          {isPending && <Spinner />}
         </MetalButton>
       </div>
     </form>
