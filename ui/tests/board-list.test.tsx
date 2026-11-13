@@ -167,6 +167,32 @@ describe('board list', () => {
     await waitFor(() => expect(currentPath()).toMatch(/^\/b\//))
   })
 
+  it('shows Creating… only on the button that was clicked', async () => {
+    let release!: () => void
+    const answered = new Promise<void>((resolve) => (release = resolve))
+    server.use(
+      http.post(`${API}/boards`, async () => {
+        await answered
+      })
+    )
+    const { user } = renderApp('/')
+
+    const newBoard = await screen.findByRole('button', { name: 'New Board' })
+    await waitFor(() => expect(newBoard).toBeEnabled())
+    await user.click(newBoard)
+
+    expect(newBoard).toHaveAccessibleName('Creating…')
+    expect(newBoard).toHaveAttribute('aria-busy', 'true')
+    const create = screen.getByRole('button', { name: 'Create your first board' })
+    expect(create).toBeDisabled()
+    expect(create).not.toHaveAttribute('aria-busy')
+
+    release()
+
+    await waitFor(() => expect(currentPath()).toMatch(/^\/b\//))
+    expect(screen.getByRole('button', { name: 'New Board' })).not.toHaveAttribute('aria-busy')
+  })
+
   it('opens a board from the list', async () => {
     seedBoard('Turbo', [{ name: 'Carries', heroes: ['Axe'] }])
     const { user } = renderApp('/')
