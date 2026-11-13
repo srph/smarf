@@ -1,8 +1,7 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { cn } from 'cn'
 import { Category, Hero, ID } from '~/src/types/api'
 import { Icon } from '~/src/components/icon/icon'
-import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
 import { BoardWorkspaceHeroSelector } from './board-workspace-hero-selector'
 import { BoardWorkspaceCategoryHero } from './board-workspace-category-hero'
 
@@ -15,6 +14,7 @@ import { useResizeCategoryMutation } from '../mutations/use-resize-category-muta
 import { useDeleteCategoryMutation } from '../mutations/use-delete-category-mutation'
 import { getCategoryHeight } from '~/src/contexts/board-list/utils'
 import { BoardWorkspaceCategoryTitle } from './board-workspace-category-title'
+import { BoardWorkspaceCategoryDeleteConfirm } from './board-workspace-category-delete-confirm'
 
 import { Resizable, type ResizeCallback, type Size } from 're-resizable'
 import { mergeRefs } from '~/src/utils'
@@ -52,7 +52,15 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
 
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
 
-  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] = useState(false)
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
+
+  const trashRef = useRef<HTMLButtonElement>(null)
+
+  // Backing out hands focus back to the trash. Stable, since the confirm listens for Escape and outside clicks with it.
+  const handleCancelDelete = useCallback(() => {
+    setIsConfirmingDelete(false)
+    trashRef.current?.focus({ preventScroll: true })
+  }, [])
 
   const [isResizing, setIsResizing] = useState(false)
 
@@ -119,8 +127,12 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
           'group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg inset-ring backdrop-blur-sm transition-shadow',
           isActive
             ? 'ring-2 ring-sky-500 inset-ring-white/15'
-            : 'ring-1 ring-black/50 inset-ring-white/8 hover:inset-ring-white/15'
+            : isConfirmingDelete
+              ? 'ring-1 ring-black/50 inset-ring-red-500/30'
+              : 'ring-1 ring-black/50 inset-ring-white/8 hover:inset-ring-white/15'
         )}
+        // Heroes grey out while the card asks to be deleted (group-data-deleting: in the hero tile).
+        data-deleting={isConfirmingDelete || undefined}
         style={{ transform: `translate3d(${category.x_position}px, ${category.y_position}px, 0)` }}>
         <div className="relative flex h-9 items-center gap-2 pr-1.5 pl-2">
           <div
@@ -132,29 +144,28 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
           </div>
           <BoardWorkspaceCategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
 
-          <div className="ml-auto">
-            <DeletePopover
-              open={isDeleteConfirmationOpen}
-              onOpenChange={setIsDeleteConfirmationOpen}
+          <button
+            ref={trashRef}
+            type="button"
+            title="Delete category"
+            onClick={() => setIsConfirmingDelete(true)}
+            className="ml-auto grid size-7 cursor-pointer place-items-center rounded-lg text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100">
+            <Icon icon={TrashIcon} size={16} />
+          </button>
+
+          {isConfirmingDelete && (
+            <BoardWorkspaceCategoryDeleteConfirm
+              name={category.name}
+              onCancel={handleCancelDelete}
               onConfirm={() => deleteCategory(category.id)}
-              side="bottom"
-              align="end"
-              sideOffset={16}
-              trigger={
-                <button
-                  title="Delete category"
-                  className="grid size-7 cursor-pointer place-items-center rounded-lg text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100 data-popup-open:opacity-100">
-                  <Icon icon={TrashIcon} size={16} />
-                </button>
-              }
             />
-          </div>
+          )}
         </div>
 
         <Resizable
           enable={{
             top: false,
-            right: !isDragging,
+            right: !isDragging && !isConfirmingDelete,
             bottom: false,
             // Right edge only: moving the card is how its left edge changes.
             left: false,

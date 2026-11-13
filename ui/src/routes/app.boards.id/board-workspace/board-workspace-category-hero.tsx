@@ -38,7 +38,12 @@ const BoardWorkspaceCategoryHero: React.FC<Props> = ({ hero, removing = false })
             'overflow-hidden rounded ring-sky-500',
             removing ? 'outline-3 outline-offset-3 outline-red-500' : 'hover:ring-2'
           )}>
-          <div className={cn('transition-[opacity,filter] duration-150', removing && 'opacity-75 grayscale')}>
+          {/* Greyed out while its category asks to be deleted (the card sets data-deleting). */}
+          <div
+            className={cn(
+              'transition-[opacity,filter] duration-150 group-data-deleting:opacity-35 group-data-deleting:grayscale',
+              removing && 'opacity-75 grayscale'
+            )}>
             <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} />
           </div>
         </div>

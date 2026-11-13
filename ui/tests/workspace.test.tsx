@@ -166,6 +166,20 @@ describe('board workspace', () => {
     await waitFor(() => expect(db.categories.map((c) => c.name)).not.toContain('Supports'))
   })
 
+  it('backs out of deleting a category on Escape and hands focus back to the trash', async () => {
+    const { user } = renderApp(`/b/${board.id}`)
+
+    const supports = await findCategory('Supports')
+    const trash = within(supports).getByTitle('Delete category')
+    await user.click(trash)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus())
+
+    await user.keyboard('[Escape]')
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument())
+    expect(trash).toHaveFocus()
+    expect(db.categories.map((c) => c.name)).toContain('Supports')
+  })
+
   it('adds a hero from the hero selector', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
