@@ -5,13 +5,14 @@ import { Logo } from '~/src/components/logo/logo'
 import { Link, useNavigate } from 'react-router'
 import { SquaresPlusIcon } from '@heroicons/react/20/solid'
 import { UserDropdown } from './user-dropdown'
-import { useCreateBoardMutation } from '~/src/mutations/boards/use-create-board-mutation'
+import { useCreateBoardMutation, useIsBoardCreating } from '~/src/mutations/boards/use-create-board-mutation'
 import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
 
 const Navigation: React.FC = () => {
   const navigate = useNavigate()
 
-  const { mutate: createBoard, isPending: isBoardCreating } = useCreateBoardMutation()
+  const { mutate: createBoard } = useCreateBoardMutation()
+  const isBoardCreating = useIsBoardCreating()
 
   // The starter board uses the first heroes, so wait for the hero list.
   const { status: heroesStatus } = useHeroesQuery()

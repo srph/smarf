@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
 import { heroesQueryOptions } from '~/src/queries/heroes/use-heroes-query'
 import { type Board, type Category, type Hero, type HeroCategoryPivot } from '~/src/types/api'
@@ -20,6 +20,7 @@ const useCreateBoardMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
+    mutationKey: boardKeys.create(),
     mutationFn: async () => {
       const heroes = await queryClient.ensureQueryData(heroesQueryOptions())
       const response = await http<{ board: Board }>('boards', { method: 'POST', body: starterBoard(heroes) })
@@ -28,6 +29,9 @@ const useCreateBoardMutation = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: boardKeys.list() })
   })
 }
+
+/** True while any board is being created, so every "new board" button can show it, not just the one clicked. */
+const useIsBoardCreating = () => useIsMutating({ mutationKey: boardKeys.create() }) > 0
 
 function starterBoard(heroes: Hero[]): CreateBoardVariables {
   const initialHeroes = heroes.slice(0, 2).map((hero, i) => ({ id: hero.id, order: (i + 1) * ORDER_BUFFER }))
@@ -49,4 +53,4 @@ function starterBoard(heroes: Hero[]): CreateBoardVariables {
   }
 }
 
-export { useCreateBoardMutation }
+export { useCreateBoardMutation, useIsBoardCreating }

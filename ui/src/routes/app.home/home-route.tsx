@@ -2,9 +2,10 @@ import React from 'react'
 import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
 import { Board } from '~/src/types/api'
 import { BoardList } from './board-list'
+import { BoardListSkeleton } from './board-list-skeleton'
+import { HomeEmptyState } from './home-empty-state'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { Spacer } from '~/src/components/spacer/spacer'
-import { PageSpinner } from '~/src/components/page-spinner/page-spinner'
 import { ErrorState } from '~/src/components/error-state/error-state'
 
 const partitionByFavorite = (boards: Board[]) => ({
@@ -24,7 +25,7 @@ const HomeRoute = () => {
     return (
       <>
         <PageTitle title="Your Boards" />
-        <PageSpinner />
+        <BoardListSkeleton />
       </>
     )
   }
@@ -39,6 +40,15 @@ const HomeRoute = () => {
           onRetry={() => refetchBoards()}
           isRetrying={isBoardsFetching}
         />
+      </>
+    )
+  }
+
+  if (!boards.favorites.length && !boards.recent.length) {
+    return (
+      <>
+        <PageTitle title="Your Boards" />
+        <HomeEmptyState />
       </>
     )
   }

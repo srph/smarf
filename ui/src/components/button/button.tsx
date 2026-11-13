@@ -1,6 +1,7 @@
 import React from 'react'
 import { cn } from 'cn'
 import { Icon, type IconComponent } from '../icon/icon'
+import { Spinner } from '../spinner/spinner'
 
 type Variant = 'primary' | 'clear' | 'danger'
 
@@ -10,6 +11,8 @@ interface Props {
   icon?: IconComponent
   type?: 'button' | 'submit'
   disabled?: boolean
+  /** Shows a spinner in place of the icon and disables the button. */
+  loading?: boolean
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
   ref?: React.Ref<HTMLButtonElement>
 }
@@ -28,6 +31,7 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
   onClick,
   block = false,
   disabled = false,
+  loading = false,
   ref
 }) => {
   return (
@@ -35,14 +39,19 @@ const Button: React.FC<React.PropsWithChildren<Props>> = ({
       ref={ref}
       type={type}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={cn(
         'w-full cursor-pointer items-center justify-center rounded p-2 text-center text-sm font-bold text-zinc-50 ring-sky-500 transition-shadow duration-200',
         'enabled:hover:ring-2 enabled:focus:ring-2 disabled:cursor-not-allowed disabled:opacity-75',
         block ? 'flex' : 'inline-flex',
         variants[variant]
       )}>
-      {icon ? (
+      {loading ? (
+        <div className="mr-2 flex">
+          <Spinner />
+        </div>
+      ) : icon ? (
         <div className="mr-2 text-primary-200">
           <Icon icon={icon} />
         </div>

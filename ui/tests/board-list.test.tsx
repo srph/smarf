@@ -89,6 +89,60 @@ describe('board list', () => {
     expect(currentPath()).toBe(`/b/${db.boards[0].id}`)
   })
 
+  it('shows a skeleton while the boards load', async () => {
+    let release!: () => void
+    const answered = new Promise<void>((resolve) => (release = resolve))
+    server.use(
+      http.get(`${API}/boards`, async () => {
+        await answered
+      })
+    )
+    seedBoard('Turbo', [])
+    renderApp('/')
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Loading your boards')
+
+    release()
+
+    expect(await screen.findByText('Turbo')).toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
+  it('invites a user with no boards to create one, and opens it', async () => {
+    const { user } = renderApp('/')
+
+    expect(await screen.findByText('No boards yet')).toBeInTheDocument()
+    const create = screen.getByRole('button', { name: 'Create your first board' })
+    await waitFor(() => expect(create).toBeEnabled()) // waits for the hero list
+    await user.click(create)
+
+    expect(await screen.findByDisplayValue('Mid Farming')).toBeInTheDocument()
+    expect(db.boards).toHaveLength(1)
+    expect(currentPath()).toBe(`/b/${db.boards[0].id}`)
+  })
+
+  it('disables both create buttons while a board is being created', async () => {
+    let release!: () => void
+    const answered = new Promise<void>((resolve) => (release = resolve))
+    server.use(
+      http.post(`${API}/boards`, async () => {
+        await answered
+      })
+    )
+    const { user } = renderApp('/')
+
+    const create = await screen.findByRole('button', { name: 'Create your first board' })
+    await waitFor(() => expect(create).toBeEnabled())
+    await user.click(create)
+
+    expect(await screen.findByRole('button', { name: 'Creating…' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'New Board' })).toBeDisabled()
+
+    release()
+
+    await waitFor(() => expect(currentPath()).toMatch(/^\/b\//))
+  })
+
   it('opens a board from the list', async () => {
     seedBoard('Turbo', [{ name: 'Carries', heroes: ['Axe'] }])
     const { user } = renderApp('/')
