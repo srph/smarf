@@ -5,6 +5,7 @@ import { server } from './support/handlers'
 import { installFakeLayout } from './support/layout'
 import { renderApp } from './support/render'
 import { findCategory, heroesShownIn } from './support/workspace'
+import { getCategoryHeight } from '~/src/contexts/board-list/utils'
 
 // Drags use dnd-kit's keyboard controls: Space to pick up, arrows to move, Space to drop.
 
@@ -179,6 +180,84 @@ describe('drag and drop', () => {
     await waitFor(() => {
       const category = db.categories.find((c) => c.name === 'Supports')!
       expect({ x: category.x_position, y: category.y_position }).toEqual({ x: 700, y: 200 })
+    })
+  })
+
+  // In the fake layout, Carries' hero area spans y 90–190 and its heroes sit at y 100–180; Juggernaut's center is
+  // (95, 140). A category reaches 48px above its hero area (its heading) and 12px beyond its other sides.
+  describe('removing a hero by dragging it off every category', () => {
+    it('removes it and saves the smaller category once', async () => {
+      const writes = recordWrites()
+      const { user } = renderApp(`/b/${board.id}`)
+      const carries = await findCategory('Carries')
+
+      await user.pointer([
+        { keys: '[MouseLeft>]', target: heroTile(carries, 'Juggernaut'), coords: { clientX: 95, clientY: 140 } },
+        { coords: { clientX: 95, clientY: 300 } },
+        { coords: { clientX: 95, clientY: 600 } },
+        { keys: '[/MouseLeft]' }
+      ])
+
+      await waitFor(() => expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Axe']))
+      await waitFor(() => expect(heroNamesIn('Carries', board.id)).toEqual(['Anti-Mage', 'Axe']))
+      const saved = db.categories.find((c) => c.name === 'Carries')!
+      expect(saved.height).toBe(getCategoryHeight({ categoryWidth: saved.width, heroCount: 2 }))
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      expect(writes).toHaveLength(1)
+      expect(writes[0]).toMatch(/^DELETE \/api\/categories\/.+\/heroes\/.+$/)
+    })
+
+    it("keeps it when it's dropped on a category's heading", async () => {
+      const writes = recordWrites()
+      const { user } = renderApp(`/b/${board.id}`)
+      const carries = await findCategory('Carries')
+
+      await user.pointer([
+        { keys: '[MouseLeft>]', target: heroTile(carries, 'Juggernaut'), coords: { clientX: 95, clientY: 140 } },
+        { coords: { clientX: 95, clientY: 100 } },
+        { coords: { clientX: 95, clientY: 60 } },
+        { keys: '[/MouseLeft]' }
+      ])
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      expect(heroesShownIn(carries)).toContain('Juggernaut')
+      expect(heroNamesIn('Carries', board.id)).toContain('Juggernaut')
+      expect(writes.filter((w) => w.startsWith('DELETE'))).toEqual([])
+    })
+
+    it('keeps it when it comes back onto a category before the drop', async () => {
+      const writes = recordWrites()
+      const { user } = renderApp(`/b/${board.id}`)
+      const carries = await findCategory('Carries')
+
+      await user.pointer([
+        { keys: '[MouseLeft>]', target: heroTile(carries, 'Juggernaut'), coords: { clientX: 95, clientY: 140 } },
+        { coords: { clientX: 95, clientY: 600 } },
+        { coords: { clientX: 95, clientY: 140 } },
+        { keys: '[/MouseLeft]' }
+      ])
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Juggernaut', 'Axe'])
+      expect(writes).toEqual([])
+    })
+
+    it('keeps it when the drag is cancelled off every category', async () => {
+      const writes = recordWrites()
+      const { user } = renderApp(`/b/${board.id}`)
+      const carries = await findCategory('Carries')
+
+      await user.pointer([
+        { keys: '[MouseLeft>]', target: heroTile(carries, 'Juggernaut'), coords: { clientX: 95, clientY: 140 } },
+        { coords: { clientX: 95, clientY: 300 } },
+        { coords: { clientX: 95, clientY: 600 } }
+      ])
+      await user.keyboard('[Escape]')
+      await user.pointer({ keys: '[/MouseLeft]' })
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Juggernaut', 'Axe'])
+      expect(writes).toEqual([])
     })
   })
 })

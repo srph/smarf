@@ -8,6 +8,7 @@ import {
   rectIntersection,
   getFirstCollision,
   DragStartEvent,
+  DragMoveEvent,
   DragOverEvent,
   DragCancelEvent,
   DragEndEvent
@@ -32,11 +33,21 @@ interface CustomGridCollisionDetectionProps<T> {
   onCancel: () => void
   /** An item was picked up. */
   onStart?: () => void
+  /** Dropped off every container: remove the item from where it started. Without it, such a drop puts it back. */
+  onRemove?: (start: CustomGridCollisionDetectionEvent) => void
+  /**
+   * How far around a container's droppable the pointer still counts as on the container: `top` for a heading above
+   * it, `edge` on the other sides. Only used with `onRemove`.
+   */
+  containerReach?: { top: number; edge: number }
 }
 
 interface CustomGridCollisionDetectionReturnType {
   collisionDetectionStrategy: CollisionDetection
+  /** The dragged item's id while the pointer is off every container (dropping it there removes it), else null. */
+  removingId: ID | null
   onDragStart: (e: DragStartEvent) => void
+  onDragMove: (e: DragMoveEvent) => void
   onDragOver: (e: DragOverEvent) => void
   onDragEnd: (e: DragEndEvent) => void
   onDragCancel: (e: DragCancelEvent) => void
@@ -47,6 +58,16 @@ type ContainerIds = ID[]
 // Map for O(n) access
 type PayloadMap = Record<ID, ID[]>
 
+// Collision data saying the pointer is off every container. Carried on the collision, so the strategy stays pure and
+// onDragMove/onDragEnd read the same answer it worked out.
+interface OffContainersData {
+  offContainers: true
+}
+
+const OFF_CONTAINERS: OffContainersData = { offContainers: true }
+
+const isOffContainers = (collisions: DragMoveEvent['collisions']) => collisions?.[0]?.data?.offContainers === true
+
 /**
  * Collision detection and drag handlers for items in a grid of containers (heroes in categories).
  * Moving into another container calls `onMove` as it happens, so the parent can show it; the drop calls
@@ -55,7 +76,9 @@ type PayloadMap = Record<ID, ID[]>
 function useBoardWorkspaceGridCollisionDetection<T>(
   props: CustomGridCollisionDetectionProps<T>
 ): CustomGridCollisionDetectionReturnType {
-  const { containers, containerIdTransformer, containerDataIdTransformer } = props
+  const { containers, containerIdTransformer, containerDataIdTransformer, containerReach } = props
+
+  const canRemove = Boolean(props.onRemove)
 
   const containerIds: ContainerIds = useMemo(
     () => containers.map(containerIdTransformer),
@@ -72,6 +95,7 @@ function useBoardWorkspaceGridCollisionDetection<T>(
   // An active item's starting position so we know how to put it back when user cancels
   const [startEvent, setStartEvent] = useState<CustomGridCollisionDetectionEvent | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [isOff, setIsOff] = useState(false)
   const lastOverId = useRef<UniqueIdentifier | null>(null)
   const recentlyMovedToNewContainer = useRef<boolean>(false)
 
@@ -86,6 +110,25 @@ function useBoardWorkspaceGridCollisionDetection<T>(
    */
   const collisionDetectionStrategy: CollisionDetection = useCallback(
     (args) => {
+      // Dragging an item with the pointer and it's off every container (and the reach around it): keep the last match,
+      // so nothing shifts, and mark it so a drop here removes the item. Keyboard drags have no pointer, so never get here.
+      const pointer = args.pointerCoordinates
+      if (activeId && canRemove && pointer) {
+        const top = containerReach?.top ?? 0
+        const edge = containerReach?.edge ?? 0
+        const onContainer = containerIds.some((id) => {
+          const rect = args.droppableRects.get(id)
+          return (
+            rect &&
+            pointer.x >= rect.left - edge &&
+            pointer.x <= rect.right + edge &&
+            pointer.y >= rect.top - top &&
+            pointer.y <= rect.bottom + edge
+          )
+        })
+        if (!onContainer) return [{ id: lastOverId.current ?? activeId, data: OFF_CONTAINERS }]
+      }
+
       // Start by finding any intersecting droppable
       const pointerIntersections = pointerWithin(args)
 
@@ -128,7 +171,7 @@ function useBoardWorkspaceGridCollisionDetection<T>(
       // If no droppable is matched, return the last match
       return lastOverId.current ? [{ id: lastOverId.current }] : []
     },
-    [activeId, payload]
+    [activeId, payload, canRemove, containerIds, containerReach]
   )
 
   const findContainer = (id: ID): ID | undefined => {
@@ -157,6 +200,11 @@ function useBoardWorkspaceGridCollisionDetection<T>(
     })
 
     props.onStart?.()
+  }
+
+  const onDragMove = ({ collisions }: DragMoveEvent) => {
+    if (!activeId) return
+    setIsOff(isOffContainers(collisions))
   }
 
   // Responsible for moving an item from array to array
@@ -214,13 +262,21 @@ function useBoardWorkspaceGridCollisionDetection<T>(
   const reset = () => {
     setStartEvent(null)
     setActiveId(null)
+    setIsOff(false)
   }
 
   // Works out where the item ended up and reports the whole move once.
-  const onDragEnd = ({ active, over }: DragEndEvent) => {
+  const onDragEnd = ({ active, over, collisions }: DragEndEvent) => {
     // Avoid conflict with useBoardWorkspaceDragContainer
     // This means we're dragging a container, and we don't care about it
     if (!activeId) return
+
+    // Dropped off every container: remove it from where it started, whatever the drag showed on the way.
+    if (startEvent && props.onRemove && isOffContainers(collisions)) {
+      props.onRemove(startEvent)
+      reset()
+      return
+    }
 
     const activeContainer = findContainer(String(active.id))
 
@@ -268,7 +324,9 @@ function useBoardWorkspaceGridCollisionDetection<T>(
 
   return {
     collisionDetectionStrategy,
+    removingId: activeId && isOff ? activeId : null,
     onDragStart,
+    onDragMove,
     onDragOver,
     onDragEnd,
     onDragCancel

@@ -19,6 +19,11 @@ export const CATEGORY_BODY_INITIAL_HEIGHT = CATEGORY_ROW_HEIGHT + CATEGORY_HERO_
 
 export const CATEGORY_SPACING = 96
 
+// How far around a category's hero area a dragged hero still counts as on the category. Dropped beyond it, the hero
+// is removed. Above, the reach covers the heading (its 20px row and 24px margin); elsewhere, a small margin.
+export const CATEGORY_HEADING_REACH = 48
+export const CATEGORY_EDGE_REACH = 12
+
 export const ORDER_FIRST_BUFFER = 1024
 export const ORDER_LAST_BUFFER = 1024
 export const ORDER_BUFFER = 1024

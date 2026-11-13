@@ -237,6 +237,18 @@ export const handlers = [
     to.height = body.to_category_height
     const hero = HEROES.find((h) => h.id === pivot.hero_id)
     return HttpResponse.json({ hero: { ...hero, pivot } })
+  }),
+
+  // Remove one hero from a category; `:pivot` is the pivot id, so a second copy of the hero stays.
+  http.delete(`${API}/categories/:id/heroes/:pivot`, async ({ request, params }) => {
+    const category = ownedCategory(request, params.id as string)
+    if (!category) return HttpResponse.json({}, { status: 404 })
+    const body = (await request.json()) as Json
+    const pivot = db.pivots.find((p) => p.id === params.pivot && p.category_id === category.id)
+    if (!pivot) return HttpResponse.json({}, { status: 404 })
+    db.pivots = db.pivots.filter((p) => p !== pivot)
+    category.height = body.category_height
+    return HttpResponse.json({ category: categoryJson(category) })
   })
 ]
 

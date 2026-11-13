@@ -11,11 +11,16 @@ import {
   type HeroPosition
 } from '../mutations/use-move-hero-mutation'
 import { useMoveCategoryMutation } from '../mutations/use-move-category-mutation'
+import { useRemoveHeroMutation, removeHeroVariables } from '../mutations/use-remove-hero-mutation'
 import { BoardWorkspaceCategoryBody } from './board-workspace-category-body'
 import { Board, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'
 
-import { BOARD_WORKSPACE_ALLOWANCE } from '~/src/contexts/board-list/constants'
+import {
+  BOARD_WORKSPACE_ALLOWANCE,
+  CATEGORY_EDGE_REACH,
+  CATEGORY_HEADING_REACH
+} from '~/src/contexts/board-list/constants'
 import { clampCategoryPosition, getLowestCategoryBottom } from '~/src/contexts/board-list/utils'
 
 import { DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, MeasuringStrategy } from '@dnd-kit/core'
@@ -29,6 +34,7 @@ import { mergeEvents } from './board-workspace-utils'
 const getCategoryId = (category: Category) => category.id
 const getCategoryHeroIds = (category: Category) => category.heroes.map((hero) => hero.pivot.id)
 const getCategoryPosition = (category: Category) => ({ x: category.x_position, y: category.y_position })
+const CATEGORY_REACH = { top: CATEGORY_HEADING_REACH, edge: CATEGORY_EDGE_REACH }
 
 const BoardWorkspace: React.FC = () => {
   const { board, updateDraft, clearDraft } = useBoard()
@@ -38,6 +44,8 @@ const BoardWorkspace: React.FC = () => {
   const { mutate: moveHero } = useMoveHeroMutation(board.id)
 
   const { mutate: moveCategory } = useMoveCategoryMutation(board.id)
+
+  const { mutate: removeHero } = useRemoveHeroMutation(board.id)
 
   // The cached board, read when called: a drag can fire several moves before React re-renders with the last one.
   const getSavedBoard = () => queryClient.getQueryData<Board>(boardKeys.detail(board.id))
@@ -54,6 +62,14 @@ const BoardWorkspace: React.FC = () => {
     const savedBoard = getSavedBoard()
     const variables = savedBoard && moveHeroVariables(savedBoard, start, end)
     if (variables) moveHero(variables)
+    clearDraft()
+  }
+
+  // Dropped off every category: remove the hero from where it started on the cached board.
+  const handleHeroRemove = (start: HeroPosition) => {
+    const savedBoard = getSavedBoard()
+    const variables = savedBoard && removeHeroVariables(savedBoard, start)
+    if (variables) removeHero(variables)
     clearDraft()
   }
 
@@ -81,17 +97,20 @@ const BoardWorkspace: React.FC = () => {
     clearDraft()
   }
 
-  const { collisionDetectionStrategy, ...gridCollisionEvents } = useBoardWorkspaceGridCollisionDetection<Category>({
-    containers: board.categories,
-    containerIdTransformer: getCategoryId,
-    containerDataIdTransformer: getCategoryHeroIds,
-    onMove: handleHeroMove,
-    onDrop: handleHeroDrop,
-    onCancel: clearDraft,
-    // Start every hero drag with a draft (a copy of the cached board). Clearing it on drop then re-renders the
-    // board in the same batch as dnd-kit's own drop reset, so a reorder never shows the old order for a frame.
-    onStart: () => updateDraft(() => {})
-  })
+  const { collisionDetectionStrategy, removingId, ...gridCollisionEvents } =
+    useBoardWorkspaceGridCollisionDetection<Category>({
+      containers: board.categories,
+      containerIdTransformer: getCategoryId,
+      containerDataIdTransformer: getCategoryHeroIds,
+      onMove: handleHeroMove,
+      onDrop: handleHeroDrop,
+      onCancel: clearDraft,
+      onRemove: handleHeroRemove,
+      containerReach: CATEGORY_REACH,
+      // Start every hero drag with a draft (a copy of the cached board). Clearing it on drop then re-renders the
+      // board in the same batch as dnd-kit's own drop reset, so a reorder never shows the old order for a frame.
+      onStart: () => updateDraft(() => {})
+    })
 
   // The workspace element, kept in state so categories can bound their resizing by it.
   const [workspace, setWorkspace] = useState<HTMLDivElement | null>(null)
@@ -156,7 +175,14 @@ const BoardWorkspace: React.FC = () => {
             className="relative z-(--z-board-workspace) before:pointer-events-none before:absolute before:-inset-x-512 before:-top-12 before:-bottom-100 before:-z-10 before:bg-[radial-gradient(circle,var(--color-zinc-500)_1.5px,transparent_1.5px),radial-gradient(circle,color-mix(in_oklab,var(--color-zinc-800),var(--color-zinc-700)_40%)_1px,transparent_1px)] before:bg-size-[64px_64px,16px_16px] before:bg-position-[-32px_16px,-8px_-8px]"
             style={{ height: workspaceHeight }}>
             {board.categories.map((category) => {
-              return <BoardWorkspaceCategoryBody key={category.id} category={category} workspace={workspace} />
+              return (
+                <BoardWorkspaceCategoryBody
+                  key={category.id}
+                  category={category}
+                  workspace={workspace}
+                  removingHeroId={removingId}
+                />
+              )
             })}
           </div>
         </DndContext>

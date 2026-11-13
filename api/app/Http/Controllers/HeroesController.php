@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use App\Models\Hero;
 use App\Models\Category;
 use App\Http\Requests\InsertHeroRequest;
+use App\Http\Requests\RemoveHeroRequest;
 use App\Http\Requests\ReorderHeroRequest;
 
 class HeroesController extends Controller
@@ -76,12 +77,18 @@ class HeroesController extends Controller
     /**
      * Remove a hero from a category
      */
-    public function remove(Category $category)
+    /**
+     * Remove one hero from a category. `$hero` is bound by its pivot id, so only that entry goes,
+     * even when the same hero is in the category twice.
+     */
+    public function remove(RemoveHeroRequest $request, Category $category, Hero $hero)
     {
+        $category->heroes()->wherePivot('id', $hero->pivot->id)->detach();
+
+        $category->update(['height' => $request->get('category_height')]);
+
         return response()->json([
-            'category' => $category->heroes()->detach(
-                request()->input('hero_id')
-            )
+            'category' => $category
         ]);
     }
 }

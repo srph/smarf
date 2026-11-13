@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Category, Hero } from '~/src/types/api'
+import { Category, Hero, ID } from '~/src/types/api'
 import { Icon } from '~/src/components/icon/icon'
 import { DeletePopover } from '~/src/components/delete-popover/delete-popover'
 import { BoardWorkspaceHeroSelector } from './board-workspace-hero-selector'
@@ -31,9 +31,11 @@ interface Props {
   category: Category
   // Resizing stops at the workspace's right edge.
   workspace: HTMLElement | null
+  // The pivot id of a hero being dragged off every category (dropping it removes it), if any.
+  removingHeroId: ID | null
 }
 
-const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace }) => {
+const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, removingHeroId }) => {
   const { board, updateDraft, clearDraft } = useBoard()
 
   const { mutate: addHero } = useAddHeroMutation(board.id)
@@ -147,7 +149,12 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace }) =>
             style={{ padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2, width: category.width }}>
             <SortableContext items={heroIds} strategy={rectSortingStrategy}>
               {category.heroes.map((hero) => (
-                <BoardWorkspaceCategoryHero key={hero.pivot.id} category={category} hero={hero} />
+                <BoardWorkspaceCategoryHero
+                  key={hero.pivot.id}
+                  category={category}
+                  hero={hero}
+                  removing={hero.pivot.id === removingHeroId}
+                />
               ))}
             </SortableContext>
 
