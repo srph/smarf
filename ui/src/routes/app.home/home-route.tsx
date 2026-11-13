@@ -5,13 +5,10 @@ import { BoardList } from './board-list'
 import { BoardListSkeleton } from './board-list-skeleton'
 import { HomeEmptyState } from './home-empty-state'
 import { PageTitle } from '~/src/components/page-title/page-title'
-import { Spacer } from '~/src/components/spacer/spacer'
 import { ErrorState } from '~/src/components/error-state/error-state'
 
-const partitionByFavorite = (boards: Board[]) => ({
-  favorites: boards.filter((board) => board.is_favorite),
-  recent: boards.filter((board) => !board.is_favorite)
-})
+// Favorites first. toSorted is stable, so each group stays newest first (the API's order).
+const favoritesFirst = (boards: Board[]) => boards.toSorted((a, b) => Number(b.is_favorite) - Number(a.is_favorite))
 
 const HomeRoute = () => {
   const {
@@ -19,7 +16,7 @@ const HomeRoute = () => {
     status: boardsStatus,
     refetch: refetchBoards,
     isFetching: isBoardsFetching
-  } = useBoardsQuery(partitionByFavorite)
+  } = useBoardsQuery(favoritesFirst)
 
   if (boardsStatus === 'pending') {
     return (
@@ -44,7 +41,7 @@ const HomeRoute = () => {
     )
   }
 
-  if (!boards.favorites.length && !boards.recent.length) {
+  if (!boards.length) {
     return (
       <>
         <PageTitle title="Your Boards" />
@@ -57,14 +54,7 @@ const HomeRoute = () => {
     <>
       <PageTitle title="Your Boards" />
 
-      {boards.favorites.length ? <BoardList title="Favorite Boards" boards={boards.favorites} /> : null}
-
-      {boards.recent.length ? (
-        <>
-          <Spacer size={4} />
-          <BoardList title="Recent Boards" boards={boards.recent} />
-        </>
-      ) : null}
+      <BoardList title="Your Boards" boards={boards} />
     </>
   )
 }

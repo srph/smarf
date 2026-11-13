@@ -1,13 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { motion } from 'motion/react'
 import { cn } from 'cn'
 import { Link } from 'react-router'
-import { StarIcon } from '@heroicons/react/20/solid'
-import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline'
 import { useFavoriteBoardMutation } from '~/src/queries/boards/use-favorite-board-mutation'
-import { Icon } from '~/src/components/icon/icon'
+import { FavoriteIcon } from '~/src/components/favorite-icon/favorite-icon'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
 import { TimeAgo } from '~/src/components/time-ago/time-ago'
 import { Board } from '~/src/types/api'
+
+// Starts after the star's pop has begun (FavoriteIcon), so the pop is seen before the row slides away.
+const moveTransition = { duration: 0.3, ease: [0.2, 0.8, 0.3, 1], delay: 0.15 } as const
 
 interface Props {
   board: Board
@@ -16,8 +18,26 @@ interface Props {
 const BoardListItem: React.FC<Props> = ({ board }) => {
   const { mutate: favoriteBoard } = useFavoriteBoardMutation(board.id)
 
+  // The row whose star was just toggled slides past the others; keep it on top of them until it lands.
+  const [isMoving, setIsMoving] = useState(false)
+
+  const [previousIsFavorite, setPreviousIsFavorite] = useState(board.is_favorite)
+
+  if (board.is_favorite !== previousIsFavorite) {
+    setPreviousIsFavorite(board.is_favorite)
+    setIsMoving(true)
+  }
+
   return (
-    <div className="flex items-center rounded bg-zinc-700 ring-2 ring-transparent transition-all duration-200 not-last:mb-4 hover:ring-sky-500">
+    // layout="position": when favoriting re-sorts the list, rows slide to their new places instead of jumping.
+    <motion.div
+      layout="position"
+      transition={moveTransition}
+      onLayoutAnimationComplete={() => setIsMoving(false)}
+      className={cn(
+        'relative flex items-center rounded bg-zinc-700 ring-2 ring-transparent transition-shadow duration-200 not-last:mb-4 hover:ring-sky-500',
+        isMoving && 'z-(--z-board-list-moving-item)'
+      )}>
       <Link to={`/b/${board.id}`} className="flex w-full items-center justify-between p-4 pr-0">
         <h3 className="my-4.5 text-lg font-medium">{board.name}</h3>
         <span className="text-xs text-zinc-400">
@@ -25,12 +45,15 @@ const BoardListItem: React.FC<Props> = ({ board }) => {
         </span>
       </Link>
 
-      <PlainButton type="button" onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}>
-        <div className={cn('p-4', board.is_favorite ? 'text-yellow-500' : 'text-zinc-400')}>
-          <Icon icon={board.is_favorite ? StarIcon : StarOutlineIcon} size={24} />
+      <PlainButton
+        type="button"
+        title={board.is_favorite ? 'Remove board from favorites' : 'Add board to favorites'}
+        onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}>
+        <div className="p-4 text-zinc-400">
+          <FavoriteIcon value={board.is_favorite} size={24} />
         </div>
       </PlainButton>
-    </div>
+    </motion.div>
   )
 }
 

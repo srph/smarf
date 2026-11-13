@@ -1,4 +1,5 @@
 import React, { StrictMode, useState } from 'react'
+import { MotionConfig } from 'motion/react'
 import './index.css'
 
 import { AuthUserProvider } from '~/src/contexts/auth-user/auth-user-provider'
@@ -76,11 +77,14 @@ const App = () => {
   const [router] = useState(() => createBrowserRouter(routes))
 
   // StrictMode lives here (not in index.tsx) so tests render under it too.
+  // reducedMotion="user": with the OS's reduce-motion setting on, Motion skips moves (layout animations).
   return (
     <StrictMode>
-      <QueryProvider>
-        <RouterProvider router={router} />
-      </QueryProvider>
+      <MotionConfig reducedMotion="user">
+        <QueryProvider>
+          <RouterProvider router={router} />
+        </QueryProvider>
+      </MotionConfig>
     </StrictMode>
   )
 }

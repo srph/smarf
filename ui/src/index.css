@@ -50,6 +50,7 @@
 @layer base {
   /* Stacking order, lowest first. Use as z-(--z-popover). */
   :root {
+    --z-board-list-moving-item: 1;
     --z-board-workspace: 900;
     --z-board-toolbar: 1000;
     --z-board-toolbar-icon: 1010;

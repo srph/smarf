@@ -5,30 +5,38 @@ import { API, server } from './support/handlers'
 import { db, seedBoard } from './support/db'
 import { currentPath, renderApp, screen } from './support/render'
 
+// The board names in the list, top to bottom.
+const boardNames = () => screen.getAllByRole('heading', { level: 3 }).map((heading) => heading.textContent)
+
+// A board's row: its link and its star button.
+const row = (name: string) => screen.getByRole('heading', { level: 3, name }).closest('a')!.parentElement!
+
 describe('board list', () => {
-  it('shows favorite and recent boards in separate sections', async () => {
+  it('lists favorite boards first, each group newest first', async () => {
     seedBoard('Ranked', [], { is_favorite: true })
     seedBoard('Turbo', [])
+    seedBoard('Captains Mode', [], { is_favorite: true })
+    seedBoard('Ability Draft', [])
     renderApp('/')
 
-    const favorites = (await screen.findByText('Favorite Boards')).parentElement!
-    const recent = screen.getByText('Recent Boards').parentElement!
-    expect(within(favorites).getByText('Ranked')).toBeInTheDocument()
-    expect(within(recent).getByText('Turbo')).toBeInTheDocument()
-    expect(within(recent).queryByText('Ranked')).not.toBeInTheDocument()
+    await screen.findByText('Ranked')
+    expect(boardNames()).toEqual(['Captains Mode', 'Ranked', 'Ability Draft', 'Turbo'])
   })
 
-  it('favorites a board from the list', async () => {
+  it('favorites a board from the list, moving it to the top', async () => {
+    seedBoard('Ranked', [])
     const board = seedBoard('Turbo', [])
+    seedBoard('Ability Draft', [])
     const { user } = renderApp('/')
 
-    const recent = (await screen.findByText('Recent Boards')).parentElement!
-    const item = within(recent).getByText('Turbo').closest('a')!.parentElement!
-    await user.click(within(item).getByRole('button'))
+    await screen.findByText('Turbo')
+    expect(boardNames()).toEqual(['Ability Draft', 'Turbo', 'Ranked'])
 
-    const favorites = (await screen.findByText('Favorite Boards')).parentElement!
-    expect(within(favorites).getByText('Turbo')).toBeInTheDocument()
-    expect(db.boards.find((b) => b.id === board.id)!.is_favorite).toBe(true)
+    await user.click(within(row('Turbo')).getByTitle('Add board to favorites'))
+
+    expect(within(row('Turbo')).getByTitle('Remove board from favorites')).toBeInTheDocument()
+    expect(boardNames()).toEqual(['Turbo', 'Ability Draft', 'Ranked'])
+    await waitFor(() => expect(db.boards.find((b) => b.id === board.id)!.is_favorite).toBe(true))
   })
 
   it('favorites a board before the server answers, and undoes it if the save fails', async () => {
@@ -41,21 +49,20 @@ describe('board list', () => {
       })
     )
     seedBoard('Turbo', [])
+    seedBoard('Ranked', [])
     const { user } = renderApp('/')
 
-    const recent = (await screen.findByText('Recent Boards')).parentElement!
-    const item = within(recent).getByText('Turbo').closest('a')!.parentElement!
-    await user.click(within(item).getByRole('button'))
+    await screen.findByText('Turbo')
+    await user.click(within(row('Turbo')).getByTitle('Add board to favorites'))
 
-    // Moved to favorites while the request is still pending.
-    const favorites = (await screen.findByText('Favorite Boards')).parentElement!
-    expect(within(favorites).getByText('Turbo')).toBeInTheDocument()
+    // Moved to the top while the request is still pending.
+    expect(boardNames()).toEqual(['Turbo', 'Ranked'])
 
     release()
 
     // The save failed, so the list is refetched and matches the server again.
-    await waitFor(() => expect(screen.queryByText('Favorite Boards')).not.toBeInTheDocument())
-    expect(within(screen.getByText('Recent Boards').parentElement!).getByText('Turbo')).toBeInTheDocument()
+    await waitFor(() => expect(boardNames()).toEqual(['Ranked', 'Turbo']))
+    expect(within(row('Turbo')).getByTitle('Add board to favorites')).toBeInTheDocument()
   })
 
   it("offers a retry when the boards can't be loaded", async () => {

@@ -60,7 +60,8 @@ export const handlers = [
   http.get(`${API}/boards`, ({ request }) => {
     const userId = userIdFrom(request)
     if (!userId) return unauthorized()
-    return HttpResponse.json({ boards: db.boards.filter((b) => b.user_id === userId) })
+    // Newest first, like the API (created_at desc). Seeded boards share one created_at, so newest = added last.
+    return HttpResponse.json({ boards: db.boards.filter((b) => b.user_id === userId).toReversed() })
   }),
 
   http.post(`${API}/boards`, async ({ request }) => {
