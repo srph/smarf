@@ -41,8 +41,9 @@ return [
             'provider' => 'users',
         ],
 
+        // Bearer tokens from Sanctum (personal_access_tokens), issued by DiscordAuthController.
         'api' => [
-            'driver' => 'passport',
+            'driver' => 'sanctum',
             'provider' => 'users',
         ],
     ],

@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request as Psr7Request;
 use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Laravel\Passport\ClientRepository;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as DiscordUser;
 use Mockery;
@@ -29,9 +28,6 @@ class DiscordAuthTest extends TestCase
             'services.discord.client_id' => 'discord-client',
             'services.discord.client_secret' => 'discord-secret',
         ]);
-
-        // Tokens are personal access tokens, which need a personal access client.
-        app(ClientRepository::class)->createPersonalAccessClient(null, 'Test Personal Access Client', 'http://localhost');
     }
 
     public function test_creates_the_user_and_returns_a_token_that_works()
@@ -55,6 +51,18 @@ class DiscordAuthTest extends TestCase
         $this->getJson('/api/auth/me', ['Authorization' => "Bearer $token"])
             ->assertOk()
             ->assertJsonPath('user.id', $user->id);
+    }
+
+    public function test_the_token_expires_after_30_days()
+    {
+        $this->fakeDiscord(['id' => '1004', 'username' => 'lion', 'email' => null, 'verified' => false, 'avatar' => null]);
+
+        $token = $this->postJson('/api/auth/discord', ['code' => 'c', 'redirect_uri' => self::REDIRECT])->json('access_token');
+
+        $this->travel(30)->days();
+        $this->travel(1)->minutes();
+
+        $this->getJson('/api/auth/me', ['Authorization' => "Bearer $token"])->assertUnauthorized();
     }
 
     public function test_signs_in_the_same_user_again_and_follows_their_discord_profile()

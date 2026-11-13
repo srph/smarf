@@ -1,7 +1,7 @@
 # Smarf — top-level developer entry points.
 #
 #   make install      install API + web dependencies, start the DB, run migrations
-#   make install:api  composer install, api/.env, app key, Passport keys
+#   make install:api  composer install, api/.env, app key
 #   make install:web  npm install, ui/.env
 #   make start:api    API on http://mbp.boga-parore.ts.net:13001 (all interfaces; Tailscale MagicDNS)
 #   make start:web    web dev server on http://mbp.boga-parore.ts.net:13000 (all interfaces)
@@ -38,12 +38,12 @@ else \
 fi
 endef
 
-.PHONY: help install install-api install-web migrate oauth-client start-api start-web start-db
+.PHONY: help install install-api install-web migrate start-api start-web start-db
 
 help:
 	@sed -n '3,9p' Makefile | sed 's/^# *//'
 
-install: install-api install-web start-db migrate oauth-client
+install: install-api install-web start-db migrate
 	@echo ""
 	@echo "==> Fill in DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET in api/.env, and VITE_DISCORD_CLIENT_ID in ui/.env."
 	@echo "==> Done. Run 'make start:api' and 'make start:web' in separate terminals."
@@ -60,8 +60,7 @@ install-api:
 	fi; \
 	[ -f .env ] || { cp .env.example .env; echo "==> Created api/.env"; }; \
 	$(COMPOSER) install; \
-	if grep -q '^APP_KEY=$$' .env; then $(PHP) artisan key:generate; fi; \
-	[ -f storage/oauth-private.key ] || $(PHP) artisan passport:keys
+	if grep -q '^APP_KEY=$$' .env; then $(PHP) artisan key:generate; fi
 
 install-web:
 	@echo "==> Installing web dependencies"
@@ -72,15 +71,6 @@ install-web:
 
 migrate:
 	@cd api && $(PHP) artisan migrate --force
-
-# Discord sign-in hands out Passport personal access tokens, which need a
-# personal access client. Create one once (skipped when one exists).
-oauth-client:
-	@set -e; cd api; \
-	count=$$($(PHP) artisan tinker --execute 'echo DB::table("oauth_personal_access_clients")->count();' 2>/dev/null | tail -1); \
-	if [ -n "$$count" ] && [ "$$count" != "0" ]; then echo "==> Passport personal access client already exists"; exit 0; fi; \
-	$(PHP) artisan passport:client --personal --name="Smarf Personal Access Client" --no-interaction >/dev/null; \
-	echo "==> Created a Passport personal access client"
 
 start-api:
 	@set -e; cd api; \

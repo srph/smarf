@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
-use Laravel\Passport\Passport;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 use App\Models\Board;
@@ -20,7 +20,7 @@ class BoardsIndexTest extends TestCase
     public function test_lists_boards_with_category_and_hero_counts()
     {
         $user = User::factory()->create();
-        Passport::actingAs($user);
+        Sanctum::actingAs($user, ['*'], 'api');
 
         $board = Board::factory()->create(['user_id' => $user->id]);
         $empty = Board::factory()->create(['user_id' => $user->id]);

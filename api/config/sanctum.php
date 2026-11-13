@@ -33,7 +33,8 @@ return [
     |
     */
 
-    'guard' => ['web'],
+    // Empty: the API is bearer tokens only, never the web session.
+    'guard' => [],
 
     /*
     |--------------------------------------------------------------------------
@@ -46,7 +47,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // 30 days. Signing in again is one click.
+    'expiration' => 60 * 24 * 30,
 
     /*
     |--------------------------------------------------------------------------

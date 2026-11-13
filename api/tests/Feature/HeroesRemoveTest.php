@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Laravel\Passport\Passport;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 use App\Models\Board;
@@ -21,7 +21,7 @@ class HeroesRemoveTest extends TestCase
     public function test_removes_only_that_entry_and_saves_the_height()
     {
         $user = User::factory()->create();
-        Passport::actingAs($user);
+        Sanctum::actingAs($user, ['*'], 'api');
 
         $category = $this->categoryFor($user, ['height' => 114]);
         $hero = Hero::first();
@@ -40,7 +40,7 @@ class HeroesRemoveTest extends TestCase
     public function test_requires_the_new_height()
     {
         $user = User::factory()->create();
-        Passport::actingAs($user);
+        Sanctum::actingAs($user, ['*'], 'api');
 
         $category = $this->categoryFor($user);
         $pivot = $this->attach($category, Hero::first(), 1);
@@ -54,7 +54,7 @@ class HeroesRemoveTest extends TestCase
 
     public function test_cannot_remove_from_someone_elses_category()
     {
-        Passport::actingAs(User::factory()->create());
+        Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
 
         $category = $this->categoryFor(User::factory()->create());
         $pivot = $this->attach($category, Hero::first(), 1);
@@ -68,7 +68,7 @@ class HeroesRemoveTest extends TestCase
     public function test_an_entry_from_another_category_is_not_found()
     {
         $user = User::factory()->create();
-        Passport::actingAs($user);
+        Sanctum::actingAs($user, ['*'], 'api');
 
         $category = $this->categoryFor($user);
         $other = $this->categoryFor($user);

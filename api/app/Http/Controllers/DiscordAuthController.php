@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Laravel\Passport\PersonalAccessTokenFactory;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as DiscordUser;
 use GuzzleHttp\Exception\ClientException;
@@ -15,9 +14,9 @@ class DiscordAuthController extends Controller
     /**
      * Sign in with Discord. The UI sends the code Discord gave it, and the redirect_uri it used (Discord
      * checks it matches). Socialite trades the code for the Discord profile; we find or create that user
-     * and answer with a Passport token.
+     * and answer with a Sanctum token.
      */
-    public function login(Request $request, PersonalAccessTokenFactory $tokens)
+    public function login(Request $request)
     {
         $request->validate([
             'code' => 'required|string',
@@ -45,7 +44,7 @@ class DiscordAuthController extends Controller
 
         return response()->json([
             'token_type' => 'Bearer',
-            'access_token' => $tokens->make($user->getKey(), 'Discord')->accessToken,
+            'access_token' => $user->createToken('Discord')->plainTextToken,
         ]);
     }
 

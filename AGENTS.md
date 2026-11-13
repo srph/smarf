@@ -2,7 +2,7 @@
 
 A Dota 2 hero organizer for the browser. It recreates the in-game hero grid: boards hold resizable, movable categories, and each category holds an ordered list of heroes.
 
-- **API** (`api/`): Laravel 9 on PHP 8.1, with Discord-only sign-in (Socialite, issuing Passport tokens) and MySQL 8. See [api/AGENTS.md](api/AGENTS.md).
+- **API** (`api/`): Laravel 9 on PHP 8.1, with Discord-only sign-in (Socialite, issuing Sanctum tokens) and MySQL 8. See [api/AGENTS.md](api/AGENTS.md).
 - **UI** (`ui/`): React 19 + TypeScript 7, built with Vite 8 and tested with Vitest. See [ui/AGENTS.md](ui/AGENTS.md).
 
 ## Tooling / Dependencies
@@ -17,8 +17,8 @@ A Dota 2 hero organizer for the browser. It recreates the in-game hero grid: boa
 ## Commands
 
 ```bash
-make install      # install:api + install:web, start the DB, migrate, create the Passport personal access client
-make install:api  # composer install, api/.env, app key, Passport keys
+make install      # install:api + install:web, start the DB, migrate
+make install:api  # composer install, api/.env, app key
 make install:web  # npm install, ui/.env
 make start:db     # Docker MySQL 8 on 127.0.0.1:3308 (root/root, database smarf)
 make start:api    # http://mbp.boga-parore.ts.net:13001 (all interfaces; Tailscale MagicDNS)
@@ -38,4 +38,4 @@ Makefile      entry points above
 
 - Run PHP through `valet php --site=smarf` / `valet composer --site=smarf` (pinned by `api/.valetrc`) and Node through nvm (`ui/.nvmrc`), not the system binaries.
 - Keep API and UI changes in step: response shapes live in `ui/src/types/api.ts`.
-- Never commit `.env` files or Passport keys.
+- Never commit `.env` files.

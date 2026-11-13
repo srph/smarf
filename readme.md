@@ -15,7 +15,7 @@ Smarf is a dota hero organizer on your browser
 
 ## Getting started
 
-Install everything, start the database, run migrations, and create the Passport client that issues sign-in tokens:
+Install everything, start the database, and run migrations:
 
 ```bash
 make install

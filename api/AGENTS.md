@@ -1,6 +1,6 @@
 # Smarf API
 
-Laravel 9 JSON API for Smarf: users, boards, categories, and heroes. Sign-in is Discord-only: the UI sends the code Discord gives it to `POST /api/auth/discord`, which trades it through Socialite (stateless) for the Discord profile, finds or creates the user by `discord_id`, and returns a Passport personal access token (30 days). The UI sends it as a bearer token.
+Laravel 9 JSON API for Smarf: users, boards, categories, and heroes. Sign-in is Discord-only: the UI sends the code Discord gives it to `POST /api/auth/discord`, which trades it through Socialite (stateless) for the Discord profile, finds or creates the user by `discord_id`, and returns a Sanctum personal access token (30 days, `config/sanctum.php`). The UI sends it as a bearer token.
 
 ## Commands
 
@@ -8,7 +8,6 @@ Laravel 9 JSON API for Smarf: users, boards, categories, and heroes. Sign-in is 
 valet php --site=smarf artisan serve --host=0.0.0.0 --port=13001   # or `make start:api` from the root
 valet php --site=smarf artisan migrate
 valet php --site=smarf artisan smarf:hero --pretty # print OpenDota hero list for a migration
-valet php --site=smarf artisan passport:client --personal  # needed to issue tokens
 valet php --site=smarf vendor/bin/phpunit
 ```
 
