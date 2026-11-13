@@ -9,8 +9,8 @@ import {
   moveHeroVariables,
   applyMoveHero,
   type HeroPosition
-} from '../queries/use-move-hero-mutation'
-import { useMoveCategoryMutation } from '../queries/use-move-category-mutation'
+} from '../mutations/use-move-hero-mutation'
+import { useMoveCategoryMutation } from '../mutations/use-move-category-mutation'
 import { BoardWorkspaceCategoryBody } from './board-workspace-category-body'
 import { Board, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'

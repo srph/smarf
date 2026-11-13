@@ -32,8 +32,9 @@ src/
 ├── contexts/     auth-user (current user, logout), board-list (layout constants and math), query (QueryProvider)
 ├── hooks/        generic hooks (use-debounced-effect.ts, use-delayed-state.ts, ...)
 ├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie)
-├── queries/      React Query hooks used by more than one route, a folder per domain (auth/, boards/, heroes/)
-├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId); a route's own query hooks go in its queries/
+├── mutations/    mutation hooks used by more than one route, a folder per domain (auth/, boards/)
+├── queries/      query hooks and cache helpers used by more than one route, a folder per domain (auth/, boards/, heroes/)
+├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId); a route's own hooks go in its queries/ and mutations/
 ├── types/        API and board-operation types
 ├── config.ts     reads env vars
 └── index.css     Tailwind entry: `@theme` (font, `primary-*` colors), base styles, `--z-*` stacking order
@@ -59,11 +60,11 @@ tests/
 
 ## Best practices
 
-- One hook per request: `useBoardsQuery` (a `queryOptions` factory passed to `useQuery`), `useFavoriteBoardMutation`. Hooks used by more than one route live in `src/queries/<domain>/`; hooks used by one route live in that route's `queries/` folder.
+- One hook per request: `useBoardsQuery` (a `queryOptions` factory passed to `useQuery`), `useFavoriteBoardMutation`. Hooks used by more than one route live in `src/queries/<domain>/` or `src/mutations/<domain>/`; hooks used by one route live in that route's `queries/` or `mutations/` folder.
 - Build query keys with the key factories (`boardKeys.list()`), and cache plain data: unwrap the API's `{ boards: [...] }` in `queryFn`. Derive views with `select`, defined at module level.
 - Destructure and rename (`const { data: boards, status: boardsStatus } = useBoardsQuery()`), then handle `pending` (`PageSpinner`), `error` (`ErrorState` with Try again), and success. `data` is typed as defined once the other two are handled.
 - A mutation hook owns its cache work: write the optimistic change in `onMutate`, and give one board's saves ``scope: { id: `board:${id}` }`` so they reach the API in order. UI side effects (navigating, closing a popover) go in the `mutate(vars, { onSuccess })` call.
-- Board saves (`routes/app.boards.id/queries`, plus `useFavoriteBoardMutation`) treat the cached board as the source of truth. Each spreads `useBoardCache(boardId)`'s `optimisticSaveOptions` (or `saveOptions` when nothing changes before the server answers) and writes its change with `update()` in `onMutate`. That gives every save the board's `mutationKey` (the toolbar's Saved / Couldn't save reads it) and `scope` (one at a time, in order), and refetches the board after a failed save once its queue is empty.
+- Board saves (`routes/app.boards.id/mutations`, plus `useFavoriteBoardMutation`) treat the cached board as the source of truth. Each spreads `useBoardCache(boardId)`'s `optimisticSaveOptions` (or `saveOptions` when nothing changes before the server answers) and writes its change with `update()` in `onMutate`. That gives every save the board's `mutationKey` (the toolbar's Saved / Couldn't save reads it) and `scope` (one at a time, in order), and refetches the board after a failed save once its queue is empty.
 - Keep `onMutate` synchronous up to the cache write (no `await` before `update()`): it then runs inside `mutate()`, so a drag or resize can clear its draft right after `mutate()` without the board flickering. Don't add a MutationCache-level `onMutate`, which would put an `await` first.
 - A drag or resize in progress is a draft: `BoardProvider`'s `updateDraft` copies the cached board and changes the copy, which is shown instead until `clearDraft()`. Nothing saves mid-drag. On drop, call the mutation once (from where the drag started on the cached board to where it ended), then `clearDraft()`; on cancel, just `clearDraft()`. Hero drags share `applyMoveHero` between the preview and the mutation. `BoardProvider` calls `useBoardQuery` itself, next to the draft, so that re-render reads the cache fresh; reading the board from a parent's prop would show the old position for a frame.
 - Build popovers and menus on Base UI (`@base-ui/react`); `components/popover` covers the usual popover. Style its parts with `className` and Tailwind's `data-*` variants (`data-popup-open:`, `data-highlighted:`).

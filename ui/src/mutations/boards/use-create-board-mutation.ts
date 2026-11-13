@@ -4,7 +4,7 @@ import { heroesQueryOptions } from '~/src/queries/heroes/use-heroes-query'
 import { type Board, type Category, type Hero, type HeroCategoryPivot } from '~/src/types/api'
 import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING, ORDER_BUFFER } from '~/src/contexts/board-list/constants'
 import { getCategoryHeight } from '~/src/contexts/board-list/utils'
-import { boardKeys } from './board-keys'
+import { boardKeys } from '~/src/queries/boards/board-keys'
 
 interface CreateBoardVariables {
   name: string

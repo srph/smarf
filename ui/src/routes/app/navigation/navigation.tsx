@@ -5,7 +5,7 @@ import { Logo } from '~/src/components/logo/logo'
 import { Link, useNavigate } from 'react-router'
 import { SquaresPlusIcon } from '@heroicons/react/20/solid'
 import { UserDropdown } from './user-dropdown'
-import { useCreateBoardMutation } from '~/src/queries/boards/use-create-board-mutation'
+import { useCreateBoardMutation } from '~/src/mutations/boards/use-create-board-mutation'
 import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
 
 const Navigation: React.FC = () => {

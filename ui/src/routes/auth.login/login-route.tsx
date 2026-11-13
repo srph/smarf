@@ -3,7 +3,7 @@ import { Button } from '~/src/components/button/button'
 import { Input } from '~/src/components/input/input'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { Spacer } from '~/src/components/spacer/spacer'
-import { useLoginMutation } from '~/src/queries/auth/use-login-mutation'
+import { useLoginMutation } from '~/src/mutations/auth/use-login-mutation'
 
 const LoginRoute = () => {
   const { mutate: login, isPending: isLoggingIn } = useLoginMutation()
