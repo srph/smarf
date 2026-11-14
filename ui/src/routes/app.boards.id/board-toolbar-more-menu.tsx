@@ -23,7 +23,9 @@ const BoardToolbarMoreMenu: React.FC<Props> = ({ onDuplicate, onDelete, isDuplic
     </Menu.Trigger>
 
     <Menu.Portal>
-      <Menu.Positioner side="top" align="end" alignOffset={-4} sideOffset={10} className="z-(--z-popover)">
+      {/* The button sits 5px inside the dock (its border, then (44 - 36) / 2), so 15 here leaves the switcher's 10px
+          gap above the dock itself. */}
+      <Menu.Positioner side="top" align="end" alignOffset={-4} sideOffset={15} className="z-(--z-popover)">
         <Menu.Popup
           className={cn(
             'w-56 rounded-xl border border-white/10 bg-zinc-800/95 p-1.5 shadow-2xl shadow-black/70 backdrop-blur-md outline-none',
