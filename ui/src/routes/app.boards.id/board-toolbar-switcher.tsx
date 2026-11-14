@@ -48,8 +48,10 @@ const BoardToolbarSwitcher: React.FC<Props> = ({ status, justRenamed, anchor }) 
       <Popover.Trigger
         aria-label={`Switch board (current: ${board.name})`}
         className={cn(
-          'flex h-9 min-w-0 cursor-pointer items-center rounded-lg pr-1.5 pl-3 font-semibold transition-colors duration-150',
-          'hover:bg-white/8 focus-visible:ring-focus data-popup-open:bg-white/8'
+          // A fixed width, so the dock doesn't resize with the name: a long one fades out at the edge instead. It's
+          // drawn as a select field, chevron at its edge, so a short name's empty space reads as room in the field.
+          'flex h-9 w-48.5 shrink-0 cursor-pointer items-center rounded-lg pr-1.5 pl-3 font-semibold transition-colors duration-150',
+          'bg-white/4 hover:bg-white/8 focus-visible:ring-focus data-popup-open:bg-white/8'
         )}>
         <span className="relative size-2 shrink-0">
           <span className={cn('absolute inset-0 rounded-full transition-colors duration-250', STATUS_DOT[status])} />
@@ -62,7 +64,7 @@ const BoardToolbarSwitcher: React.FC<Props> = ({ status, justRenamed, anchor }) 
             ref={nameRef}
             key={justRenamed ? 'glint' : 'name'}
             className={cn(
-              'ml-2 block max-w-58 overflow-hidden whitespace-nowrap',
+              'ml-2 block min-w-0 flex-1 overflow-hidden text-left whitespace-nowrap',
               isTruncated && '[mask-image:linear-gradient(to_right,black_calc(100%-36px),transparent)]',
               justRenamed && 'animate-name-glint bg-name-glint bg-clip-text text-transparent'
             )}>

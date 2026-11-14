@@ -21,9 +21,10 @@ interface Props {
   onChoose: (start: ResolvedStart) => void
 }
 
-// The tray's width, and the bar's: about the dock's, which the bar slides into once the board opens.
+// The tray's width, and the bar's: the dock's (its fixed-width switcher, three icon buttons, padding and border),
+// which the bar slides into once the board opens.
 const TRAY = { width: 840 }
-const BAR = { width: 240, height: 46 }
+const BAR = { width: 320, height: 46 }
 
 /** The fold into the bar (and back out after a failure). The route waits this long before it opens the board. */
 const FOLD_MS = 500
