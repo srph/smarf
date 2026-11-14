@@ -19,6 +19,9 @@ export const CATEGORY_BODY_INITIAL_HEIGHT = CATEGORY_ROW_HEIGHT + CATEGORY_HERO_
 
 export const CATEGORY_SPACING = 96
 
+// The category card's header (h-9), above its hero tray. A category's `height` is the tray's alone.
+export const CATEGORY_HEADER_HEIGHT = 36
+
 // How far around a category's hero area a dragged hero still counts as on the category. Dropped beyond it, the hero
 // is removed. Above, the reach covers the card's 36px header plus the 12px edge margin; elsewhere, just that margin.
 export const CATEGORY_HEADING_REACH = 48
