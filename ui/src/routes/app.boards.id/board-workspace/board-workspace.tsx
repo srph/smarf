@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react'
 import { useReducedMotion } from 'motion/react'
+import { BoardDotGrid } from '~/src/components/board-dot-grid/board-dot-grid'
 import { Container } from '~/src/components/container/container'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { useQueryClient } from '@tanstack/react-query'
@@ -168,17 +169,7 @@ const BoardWorkspace: React.FC = () => {
           }}
           modifiers={[boardWorkspaceRestrict({ workspace })]}
           {...mergeEvents(dragContainerEvents, gridCollisionEvents)}>
-          {/*
-          A dot grid to line categories up by eye: faint dots every 16px, and a brighter dot every 64px. Both grids have
-          a dot on the workspace's top-left corner, where category positions start. The dots fill the page from under
-          the navigation to the bottom, edge to edge: the layer reaches 48px up (the navigation's margin), 400px down
-          (the spacer below) and 2048px to each side. The 64px grid sits at (-32px, 16px): -32px puts a dot on a tile
-          corner, and the 48px down makes up for the layer starting 48px above the workspace.
-        */}
-          <div
-            ref={setWorkspace}
-            className="relative z-(--z-board-workspace) before:pointer-events-none before:absolute before:-inset-x-512 before:-top-12 before:-bottom-100 before:-z-10 before:bg-[radial-gradient(circle,var(--color-zinc-500)_1.5px,transparent_1.5px),radial-gradient(circle,color-mix(in_oklab,var(--color-zinc-800),var(--color-zinc-700)_40%)_1px,transparent_1px)] before:bg-size-[64px_64px,16px_16px] before:bg-position-[-32px_16px,-8px_-8px]"
-            style={{ height: workspaceHeight }}>
+          <BoardDotGrid ref={setWorkspace} height={workspaceHeight}>
             {board.categories.map((category) => {
               return (
                 <BoardWorkspaceCategoryBody
@@ -190,7 +181,7 @@ const BoardWorkspace: React.FC = () => {
                 />
               )
             })}
-          </div>
+          </BoardDotGrid>
         </DndContext>
         {poofs.map((poof) => (
           <BoardWorkspaceDropPoof

@@ -4,10 +4,8 @@ import { useNavigate } from 'react-router'
 import { Popover } from '@base-ui/react/popover'
 import { CheckIcon, ChevronUpDownIcon, MagnifyingGlassIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
-import { Spinner } from '~/src/components/spinner/spinner'
 import { favoritesFirst } from '~/src/queries/boards/favorites-first'
 import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
-import { useCreateBoardMutation, useIsBoardCreating } from '~/src/queries/boards/use-create-board-mutation'
 import { type BoardSummary } from '~/src/types/api'
 import { useBoard } from './board-context'
 import { BoardToolbarTooltip } from './board-toolbar-tooltip'
@@ -127,17 +125,15 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
 
   const { data: boards, status: boardsStatus } = useBoardsQuery(favoritesFirst)
 
-  const { mutate: createBoard } = useCreateBoardMutation()
-
-  const isCreating = useIsBoardCreating()
-
   const open = (id: string) => {
     onDone()
     if (id !== board.id) navigate(`/b/${id}`)
   }
 
+  // Nothing is saved until a start is chosen on /b/new.
   const handleNewBoard = () => {
-    createBoard(undefined, { onSuccess: (created) => open(created.id) })
+    onDone()
+    navigate('/b/new')
   }
 
   const matches = (b: BoardSummary) => b.name.toLowerCase().includes(query.trim().toLowerCase())
@@ -184,10 +180,9 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
         data-row
         type="button"
         onClick={handleNewBoard}
-        disabled={isCreating}
-        className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 font-semibold text-primary-300 outline-none hover:bg-white/6 focus-visible:bg-white/6 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400 disabled:cursor-progress">
-        {isCreating ? <Spinner /> : <Icon icon={PlusIcon} size={16} />}
-        {isCreating ? 'Creating board…' : 'New board'}
+        className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 font-semibold text-primary-300 outline-none hover:bg-white/6 focus-visible:bg-white/6 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400">
+        <Icon icon={PlusIcon} size={16} />
+        New board
       </button>
     </>
   )

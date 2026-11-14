@@ -11,6 +11,7 @@ import { GuardedRoute } from '~/src/components/guarded-route/guarded-route'
 import { AppRoute } from './routes/app/app-route'
 import { HomeRoute } from './routes/app.home/home-route'
 import { BoardsIdRoute } from './routes/app.boards.id/boards-id-route'
+import { BoardsNewRoute } from './routes/app.boards.new/boards-new-route'
 import { AboutRoute } from './routes/app.about/about-route'
 import { AccountRoute } from './routes/app.account/account-route'
 import { AuthRoute } from './routes/auth/auth-route'
@@ -42,6 +43,8 @@ const routes: RouteObject[] = [
           { index: true, element: <HomeRoute /> },
           { path: '/account', element: <AccountRoute /> },
           { path: '/about', element: <AboutRoute /> },
+          // A board that isn't saved yet: choosing a start creates it
+          { path: '/b/new', element: <BoardsNewRoute /> },
           { path: '/b/:boardId', element: <BoardsIdRoute /> }
         ]
       },

@@ -2,9 +2,7 @@ import React from 'react'
 import { cn } from 'cn'
 import { useNavigate } from 'react-router'
 import { SquaresPlusIcon } from '@heroicons/react/20/solid'
-import { ButtonLoader, ButtonLoaderIcon, ButtonLoaderText } from '~/src/components/button-loader/button-loader'
-import { Icon } from '~/src/components/icon/icon'
-import { useCreateBoardMutation, useIsBoardCreating } from '~/src/queries/boards/use-create-board-mutation'
+import { Button } from '~/src/components/button/button'
 import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
 import { type Hero } from '~/src/types/api'
 import { CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/contexts/board-list/constants'
@@ -27,10 +25,7 @@ const tilt = [
 /** What the board list shows before the user has any boards: what a board is, and a button to make one. */
 const HomeEmptyState: React.FC = () => {
   const navigate = useNavigate()
-  // isCreating is this button's own request, so only this button morphs; isBoardCreating disables both.
-  const { mutate: createBoard, isPending: isCreating } = useCreateBoardMutation()
-  const isBoardCreating = useIsBoardCreating()
-  const { data: featured, status: heroesStatus } = useHeroesQuery(pickFeatured)
+  const { data: featured } = useHeroesQuery(pickFeatured)
 
   return (
     <div className="mx-auto w-120 py-16 text-center">
@@ -55,15 +50,9 @@ const HomeEmptyState: React.FC = () => {
 
       {/* inline-block so the full-width Button shrinks to its label */}
       <div className="inline-block">
-        <ButtonLoader
-          busy={isCreating}
-          disabled={isBoardCreating || heroesStatus === 'pending'}
-          onClick={() => createBoard(undefined, { onSuccess: (board) => navigate(`/b/${board.id}`) })}>
-          <ButtonLoaderIcon>
-            <Icon icon={SquaresPlusIcon} />
-          </ButtonLoaderIcon>
-          <ButtonLoaderText>{isCreating ? 'Creating' : 'Create your first board'}</ButtonLoaderText>
-        </ButtonLoader>
+        <Button icon={SquaresPlusIcon} onClick={() => navigate('/b/new')}>
+          Create your first board
+        </Button>
       </div>
     </div>
   )

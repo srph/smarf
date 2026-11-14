@@ -100,17 +100,14 @@ describe('board list', () => {
     expect(await screen.findByText('Turbo')).toBeInTheDocument()
   })
 
-  it('creates a board with two starter categories and opens it', async () => {
+  it('opens an unsaved new board from New Board', async () => {
     const { user } = renderApp('/')
 
-    const newBoard = await screen.findByRole('button', { name: 'New Board' })
-    await waitFor(() => expect(newBoard).toBeEnabled()) // waits for the hero list
-    await user.click(newBoard)
+    await user.click(await screen.findByRole('button', { name: 'New Board' }))
 
-    expect(await screen.findByDisplayValue('Mid Farming')).toBeInTheDocument()
-    expect(screen.getByDisplayValue('Suntukan Offlane')).toBeInTheDocument()
-    expect(db.boards).toHaveLength(1)
-    expect(currentPath()).toBe(`/b/${db.boards[0].id}`)
+    expect(await screen.findByRole('region', { name: 'Start this board with' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/b/new')
+    expect(db.boards).toHaveLength(0)
   })
 
   it('shows a skeleton while the boards load', async () => {
@@ -132,65 +129,14 @@ describe('board list', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
-  it('invites a user with no boards to create one, and opens it', async () => {
+  it('invites a user with no boards to create one', async () => {
     const { user } = renderApp('/')
 
     expect(await screen.findByText('No boards yet')).toBeInTheDocument()
-    const create = screen.getByRole('button', { name: 'Create your first board' })
-    await waitFor(() => expect(create).toBeEnabled()) // waits for the hero list
-    await user.click(create)
+    await user.click(screen.getByRole('button', { name: 'Create your first board' }))
 
-    expect(await screen.findByDisplayValue('Mid Farming')).toBeInTheDocument()
-    expect(db.boards).toHaveLength(1)
-    expect(currentPath()).toBe(`/b/${db.boards[0].id}`)
-  })
-
-  it('disables both create buttons while a board is being created', async () => {
-    let release!: () => void
-    const answered = new Promise<void>((resolve) => (release = resolve))
-    server.use(
-      http.post(`${API}/boards`, async () => {
-        await answered
-      })
-    )
-    const { user } = renderApp('/')
-
-    const create = await screen.findByRole('button', { name: 'Create your first board' })
-    await waitFor(() => expect(create).toBeEnabled())
-    await user.click(create)
-
-    expect(await screen.findByRole('button', { name: 'Creating' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'New Board' })).toBeDisabled()
-
-    release()
-
-    await waitFor(() => expect(currentPath()).toMatch(/^\/b\//))
-  })
-
-  it('shows Creating only on the button that was clicked', async () => {
-    let release!: () => void
-    const answered = new Promise<void>((resolve) => (release = resolve))
-    server.use(
-      http.post(`${API}/boards`, async () => {
-        await answered
-      })
-    )
-    const { user } = renderApp('/')
-
-    const newBoard = await screen.findByRole('button', { name: 'New Board' })
-    await waitFor(() => expect(newBoard).toBeEnabled())
-    await user.click(newBoard)
-
-    expect(newBoard).toHaveAccessibleName('Creating')
-    expect(newBoard).toHaveAttribute('aria-busy', 'true')
-    const create = screen.getByRole('button', { name: 'Create your first board' })
-    expect(create).toBeDisabled()
-    expect(create).not.toHaveAttribute('aria-busy')
-
-    release()
-
-    await waitFor(() => expect(currentPath()).toMatch(/^\/b\//))
-    expect(screen.getByRole('button', { name: 'New Board' })).not.toHaveAttribute('aria-busy')
+    expect(await screen.findByRole('region', { name: 'Start this board with' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/b/new')
   })
 
   it('opens a board from the list', async () => {
