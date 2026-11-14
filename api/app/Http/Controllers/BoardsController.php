@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 use App\Models\Board;
@@ -44,18 +45,24 @@ class BoardsController extends Controller
                 'height' => $input['height'],
             ]);
 
-            collect($input['heroes'])->each(function ($hero) use ($category) {
-                $category->heroes()->attach($hero['id'], [
+            // One insert per category, since a start like Default places every hero. Not attach(): it keys rows by
+            // hero id, and a category may hold the same hero twice.
+            DB::table('category_hero')->insert(
+                collect($input['heroes'] ?? [])->map(fn ($hero) => [
                     // @TODO: App\Traits\Uuid handle this for most tasks.
                     // Refactor so we're not manually doing this in the controller.
-                    'id' => Str::orderedUuid(),
+                    'id' => Str::orderedUuid()->toString(),
+                    'category_id' => $category->id,
+                    'hero_id' => $hero['id'],
                     'order' => $hero['order']
-                ]);
-            });
+                ])->all()
+            );
         });
 
         return response()->json([
-            'board' => $board
+            // The same shape as show(), so the UI can open the board without fetching it. fresh() also reads back
+            // is_favorite and favorited_at, which create() leaves out.
+            'board' => $board->fresh(['categories', 'categories.heroes'])
         ]);
     }
 

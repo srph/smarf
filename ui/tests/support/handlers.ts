@@ -97,8 +97,8 @@ export const handlers = [
         db.pivots.push({ id: nextId('pivot'), category_id: category.id, hero_id: h.id, order: h.order })
       }
     }
-    // Like the real API, the created board comes back without categories.
-    return HttpResponse.json({ board })
+    // Like the real API, the created board comes back whole, as GET /boards/:id returns it.
+    return HttpResponse.json({ board: boardJson(board) })
   }),
 
   http.get(`${API}/boards/:id`, ({ request, params }) => {
