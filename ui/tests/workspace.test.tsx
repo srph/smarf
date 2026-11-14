@@ -119,7 +119,7 @@ describe('board workspace', () => {
 
     await user.click(await screen.findByRole('button', { name: 'More board actions' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Delete board…' }))
-    expect(await screen.findByText('2 categories · 3 heroes', { exact: false })).toBeInTheDocument()
+    expect(await screen.findByText('This permanently deletes its 2 categories and 3 heroes.')).toBeInTheDocument()
 
     // Letting go early backs out.
     const hold = screen.getByRole('button', { name: 'Hold to delete' })
@@ -133,6 +133,17 @@ describe('board workspace', () => {
     await user.keyboard('{Enter>}')
     await waitFor(() => expect(currentPath()).toBe('/'), { timeout: 3000 })
     expect(db.boards).toHaveLength(0)
+  })
+
+  it('says an empty board has nothing on it before deleting it', async () => {
+    const empty = seedBoard('Empty', [])
+    const { user } = renderApp(`/b/${empty.id}`)
+
+    await user.click(await screen.findByRole('button', { name: 'More board actions' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Delete board…' }))
+
+    expect(await screen.findByRole('heading', { name: 'Delete “Empty”' })).toBeInTheDocument()
+    expect(screen.getByText('This permanently deletes it. Nothing’s on it yet.')).toBeInTheDocument()
   })
 
   it('adds a category', async () => {

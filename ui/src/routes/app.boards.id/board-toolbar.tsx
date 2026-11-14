@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { cn } from 'cn'
 import { useNavigate } from 'react-router'
 import { AnimatePresence, motion, type Transition } from 'motion/react'
@@ -45,8 +45,6 @@ const BoardToolbar: React.FC = () => {
 
   const [mode, setMode] = useState<Mode>('idle')
 
-  const [isDanger, setIsDanger] = useState(false)
-
   const [justRenamed, setJustRenamed] = useState(false)
 
   const [dockElement, setDockElement] = useState<HTMLDivElement | null>(null)
@@ -72,17 +70,12 @@ const BoardToolbar: React.FC = () => {
     return () => clearTimeout(timer)
   }, [justRenamed])
 
-  const close = () => {
-    setMode('idle')
-    setIsDanger(false)
-  }
+  const close = () => setMode('idle')
 
   const handleRenamed = () => {
     close()
     setJustRenamed(true)
   }
-
-  const handleDangerChange = useCallback((danger: boolean) => setIsDanger(danger), [])
 
   const isEditing = mode !== 'idle'
 
@@ -90,9 +83,7 @@ const BoardToolbar: React.FC = () => {
   useEffect(() => {
     if (!isEditing) return
     const handleKeyDown = (evt: KeyboardEvent) => {
-      if (evt.key !== 'Escape') return
-      setMode('idle')
-      setIsDanger(false)
+      if (evt.key === 'Escape') setMode('idle')
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
@@ -108,9 +99,8 @@ const BoardToolbar: React.FC = () => {
               // The rise sits on the dock itself, not a wrapper: an ancestor's opacity would cut off its backdrop blur.
               'animate-toolbar-rise motion-reduce:animate-none',
               'relative overflow-hidden rounded-xl border border-white/10 bg-zinc-800/60 shadow-2xl ring-1 inset-shadow-xs shadow-black/70 ring-black/50 inset-shadow-white/5 backdrop-blur-lg backdrop-saturate-150',
-              'transition-colors duration-250',
-              // The focus ring's gap matches the glass, which turns red while a delete is armed.
-              isDanger ? 'border-red-500/55 bg-red-950/70 focus-gap-red-950' : 'focus-gap-zinc-800'
+              // The focus ring's gap matches the glass.
+              'focus-gap-zinc-800'
             )}>
             {/* The card grows from the dock's top edge. contain-inline-size keeps it to the dock's width: the row sets that. */}
             <AnimatePresence initial={false}>
@@ -124,7 +114,7 @@ const BoardToolbar: React.FC = () => {
                   {mode === 'rename' ? (
                     <BoardToolbarRenamePanel onClose={close} onRenamed={handleRenamed} />
                   ) : (
-                    <BoardToolbarDeletePanel onClose={close} onDangerChange={handleDangerChange} />
+                    <BoardToolbarDeletePanel onClose={close} />
                   )}
                 </motion.div>
               )}
