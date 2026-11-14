@@ -180,7 +180,24 @@ describe('auth', () => {
 
     await user.click(await screen.findByTitle('Account menu'))
 
-    expect(await screen.findByText(TEST_USER.name)).toBeInTheDocument()
+    expect(await screen.findByText('Test User (@testuser)')).toBeInTheDocument()
     expect(screen.queryByText(TEST_USER.email ?? '')).not.toBeInTheDocument()
+  })
+
+  it.each([
+    ['only the username when there is no display name', { discord_global_name: null }, 'testuser'],
+    ['the username once when the display name matches it', { discord_global_name: 'TestUser' }, 'testuser'],
+    [
+      "the name when Discord's names haven't been saved yet",
+      { discord_username: null, discord_global_name: null },
+      'Test User'
+    ]
+  ])('shows %s in the account menu', async (_, names, shown) => {
+    db.users[0] = { ...TEST_USER, ...names }
+    const { user } = renderApp('/')
+
+    await user.click(await screen.findByTitle('Account menu'))
+
+    expect(await screen.findByText(shown)).toBeInTheDocument()
   })
 })

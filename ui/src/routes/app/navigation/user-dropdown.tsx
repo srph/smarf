@@ -6,6 +6,7 @@ import { Avatar } from '~/src/components/avatar/avatar'
 import { Icon } from '~/src/components/icon/icon'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
 import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
+import { displayName } from '~/src/lib/user'
 import avatar from '~/src/assets/images/avatar.png'
 
 const LINKS = [
@@ -33,7 +34,7 @@ const UserDropdown: React.FC = () => {
               <Avatar src={user.avatar || avatar} />
 
               <div className="ml-4">
-                <h4 className="font-bold">{user.name}</h4>
+                <h4 className="font-bold">{displayName(user)}</h4>
                 {user.email ? <span className="text-xs text-zinc-400">{user.email}</span> : null}
               </div>
             </div>

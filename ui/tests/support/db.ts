@@ -40,6 +40,8 @@ export interface DbBoard {
 export interface DbUser {
   id: string
   discord_id: string
+  discord_username: string | null
+  discord_global_name: string | null
   name: string
   email: string | null
   avatar: string | null
@@ -67,6 +69,8 @@ export const TEST_USER: DbUser = {
   id: 'user-1',
   name: 'Test User',
   discord_id: '1001',
+  discord_username: 'testuser',
+  discord_global_name: 'Test User',
   email: 'test@example.com',
   avatar: null
 }

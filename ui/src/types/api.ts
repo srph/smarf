@@ -55,6 +55,10 @@ export type BoardSummary = Omit<Board, 'categories'> & {
 export interface User {
   id: ID
   discord_id: string
+  /** Discord's unique handle. Null until the user signs in again after it was added. */
+  discord_username: string | null
+  /** Discord's display name, which is optional. */
+  discord_global_name: string | null
   /** Only when Discord has verified it. */
   email: string | null
   name: string
