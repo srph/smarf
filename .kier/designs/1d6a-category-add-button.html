@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category Add Button</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cap { margin: 14px 0 8px; font-size: 12px; color: var(--mute); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: board-workspace-category-body.tsx (Tailwind 4 zinc, sky rings, glass layer card) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --sky: #00a6f4; --sky4: #00bcff; --red: #fb2c36; --green: #00c950; --amber: #fe9a00;
+    --focus: 0 0 0 2px var(--z900), 0 0 0 4px var(--sky4);
+    position: relative; width: 1000px; margin: 0 auto; color: var(--z50);
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.43;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  .app.stage { height: 300px; }
+  .app.insitu { height: 420px; }
+  .app svg { display: block; flex: none; }
+  :where(.app button) { font-family: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; outline: none; }
+
+  .cat { position: absolute; display: inline-block; border-radius: 12px; background: rgba(39,39,42,.8);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -4px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.08);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: box-shadow .15s; }
+  .cat:is(:hover, .f-card) { box-shadow: 0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -4px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.15); }
+  .head { position: relative; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 6px 0 8px; }
+  .grip { color: var(--z600); cursor: grab; transition: color .15s; }
+  .cat:is(:hover, .f-card) .grip { color: var(--z300); }
+  .title { font-weight: 600; margin: 0 -6px; padding: 2px 6px; border-radius: 6px; white-space: nowrap; }
+  .tools { margin-left: auto; display: flex; gap: 2px; }
+  .ibtn { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; color: var(--z400); transition: opacity .15s, color .15s, background-color .15s; }
+  .ibtn.trash { opacity: 0; }
+  .cat:is(:hover, .f-card) .ibtn.trash { opacity: 1; }
+  .ibtn.trash:hover { background: rgba(255,255,255,.08); color: #ff6467; }
+  .tray { display: flex; flex-wrap: wrap; align-content: flex-start; padding: 3px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px 8px 12px 12px; background: var(--z900); }
+  .cell { flex-shrink: 0; width: 88px; padding: 4px; }
+  .portrait { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); }
+  .portrait img { width: 80px; height: 45px; object-fit: cover; display: block; pointer-events: none; }
+  .hero { cursor: grab; }
+  .hero:hover .portrait { box-shadow: 0 0 0 2px var(--sky); }
+  .add { position: relative; width: 80px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+
+  /* Now: the dashed box */
+  .v-now .add { padding: 8px; background: var(--z700) !important; border: 2px dashed var(--z500) !important; font-size: 12px; font-weight: 700; letter-spacing: .025em; }
+  .v-now .add svg { color: var(--z500); margin-right: 8px; }
+  .v-now .add:is(:focus-visible, .f-focus) { box-shadow: var(--focus); }
+
+  /* A: a quiet cell */
+  .v-a .add { background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); color: var(--z600); transition: color .15s, background-color .15s, box-shadow .15s; }
+  .v-a .cat:is(:hover, .f-card) .add { color: var(--z400); background: rgba(255,255,255,.05); }
+  .v-a .cat .add:is(:hover, .f-hover) { color: var(--z50); background: rgba(255,255,255,.08); box-shadow: 0 0 0 2px var(--sky); }
+  .v-a .cat .add.f-open { color: var(--sky4); background: color-mix(in oklab, var(--sky) 14%, transparent); box-shadow: 0 0 0 2px var(--sky); }
+  .v-a .cat .add:is(:focus-visible, .f-focus) { color: var(--z50); box-shadow: var(--focus); }
+  .hint { display: flex; align-items: center; height: 53px; padding: 0 4px; font-size: 12px; color: var(--z500); white-space: nowrap; }
+
+  /* B: an outline that comes with the card */
+  .v-b .add { outline: 1px dashed rgba(255,255,255,.22); outline-offset: -1px; color: var(--z500); opacity: 0; transition: opacity .15s, color .15s, background-color .15s, outline-color .15s; }
+  .v-b .cat:is(:hover, .f-card) .add, .v-b .add:is(:focus-visible, .f-focus, .f-open), .v-b .tray.empty .add { opacity: 1; }
+  .v-b .cat .add:is(:hover, .f-hover) { color: var(--z50); outline: 2px solid var(--sky); outline-offset: 0; background: color-mix(in oklab, var(--sky) 10%, transparent); }
+  .v-b .cat .add.f-open { color: var(--sky4); outline: 2px solid var(--sky); outline-offset: 0; background: color-mix(in oklab, var(--sky) 14%, transparent); }
+  .v-b .cat .add:is(:focus-visible, .f-focus) { outline: none; box-shadow: var(--focus); color: var(--z50); }
+  .v-b .tray.empty .add { gap: 6px; font-size: 12px; font-weight: 600; }
+
+  /* C: a plus in the header */
+  .v-c .ibtn.hadd { color: var(--z500); }
+  .v-c .cat:is(:hover, .f-card) .ibtn.hadd { color: var(--z300); }
+  .v-c .cat .ibtn.hadd:is(:hover, .f-hover) { background: rgba(255,255,255,.08); color: var(--z50); }
+  .v-c .cat .ibtn.hadd.f-open { background: rgba(255,255,255,.1); color: var(--sky4); }
+  .v-c .cat .ibtn.hadd:is(:focus-visible, .f-focus) { box-shadow: 0 0 0 2px var(--z800), 0 0 0 4px var(--sky4); color: var(--z50); }
+  .empty-add { flex: 1; height: 45px; margin: 4px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 4px; font-size: 12px; font-weight: 600; color: var(--z500); transition: color .15s, background-color .15s; }
+  .empty-add:hover { color: var(--z200); background: rgba(255,255,255,.04); }
+
+  /* D: becomes a search field */
+  .v-d .add { gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: .01em; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); color: var(--z400); transition: color .15s, background-color .15s, box-shadow .15s; }
+  .v-d .add svg { color: var(--z500); transition: color .15s; }
+  .v-d .cat:is(:hover, .f-card) .add { color: var(--z300); }
+  .v-d .cat .add:is(:hover, .f-hover) { color: var(--z50); background: rgba(255,255,255,.08); box-shadow: 0 0 0 2px var(--sky); }
+  .v-d .cat .add:is(:hover, .f-hover) svg { color: var(--z300); }
+  .v-d .cat .add:is(:focus-visible, .f-focus) { color: var(--z50); box-shadow: var(--focus); }
+  .cell.wide { width: 176px; }
+  .field { width: 168px; height: 45px; display: flex; align-items: center; gap: 6px; padding: 0 10px; border-radius: 4px; background: var(--z800); border: 1px solid var(--sky4);
+    box-shadow: 0 0 0 2px var(--z900), 0 0 0 4px color-mix(in oklab, var(--sky4) 35%, transparent); color: var(--z500); font-size: 13px; }
+  .field .typed { color: var(--z50); }
+  .caret { width: 1px; height: 16px; background: var(--z50); margin-left: -5px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .results { position: absolute; z-index: 20; width: 264px; border-radius: 12px; overflow: hidden; border: 1px solid var(--z700); background: var(--z900); box-shadow: 0 20px 40px -12px rgba(0,0,0,.7); padding: 4px; }
+  .results .row { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 8px; border-radius: 8px; font-size: 13px; }
+  .results .row.on { background: rgba(255,255,255,.06); }
+  .results .row img { width: 48px; height: 27px; border-radius: 4px; object-fit: cover; }
+  .results .row mark { background: none; color: var(--sky4); }
+  .results .kbd { margin-left: auto; font-size: 11px; color: var(--z500); border: 1px solid var(--z700); border-radius: 4px; padding: 0 5px; }
+  .results .more { display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 8px; margin-top: 4px; border-top: 1px solid var(--z800); font-size: 12px; color: var(--z400); }
+
+  /* The hero selector's top, 32px under the tray (board-workspace-hero-selector.tsx, w-240) */
+  .peek { position: absolute; z-index: 20; width: 960px; border-radius: 12px; border: 1px solid var(--z700); background: var(--z900); overflow: hidden; box-shadow: 0 20px 40px -12px rgba(0,0,0,.7); }
+  .peek-head { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--z700); font-weight: 700; }
+  .peek-search { width: 220px; height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border-radius: 8px; background: var(--z800); color: var(--z500); font-weight: 400; font-size: 13px; border: 1px solid var(--sky4); }
+  .peek-body { padding: 16px; }
+  .peek-attr { display: flex; align-items: center; gap: 12px; font-weight: 700; margin-bottom: 16px; }
+  .peek-attr span { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; background: var(--red); }
+  .peek-heroes { display: flex; gap: 8px; }
+  .peek-heroes img { width: 60px; height: 34px; border-radius: 4px; object-fit: cover; }
+  .peek-x { position: absolute; z-index: 20; color: var(--z500); }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>An Add cell that stops outshining the heroes</h1>
+    <div class="chips">
+      <div class="chip"><b>Heroes first</b>Portraits should be the brightest thing in a tray.</div>
+      <div class="chip"><b>Match the card</b>Same glass card, sky hover ring and ring-focus as the rest.</div>
+      <div class="chip"><b>Still findable</b>Keyboard, touch and empty trays can always reach it.</div>
+      <div class="chip"><b>Same selector</b>Opening it still leads to the hero grid.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="Dashed box with Add" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>Dashed box with Add</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note bad">The brightest thing in the tray, ahead of the portraits.</div>
+      <div class="note bad">The dashed grey box predates the glass cards.</div>
+      <div class="note bad">No hover or open state.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="A quiet empty cell with a plus" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>A quiet empty cell with a plus</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Reads as the next hero's cell.</div>
+      <div class="note good">Its hover is a hero's sky ring.</div>
+      <div class="note bad">A plus alone; “Add” is only in the tooltip.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="An outline that comes with the card" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>An outline that comes with the card</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">At rest the board shows heroes only.</div>
+      <div class="note good">Focus and empty trays still show it.</div>
+      <div class="note bad">On touch you tap the card before it appears.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="A plus in the header, beside the trash" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>A plus in the header, beside the trash</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The tray holds heroes only; rows fit one more.</div>
+      <div class="note bad">Away from where the hero lands.</div>
+      <div class="note bad">Drops the Add cell the row math reserves.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="Add opens a search field in place" data-v="d">
+    <div class="v-head"><span class="v-id">D</span><h2>Add opens a search field in place</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Type a few letters, press Enter, done.</div>
+      <div class="note good">Browse all still opens the full grid.</div>
+      <div class="note bad">The field takes two cells; a full row wraps while it's open.</div>
+      <div class="note bad">The most to build.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from A: try a small “Add” word next to the plus.</div>
+      <div class="card"><b>Remix</b>Remix B: use A's quiet cell instead of the dashed outline.</div>
+      <div class="card"><b>Settle</b>Settle on A, and take D's search as its own task later.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/1d6a-category-add-button.html';
+
+/* ---------- Icons: heroicons v2, 20/solid ---------- */
+const P = {
+  bars2: '<path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/>',
+  trash: '<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"/>',
+  plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>',
+  plusCircle: '<path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd"/>',
+  search: '<path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd"/>',
+  fire: '<path fill-rule="evenodd" d="M13.5 4.938a7 7 0 1 1-9.006 1.737c.202-.257.59-.218.793.039.278.352.594.672.943.954.332.269.786-.049.773-.476a5.977 5.977 0 0 1 .572-2.759 6.026 6.026 0 0 1 2.486-2.665c.247-.14.55-.016.677.238A6.967 6.967 0 0 0 13.5 4.938ZM14 12a4 4 0 0 1-4 4c-1.913 0-3.52-1.398-3.91-3.182-.093-.429.44-.643.814-.413a4.043 4.043 0 0 0 1.601.564c.303.038.531-.24.51-.544a5.975 5.975 0 0 1 1.315-4.192.447.447 0 0 1 .431-.16A4.001 4.001 0 0 1 14 12Z" clip-rule="evenodd"/>',
+  x: '<path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>',
+  arrowRight: '<path fill-rule="evenodd" d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z" clip-rule="evenodd"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+
+/* ---------- Board data ---------- */
+const NAMES = { antimage: 'Anti-Mage', juggernaut: 'Juggernaut', phantom_assassin: 'Phantom Assassin', luna: 'Luna', medusa: 'Medusa',
+  axe: 'Axe', mars: 'Mars', tidehunter: 'Tidehunter', centaur: 'Centaur Warrunner', crystal_maiden: 'Crystal Maiden', lion: 'Lion', witch_doctor: 'Witch Doctor', shadow_shaman: 'Shadow Shaman',
+  phantom_lancer: 'Phantom Lancer', phoenix: 'Phoenix', morphling: 'Morphling', pudge: 'Pudge', sven: 'Sven', earthshaker: 'Earthshaker', kunkka: 'Kunkka', tiny: 'Tiny', dragon_knight: 'Dragon Knight' };
+const thumb = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const STAGE_CAT = { id: 'sup', name: 'Supports', x: 24, y: 24, w: 448, heroes: ['crystal_maiden', 'lion', 'witch_doctor', 'shadow_shaman'] };
+const STAGE_EMPTY = { id: 'pocket', name: 'Pocket picks', x: 24, y: 24, w: 360, heroes: [] };
+const BOARD = [
+  { id: 'carries', name: 'Carries', x: 32, y: 32, w: 536, heroes: ['antimage', 'juggernaut', 'phantom_assassin', 'luna', 'medusa'] },
+  { id: 'supports', name: 'Supports', x: 608, y: 32, w: 360, heroes: ['crystal_maiden', 'lion', 'witch_doctor'] },
+  { id: 'offlane', name: 'Offlane', x: 32, y: 184, w: 360, heroes: ['axe', 'mars', 'tidehunter', 'centaur'] },
+  { id: 'pocket', name: 'Pocket picks', x: 608, y: 184, w: 360, heroes: [] }
+];
+const QUERY = 'ph';
+const MATCHES = ['phantom_assassin', 'phantom_lancer', 'phoenix', 'morphling'];
+
+/* ---------- Rendering: one card, its Add per variation ---------- */
+const perRow = (w) => Math.floor((w - 8) / 88);
+const heroCell = (s) => `<div class="cell hero"><div class="portrait"><img src="${thumb(s)}" alt="${NAMES[s]}" draggable="false"></div></div>`;
+const cls = (st) => [st.hover && 'f-hover', st.focus && 'f-focus', st.open && 'f-open'].filter(Boolean).join(' ');
+
+// Returns the tray's cells (and how many cells wide they are), plus any header button.
+function addFor(v, c, st) {
+  const empty = c.heroes.length === 0;
+  const a = (inner, extra = '') => `<div class="cell"><button class="add ${cls(st)}" data-add="${c.id}" title="Add hero" ${extra}>${inner}</button></div>`;
+  switch (v) {
+    case 'now': return { cells: a(`${icon('plusCircle', 16)}Add`), n: 1 };
+    case 'a': return { cells: a(icon('plus', 20)) + (empty ? '<div class="hint">Add heroes</div>' : ''), n: 1 };
+    case 'b': return { cells: a(empty ? `${icon('plus', 16)}Add` : icon('plus', 20)), n: 1 };
+    case 'c': return {
+      cells: empty ? `<button class="empty-add" data-add="${c.id}">${icon('plus', 16)}Add heroes</button>` : '', n: empty ? 1 : 0,
+      head: `<button class="ibtn hadd ${empty ? '' : cls(st)}" data-add="${c.id}" title="Add hero">${icon('plus', 20)}</button>`
+    };
+    case 'd':
+      if (st.open) return { cells: `<div class="cell wide" data-field><div class="field">${icon('search', 16)}<span class="typed">${QUERY}</span><span class="caret"></span></div></div>`, n: 2 };
+      return { cells: a(`${icon('plus', 16)}Add`), n: 1 };
+  }
+}
+
+function cardHTML(v, c, st) {
+  const add = addFor(v, c, st);
+  const cardCls = st.card ? 'f-card' : '';
+  const cellsHTML = c.heroes.map(heroCell).join('') + add.cells;
+  return `<div class="cat ${cardCls}" data-cat="${c.id}" style="left:${c.x}px;top:${c.y}px">
+    <div class="head"><span class="grip" title="Move category">${icon('bars2')}</span><span class="title">${c.name}</span>
+      <span class="tools">${add.head || ''}<button class="ibtn trash" title="Delete category">${icon('trash', 16)}</button></span></div>
+    <div class="tray ${c.heroes.length ? '' : 'empty'}" style="width:${c.w}px">${cellsHTML}</div>
+  </div>`;
+}
+
+// What opens: the hero selector 32px under the tray, or D's results list under its field.
+function overlayHTML(app, v, catEl) {
+  const appBox = app.getBoundingClientRect();
+  const tray = catEl.querySelector('.tray').getBoundingClientRect();
+  if (v === 'd') {
+    const f = catEl.querySelector('[data-field]');
+    if (!f) return '';
+    const fb = f.getBoundingClientRect();
+    const rows = MATCHES.map((s, i) => `<div class="row ${i ? '' : 'on'}"><img src="${thumb(s)}" alt=""><span>${NAMES[s].replace(/ph/i, (m) => `<mark>${m}</mark>`)}</span>${i ? '' : '<span class="kbd">↵</span>'}</div>`).join('');
+    return `<div class="results" style="left:${fb.left - appBox.left + 4}px;top:${fb.bottom - appBox.top + 4}px">${rows}<div class="more">Browse all heroes${icon('arrowRight', 16)}</div></div>`;
+  }
+  const left = Math.min(tray.left - appBox.left, 1000 - 960 - 16);
+  const top = tray.bottom - appBox.top + 32;
+  const heroes = ['axe', 'pudge', 'sven', 'earthshaker', 'kunkka', 'tiny', 'tidehunter', 'mars', 'centaur', 'dragon_knight']
+    .map((s) => `<img src="${thumb(s)}" alt="">`).join('');
+  return `<span class="peek-x" style="left:${left + 960 - 20}px;top:${top - 28}px">${icon('x')}</span>
+    <div class="peek" style="left:${left}px;top:${top}px">
+      <div class="peek-head">Select Hero<span class="peek-search">${icon('search', 16)}Search</span></div>
+      <div class="peek-body"><div class="peek-attr"><span>${icon('fire')}</span>Strength</div><div class="peek-heroes">${heroes}</div></div>
+    </div>`;
+}
+
+/* ---------- Stage: one card, forced into each state ---------- */
+const STATES = [
+  { key: 'Rest', st: {} },
+  { key: 'Card hover', st: { card: true } },
+  { key: 'Add hover', st: { card: true, hover: true } },
+  { key: 'Focus', st: { focus: true } },
+  { key: 'Open', st: { card: true, open: true } },
+  { key: 'Empty', st: {}, empty: true }
+];
+
+function renderStage(app, v, s) {
+  const c = s.empty ? STAGE_EMPTY : STAGE_CAT;
+  app.innerHTML = cardHTML(v, c, s.st);
+  if (s.st.open) app.insertAdjacentHTML('beforeend', overlayHTML(app, v, app.querySelector('.cat')));
+}
+
+/* ---------- In situ: a live board; hover is real, Add opens ---------- */
+function renderBoard(app, v, openId) {
+  app.innerHTML = BOARD.map((c) => cardHTML(v, c, c.id === openId ? { open: true, card: true } : {})).join('');
+  if (openId) app.insertAdjacentHTML('beforeend', overlayHTML(app, v, app.querySelector(`[data-cat="${openId}"]`)));
+}
+
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const v = sec.dataset.v;
+  const notes = sec.querySelector('.notes');
+
+  const row = document.createElement('div'); row.className = 'states'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', 'State');
+  const stageFrame = document.createElement('div'); stageFrame.className = 'frame';
+  const stage = document.createElement('div'); stage.className = `app stage v-${v}`; stageFrame.appendChild(stage);
+  const btns = STATES.map((s) => {
+    const b = document.createElement('button'); b.textContent = s.key; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => { btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderStage(stage, v, s); });
+    row.appendChild(b); return b;
+  });
+
+  const cap = document.createElement('p'); cap.className = 'cap'; cap.textContent = 'In situ: hover the cards, click Add';
+  const boardFrame = document.createElement('div'); boardFrame.className = 'frame';
+  const board = document.createElement('div'); board.className = `app insitu v-${v}`; boardFrame.appendChild(board);
+
+  sec.insertBefore(row, notes); sec.insertBefore(stageFrame, notes); sec.insertBefore(cap, notes); sec.insertBefore(boardFrame, notes);
+
+  // Layout needs the frames in the page before the overlays measure.
+  requestAnimationFrame(() => { btns[0].click(); renderBoard(board, v, null); });
+
+  let openId = null;
+  board.addEventListener('click', (e) => {
+    const add = e.target.closest('[data-add]');
+    if (add) { openId = openId === add.dataset.add ? null : add.dataset.add; renderBoard(board, v, openId); return; }
+    if (openId && !e.target.closest('.peek, .results, [data-field]')) { openId = null; renderBoard(board, v, null); }
+  });
+  board.addEventListener('keydown', (e) => { if (e.key === 'Escape' && openId) { openId = null; renderBoard(board, v, null); } });
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
