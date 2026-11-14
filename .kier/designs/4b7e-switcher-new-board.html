@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Switcher New Board</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: board-toolbar-switcher.tsx (zinc glass, indigo primary, sky focus) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b;
+    --p200: #c6d2ff; --p300: #a3b3ff; --p400: #7c86ff; --p500: #615fff; --p950: #1e1a4d;
+    --sky4: #00bcff; --yellow: #f0b100; --green: #00c950;
+    --focus: 0 0 0 2px var(--z800), 0 0 0 4px var(--sky4);
+    --inset-focus: inset 0 0 0 2px var(--sky4);
+    position: relative; width: 760px; height: 600px; margin: 0 auto; color: var(--z50);
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.43;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  .app svg { display: block; flex: none; }
+  :where(.app button, .app input) { font-family: inherit; font-size: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; outline: none; }
+
+  /* The dock and New category */
+  .bar { position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: center; align-items: flex-end; gap: 8px; }
+  .dock { border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.6); backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05); }
+  .dock-row { display: flex; align-items: center; height: 44px; padding: 0 4px; white-space: nowrap; }
+  .switch { display: flex; align-items: center; width: 194px; height: 36px; padding: 0 6px 0 12px; border-radius: 8px; font-weight: 600; background: rgba(255,255,255,.08); }
+  .switch .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--green); flex: none; }
+  .switch .nm { margin-left: 8px; flex: 1; text-align: left; overflow: hidden; }
+  .switch .chev { margin-left: 12px; color: var(--z500); }
+  .tools { margin-left: 4px; display: flex; gap: 2px; }
+  .tbtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .tbtn.fav { color: var(--yellow); }
+  .metal { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; color: #fff; border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgba(255,255,255,.5);
+    text-shadow: 0 1px 1px color-mix(in oklab, var(--p950) 50%, transparent); transition: filter .25s, box-shadow .25s; }
+  .metal.lg { height: 46px; border-radius: 12px; padding: 0 20px 0 16px; }
+
+  /* The popup */
+  .pop { position: absolute; bottom: 80px; width: 336px; padding: 6px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.95);
+    backdrop-filter: blur(12px); box-shadow: 0 25px 50px -12px rgba(0,0,0,.7); display: flex; flex-direction: column; }
+  .search { margin-bottom: 4px; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--z700); background: var(--z900); color: var(--z500); flex: none; min-width: 0; }
+  .search:focus-within { border-color: var(--p400); }
+  .search input { flex: 1; min-width: 0; height: 100%; color: var(--z50); cursor: text; }
+  .search input::placeholder { color: var(--z500); }
+  .list { max-height: 320px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 2px;
+    mask-image: linear-gradient(to bottom, black calc(100% - 24px), transparent); }
+  .list::-webkit-scrollbar { display: none; }
+  .label { padding: 8px 10px 4px; font-size: 12px; font-weight: 700; letter-spacing: .05em; color: var(--z500); text-transform: uppercase; }
+  .row { flex: none; display: flex; align-items: center; gap: 10px; height: 36px; width: 100%; padding: 0 10px; border-radius: 8px; color: var(--z200); text-align: left; }
+  .row:hover { background: rgba(255,255,255,.06); }
+  .row.cur { background: color-mix(in oklab, var(--p500) 15%, transparent); }
+  .row .ck { width: 14px; flex: none; color: var(--p300); }
+  .row .bn { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .ct { font-size: 12px; color: var(--z500); }
+  .row .st { color: var(--yellow); }
+  .empty { padding: 8px 10px; color: var(--z500); }
+  .rule { margin: 4px; border-top: 1px solid rgba(255,255,255,.08); }
+  .toast { position: absolute; top: 16px; left: 50%; transform: translate(-50%, -6px); padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--z800);
+    border: 1px solid rgba(255,255,255,.1); color: var(--z200); opacity: 0; transition: opacity .2s, transform .2s; pointer-events: none; white-space: nowrap; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .toast b { color: var(--p300); }
+  .kbd { font-size: 11px; color: var(--z500); border: 1px solid var(--z700); border-radius: 4px; padding: 0 5px; line-height: 16px; }
+
+  /* Now: an indigo text row */
+  .v-now .nb { display: flex; align-items: center; gap: 8px; height: 36px; width: 100%; padding: 0 10px; border-radius: 8px; font-weight: 600; color: var(--p300); }
+  .v-now .nb:is(:hover, .f-hover) { background: rgba(255,255,255,.06); }
+  .v-now .nb:is(:focus-visible, .f-focus) { background: rgba(255,255,255,.06); box-shadow: var(--inset-focus); }
+
+  /* A: a plus beside search */
+  .top { display: flex; gap: 6px; margin-bottom: 4px; }
+  .top .search { margin-bottom: 0; flex: 1; }
+  .v-a .nb { position: relative; flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z300);
+    background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); transition: color .15s, background-color .15s; }
+  .v-a .nb:is(:hover, .f-hover) { color: var(--z50); background: rgba(255,255,255,.12); }
+  .v-a .nb:is(:focus-visible, .f-focus) { color: var(--z50); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), var(--focus); }
+  .tip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); padding: 4px 8px; border-radius: 6px; background: var(--z50); color: var(--z900);
+    font-size: 12px; font-weight: 600; white-space: nowrap; opacity: 0; transition: opacity .15s; pointer-events: none; }
+  .v-a .nb:is(:hover, .f-hover, .f-focus) .tip { opacity: 1; }
+
+  /* B: the toolbar's metal */
+  .v-b .foot { padding: 2px 0 0; }
+  .v-b .nb { width: 100%; height: 36px; border-radius: 8px; }
+  .v-b .nb:is(:hover, .f-hover) { filter: brightness(1.1); }
+  .v-b .nb:is(:focus-visible, .f-focus) { box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgba(255,255,255,.5), var(--focus); }
+
+  /* C: pick a start in place */
+  .v-c .starts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 0 0 2px; }
+  .v-c .nb { display: flex; flex-direction: column; gap: 6px; padding: 6px; border-radius: 8px; text-align: left; transition: background-color .15s; }
+  .v-c .nb:is(:hover, .f-hover) { background: rgba(255,255,255,.06); }
+  .v-c .nb:is(:hover, .f-hover) .thumb { box-shadow: 0 0 0 1px rgba(255,255,255,.15); }
+  .v-c .nb:is(:focus-visible, .f-focus) { background: rgba(255,255,255,.06); box-shadow: var(--inset-focus); }
+  .v-c .nb .sn { font-size: 12px; font-weight: 600; color: var(--z200); padding: 0 2px; }
+  .thumb { height: 50px; border-radius: 5px; background: var(--z900); box-shadow: 0 0 0 1px rgba(255,255,255,.06); padding: 6px; display: flex; gap: 3px; transition: box-shadow .15s; }
+  .thumb.cols > i { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .thumb.cols > i::before { content: ""; height: 3px; border-radius: 1px; background: var(--c); }
+  .thumb.cols > i::after { content: ""; flex: 1; border-radius: 2px; background: repeating-linear-gradient(180deg, var(--z700) 0 4px, transparent 4px 6px); }
+  .thumb.rows { flex-direction: column; }
+  .thumb.rows > i { flex: 1; display: flex; gap: 2px; }
+  .thumb.rows > i::before { content: ""; width: 7px; border-radius: 1px; background: var(--c); }
+  .thumb.rows > i::after { content: ""; width: var(--w); border-radius: 1px; background: repeating-linear-gradient(90deg, var(--z700) 0 6px, transparent 6px 8px); }
+  .thumb.blank { gap: 5px; }
+  .thumb.blank > i { width: 32px; height: 22px; border-radius: 3px; box-shadow: inset 0 0 0 1px var(--z600); background: linear-gradient(var(--z700), var(--z700)) 3px 9px / 10px 8px no-repeat; }
+
+  /* D: a quiet row that takes the query */
+  .v-d .nb { display: flex; align-items: center; gap: 10px; height: 36px; width: 100%; padding: 0 10px; border-radius: 8px; color: var(--z400); text-align: left; transition: color .15s, background-color .15s; }
+  .v-d .nb .ck { width: 14px; flex: none; color: var(--z500); transition: color .15s; }
+  .v-d .nb .bn { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .v-d .nb q { color: var(--z50); quotes: "“" "”"; }
+  .v-d .nb q::before, .v-d .nb q::after { color: var(--z500); }
+  .v-d .nb .kbd { display: none; }
+  .v-d .nb:is(:hover, .f-hover, .f-active) { color: var(--z50); background: rgba(255,255,255,.06); }
+  .v-d .nb:is(:hover, .f-hover, .f-active) .ck { color: var(--p300); }
+  .v-d .nb.f-active .kbd { display: inline; }
+  .v-d .nb:is(:focus-visible, .f-focus) { color: var(--z50); background: rgba(255,255,255,.06); box-shadow: var(--inset-focus); }
+  .v-d .nb:is(:focus-visible, .f-focus) .ck { color: var(--p300); }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>New board that doesn't read as an afterthought</h1>
+    <div class="chips">
+      <div class="chip"><b>Boards first</b>The menu is for switching; creating is one step away.</div>
+      <div class="chip"><b>Match the menu</b>Same zinc popup, rows and sky focus rings.</div>
+      <div class="chip"><b>Keyboard reach</b>Arrows or Tab still land on it.</div>
+      <div class="chip"><b>Same flow</b>Ends on /b/new unless a start is picked in place.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="Indigo text row under a divider" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>Indigo text row under a divider</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note bad">Indigo text on a row reads like a link, not an action.</div>
+      <div class="note bad">Same height and shape as a board, so the eye skips it.</div>
+      <div class="note good">The arrows reach it like any row.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="A plus button beside search" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>A plus button beside search</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Sits by search, the first thing the menu shows.</div>
+      <div class="note good">The list ends with boards: no divider, no footer.</div>
+      <div class="note bad">An icon alone; “New board” is only the tooltip.</div>
+      <div class="note bad">Tab reaches it; the arrows skip it.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="A footer button in the toolbar's metal" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>A footer button in the toolbar's metal</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Unmistakably a button, in New category's finish.</div>
+      <div class="note bad">Two metal buttons on screen at once.</div>
+      <div class="note bad">The loudest thing in a menu meant for switching.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="Pick a start right in the menu" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>Pick a start right in the menu</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">One click to a new board; /b/new is skipped.</div>
+      <div class="note good">The thumbnails hint at what each start gives you.</div>
+      <div class="note bad">The tallest footer; the list gets less room.</div>
+      <div class="note bad">No descriptions; only /b/new has them.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="A quiet row that takes what you typed" data-v="d">
+    <div class="v-head"><span class="v-id">D</span><h2>A quiet row that takes what you typed</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Plus in the check column; lines up with the names.</div>
+      <div class="note good">A name that isn't there becomes the new board; Enter makes it.</div>
+      <div class="note bad">Quiet at rest; easy to miss until you search.</div>
+      <div class="note bad">/b/new has to take the typed name.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from C: the starts as one row of small chips instead of tiles.</div>
+      <div class="card"><b>Remix</b>Remix D: add A's plus button beside the search field.</div>
+      <div class="card"><b>Settle</b>Settle on D if search is how most boards get made.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/4b7e-switcher-new-board.html';
+
+/* ---------- Icons: heroicons v2, 20/solid ---------- */
+const P = {
+  plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>',
+  search: '<path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd"/>',
+  check: '<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>',
+  chev: '<path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z" clip-rule="evenodd"/>',
+  star: '<path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd"/>',
+  pencil: '<path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"/>',
+  more: '<path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- Data ---------- */
+const CURRENT = 'Mid heroes';
+const BOARDS = [
+  { name: 'Mid heroes', n: 24, fav: true }, { name: 'Pos 5 comfort', n: 9, fav: true },
+  { name: 'Default', n: 126 }, { name: 'Patch 7.39 tier list', n: 126 }, { name: 'Offlane pool', n: 14 },
+  { name: 'Turbo spam', n: 6 }, { name: 'Hard supports', n: 11 }, { name: 'Blank slate', n: 4 }
+];
+const STARTS = [
+  { name: 'Default', thumb: `<div class="thumb cols"><i style="--c:#fb2c36"></i><i style="--c:#00c950"></i><i style="--c:#00a6f4"></i><i style="--c:#ad46ff"></i></div>` },
+  { name: 'Tier List', thumb: `<div class="thumb rows"><i style="--c:#ff6467;--w:60%"></i><i style="--c:#ff8904;--w:80%"></i><i style="--c:#fdc700;--w:70%"></i><i style="--c:#05df72;--w:45%"></i></div>` },
+  { name: 'Blank Slate', thumb: `<div class="thumb blank"><i></i><i></i></div>` }
+];
+
+/* ---------- Rendering ---------- */
+const STATES = [
+  { key: 'Rest', q: '' },
+  { key: 'New board hover', q: '', f: 'f-hover' },
+  { key: 'Keyboard focus', q: '', f: 'f-focus' },
+  { key: 'Searching', q: 'pos' },
+  { key: 'No matches', q: 'Pos 4 pool' }
+];
+
+function rowHTML(b) {
+  const cur = b.name === CURRENT;
+  return `<button class="row ${cur ? 'cur' : ''}" data-row><span class="ck">${cur ? icon('check', 14) : ''}</span><span class="bn">${esc(b.name)}</span>
+    <span class="ct">${b.n} ${b.n === 1 ? 'hero' : 'heroes'}</span>${b.fav ? `<span class="st">${icon('star', 14)}</span>` : ''}</button>`;
+}
+
+function listHTML(q) {
+  const t = q.trim().toLowerCase();
+  const m = BOARDS.filter((b) => b.name.toLowerCase().includes(t));
+  const favs = m.filter((b) => b.fav), rest = m.filter((b) => !b.fav);
+  let h = '';
+  if (favs.length) h += '<div class="label">Favorites</div>' + favs.map(rowHTML).join('');
+  if (rest.length && favs.length) h += '<div class="label">All boards</div>';
+  h += rest.map(rowHTML).join('');
+  if (!m.length) h += `<p class="empty">No boards match “${esc(q.trim())}”.</p>`;
+  return { html: h, none: !m.length };
+}
+
+// The New board control for each variation: where it sits ('top' or 'foot') and its markup.
+function newBoard(v, f, q, none) {
+  switch (v) {
+    case 'now': return { foot: `<div class="rule"></div><button class="nb ${f}" data-new>${icon('plus', 16)}New board</button>` };
+    case 'a': return { top: `<button class="nb ${f}" data-new aria-label="New board">${icon('plus', 20)}<span class="tip">New board</span></button>` };
+    case 'b': return { foot: `<div class="rule"></div><div class="foot"><button class="nb metal ${f}" data-new>${icon('plus', 16)}New board</button></div>` };
+    case 'c': return { foot: `<div class="rule"></div><div class="label">New board from</div><div class="starts">${
+      STARTS.map((s, i) => `<button class="nb ${i === 0 ? f : ''}" data-new="${s.name}">${s.thumb}<span class="sn">${s.name}</span></button>`).join('')}</div>` };
+    case 'd': {
+      const t = q.trim();
+      const label = t ? `New board <q>${esc(t)}</q>` : 'New board';
+      return { foot: `<div class="rule"></div><button class="nb ${f} ${t && none ? 'f-active' : ''}" data-new="${esc(t)}"><span class="ck">${icon('plus', 14)}</span><span class="bn">${label}</span><span class="kbd">↵</span></button>` };
+    }
+  }
+}
+
+function render(app, v, s, keepInput) {
+  const list = listHTML(s.q);
+  const nb = newBoard(v, s.f || '', s.q, list.none);
+  if (keepInput) {
+    app.querySelector('.list').innerHTML = list.html;
+    app.querySelector('.slot').innerHTML = nb.foot || '';
+    return;
+  }
+  const search = `<label class="search">${icon('search', 16)}<input value="${esc(s.q)}" placeholder="Find a board…" aria-label="Find a board"></label>`;
+  app.innerHTML = `
+    <div class="toast"></div>
+    <div class="pop">
+      ${nb.top ? `<div class="top">${search}${nb.top}</div>` : search}
+      <div class="list">${list.html}</div>
+      <div class="slot">${nb.foot || ''}</div>
+    </div>
+    <div class="bar">
+      <div class="dock"><div class="dock-row">
+        <div class="switch"><span class="dot"></span><span class="nm">${CURRENT}</span><span class="chev">${icon('chev', 16)}</span></div>
+        <div class="tools"><span class="tbtn fav">${icon('star')}</span><span class="tbtn">${icon('pencil')}</span><span class="tbtn">${icon('more')}</span></div>
+      </div></div>
+      <span class="metal lg">${icon('plus')}New category</span>
+    </div>`;
+  // The menu lines up with the dock's left edge.
+  const dock = app.querySelector('.dock');
+  app.querySelector('.pop').style.left = `${dock.offsetLeft}px`;
+}
+
+function toast(app, html) {
+  const t = app.querySelector('.toast');
+  t.innerHTML = html; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 1600);
+}
+
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const v = sec.dataset.v;
+  const notes = sec.querySelector('.notes');
+  const row = document.createElement('div'); row.className = 'states'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', 'State');
+  const frame = document.createElement('div'); frame.className = 'frame';
+  const app = document.createElement('div'); app.className = `app v-${v}`; frame.appendChild(app);
+  let state = STATES[0];
+  const btns = STATES.map((s) => {
+    const b = document.createElement('button'); b.textContent = s.key; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => { btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); state = s; render(app, v, s); });
+    row.appendChild(b); return b;
+  });
+  sec.insertBefore(row, notes); sec.insertBefore(frame, notes);
+  requestAnimationFrame(() => btns[0].click());
+
+  // Live: typing filters the list; the forced state drops so hover and focus are real.
+  app.addEventListener('input', (e) => {
+    if (!e.target.matches('input')) return;
+    state = { key: 'live', q: e.target.value };
+    btns.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+    render(app, v, state, true);
+    if (v === 'a') app.querySelector('[data-new]').className = 'nb';
+  });
+  app.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.matches('input') && v === 'd') {
+      const t = e.target.value.trim();
+      if (t && listHTML(t).none) toast(app, `Opens <b>/b/new</b> named “${esc(t)}”`);
+    }
+  });
+  app.addEventListener('click', (e) => {
+    const nb = e.target.closest('[data-new]');
+    if (nb) {
+      const d = nb.dataset.new;
+      if (v === 'c') toast(app, `Creates a <b>${d}</b> board`);
+      else if (v === 'd' && d) toast(app, `Opens <b>/b/new</b> named “${d}”`);
+      else toast(app, 'Opens <b>/b/new</b>');
+      return;
+    }
+    const r = e.target.closest('[data-row]');
+    if (r) toast(app, `Switches to <b>${esc(r.querySelector('.bn').textContent)}</b>`);
+  });
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
