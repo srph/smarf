@@ -217,9 +217,35 @@
   background-size: 260% 100%;
 }
 
+/*
+  Keyboard focus: a halo with a gap. 2px in the surface's own colour, then 2px of sky, so it reads on indigo metal,
+  red, glass and hero portraits alike, and apart from the sky hover ring that sits right on the edge. Use it under
+  focus-visible: (focus-visible:ring-focus); it's box-shadow, so it stacks with the element's own shadow utilities.
+  The gap is --focus-gap: zinc-900 (the page) unless a surface sets its own with focus-gap-*.
+*/
+@utility ring-focus {
+  @apply ring-2 ring-sky-400 ring-offset-2 ring-offset-(--focus-gap) outline-hidden;
+}
+
+/* ring-focus in red, for destructive buttons. */
+@utility ring-focus-danger {
+  @apply ring-2 ring-red-400 ring-offset-2 ring-offset-(--focus-gap) outline-hidden;
+}
+
+/* ring-focus for text fields: softer, since a field shows focus whenever it's typed in. Pair with border-sky-400. */
+@utility ring-focus-field {
+  @apply ring-2 ring-sky-400/35 ring-offset-2 ring-offset-(--focus-gap) outline-hidden;
+}
+
+/* Sets the ring-focus gap for a surface and everything on it: focus-gap-zinc-800 on a popover or the dock. */
+@utility focus-gap-* {
+  --focus-gap: --value(--color-*);
+}
+
 @layer base {
   /* Stacking order, lowest first. Use as z-(--z-popover). */
   :root {
+    --focus-gap: var(--color-zinc-900);
     --z-board-list-moving-item: 1;
     --z-board-workspace: 900;
     --z-board-toolbar: 1000;

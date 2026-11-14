@@ -8,7 +8,7 @@ import { HeroBackdrop } from './hero-backdrop'
 /** The sign-in pages' layout: drifting heroes behind a centered column with the Smarf lockup, the page, and what Discord shares. */
 const AuthRoute = () => {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-zinc-950">
+    <div className="relative min-h-screen overflow-hidden bg-zinc-950 focus-gap-zinc-950">
       <HeroBackdrop />
 
       <div className="relative flex min-h-screen items-center justify-center px-4">
