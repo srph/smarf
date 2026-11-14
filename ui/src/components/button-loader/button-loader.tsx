@@ -2,13 +2,10 @@ import React, { createContext, use, useState } from 'react'
 import { cn } from 'cn'
 import { Button, type ButtonProps } from '~/src/components/button/button'
 import { Spinner } from '~/src/components/spinner/spinner'
+import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
 import { useWidthTransition } from '~/src/hooks/use-width-transition'
 
 const BusyContext = createContext(false)
-
-// The two states swap in place: one blurs out as the other sharpens in.
-const swap = 'transition duration-250 ease-morph motion-reduce:transition-none'
-const hidden = 'opacity-0 blur-xs'
 
 type ButtonLoaderProps = React.PropsWithChildren<Omit<ButtonProps, 'icon' | 'busy'> & { busy: boolean }>
 
@@ -44,8 +41,8 @@ const ButtonLoaderIcon: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   return (
     <span className="mr-2 grid size-5 shrink-0 place-items-center text-primary-200" aria-hidden="true" data-button-icon>
-      <span className={cn('col-start-1 row-start-1 flex', swap, busy && hidden)}>{children}</span>
-      <span className={cn('col-start-1 row-start-1 flex', swap, !busy && hidden)}>
+      <span className={cn('col-start-1 row-start-1 flex', blurSwap, busy && blurSwapHidden)}>{children}</span>
+      <span className={cn('col-start-1 row-start-1 flex', blurSwap, !busy && blurSwapHidden)}>
         <Spinner tone="primary" />
       </span>
     </span>
@@ -69,7 +66,7 @@ const ButtonLoaderText: React.FC<React.PropsWithChildren> = ({ children }) => {
     const shown = state === current
     return (
       <span
-        className={cn('block', swap, !shown && cn('absolute top-0 left-0', hidden))}
+        className={cn('block', blurSwap, !shown && cn('absolute top-0 left-0', blurSwapHidden))}
         aria-hidden={!shown || undefined}>
         {shown ? children : labels[state]}
       </span>

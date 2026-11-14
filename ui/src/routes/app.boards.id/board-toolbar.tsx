@@ -16,6 +16,8 @@ import { BoardToolbarRenamePanel } from './board-toolbar-rename-panel'
 import { BoardToolbarSwitcher } from './board-toolbar-switcher'
 import { BoardToolbarIconButton } from './board-toolbar-tooltip'
 import { useToolbarSaveStatus } from './use-toolbar-save-status'
+import { NEW_BOARD_DOCK, NEW_BOARD_SLIDE, useNewBoardHandoff } from './use-new-board-handoff'
+import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
 
 type Mode = 'idle' | 'rename' | 'delete'
 
@@ -38,6 +40,8 @@ const BoardToolbar: React.FC = () => {
   const navigate = useNavigate()
 
   const status = useToolbarSaveStatus(board.id)
+
+  const handoff = useNewBoardHandoff()
 
   const { mutate: favoriteBoard } = useFavoriteBoardMutation(board.id)
 
@@ -93,11 +97,17 @@ const BoardToolbar: React.FC = () => {
     <Tooltip.Provider delay={200}>
       <div className="pointer-events-none fixed inset-x-0 bottom-6 z-(--z-board-toolbar) flex justify-center px-4">
         <div className="pointer-events-auto flex items-end gap-2">
-          <div
+          <motion.div
             ref={setDockElement}
+            // Arriving from New Board, the dock slides in from its "Creating" bar. Only while it slides: later, the
+            // rename and delete cards resize the dock, and that mustn't animate as a layout change.
+            layoutId={handoff.stage === 'sliding' ? NEW_BOARD_DOCK : undefined}
+            transition={NEW_BOARD_SLIDE}
+            onLayoutAnimationComplete={handoff.slid}
             className={cn(
               // The rise sits on the dock itself, not a wrapper: an ancestor's opacity would cut off its backdrop blur.
-              'animate-toolbar-rise motion-reduce:animate-none',
+              // The slide from New Board replaces it.
+              !handoff.arrived && 'animate-toolbar-rise motion-reduce:animate-none',
               'relative overflow-hidden rounded-xl border border-white/10 bg-zinc-800/60 shadow-2xl ring-1 inset-shadow-xs shadow-black/70 ring-black/50 inset-shadow-white/5 backdrop-blur-lg backdrop-saturate-150',
               // The focus ring's gap matches the glass.
               'focus-gap-zinc-800'
@@ -130,7 +140,13 @@ const BoardToolbar: React.FC = () => {
               }
               inert={isEditing}
               className="overflow-hidden">
-              <div className="flex h-11 items-center px-1 whitespace-nowrap">
+              {/* Arriving from New Board, the row stays blurred out while "Creating …" holds its place. */}
+              <div
+                className={cn(
+                  'flex h-11 items-center px-1 whitespace-nowrap',
+                  handoff.arrived && blurSwap,
+                  handoff.stage === 'sliding' && blurSwapHidden
+                )}>
                 <BoardToolbarSwitcher status={status} justRenamed={justRenamed} anchor={dockElement} />
 
                 <div className="ml-1 flex items-center gap-0.5">
@@ -162,7 +178,20 @@ const BoardToolbar: React.FC = () => {
                 )}
               </div>
             </motion.div>
-          </div>
+
+            {/* New Board's "Creating …", carried over from its bar, then blurred into the row */}
+            {handoff.stage && (
+              <p
+                aria-hidden="true"
+                className={cn(
+                  'pointer-events-none absolute inset-0 grid animate-creating-glint place-items-center bg-creating-glint bg-clip-text font-semibold text-transparent motion-reduce:animate-none',
+                  blurSwap,
+                  handoff.stage === 'swapping' && blurSwapHidden
+                )}>
+                Creating {handoff.start}
+              </p>
+            )}
+          </motion.div>
 
           <div className="flex animate-toolbar-rise motion-reduce:animate-none">
             <BoardToolbarAddCategoryButton locked={isEditing} />

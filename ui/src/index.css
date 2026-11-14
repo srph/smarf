@@ -41,6 +41,8 @@
   /* Board toolbar: a sheen sweeps across New category on hover; the board name glints green after a rename. */
   --animate-toolbar-sheen: toolbar-sheen 0.85s cubic-bezier(0.3, 0.6, 0.3, 1) both;
   --animate-name-glint: name-glint 1.1s ease both;
+  /* New board's "Creating …" while it saves: the same glint, in white, on a loop. */
+  --animate-creating-glint: name-glint 1.6s ease-in-out infinite;
 
   /* Board toolbar: the dock and New category fade up together as the board loads. */
   --animate-toolbar-rise: toolbar-rise 0.5s var(--ease-morph) 0.1s both;
@@ -227,6 +229,17 @@
     var(--color-zinc-50) 60%
   );
   background-size: 260% 100%;
+}
+
+/* Text fill for animate-creating-glint: a white band over grey. Pair with bg-clip-text text-transparent. */
+@utility bg-creating-glint {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-zinc-400) 35%,
+    var(--color-white) 50%,
+    var(--color-zinc-400) 65%
+  );
+  background-size: 300% 100%;
 }
 
 /*
