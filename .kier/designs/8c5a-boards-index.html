@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boards Index</title>
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 1100px) { .wrap { margin-left: max(200px, calc((100vw - 1140px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .states .sp { margin-left: auto; }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 1100px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: matches ui/src (Tailwind 4 zinc, primary indigo, sky focus) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b;
+    --sky: #00a6f4; --yellow: #f0b100;
+    --p200: oklch(87% 0.065 274.039); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966);
+    --morph: cubic-bezier(0.3, 0.7, 0.2, 1);
+    position: relative; width: 1080px; height: 700px; margin: 0 auto; color: var(--z50); background: var(--z900);
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 20px;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  .app button { font-family: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; text-align: inherit; font-size: inherit; line-height: inherit; }
+  .app a { color: inherit; text-decoration: none; }
+  .app svg { display: block; }
+  .app :focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+  .page { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: var(--z700) transparent; }
+  .cont { padding: 0 16px; }
+
+  /* Navigation (routes/app/navigation) */
+  .nav { border-bottom: 1px solid var(--z800); margin-bottom: 48px; }
+  .nav .bar { height: 4px; background: linear-gradient(to right, var(--p600), var(--p400)); }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; padding: 24px 16px; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo img { width: 36px; height: 36px; filter: drop-shadow(0 0 12px oklch(58.5% 0.233 277.117 / .6)); }
+  .logo b { font-size: 20px; line-height: 1; font-weight: 900; letter-spacing: .025em; text-transform: uppercase; padding-top: 4px; }
+  .nav-r { display: flex; align-items: center; gap: 24px; }
+  .btn { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 4px; padding: 8px 12px 8px 8px; font-weight: 700; background: var(--p500); color: var(--z50); }
+  .btn .bi { color: var(--p200); margin-right: 8px; }
+  .avatar { border-radius: 50%; border: 2px solid var(--z700); padding: 6px; }
+  .avatar span { display: block; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c4b5fd, #6d28d9 70%); }
+
+  .h5 { margin: 0 0 16px; font-size: 12px; line-height: 16px; font-weight: 700; color: var(--z300); display: flex; align-items: center; gap: 8px; }
+  .h5 .ct { font-weight: 600; color: var(--z500); }
+
+  /* Star (FavoriteIcon) */
+  .star { color: var(--z400); flex: none; }
+  .star .ic { display: grid; place-items: center; border-radius: 8px; padding: 4px; transition: color .15s; }
+  .star:hover .ic { color: var(--z200); }
+  .star.on .ic { color: var(--yellow); }
+  .star.pop .ic svg { animation: favorite-pop .42s cubic-bezier(0.3, 1.5, 0.5, 1); }
+  @keyframes favorite-pop { 0% { transform: scale(.55); } 55% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  .app .star:focus-visible { outline: none; }
+  .star:focus-visible .ic { box-shadow: 0 0 0 2px var(--sky); }
+
+  /* Category layer cards, for previews (board-workspace-category-body.tsx) */
+  .cat { position: absolute; left: 0; top: 0; display: inline-block; border-radius: 12px; background: rgb(36 36 39);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .12), 0 36px 32px -8px rgb(0 0 0 / .75); }
+  .cat-head { height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 8px; }
+  .cat-head .g { color: var(--z600); }
+  .cat-head .n { font-weight: 600; white-space: nowrap; }
+  .tray { display: flex; flex-wrap: wrap; border-radius: 8px 8px 12px 12px; border: 1px solid rgb(255 255 255 / .08); background: var(--z900); padding: 3px; }
+  .hc { padding: 4px; flex: none; }
+  .hi { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); }
+  .hi img { width: 80px; height: 45px; object-fit: cover; display: block; }
+  .addt { width: 80px; height: 45px; border: 2px dashed var(--z500); background: var(--z700); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .addt svg { color: var(--z500); margin-right: 8px; }
+
+  /* The New Board start preview (start-preview.tsx): tilted, cropped, a hero glow behind */
+  .pv { position: relative; overflow: hidden; border-radius: 8px; background: var(--z900); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); pointer-events: none;
+    -webkit-mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent); -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent); mask-composite: intersect; }
+  .pv-in { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform-style: preserve-3d; }
+  .pv-in::before { content: ""; position: absolute; inset: -416px -800px; z-index: -1; opacity: .6;
+    background-image: radial-gradient(circle, var(--z600) calc(.8px / var(--dz)), transparent calc(.8px / var(--dz) + .5px)); background-size: 64px 64px; }
+  .pv .glow { position: absolute; right: -24px; top: -36px; width: 240px; height: 136px; object-fit: cover; filter: blur(20px) saturate(1.5); opacity: .28; transition: opacity .25s; }
+  .pv .hi img { filter: grayscale(.9) brightness(.62); transition: filter .25s; }
+  .pv-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--z600); font-size: 12px; font-weight: 600; }
+
+  /* ----- Now: home-route.tsx as it is ----- */
+  .now .col { width: 480px; margin: 0 auto; padding-bottom: 48px; }
+  .now .row { position: relative; display: flex; align-items: center; border-radius: 12px; background: var(--z700); box-shadow: 0 0 0 2px transparent; transition: box-shadow .2s; }
+  .now .row:not(:last-child) { margin-bottom: 16px; }
+  .now .row:hover { box-shadow: 0 0 0 2px var(--sky); }
+  .now .row > a { flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 16px 0 16px 16px; }
+  .now .row > a:focus-visible { outline: none; }
+  .now .row:has(> a:focus-visible) { box-shadow: 0 0 0 2px var(--sky); }
+  .now h3 { margin: 18px 0; font-size: 18px; line-height: 28px; font-weight: 500; }
+  .now .ago { font-size: 12px; color: var(--z400); }
+  .now .star { padding: 12px; }
+
+  /* ----- A: grouped rows with counts; no API change ----- */
+  .va .col { width: 640px; margin: 0 auto; padding-bottom: 48px; }
+  .va .sec + .sec { margin-top: 32px; }
+  .va .list { border-radius: 12px; background: var(--z800); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); }
+  .ar { position: relative; display: flex; align-items: center; height: 68px; padding: 0 10px 0 20px; transition: background .15s; background: var(--z800); }
+  .ar:first-child { border-radius: 12px 12px 0 0; } .ar:last-child { border-radius: 0 0 12px 12px; } .ar:only-child { border-radius: 12px; }
+  .ar + .ar { box-shadow: inset 0 1px 0 rgb(255 255 255 / .06); }
+  .ar:hover { background: color-mix(in oklab, var(--z800), var(--z700) 55%); }
+  .ar > a { flex: 1; display: flex; align-items: center; height: 100%; min-width: 0; }
+  .ar > a:focus-visible { outline: none; }
+  .ar:has(> a:focus-visible) { box-shadow: inset 0 0 0 2px var(--sky); }
+  .ar .nm { font-size: 16px; font-weight: 500; }
+  .ar .meta { font-size: 12px; line-height: 16px; color: var(--z400); margin-top: 2px; }
+  .ar .ago { margin-left: auto; padding-left: 16px; font-size: 12px; color: var(--z500); white-space: nowrap; }
+  .ar .star { padding: 8px; margin-left: 8px; }
+  .va .hint { padding: 18px 20px; font-size: 13px; color: var(--z500); display: flex; align-items: center; gap: 8px; }
+
+  /* ----- B and D: preview cards ----- */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .bc { position: relative; display: flex; flex-direction: column; padding: 6px 6px 12px; border-radius: 14px; background: rgb(255 255 255 / .03);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); transition: background .15s, box-shadow .15s, translate .25s var(--morph); }
+  .bc:hover { background: rgb(255 255 255 / .07); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .14); translate: 0 -2px; }
+  .bc:has(> a:focus-visible) { box-shadow: 0 0 0 2px var(--sky); translate: 0 -2px; }
+  .bc > a { display: block; }
+  .bc > a:focus-visible { outline: none; }
+  .bc .pv { height: 140px; margin-bottom: 10px; }
+  .bc:hover .pv .hi img, .bc:has(> a:focus-visible) .pv .hi img { filter: none; }
+  .bc:hover .pv .glow, .bc:has(> a:focus-visible) .pv .glow { opacity: .6; }
+  .bc-name { display: block; padding: 0 40px 0 6px; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bc-meta { display: block; padding: 0 6px; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--z400); }
+  .bc .star { position: absolute; right: 8px; bottom: 12px; }
+  .bc.new { align-items: center; justify-content: center; gap: 8px; min-height: 210px; background: none; box-shadow: none; border: 2px dashed var(--z700); color: var(--z400); font-weight: 600; transition: border-color .15s, color .15s; }
+  .bc.new:hover { border-color: var(--z500); color: var(--z200); translate: none; background: none; box-shadow: none; }
+  .vb .grid3 { padding-bottom: 48px; }
+
+  /* ----- C: hero strip rows ----- */
+  .vc .sec + .sec { margin-top: 28px; }
+  .vc .sec:last-child { padding-bottom: 48px; }
+  .cr { position: relative; display: grid; grid-template-columns: 220px 1fr 120px 40px; align-items: center; gap: 20px; height: 76px; padding: 0 8px 0 16px; border-radius: 12px; transition: background .15s; }
+  .cr + .cr::before { content: ""; position: absolute; left: 16px; right: 16px; top: 0; height: 1px; background: var(--z800); transition: opacity .15s; }
+  .cr:hover { background: rgb(39 39 42 / .8); }
+  .cr:hover::before, .cr:hover + .cr::before { opacity: 0; }
+  .cr > a { position: absolute; inset: 0; border-radius: 12px; }
+  .cr > a:focus-visible { outline-offset: -2px; }
+  .cr .star { position: relative; z-index: 1; }
+  .cr-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cr-meta { font-size: 12px; line-height: 16px; color: var(--z500); margin-top: 2px; }
+  .strip { display: flex; gap: 14px; overflow: hidden; pointer-events: none;
+    -webkit-mask-image: linear-gradient(to right, #000 82%, transparent); mask-image: linear-gradient(to right, #000 82%, transparent); }
+  .grp { display: flex; gap: 4px; flex: none; }
+  .strip img { width: 64px; height: 36px; border-radius: 4px; object-fit: cover; display: block; background: var(--z700); filter: grayscale(.9) brightness(.62); transition: filter .25s; }
+  .cr:hover .strip img, .cr:has(> a:focus-visible) .strip img { filter: none; }
+  .strip .none { font-size: 12px; color: var(--z600); font-weight: 600; }
+  .cr-ago { font-size: 12px; color: var(--z400); text-align: right; white-space: nowrap; }
+
+  /* ----- D: favorites shelf + searchable table ----- */
+  .vd .grid3 { margin-bottom: 40px; }
+  .vd .shelf-empty { margin-bottom: 40px; height: 64px; border-radius: 12px; border: 2px dashed var(--z800); display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--z500); font-size: 13px; }
+  .tbar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .tbar .h5 { margin: 0 auto 0 0; }
+  .search { display: flex; align-items: center; gap: 8px; width: 240px; height: 36px; padding: 0 12px; border-radius: 8px; background: var(--z800); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); color: var(--z500); transition: box-shadow .15s; }
+  .search:focus-within { box-shadow: 0 0 0 2px var(--sky); }
+  .search input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--z50); font: inherit; }
+  .search input::placeholder { color: var(--z500); }
+  .seg { display: flex; padding: 3px; border-radius: 8px; background: var(--z800); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); }
+  .app .seg button { height: 30px; padding: 0 10px; border-radius: 6px; font-size: 13px; font-weight: 600; color: var(--z400); transition: background .15s, color .15s; }
+  .app .seg button[aria-pressed="true"] { background: var(--z700); color: var(--z50); }
+  .th, .tr { display: grid; grid-template-columns: 1fr 110px 90px 130px 40px; align-items: center; gap: 12px; padding: 0 8px 0 16px; }
+  .th { height: 32px; font-size: 12px; font-weight: 600; color: var(--z500); }
+  .th .r, .tr .r { text-align: right; }
+  .tr { position: relative; height: 52px; border-radius: 10px; transition: background .15s; }
+  .tr + .tr::before { content: ""; position: absolute; left: 16px; right: 16px; top: 0; height: 1px; background: var(--z800); }
+  .tr:hover { background: rgb(39 39 42 / .8); }
+  .tr:hover::before, .tr:hover + .tr::before { opacity: 0; }
+  .tr > a { position: absolute; inset: 0; border-radius: 10px; }
+  .tr > a:focus-visible { outline-offset: -2px; }
+  .tr .star { position: relative; z-index: 1; }
+  .tr .nm { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tr .num { font-variant-numeric: tabular-nums; color: var(--z300); }
+  .tr .ago { font-size: 12px; color: var(--z400); }
+  .tbody-empty { padding: 28px 16px; color: var(--z500); font-size: 13px; text-align: center; }
+  .vd .tbl { padding-bottom: 48px; }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>The boards page lists names, but not what's in them</h1>
+    <div class="chips">
+      <div class="chip"><b>Style</b>Smarf as it is: zinc, indigo, sky rings, New Board's previews.</div>
+      <div class="chip"><b>Favorites</b>Still first; a star still re-sorts with a slide.</div>
+      <div class="chip"><b>Scale</b>Reads at 3 boards and at 30.</div>
+      <div class="chip"><b>Recognition</b>Tell boards apart before opening one.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="A narrow column of name-only rows" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>A narrow column of name-only rows</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Calm; the star's pop and slide feel good.</div>
+      <div class="note bad">Only names: two tier lists look identical.</div>
+      <div class="note bad">96px rows; twelve boards is a long scroll.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="Grouped rows that say what's inside" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>Grouped rows that say what's inside</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">No API change: the counts are already in the summary.</div>
+      <div class="note good">Favorites get their own heading.</div>
+      <div class="note bad">Counts help a little; nothing visual.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="A grid of tilted board previews" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>A grid of tilted board previews</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Each board is recognisable at a glance.</div>
+      <div class="note good">Reuses New Board's preview, so the two pages rhyme.</div>
+      <div class="note bad">The list needs every board's categories: a heavier response.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="Rows with a strip of each board's heroes" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>Rows with a strip of each board's heroes</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Heroes are the board's identity; grey until hover, like in-game.</div>
+      <div class="note good">Uses the full width; still a scannable list.</div>
+      <div class="note bad">API adds the first ~12 heroes per board.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="Favorites on a shelf, the rest in a table" data-v="d">
+    <div class="v-head"><span class="v-id">D</span><h2>Favorites on a shelf, the rest in a table</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Search and sort hold up at 30+ boards.</div>
+      <div class="note good">Previews only where they matter: favorites.</div>
+      <div class="note bad">Two layouts on one page; feels like a tool.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from C: try the strip inside B-sized cards.</div>
+      <div class="card"><b>Remix</b>Remix D: swap the table for A's grouped rows.</div>
+      <div class="card"><b>Settle</b>Settle on A to ship now without touching the API.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/8c5a-boards-index.html';
+
+const P = {
+  squaresPlus: '<path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/>',
+  bars2: '<path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/>',
+  plusCircle: '<path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd"/>',
+  starSolid: '<path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd"/>',
+  search: '<path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const starOutline = (s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.563.563 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg>`;
+const thumb = (s) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${s}.png`;
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- Boards (as GET /boards would list them, newest first, plus their categories for previews) ---------- */
+const POOL = ['axe','pudge','earthshaker','tiny','sven','kunkka','tidehunter','mars','centaur','slardar','antimage','juggernaut','phantom_assassin','drow_ranger','slark','faceless_void','morphling','terrorblade','luna','medusa','crystal_maiden','invoker','lina','lion','zuus','storm_spirit','shadow_shaman','witch_doctor','rubick','leshrac','void_spirit','pangolier','windrunner','mirana','dark_willow','snapfire','marci','dazzle','enigma','batrider','bounty_hunter','nevermore','abyssal_underlord','bristleback','obsidian_destroyer','spirit_breaker','nyx_assassin','phantom_lancer','winter_wyvern','dragon_knight','night_stalker','techies','oracle','earth_spirit','dawnbreaker','wisp','tinker','keeper_of_the_light','meepo','visage','disruptor','ember_spirit','hoodwink','legion_commander','lone_druid','lich','troll_warlord','skywrath_mage','rattletrap','silencer','elder_titan','treant','puck','queenofpain','templar_assassin','weaver','sniper','viper','venomancer','undying','ogre_magi','grimstroke','magnataur','chen','enchantress','warlock','jakiro','abaddon','omniknight','sand_king','shadow_demon','ancient_apparition'];
+let seed = 7;
+const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+const take = (n, from = POOL) => { const a = [...from]; const out = []; while (out.length < n && a.length) out.push(a.splice(Math.floor(rnd() * a.length), 1)[0]); return out; };
+const cats = (spec) => spec.map(([name, h]) => ({ name, heroes: Array.isArray(h) ? h : take(h) }));
+
+const BOARDS = [
+  { id: 1, name: 'Pos 5 Pocket Picks', fav: 2, ago: '3 hours ago', cats: cats([['Comfort', ['crystal_maiden','lion','dazzle','witch_doctor','oracle','jakiro','warlock','shadow_shaman']], ['Learning', ['grimstroke','snapfire','dark_willow','hoodwink','disruptor']], ['Never again', ['wisp','chen','enchantress','keeper_of_the_light']]]) },
+  { id: 2, name: 'Tier List: 7.38', fav: 3, ago: '2 hours ago', cats: cats([['S Tier', ['bounty_hunter','marci']], ['A Tier', 9], ['B Tier', 14], ['C Tier', 8], ['D Tier', 6], ['F Tier', 4]]) },
+  { id: 3, name: 'Mid Matchups', ago: '5 hours ago', cats: cats([['Into Invoker', ['nyx_assassin','puck','void_spirit','storm_spirit','templar_assassin','queenofpain']], ['Into Storm', ['silencer','nyx_assassin','lion','obsidian_destroyer','pangolier']], ['Into Puck', ['viper','sniper','obsidian_destroyer','venomancer','lina']], ['Lane bullies', ['viper','lina','queenofpain','leshrac','nevermore','zuus']]]) },
+  { id: 4, name: 'Offlane Pool', ago: '2 days ago', cats: cats([['Frontline', ['mars','centaur','tidehunter','axe','abyssal_underlord','bristleback','sand_king']], ['Initiators', ['magnataur','enigma','earthshaker','batrider','legion_commander','slardar']]]) },
+  { id: 5, name: 'Turbo Chaos', fav: 1, ago: '4 days ago', cats: cats([['Absolutely not', ['techies','meepo','tinker','pudge','sniper','rattletrap','visage','lone_druid','wisp','invoker','faceless_void','phantom_lancer']]]) },
+  { id: 6, name: 'Default', ago: '3 days ago', cats: cats([['Strength', ['axe','pudge','earthshaker','tiny','sven','kunkka','tidehunter','mars','centaur','slardar']], ['Agility', ['antimage','juggernaut','phantom_assassin','drow_ranger','slark','faceless_void','morphling','terrorblade','luna','medusa']], ['Intelligence', ['crystal_maiden','invoker','lina','lion','zuus','storm_spirit','shadow_shaman','witch_doctor','rubick','leshrac']], ['Universal', ['void_spirit','pangolier','windrunner','mirana','dark_willow','snapfire','marci','dazzle','enigma','batrider']]]) },
+  { id: 7, name: 'Ranked Bans', ago: '9 days ago', cats: cats([['Always ban', ['techies','meepo','bounty_hunter','spirit_breaker','nyx_assassin']], ['Situational', 8]]) },
+  { id: 8, name: 'Carry Farm Speed', ago: '14 days ago', cats: cats([['Fast', ['antimage','luna','medusa','terrorblade','faceless_void']], ['Slow', ['phantom_assassin','slark','troll_warlord','juggernaut']]]) },
+  { id: 9, name: 'Learning Invoker', ago: '22 days ago', cats: cats([['Combos', ['invoker']], ['Lane into', ['viper','lina','nevermore','puck']], ['Items', []]]) },
+  { id: 10, name: 'Stack & Cheese', ago: '1 month ago', cats: cats([['Stackers', ['crystal_maiden','ancient_apparition','dark_willow','enchantress']], ['Cheese', ['lone_druid','meepo','troll_warlord']]]) },
+  { id: 11, name: 'Pubstomp', ago: '1 month ago', cats: cats([['Pubstomp', ['lion','bounty_hunter']], ['Grief Squad', ['keeper_of_the_light','techies']]]) },
+  { id: 12, name: 'Untitled', ago: '2 months ago', cats: cats([['Pubstomp', []], ['Grief Squad', []]]) }
+];
+// Minutes since the edit, for "Recent" sort
+const MIN = { '2 hours ago': 120, '3 hours ago': 180, '5 hours ago': 300, '2 days ago': 2880, '3 days ago': 4320, '4 days ago': 5760, '9 days ago': 12960, '14 days ago': 20160, '22 days ago': 31680, '1 month ago': 45000, '2 months ago': 90000 };
+BOARDS.forEach((b) => { b.heroes = b.cats.reduce((n, c) => n + c.heroes.length, 0); b.min = MIN[b.ago] ?? 0; });
+const SETS = { 3: [1, 2, 6], 12: BOARDS.map((b) => b.id) };
+
+const meta = (b) => `${b.cats.length} ${b.cats.length === 1 ? 'category' : 'categories'} · ${b.heroes} ${b.heroes === 1 ? 'hero' : 'heroes'}`;
+// favoritesFirst: favorites first, latest favorited on top; the rest keep the API's order
+const sorted = (bs) => bs.toSorted((a, b) => Number(!!b.fav) - Number(!!a.fav) || (b.fav || 0) - (a.fav || 0));
+
+/* ---------- Previews: the board's categories laid out, tilted like New Board's starts ---------- */
+const perRow = (w) => Math.floor((w - 8) / 88);
+const catH = (c) => 36 + Math.ceil((c.heroes.length + 1) / perRow(c.w)) * 53 + 8;
+const layout = (cs) => {
+  let x = 0, y = 0, rowH = 0;
+  return cs.map((c) => {
+    const w = c.heroes.length > 9 ? 996 : 492;
+    if (x > 0 && x + w > 996) { x = 0; y += rowH + 12; rowH = 0; }
+    const o = { ...c, w, x, y }; rowH = Math.max(rowH, catH(o)); x += w + 12;
+    if (x >= 996) { x = 0; y += rowH + 12; rowH = 0; }
+    return o;
+  });
+};
+const card = (c) => `<div class="cat" style="translate:${c.x}px ${c.y}px"><div class="cat-head"><span class="g">${icon('bars2')}</span><span class="n">${esc(c.name)}</span></div>
+  <div class="tray" style="width:${c.w}px">${c.heroes.slice(0, 30).map((h) => `<div class="hc"><div class="hi"><img src="${thumb(h)}" alt="" loading="lazy" draggable="false"></div></div>`).join('')}<div class="hc"><span class="addt">${icon('plusCircle', 16)}Add</span></div></div></div>`;
+const TILT = 'translate(14px, 30px) scale(0.42) perspective(1400px) rotateX(36deg) rotateZ(-10deg)';
+const preview = (b) => {
+  const first = b.cats.flatMap((c) => c.heroes)[0];
+  return `<div class="pv">${first ? `<img class="glow" src="${thumb(first)}" alt="">` : ''}<div class="pv-in" style="--dz:.42; transform:${TILT}">${layout(b.cats).map(card).join('')}</div></div>`;
+};
+
+/* ---------- Shared bits ---------- */
+const nav = `<div class="nav"><div class="bar"></div><div class="nav-row">
+  <span class="logo"><img src="logo-assets/smarf-badge.svg" alt=""><b>Smarf</b></span>
+  <div class="nav-r"><span class="btn"><span class="bi">${icon('squaresPlus')}</span>New Board</span><span class="avatar"><span></span></span></div></div></div>`;
+const star = (b, size = 20) => `<button type="button" class="star${b.fav ? ' on' : ''}" data-star="${b.id}" title="${b.fav ? 'Unfavorite board' : 'Favorite board'}"><span class="ic">${b.fav ? icon('starSolid', size) : starOutline(size)}</span></button>`;
+const link = (b, inner = '') => `<a href="#b${b.id}" data-open="${b.id}">${inner}</a>`;
+
+/* ---------- Variations: shell renders once; fill re-renders the lists ---------- */
+const V = {
+  now: {
+    shell: () => `<div class="col"><h5 class="h5">Your Boards</h5><div data-slot="list"></div></div>`,
+    fill: (s, bs) => { s.list.innerHTML = sorted(bs).map((b) => `<div class="row" data-k="${b.id}">${link(b, `<h3>${esc(b.name)}</h3><span class="ago">${b.ago}</span>`)}${star(b, 24)}</div>`).join(''); }
+  },
+  a: {
+    shell: () => `<div class="col"><div class="sec" data-slot="favs"></div><div class="sec" data-slot="rest"></div></div>`,
+    fill: (s, bs) => {
+      const all = sorted(bs), favs = all.filter((b) => b.fav), rest = all.filter((b) => !b.fav);
+      const row = (b) => `<div class="ar" data-k="${b.id}">${link(b, `<span><span class="nm">${esc(b.name)}</span><span class="meta" style="display:block">${meta(b)}</span></span><span class="ago">${b.ago}</span>`)}${star(b)}</div>`;
+      s.favs.innerHTML = `<h5 class="h5">Favorites <span class="ct">${favs.length}</span></h5><div class="list">${favs.length ? favs.map(row).join('') : `<div class="hint">${starOutline(16)}Star a board to keep it up here.</div>`}</div>`;
+      s.rest.innerHTML = rest.length ? `<h5 class="h5">Your Boards <span class="ct">${rest.length}</span></h5><div class="list">${rest.map(row).join('')}</div>` : '';
+    }
+  },
+  b: {
+    shell: () => `<h5 class="h5">Your Boards</h5><div class="grid3" data-slot="grid"></div>`,
+    fill: (s, bs) => {
+      s.grid.innerHTML = sorted(bs).map((b) => `<div class="bc" data-k="${b.id}">${link(b, `${preview(b)}<span class="bc-name">${esc(b.name)}</span><span class="bc-meta">${meta(b)} · ${b.ago}</span>`)}${star(b)}</div>`).join('') +
+        `<a href="#new" class="bc new">${icon('squaresPlus')}New Board</a>`;
+    }
+  },
+  c: {
+    shell: () => `<div class="sec" data-slot="favs"></div><div class="sec" data-slot="rest"></div>`,
+    fill: (s, bs) => {
+      const all = sorted(bs), favs = all.filter((b) => b.fav), rest = all.filter((b) => !b.fav);
+      const strip = (b) => {
+        let left = 14;
+        const groups = b.cats.map((c) => { const hs = c.heroes.slice(0, Math.max(0, left)); left -= hs.length; return hs.length ? `<div class="grp" title="${esc(c.name)}">${hs.map((h) => `<img src="${thumb(h)}" alt="" loading="lazy">`).join('')}</div>` : ''; }).join('');
+        return `<div class="strip">${groups || '<span class="none">No heroes yet</span>'}</div>`;
+      };
+      const row = (b) => `<div class="cr" data-k="${b.id}">${link(b)}<div><div class="cr-name">${esc(b.name)}</div><div class="cr-meta">${meta(b)}</div></div>${strip(b)}<div class="cr-ago">${b.ago}</div>${star(b)}</div>`;
+      s.favs.innerHTML = favs.length ? `<h5 class="h5">Favorites</h5>${favs.map(row).join('')}` : '';
+      s.rest.innerHTML = rest.length ? `<h5 class="h5">${favs.length ? 'Everything else' : 'Your Boards'}</h5>${rest.map(row).join('')}` : '';
+    }
+  },
+  d: {
+    shell: () => `<h5 class="h5">Favorites</h5><div data-slot="shelf"></div>
+      <div class="tbar"><h5 class="h5">Your Boards <span class="ct" data-slot="count"></span></h5>
+        <label class="search">${icon('search', 16)}<input type="search" placeholder="Search boards" data-q></label>
+        <div class="seg" role="group" aria-label="Sort by">${['Recent', 'Name', 'Heroes'].map((l, i) => `<button type="button" data-sort="${l}" aria-pressed="${i === 0}">${l}</button>`).join('')}</div></div>
+      <div class="tbl"><div class="th"><span>Name</span><span class="r">Categories</span><span class="r">Heroes</span><span>Edited</span><span></span></div><div data-slot="tbody"></div></div>`,
+    fill: (s, bs, st) => {
+      const favs = sorted(bs).filter((b) => b.fav);
+      s.shelf.innerHTML = favs.length
+        ? `<div class="grid3">${favs.map((b) => `<div class="bc" data-k="s${b.id}">${link(b, `${preview(b)}<span class="bc-name">${esc(b.name)}</span><span class="bc-meta">${meta(b)} · ${b.ago}</span>`)}${star(b)}</div>`).join('')}</div>`
+        : `<div class="shelf-empty">${starOutline(16)}Star a board to put it on this shelf.</div>`;
+      const q = (st.q || '').trim().toLowerCase();
+      const by = { Recent: (a, b) => a.min - b.min, Name: (a, b) => a.name.localeCompare(b.name), Heroes: (a, b) => b.heroes - a.heroes }[st.sort || 'Recent'];
+      const rest = bs.filter((b) => !b.fav && (!q || b.name.toLowerCase().includes(q))).toSorted(by);
+      s.count.textContent = bs.filter((b) => !b.fav).length;
+      s.tbody.innerHTML = rest.length
+        ? rest.map((b) => `<div class="tr" data-k="t${b.id}">${link(b)}<span class="nm">${esc(b.name)}</span><span class="num r">${b.cats.length}</span><span class="num r">${b.heroes}</span><span class="ago">${b.ago}</span>${star(b)}</div>`).join('')
+        : `<div class="tbody-empty">${q ? `No boards match “${esc(st.q)}”.` : 'Every board is a favorite.'}</div>`;
+    }
+  }
+};
+
+/* ---------- One canvas ---------- */
+class Canvas {
+  constructor(app, v) {
+    this.v = V[v]; this.app = app; this.st = { n: 12 };
+    this.boards = structuredClone(BOARDS);
+    app.className = `app ${v === 'now' ? 'now' : 'v' + v}`;
+    app.innerHTML = `<div class="page">${nav}<div class="cont">${this.v.shell()}</div></div>`;
+    this.slots = Object.fromEntries([...app.querySelectorAll('[data-slot]')].map((el) => [el.dataset.slot, el]));
+    app.addEventListener('click', (e) => {
+      const st = e.target.closest('[data-star]'), a = e.target.closest('a'), so = e.target.closest('[data-sort]');
+      if (a) e.preventDefault();
+      if (st) this.toggle(+st.dataset.star);
+      if (so) { this.st.sort = so.dataset.sort; app.querySelectorAll('[data-sort]').forEach((b) => b.setAttribute('aria-pressed', String(b === so))); this.render(true); }
+    });
+    const q = app.querySelector('[data-q]');
+    if (q) q.addEventListener('input', () => { this.st.q = q.value; this.render(false); });
+    this.render(false);
+  }
+  shown() { const ids = SETS[this.st.n]; return this.boards.filter((b) => ids.includes(b.id)); }
+  render(animate, popId) {
+    const before = animate ? new Map([...this.app.querySelectorAll('[data-k]')].map((el) => [el.dataset.k, el.getBoundingClientRect()])) : null;
+    this.v.fill(this.slots, this.shown(), this.st);
+    if (popId) this.app.querySelectorAll(`[data-star="${popId}"]`).forEach((s) => { if (s.classList.contains('on')) s.classList.add('pop'); });
+    if (!before) return;
+    // Rows slide to their new places (FavoriteIcon's pop first), as BoardListItem's layout animation does
+    this.app.querySelectorAll('[data-k]').forEach((el) => {
+      const b = before.get(el.dataset.k), a = el.getBoundingClientRect();
+      if (!b) { el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 280, delay: 150, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'backwards' }); return; }
+      const dx = b.left - a.left, dy = b.top - a.top;
+      if (!dx && !dy) return;
+      if (el.dataset.k.endsWith(popId)) el.style.zIndex = 2;
+      el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }], { duration: 300, delay: 150, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' })
+        .finished.then(() => { el.style.zIndex = ''; }).catch(() => {});
+    });
+  }
+  toggle(id) {
+    const b = this.boards.find((x) => x.id === id);
+    b.fav = b.fav ? 0 : Math.max(0, ...this.boards.map((x) => x.fav || 0)) + 1;
+    this.render(true, String(id));
+  }
+  setCount(n) { this.st.n = n; this.render(false); }
+}
+
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const states = document.createElement('div'); states.className = 'states';
+  states.innerHTML = '<span>Boards</span>' + [3, 12].map((n) => `<button type="button" data-n="${n}" aria-pressed="${n === 12}">${n} boards</button>`).join('') +
+    '<span class="sp">Live: hover, star to re-sort</span>';
+  const frame = document.createElement('div'); frame.className = 'frame';
+  const app = document.createElement('div'); frame.appendChild(app);
+  const notes = sec.querySelector('.notes');
+  sec.insertBefore(states, notes); sec.insertBefore(frame, notes);
+  const c = new Canvas(app, sec.dataset.v);
+  states.querySelectorAll('[data-n]').forEach((b) => b.addEventListener('click', () => {
+    states.querySelectorAll('[data-n]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    c.setCount(+b.dataset.n);
+  }));
+});
+
+/* Pick menus (built from each canvas's id, name, and FILE) */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      const em = document.createElement('em');
+      if (ok) { const c = document.createElement('code'); c.textContent = text; em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* Minimap */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
