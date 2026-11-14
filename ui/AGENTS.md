@@ -33,7 +33,7 @@ src/
 ├── components/   shared UI primitives (button/, input/, popover/, page-title/, ...)
 ├── contexts/     auth-user (current user, logout), board-list (layout constants and math), query (QueryProvider)
 ├── hooks/        generic hooks (use-debounced-effect.ts, use-delayed-state.ts, ...)
-├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie), discord.ts (Discord sign-in link and state)
+├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie), discord.ts (Discord sign-in link and state), blur-swap.ts (classes for two states swapping in place)
 ├── queries/      React Query hooks (queries and mutations) used by more than one route, a folder per domain (auth/, boards/, heroes/)
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId); a route's own hooks go in its queries/ and mutations/
 ├── types/        API and board-operation types
