@@ -6,7 +6,10 @@ import { type Board, type Category, type ID } from '~/src/types/api'
 import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING } from '~/src/contexts/board-list/constants'
 import { getCategoryHeight, getLowestCategoryBottom } from '~/src/contexts/board-list/utils'
 
-/** An empty "Untitled" category under the board's lowest one, with a temporary id until the server saves it. */
+/**
+ * An empty "Untitled" category under the board's lowest one (or at the top of an empty board), with a temporary id
+ * until the server saves it.
+ */
 const newCategory = (board: Board): Category => {
   const now = new Date().toISOString()
 
@@ -15,7 +18,7 @@ const newCategory = (board: Board): Category => {
     name: 'Untitled',
     heroes: [],
     x_position: 0,
-    y_position: getLowestCategoryBottom(board) + CATEGORY_SPACING,
+    y_position: board.categories.length ? getLowestCategoryBottom(board) + CATEGORY_SPACING : 0,
     width: CATEGORY_BODY_INITIAL_WIDTH,
     height: getCategoryHeight({ categoryWidth: CATEGORY_BODY_INITIAL_WIDTH, heroCount: 0 }),
     created_at: now,

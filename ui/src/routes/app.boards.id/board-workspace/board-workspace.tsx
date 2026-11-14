@@ -150,10 +150,7 @@ const BoardWorkspace: React.FC = () => {
 
   // Provide enough space so users are able to move around the workspace freely.
   // We're not able to achieve this via css because of how we position categories (via `position: relative`).
-  const workspaceHeight = useMemo(() => {
-    if (!board.categories.length) return BOARD_WORKSPACE_ALLOWANCE
-    return getLowestCategoryBottom(board) + BOARD_WORKSPACE_ALLOWANCE
-  }, [board])
+  const workspaceHeight = useMemo(() => getLowestCategoryBottom(board) + BOARD_WORKSPACE_ALLOWANCE, [board])
 
   return (
     // Clips the dots sideways, so they reach the window's edges without a horizontal scrollbar.

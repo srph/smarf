@@ -31,12 +31,9 @@ export const getCategoryBottom = (category: Category): number => {
   return category.y_position + category.height
 }
 
+/** The bottom edge of the board's lowest category, or 0 for a board with no categories. */
 export const getLowestCategoryBottom = (board: Board): number => {
-  const lowestCategory = board.categories.toSorted((a, b) => {
-    return getCategoryBottom(b) - getCategoryBottom(a)
-  })[0]
-
-  return getCategoryBottom(lowestCategory)
+  return Math.max(0, ...board.categories.map(getCategoryBottom))
 }
 
 /**

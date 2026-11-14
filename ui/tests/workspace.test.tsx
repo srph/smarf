@@ -144,6 +144,16 @@ describe('board workspace', () => {
     await waitFor(() => expect(db.categories.map((c) => c.name)).toContain('Untitled'))
   })
 
+  it('adds the first category to an empty board, at the top', async () => {
+    const empty = seedBoard('Empty', [])
+    const { user } = renderApp(`/b/${empty.id}`)
+
+    await user.click(await screen.findByRole('button', { name: 'New category' }))
+
+    expect(await findCategory('Untitled')).toBeInTheDocument()
+    await waitFor(() => expect(db.categories.find((c) => c.name === 'Untitled')?.y_position).toBe(0))
+  })
+
   it('renames a category', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
