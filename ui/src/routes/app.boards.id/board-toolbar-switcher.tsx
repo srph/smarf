@@ -143,14 +143,32 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
   const favorites = boardsStatus === 'success' ? boards.filter((b) => b.is_favorite && matches(b)) : []
   const others = boardsStatus === 'success' ? boards.filter((b) => !b.is_favorite && matches(b)) : []
 
+  // A text field always matches :focus-visible, so the search ring tracks it itself: it shows only when Tab or the
+  // arrows bring focus back to the field, not when the menu opens or the field is clicked.
+  const viaKeyboard = useRef(false)
+  const [searchRing, setSearchRing] = useState(false)
+
   return (
-    <>
-      <label className="mb-1 flex h-9 items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 text-zinc-500 has-focus-visible:border-sky-400 has-focus-visible:ring-focus-field">
+    <div
+      className="contents"
+      onKeyDownCapture={(evt) => {
+        if (evt.key === 'Tab' || evt.key === 'ArrowUp' || evt.key === 'ArrowDown') viaKeyboard.current = true
+      }}
+      onPointerDownCapture={() => {
+        viaKeyboard.current = false
+      }}>
+      <label
+        className={cn(
+          'mb-1 flex h-9 items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 text-zinc-500',
+          searchRing && 'border-primary-400 ring-2 ring-primary-400/35 ring-offset-2 ring-offset-(--focus-gap)'
+        )}>
         <Icon icon={MagnifyingGlassIcon} size={16} />
         <input
           ref={searchRef}
           data-row
           value={query}
+          onFocus={() => setSearchRing(viaKeyboard.current)}
+          onBlur={() => setSearchRing(false)}
           onChange={(evt) => setQuery(evt.target.value)}
           placeholder="Find a board…"
           aria-label="Find a board"
@@ -196,7 +214,7 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
         <Icon icon={PlusIcon} size={16} />
         New board
       </button>
-    </>
+    </div>
   )
 }
 
