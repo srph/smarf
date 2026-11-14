@@ -176,15 +176,12 @@
   background-image: linear-gradient(180deg, #64646d 0%, #48484f 44%, #36363c 56%, #4b4b53 100%);
 }
 
-/* The same metal in dark red: Hold to delete's fill. Two steps darker than red-500, so it sits close to the graphite. */
+/*
+  The same metal in dark red: Hold to delete's fill, red-600 to red-800 so it sits close to the graphite. In sRGB hex,
+  like the graphite: Tailwind's oklch reds reach past sRGB and turn far more vivid on wide-gamut (P3) screens.
+*/
 @utility bg-red-metal {
-  background-image: linear-gradient(
-    180deg,
-    var(--color-red-600) 0%,
-    var(--color-red-700) 42%,
-    var(--color-red-800) 58%,
-    var(--color-red-700) 100%
-  );
+  background-image: linear-gradient(180deg, #e7000b 0%, #c10007 42%, #9f0712 58%, #c10007 100%);
 }
 
 /*

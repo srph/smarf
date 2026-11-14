@@ -142,7 +142,7 @@ describe('board workspace', () => {
     await user.click(await screen.findByRole('button', { name: 'More board actions' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Delete board…' }))
 
-    expect(await screen.findByRole('heading', { name: 'Delete “Empty”' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Delete Empty' })).toBeInTheDocument()
     expect(screen.getByText('This permanently deletes it. Nothing’s on it yet.')).toBeInTheDocument()
   })
 

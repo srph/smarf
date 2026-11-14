@@ -82,9 +82,9 @@ const BoardToolbarDeletePanel: React.FC<Props> = ({ onClose }) => {
   return (
     <div className="p-4">
       <div className="mb-2 flex items-center gap-2">
-        {/* The verb is quiet so the name carries the title. */}
+        {/* The verb is light so the name carries the title. Needs Interstate Light in the Adobe Fonts kit; until then it falls back to 500. */}
         <h2 className="min-w-0 flex-1 leading-tight font-bold break-words">
-          <span className="font-normal">Delete</span> “{board.name}”
+          <span className="font-light">Delete</span> {board.name}
         </h2>
         <BoardToolbarPanelClose onClick={onClose} />
       </div>
