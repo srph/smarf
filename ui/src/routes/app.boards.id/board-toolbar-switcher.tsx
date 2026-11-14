@@ -143,8 +143,8 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
   const favorites = boardsStatus === 'success' ? boards.filter((b) => b.is_favorite && matches(b)) : []
   const others = boardsStatus === 'success' ? boards.filter((b) => !b.is_favorite && matches(b)) : []
 
-  // A text field always matches :focus-visible, so the search ring tracks it itself: it shows only when Tab or the
-  // arrows bring focus back to the field, not when the menu opens or the field is clicked.
+  // Any focus turns the search border primary. The ring is for keyboard focus only, but a text field always matches
+  // :focus-visible, so the list tracks it: Tab or the arrows bringing focus to the field show it; opening or clicking don't.
   const viaKeyboard = useRef(false)
   const [searchRing, setSearchRing] = useState(false)
 
@@ -159,8 +159,8 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
       }}>
       <label
         className={cn(
-          'mb-1 flex h-9 items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 text-zinc-500',
-          searchRing && 'border-primary-400 ring-2 ring-primary-400/35 ring-offset-2 ring-offset-(--focus-gap)'
+          'mb-1 flex h-9 items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 text-zinc-500 transition-colors duration-150 has-focus:border-primary-400',
+          searchRing && 'ring-2 ring-primary-400/35 ring-offset-2 ring-offset-(--focus-gap)'
         )}>
         <Icon icon={MagnifyingGlassIcon} size={16} />
         <input
