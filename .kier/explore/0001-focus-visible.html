@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Focus Visible</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css" />
+<style>
+/* ───────── Page chrome (neutral) ───────── */
+:root {
+  --ink: #1c1c1e; --ink-2: #5b5b60; --ink-3: #8e8e93; --line: #e2e2e0; --paper: #f6f6f3; --card: #fff;
+  --good: #1f8a4c; --bad: #c2410c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+main { max-width: 1240px; margin: 0 auto; padding: 56px 32px 96px 72px; }
+.brief h1 { font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; max-width: 900px; }
+.goals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 56px; }
+.goal { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink-2); }
+.goal b { display: block; color: var(--ink); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.variation { margin-bottom: 64px; scroll-margin-top: 24px; }
+.vhead { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: relative; }
+.vid { font-weight: 800; font-size: 13px; background: var(--ink); color: #fff; border-radius: 6px; padding: 2px 8px; }
+.vname { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.vhead .spacer { flex: 1; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
+.seg button { border: 0; background: none; font: inherit; font-size: 12px; padding: 5px 10px; cursor: pointer; color: var(--ink-2); }
+.seg button[aria-pressed=true] { background: var(--ink); color: #fff; }
+.pick { border: 1px solid var(--line); background: var(--card); border-radius: 8px; font: inherit; font-size: 12px; font-weight: 600; padding: 5px 12px; cursor: pointer; color: var(--ink); }
+.pick:hover { background: #efefec; }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: 300px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,.12); padding: 6px; }
+.menu[hidden] { display: none; }
+.menu button { display: block; width: 100%; text-align: left; border: 0; background: none; font: inherit; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+.menu button:hover, .menu button:focus-visible { background: #f1f1ee; }
+.menu button b { display: block; font-size: 13px; }
+.menu button span { font-size: 12px; color: var(--ink-3); }
+.copied { margin: -4px 0 12px; font-size: 12px; color: var(--ink-2); display: flex; gap: 8px; align-items: center; }
+.copied[hidden] { display: none; }
+.copied code, .copied input { font: 12px ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; flex: 1; color: var(--ink); }
+.copied em { font-style: normal; font-weight: 700; color: var(--good); }
+.pick:focus-visible, .seg button:focus-visible, .menu button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.canvas { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #18181b; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.notes { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.note { flex: 1 1 220px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+.note.good { border-left-color: var(--good); }
+.note.bad { border-left-color: var(--bad); }
+.note i { font-style: normal; font-weight: 700; margin-right: 6px; }
+.note.good i { color: var(--good); } .note.bad i { color: var(--bad); }
+.further h2 { font-size: 22px; margin: 0 0 12px; }
+.further .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.further .cards div { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink-2); }
+.further .cards b { display: block; color: var(--ink); margin-bottom: 2px; }
+.minimap { position: fixed; left: 18px; top: 50%; transform: translateY(-50%); z-index: 30; display: flex; flex-direction: column; gap: 2px; padding: 8px; border-radius: 10px; }
+.minimap button { display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 5px 4px; cursor: pointer; font: inherit; font-size: 12px; color: var(--ink-2); text-align: left; }
+.minimap .ln { width: 14px; height: 2px; border-radius: 2px; background: #c9c9c5; transition: width .2s, background .2s; flex: none; }
+.minimap button.on .ln { width: 24px; background: var(--ink); }
+.minimap .lb { display: none; white-space: nowrap; }
+.minimap:hover { background: var(--card); box-shadow: 0 8px 24px rgba(0,0,0,.1); border: 1px solid var(--line); }
+.minimap:hover .lb { display: inline; }
+.minimap button.on .lb { color: var(--ink); font-weight: 600; }
+
+/* ───────── Mockup: Smarf's look ───────── */
+.app {
+  --z50:#fafafa; --z200:#e4e4e7; --z300:#d4d4d8; --z400:#a1a1aa; --z500:#71717a; --z600:#52525b; --z700:#3f3f46; --z800:#27272a; --z900:#18181b; --z950:#09090b;
+  --sky:#0ea5e9; --sky4:#38bdf8; --red:#ef4444; --red6:#dc2626; --red4:#f87171;
+  --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p700: oklch(45.7% 0.24 277.023); --p800: oklch(39.8% 0.195 277.366); --p900: oklch(35.9% 0.144 278.697); --p950: oklch(25.7% 0.09 281.288);
+  font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: var(--z50); background: var(--z900);
+  padding: 28px; display: grid; gap: 28px;
+}
+.app * { box-sizing: border-box; }
+/* Resets sit in :where() so any component class beats them. */
+:where(.app) :where(button, input) { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; }
+:where(.app) :where(button, a, [tabindex]) { cursor: pointer; }
+:where(.app) :where(a) { color: inherit; text-decoration: none; }
+:where(.app) :where(svg) { display: block; }
+.zl { font: 600 11px/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--z500); margin-bottom: 12px; }
+
+/* Navigation + home */
+.nav { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--z800); padding: 0 0 20px; margin-bottom: 24px; position: relative; }
+.logo { display: inline-flex; align-items: center; gap: 12px; border-radius: 8px; }
+.badge { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; border: 1px solid color-mix(in oklch, var(--p200) 40%, transparent); background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: inset 0 1px 1px rgba(255,255,255,.5); filter: drop-shadow(0 0 12px oklch(58.5% 0.233 277.117 / .6)); font-weight: 900; font-size: 18px; color: #fff; }
+.word { font-weight: 900; font-size: 20px; letter-spacing: .025em; padding-top: 4px; }
+.navr { display: flex; align-items: center; gap: 24px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; border-radius: 4px; padding: 8px 12px 8px 8px; font-weight: 700; font-size: 14px; transition: box-shadow .2s; }
+.btn.primary { background: var(--p500); }
+.btn.primary .ic { color: var(--p200); }
+.btn.danger { background: var(--red); padding: 8px 12px; }
+.btn.clear { border: 1px solid var(--z700); padding: 8px 12px; }
+.avatar { border-radius: 999px; border: 2px solid var(--z700); padding: 6px; display: block; }
+.av { display: block; width: 40px; height: 40px; border-radius: 999px; background: radial-gradient(circle at 35% 30%, #fde68a, #f97316 45%, #7c2d12); }
+.list { display: grid; gap: 16px; max-width: 760px; }
+.brow { display: flex; align-items: center; background: var(--z700); border-radius: 4px; box-shadow: 0 0 0 2px transparent; transition: box-shadow .2s; }
+.blink { display: flex; flex: 1; align-items: center; justify-content: space-between; padding: 16px 0 16px 16px; border-radius: 4px; }
+.blink h3 { margin: 18px 0; font-size: 18px; font-weight: 500; }
+.blink span { font-size: 12px; color: var(--z400); }
+.star { padding: 16px; color: var(--z400); border-radius: 4px; }
+.star.on { color: #eab308; }
+.btnrow { display: flex; gap: 16px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+.discord { display: inline-flex; align-items: center; gap: 8px; background: var(--p500); border-radius: 4px; padding: 12px 16px; font-weight: 700; font-size: 16px; width: 300px; justify-content: center; }
+
+/* Board */
+.ws { background: var(--z950); border-radius: 10px; padding: 28px; display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px); background-size: 16px 16px; }
+.cat { border-radius: 12px; background: rgba(39,39,42,.8); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 1px rgba(0,0,0,.5), 0 10px 15px -3px rgba(0,0,0,.3); }
+.cat.confirming { box-shadow: inset 0 0 0 1px rgba(239,68,68,.3), 0 0 0 1px rgba(0,0,0,.5); }
+.cath { height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 8px; position: relative; }
+.grip { color: var(--z600); }
+.title { field-sizing: content; min-width: 1ch; border-radius: 6px; padding: 2px 6px; margin: 0 -6px; font-weight: 600; outline: none; }
+.title:hover { background: rgba(255,255,255,.05); }
+.trash { margin-left: auto; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+.tray { display: flex; flex-wrap: wrap; padding: 3px; border-radius: 8px 8px 12px 12px; border: 1px solid rgba(255,255,255,.08); background: var(--z900); width: 448px; }
+.hero { padding: 4px; border-radius: 4px; }
+.portrait { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; position: relative; }
+.portrait::after { content: attr(data-n); position: absolute; left: 6px; bottom: 3px; font-size: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.8); }
+.p1 { background: radial-gradient(circle at 60% 35%, #e0f2fe, #38bdf8 35%, #0c4a6e 80%); }
+.p2 { background: radial-gradient(circle at 40% 40%, #fecaca, #b91c1c 45%, #3f0d0d 85%); }
+.p3 { background: radial-gradient(circle at 55% 30%, #d9f99d, #4d7c0f 50%, #1a2e05 90%); }
+.p4 { background: radial-gradient(circle at 50% 30%, #f5d0fe, #a21caf 45%, #2e0636 90%); }
+.p5 { background: radial-gradient(circle at 50% 40%, #fef3c7, #d97706 45%, #451a03 90%); }
+.p6 { background: linear-gradient(160deg, #f8fafc, #94a3b8 50%, #1e293b); }
+.addw { padding: 4px; }
+.add { width: 80px; height: 45px; border-radius: 4px; border: 2px dashed var(--z500); background: var(--z700); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: .025em; }
+.add .ic { color: var(--z500); }
+.confirmbar { position: absolute; inset: 0; display: flex; align-items: center; gap: 6px; padding: 0 6px 0 10px; background: rgba(69,10,10,.85); border-radius: 12px 12px 0 0; font-size: 12px; }
+.confirmbar span { margin-right: auto; color: #fecaca; font-weight: 600; }
+.mini { height: 24px; border-radius: 6px; padding: 0 8px; font-size: 12px; font-weight: 700; background: var(--z700); color: var(--z200); }
+.mini.del { background: var(--red6); color: #fff; }
+.dockwrap { display: flex; align-items: flex-end; gap: 8px; width: 100%; justify-content: center; margin-top: 8px; }
+.dock { display: flex; align-items: center; height: 44px; padding: 0 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.6); box-shadow: 0 25px 50px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05); backdrop-filter: blur(16px) saturate(1.5); }
+.sw { display: flex; align-items: center; height: 36px; border-radius: 8px; padding: 0 6px 0 12px; font-weight: 600; }
+.sw .dot { width: 8px; height: 8px; border-radius: 99px; background: #22c55e; margin-right: 8px; }
+.sw .ch { margin-left: 12px; color: var(--z500); }
+.ib { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+.ib:hover { background: rgba(255,255,255,.09); color: var(--z50); }
+.metal { display: flex; align-items: center; gap: 8px; height: 46px; border-radius: 12px; padding: 0 20px 0 16px; font-weight: 700; color: #fff; border: 1px solid color-mix(in oklch, var(--p200) 40%, transparent); background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: inset 0 1px 1px rgba(255,255,255,.5), 0 10px 15px -3px color-mix(in oklch, var(--p500) 45%, transparent); text-shadow: 0 1px 1px color-mix(in oklch, var(--p950) 50%, transparent); }
+
+/* Popovers */
+.pops { display: grid; grid-template-columns: 336px 224px 1fr; gap: 28px; align-items: start; }
+.pop { border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.95); padding: 6px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.7); }
+.field { display: flex; height: 36px; align-items: center; gap: 8px; border-radius: 8px; border: 1px solid var(--z700); background: var(--z900); padding: 0 10px; color: var(--z500); margin-bottom: 4px; }
+.field input { flex: 1; min-width: 0; height: 100%; outline: none; color: var(--z50); }
+.field input::placeholder { color: var(--z500); }
+.sec { padding: 8px 10px 4px; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--z500); }
+.row { display: flex; width: 100%; height: 36px; align-items: center; gap: 10px; border-radius: 8px; padding: 0 10px; text-align: left; color: var(--z200); outline: none; }
+.row:hover { background: rgba(255,255,255,.06); }
+.row .ck { width: 14px; color: var(--sky); }
+.row .nm { flex: 1; }
+.row .ct { font-size: 12px; color: var(--z500); }
+.row.cur { background: rgba(14,165,233,.12); }
+.row.new { color: var(--p300); font-weight: 600; }
+.sep { margin: 4px; border-top: 1px solid rgba(255,255,255,.08); }
+.mi { display: flex; align-items: center; gap: 10px; height: 36px; border-radius: 8px; padding: 0 8px 0 10px; color: var(--z200); outline: none; }
+.mi .ic { color: var(--z400); }
+.mi.danger, .mi.danger .ic { color: var(--red4); }
+.mi:hover { background: rgba(255,255,255,.07); }
+.mi.danger:hover { background: rgba(239,68,68,.14); }
+.picker { border-radius: 4px; border: 1px solid var(--z700); background: var(--z900); position: relative; margin-top: 24px; }
+.close { position: absolute; top: -28px; right: 0; color: var(--z500); border-radius: 4px; }
+.phead { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--z700); font-weight: 700; }
+.search { display: flex; border-radius: 4px; border: 1px solid var(--z700); background: var(--z900); }
+.search input { padding: 6px 8px; width: 150px; outline: none; font-weight: 400; }
+.search .ic { padding: 0 8px; display: grid; place-items: center; color: var(--z400); }
+.pgrid { display: flex; flex-wrap: wrap; padding: 12px; gap: 0; }
+.pk { padding: 4px; }
+.pick-t { display: block; width: 64px; border-radius: 4px; border: 2px solid transparent; }
+.pick-t .portrait { width: 100%; height: 34px; border-radius: 2px; }
+.pick-t .portrait::after { display: none; }
+.rename { padding: 16px; margin-top: 12px; }
+.rename h2 { font-size: 14px; margin: 0 0 12px; }
+.rinput { display: block; width: 100%; height: 40px; border-radius: 8px; border: 1px solid var(--z700); background: var(--z900); padding: 0 12px; font-weight: 600; outline: none; }
+.racts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.ghost { height: 36px; border-radius: 8px; padding: 0 14px; font-weight: 700; color: var(--z300); }
+.ghost:hover { background: rgba(255,255,255,.08); }
+.metal.md { height: 36px; border-radius: 8px; padding: 0 12px; }
+
+/* ─── Shared hover (unchanged across variations) ─── */
+.app .btn:hover { box-shadow: 0 0 0 2px var(--sky); }
+.app .brow:hover { box-shadow: 0 0 0 2px var(--sky); }
+.app .search:hover { box-shadow: 0 0 0 2px var(--sky); }
+.app .hero:hover .portrait { box-shadow: 0 0 0 2px var(--sky); }
+.app .pick-t:hover { border-color: var(--sky); }
+.app .discord:hover { box-shadow: 0 0 0 2px var(--sky); }
+.app .mini:hover { filter: brightness(1.15); }
+
+/* ───────── Focus treatments ─────────
+   .fz = frozen focus (the "All focused" toggle). Each variation styles :focus-visible (or :focus, for Now) and .fz alike. */
+.app :focus { outline: none; }
+
+/* Now: the codebase today. Some use :focus (shows on click), some :focus-visible, some nothing (Chrome's default ring). */
+.v-now .default:is(:focus-visible, .fz) { outline: 1px auto -webkit-focus-ring-color; outline: 2px solid #3b82f6; outline-offset: 1px; }
+@supports (outline: auto) { .v-now .default:is(:focus-visible, .fz) { outline: auto; outline-offset: 0; } }
+.v-now .btn:is(:focus, .fz), .v-now .discord:is(:focus, .fz) { box-shadow: 0 0 0 2px var(--sky); }
+.v-now .search:is(:focus-within, :has(.fz)) { box-shadow: 0 0 0 2px var(--sky); }
+.v-now .field:is(:focus-within, :has(.fz)) { border-color: var(--sky); }
+.v-now .rinput { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,.2); }
+.v-now .title:is(:focus, .fz) { background: var(--z900); box-shadow: 0 0 0 2px var(--sky); }
+.v-now .pick-t:is(:focus, .fz) { border-color: var(--sky); }
+.v-now :is(.ib, .sw, .ghost):is(:focus-visible, .fz) { outline: 2px solid var(--sky); }
+.v-now .metal:is(:focus-visible, .fz) { outline: 2px solid var(--sky); outline-offset: 2px; }
+.v-now .mini:is(:focus-visible, .fz) { box-shadow: 0 0 0 2px var(--sky); }
+.v-now .row:is(:focus-visible, .fz) { background: rgba(255,255,255,.06); }
+.v-now .row.cur:is(:focus-visible, .fz) { background: rgba(14,165,233,.16); }
+.v-now .mi:is(:focus-visible, .fz) { background: rgba(255,255,255,.07); }
+.v-now .mi.danger:is(:focus-visible, .fz) { background: rgba(239,68,68,.14); }
+
+/* A: one sky outline everywhere, 2px off the edge. Inside lists and trays it sits on the edge (offset 0) instead. */
+.v-a .f:is(:focus-visible, .fz) { outline: 2px solid var(--sky); outline-offset: 2px; }
+.v-a :is(.row, .mi, .hero, .pick-t, .title):is(:focus-visible, .fz) { outline-offset: 0; }
+.v-a .hero:is(:focus-visible, .fz) { outline: none; }
+.v-a .hero:is(:focus-visible, .fz) .portrait { outline: 2px solid var(--sky); outline-offset: 2px; }
+.v-a .row:is(:focus-visible, .fz) { background: rgba(255,255,255,.06); }
+.v-a .row.cur:is(:focus-visible, .fz) { background: rgba(14,165,233,.16); }
+.v-a .mi:is(:focus-visible, .fz) { background: rgba(255,255,255,.07); }
+.v-a .mi.danger:is(:focus-visible, .fz) { background: rgba(239,68,68,.14); outline-color: var(--red); }
+.v-a .mini.del:is(:focus-visible, .fz), .v-a .btn.danger:is(:focus-visible, .fz) { outline-color: var(--red); }
+.v-a :is(.field, .search):has(input:is(:focus-visible, .fz)), .v-a .rinput:is(:focus-visible, .fz) { outline: none; border-color: var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,.2); }
+.v-a .title:is(:focus-visible, .fz) { background: var(--z900); }
+.v-a :is(.field, .search) input:is(:focus-visible, .fz) { outline: none; }
+
+/* B: a halo with a gap: a 2px ring in the surface colour, then 2px of sky. Follows every radius. */
+.v-b { --gap: var(--z900); }
+.v-b .ws, .v-b .cat { --gap: var(--z950); }
+.v-b .pop, .v-b .dock { --gap: var(--z800); }
+.v-b .f:is(:focus-visible, .fz) { outline: none; box-shadow: 0 0 0 2px var(--gap), 0 0 0 4px var(--sky4); }
+.v-b .hero:is(:focus-visible, .fz) { box-shadow: none; }
+.v-b .hero:is(:focus-visible, .fz) .portrait { box-shadow: 0 0 0 2px var(--z900), 0 0 0 4px var(--sky4); }
+.v-b :is(.row, .mi):is(:focus-visible, .fz) { box-shadow: inset 0 0 0 2px var(--sky4); background: rgba(255,255,255,.06); }
+.v-b .row.cur:is(:focus-visible, .fz) { background: rgba(14,165,233,.16); }
+.v-b .mi.danger:is(:focus-visible, .fz) { box-shadow: inset 0 0 0 2px var(--red4); background: rgba(239,68,68,.14); }
+.v-b .pick-t:is(:focus-visible, .fz) { box-shadow: 0 0 0 2px var(--z900), 0 0 0 4px var(--sky4); }
+.v-b .mini.del:is(:focus-visible, .fz), .v-b .btn.danger:is(:focus-visible, .fz) { box-shadow: 0 0 0 2px var(--gap), 0 0 0 4px var(--red4); }
+.v-b .confirmbar { --gap: #2a0808; }
+.v-b :is(.field, .search):has(input:is(:focus-visible, .fz)), .v-b .rinput:is(:focus-visible, .fz) { border-color: var(--sky4); box-shadow: 0 0 0 2px var(--gap), 0 0 0 4px rgba(56,189,248,.35); }
+.v-b .search input:is(:focus-visible, .fz), .v-b .field input:is(:focus-visible, .fz) { box-shadow: none; }
+.v-b .title:is(:focus-visible, .fz) { background: var(--z900); }
+
+/* C: the brand's indigo, with the badge's soft glow behind the outline. */
+.v-c .f:is(:focus-visible, .fz) { outline: 2px solid var(--p300); outline-offset: 2px; box-shadow: 0 0 14px 2px oklch(58.5% 0.233 277.117 / .55); }
+.v-c .hero:is(:focus-visible, .fz) { outline: none; box-shadow: none; }
+.v-c .hero:is(:focus-visible, .fz) .portrait { outline: 2px solid var(--p300); outline-offset: 2px; box-shadow: 0 0 14px 2px oklch(58.5% 0.233 277.117 / .55); }
+.v-c :is(.row, .mi):is(:focus-visible, .fz) { outline: none; box-shadow: inset 2px 0 0 var(--p300); background: oklch(58.5% 0.233 277.117 / .16); }
+.v-c .row.cur:is(:focus-visible, .fz) { background: oklch(58.5% 0.233 277.117 / .22); }
+.v-c .mi.danger:is(:focus-visible, .fz) { box-shadow: inset 2px 0 0 var(--red4); background: rgba(239,68,68,.14); }
+.v-c .pick-t:is(:focus-visible, .fz), .v-c .title:is(:focus-visible, .fz) { outline-offset: 0; }
+.v-c .mini.del:is(:focus-visible, .fz), .v-c .btn.danger:is(:focus-visible, .fz) { outline-color: var(--red4); box-shadow: 0 0 14px 2px rgba(239,68,68,.45); }
+.v-c :is(.field, .search):has(input:is(:focus-visible, .fz)), .v-c .rinput:is(:focus-visible, .fz) { outline: none; border-color: var(--p400); box-shadow: 0 0 0 3px oklch(58.5% 0.233 277.117 / .3); }
+.v-c .search input:is(:focus-visible, .fz), .v-c .field input:is(:focus-visible, .fz) { outline: none; box-shadow: none; }
+.v-c .title:is(:focus-visible, .fz) { background: var(--z900); }
+
+/* A2: A, but 2px of dark indigo sitting right on the edge (no gap). --ring picks the shade (the canvas's shade toggle). */
+.v-a2 { --ring: var(--p600); --ring-danger: var(--red6); }
+.v-a2 .f:is(:focus-visible, .fz) { outline: 2px solid var(--ring); outline-offset: 0; }
+.v-a2 :is(.row, .mi, .pick-t):is(:focus-visible, .fz) { outline-offset: -2px; }
+.v-a2 .hero:is(:focus-visible, .fz) { outline: none; }
+.v-a2 .hero:is(:focus-visible, .fz) .portrait { outline: 2px solid var(--ring); outline-offset: 0; }
+.v-a2 .row:is(:focus-visible, .fz) { background: rgba(255,255,255,.06); }
+.v-a2 .row.cur:is(:focus-visible, .fz) { background: rgba(14,165,233,.16); }
+.v-a2 .mi:is(:focus-visible, .fz) { background: rgba(255,255,255,.07); }
+.v-a2 .mi.danger:is(:focus-visible, .fz) { background: rgba(239,68,68,.14); outline-color: var(--ring-danger); }
+.v-a2 .mini.del:is(:focus-visible, .fz), .v-a2 .btn.danger:is(:focus-visible, .fz) { outline-color: var(--ring-danger); }
+.v-a2 :is(.field, .search):has(input:is(:focus-visible, .fz)), .v-a2 .rinput:is(:focus-visible, .fz) { outline: none; border-color: var(--ring); box-shadow: inset 0 0 0 1px var(--ring); }
+.v-a2 :is(.field, .search) input:is(:focus-visible, .fz) { outline: none; }
+.v-a2 .title:is(:focus-visible, .fz) { background: var(--z900); }
+.v-a2 .blink:is(:focus-visible, .fz) { outline: none; }
+.v-a2 .brow:has(.blink:is(:focus-visible, .fz)) { outline: 2px solid var(--ring); outline-offset: 0; }
+
+/* A2b: A2 in the darkest steps of the scale (or indigo at partial opacity), so the ring sinks into the surface. */
+.v-a2b { --ring: var(--p900); --ring-danger: #7f1d1d; }
+.v-a2b .f:is(:focus-visible, .fz) { outline: 2px solid var(--ring); outline-offset: 0; }
+.v-a2b :is(.row, .mi, .pick-t):is(:focus-visible, .fz) { outline-offset: -2px; }
+.v-a2b .hero:is(:focus-visible, .fz) { outline: none; }
+.v-a2b .hero:is(:focus-visible, .fz) .portrait { outline: 2px solid var(--ring); outline-offset: 0; }
+.v-a2b .row:is(:focus-visible, .fz) { background: rgba(255,255,255,.06); }
+.v-a2b .row.cur:is(:focus-visible, .fz) { background: rgba(14,165,233,.16); }
+.v-a2b .mi:is(:focus-visible, .fz) { background: rgba(255,255,255,.07); }
+.v-a2b .mi.danger:is(:focus-visible, .fz) { background: rgba(239,68,68,.14); outline-color: var(--ring-danger); }
+.v-a2b .mini.del:is(:focus-visible, .fz), .v-a2b .btn.danger:is(:focus-visible, .fz) { outline-color: var(--ring-danger); }
+.v-a2b :is(.field, .search):has(input:is(:focus-visible, .fz)), .v-a2b .rinput:is(:focus-visible, .fz) { outline: none; border-color: var(--ring); box-shadow: inset 0 0 0 1px var(--ring); }
+.v-a2b :is(.field, .search) input:is(:focus-visible, .fz) { outline: none; }
+.v-a2b .title:is(:focus-visible, .fz) { background: var(--z900); }
+.v-a2b .blink:is(:focus-visible, .fz) { outline: none; }
+.v-a2b .brow:has(.blink:is(:focus-visible, .fz)) { outline: 2px solid var(--ring); outline-offset: 0; }
+
+/* A–C: a focused board link rings its whole row (star included), not just the link. */
+:is(.v-a, .v-b, .v-c) .blink:is(:focus-visible, .fz) { outline: none; box-shadow: none; }
+.v-a .brow:has(.blink:is(:focus-visible, .fz)) { outline: 2px solid var(--sky); outline-offset: 2px; }
+.v-b .brow:has(.blink:is(:focus-visible, .fz)) { box-shadow: 0 0 0 2px var(--z900), 0 0 0 4px var(--sky4); }
+.v-c .brow:has(.blink:is(:focus-visible, .fz)) { outline: 2px solid var(--p300); outline-offset: 2px; box-shadow: 0 0 14px 2px oklch(58.5% 0.233 277.117 / .55); }
+
+/* D: A's outline for controls; tiles and cards (heroes, picks, Add, board rows) get Dota-style corner brackets instead. */
+.v-d .f:is(:focus-visible, .fz) { outline: 2px solid var(--sky); outline-offset: 2px; }
+.v-d :is(.row, .mi, .title):is(:focus-visible, .fz) { outline-offset: 0; }
+.v-d .row:is(:focus-visible, .fz) { background: rgba(255,255,255,.06); }
+.v-d .row.cur:is(:focus-visible, .fz) { background: rgba(14,165,233,.16); }
+.v-d .mi:is(:focus-visible, .fz) { background: rgba(255,255,255,.07); }
+.v-d .mi.danger:is(:focus-visible, .fz) { background: rgba(239,68,68,.14); outline-color: var(--red); }
+.v-d .mini.del:is(:focus-visible, .fz), .v-d .btn.danger:is(:focus-visible, .fz) { outline-color: var(--red); }
+.v-d :is(.field, .search):has(input:is(:focus-visible, .fz)), .v-d .rinput:is(:focus-visible, .fz) { outline: none; border-color: var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,.2); }
+.v-d .title:is(:focus-visible, .fz) { background: var(--z900); }
+.v-d :is(.field, .search) input:is(:focus-visible, .fz) { outline: none; }
+.v-d :is(.hero, .pick-t, .add, .blink, .cat):is(:focus-visible, .fz) { outline: none; position: relative; }
+.v-d :is(.hero, .pick-t, .add, .blink, .cat):is(:focus-visible, .fz)::before {
+  content: ''; position: absolute; inset: -5px; pointer-events: none; z-index: 2;
+  --c: var(--sky4); --l: 10px; --w: 2px;
+  background:
+    linear-gradient(var(--c) 0 0) top left / var(--l) var(--w), linear-gradient(var(--c) 0 0) top left / var(--w) var(--l),
+    linear-gradient(var(--c) 0 0) top right / var(--l) var(--w), linear-gradient(var(--c) 0 0) top right / var(--w) var(--l),
+    linear-gradient(var(--c) 0 0) bottom left / var(--l) var(--w), linear-gradient(var(--c) 0 0) bottom left / var(--w) var(--l),
+    linear-gradient(var(--c) 0 0) bottom right / var(--l) var(--w), linear-gradient(var(--c) 0 0) bottom right / var(--w) var(--l);
+  background-repeat: no-repeat;
+}
+.v-d .hero:is(:focus-visible, .fz)::before { inset: -1px; }
+.v-d .cat:is(:focus-visible, .fz)::before { inset: -6px; --l: 16px; }
+.v-d .blink:is(:focus-visible, .fz)::before { inset: -2px -6px -2px -6px; --l: 14px; }
+.v-d .blink:is(:focus-visible, .fz) { position: static; }
+.v-d .brow:has(.blink:is(:focus-visible, .fz)) { position: relative; }
+.v-d .pick-t { position: relative; }
+.v-d .cat { position: relative; }
+</style>
+</head>
+<body>
+<nav class="minimap" id="minimap" aria-label="Variations"></nav>
+<main>
+  <section class="brief">
+    <h1>One focus ring that every control in Smarf shares</h1>
+    <div class="goals">
+      <div class="goal"><b>Keyboard only</b>Shows on Tab, never on click: <code>:focus-visible</code>, not <code>:focus</code>.</div>
+      <div class="goal"><b>Not hover</b>Hover already draws a sky ring; focus must read differently.</div>
+      <div class="goal"><b>Every surface</b>Holds up on zinc, indigo metal, red, glass and hero portraits.</div>
+      <div class="goal"><b>No gaps</b>Logo, avatar, board rows, stars, cards, heroes, Add and Close all get it.</div>
+    </div>
+  </section>
+
+  <div id="variations"></div>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div><b>Explore</b>From B: try the halo in white instead of sky, so it never matches hover.</div>
+      <div><b>Remix</b>Remix A: take D’s corner brackets for hero tiles only.</div>
+      <div><b>Settle</b>Settle on A: one base rule in index.css, plus inset and field exceptions.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/explore/0001-focus-visible.html';
+
+const VARIATIONS = [
+  { id: 'Now', cls: 'v-now', name: 'Today: four mechanisms, many gaps',
+    notes: [['bad', 'Button, Discord and hero picks use :focus, so a click leaves a ring.'],
+            ['bad', 'Logo, avatar, board rows, stars, cards, heroes, Add and Close fall back to Chrome’s default.'],
+            ['bad', 'Button and board rows draw the same sky ring for hover and focus.'],
+            ['bad', 'Switcher rows show focus only as a 6% tint.']] },
+  { id: 'A', cls: 'v-a', name: 'Sky outline, 2px off, everywhere',
+    notes: [['good', 'One base rule in index.css; the toolbar already looks like this.'],
+            ['good', 'Offset outline reads apart from the hover ring that sits on the edge.'],
+            ['bad', 'Sky on the sky-ish portrait (first hero) loses some contrast.']] },
+  { id: 'A2', cls: 'v-a2', name: 'A in 2px dark indigo, flush to the edge',
+    shades: [['600', 'var(--p600)'], ['700', 'var(--p700)'], ['800', 'var(--p800)']],
+    notes: [['good', 'Quiet and on brand; never mistaken for the sky hover ring.'],
+            ['good', 'Flush outline adds no size, so tight trays and docks stay tidy.'],
+            ['bad', 'Below WCAG’s 3:1: 600 is 2.7:1 on the page and 2.3:1 in popovers; 700 and 800 go lower (sky is 6.4:1).'],
+            ['bad', 'On indigo buttons, metal and the Discord button it reads as a dark border, not focus.']] },
+  { id: 'A2b', cls: 'v-a2b', name: 'A2 in near-black indigo, sunk into the surface',
+    shades: [['900', 'var(--p900)'], ['950', 'var(--p950)'], ['500 / 40%', 'oklch(58.5% 0.233 277.117 / .4)']],
+    notes: [['good', 'Reads as a faint indigo edge, not a highlight; nothing on the board shouts.'],
+            ['good', 'The 40% option tints itself to whatever it sits on, so one value fits every surface.'],
+            ['bad', '1.1–1.7:1 on the dark surfaces (WCAG wants 3:1); 950 nearly vanishes on zinc-800 popovers.'],
+            ['bad', 'Invisible on the page edge and black workspace: a keyboard user can lose their place.']] },
+  { id: 'B', cls: 'v-b', name: 'Gap halo: surface ring, then sky',
+    notes: [['good', 'The dark gap separates it from metal, red and portraits alike.'],
+            ['good', 'Box-shadow follows radii and isn’t clipped by overflow-hidden parents.'],
+            ['bad', 'Each surface needs its gap colour set (a --focus-gap variable).'],
+            ['bad', 'Collides with buttons that already use box-shadow for hover.']] },
+  { id: 'C', cls: 'v-c', name: 'Indigo glow, like the badge',
+    notes: [['good', 'On brand: the badge’s light, not a system blue.'],
+            ['bad', 'Indigo on the indigo buttons and metal nearly vanishes.'],
+            ['bad', 'Glow reads as decoration, not state, at a glance.']] },
+  { id: 'D', cls: 'v-d', name: 'A for controls, corner brackets for tiles',
+    notes: [['good', 'Heroes, picks and board rows feel like Dota’s selection.'],
+            ['good', 'Brackets never overlap the portrait, so any colour works.'],
+            ['bad', 'Two treatments to maintain; brackets need a pseudo-element.']] }
+];
+
+const I = {
+  plus: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/></svg>',
+  star: '<svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M10 2.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L10 14.4l-4.6 2.5.9-5.2L2.5 8l5.2-.8L10 2.5z" stroke-linejoin="round"/></svg>',
+  starOn: '<svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L10 14.4l-4.6 2.5.9-5.2L2.5 8l5.2-.8L10 2.5z"/></svg>',
+  starSm: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L10 14.4l-4.6 2.5.9-5.2L2.5 8l5.2-.8L10 2.5z"/></svg>',
+  bars: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"/></svg>',
+  trash: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.44c-.8.08-1.57.18-2.34.32a.75.75 0 1 0 .26 1.48l.15-.03.8 10.06A2.75 2.75 0 0 0 7.62 18.5h4.76a2.75 2.75 0 0 0 2.74-2.48l.81-10.06.15.03a.75.75 0 1 0 .26-1.48A41 41 0 0 0 14 4.19v-.44A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.67.03 2.5.08v-.33c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.33C8.33 4.03 9.16 4 10 4Z" clip-rule="evenodd"/></svg>',
+  plusc: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd"/></svg>',
+  pencil: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="m2.7 13.6-.8 3.6a.75.75 0 0 0 .9.9l3.6-.8L15.9 7.8 12.2 4.1 2.7 13.6ZM16.9 6.8l.8-.8a2.6 2.6 0 0 0-3.7-3.7l-.8.8 3.7 3.7Z"/></svg>',
+  dots: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm5.5 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm7-1.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>',
+  updown: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z" clip-rule="evenodd"/></svg>',
+  search: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.08 3.08a.75.75 0 1 1-1.06 1.06l-3.08-3.08A7 7 0 0 1 2 9Z" clip-rule="evenodd"/></svg>',
+  check: '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.15a.75.75 0 0 1 .14 1.05l-8 10.5a.75.75 0 0 1-1.13.08l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.9 3.9 7.47-9.82a.75.75 0 0 1 1.05-.14Z" clip-rule="evenodd"/></svg>',
+  dup: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.88a1.5 1.5 0 0 1 1.06.44l3.12 3.12A1.5 1.5 0 0 1 17 6.62V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.38a3 3 0 0 0-.88-2.12L10.5 5.38A3 3 0 0 0 8.38 4.5H7v-1Z"/><path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.88a1.5 1.5 0 0 0-.44-1.06L9.44 6.44A1.5 1.5 0 0 0 8.38 6H4.5Z"/></svg>',
+  x: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>',
+  discord: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52c-.21.38-.45.87-.61 1.25a18.3 18.3 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25 19.7 19.7 0 0 0-4.88 1.52C.53 9.05-.32 13.58.1 18.06a19.9 19.9 0 0 0 6 3.03c.49-.66.92-1.36 1.3-2.1-.71-.27-1.39-.6-2.04-.98.17-.13.34-.26.5-.4a14.2 14.2 0 0 0 12.28 0c.17.14.34.27.5.4-.65.38-1.33.71-2.04.98.38.74.81 1.44 1.3 2.1a19.9 19.9 0 0 0 6-3.03c.5-5.18-.84-9.67-3.58-13.69ZM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42s.96-2.42 2.16-2.42 2.18 1.1 2.16 2.42c0 1.33-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42s.95-2.42 2.15-2.42 2.18 1.1 2.16 2.42c0 1.33-.95 2.42-2.16 2.42Z"/></svg>'
+};
+
+// The mockup. `f` marks a focusable that gets the variation's focus style; `fz` (frozen focus) goes on those with data-fz.
+// `default` marks what has no focus style of its own today (Chrome's default ring in Now).
+const mockup = () => `
+<div>
+  <div class="zl">Navigation and home</div>
+  <div class="nav">
+    <a href="#" class="f default logo" data-fz><span class="badge">S</span><span class="word">SMARF</span></a>
+    <div class="navr">
+      <button class="f btn primary" data-fz><span class="ic">${I.plus}</span>New Board</button>
+      <button class="f default avatar" data-fz title="Account menu"><span class="av"></span></button>
+    </div>
+  </div>
+  <div class="list">
+    <div class="brow"><a href="#" class="f default blink" data-fz><h3>Carry pool</h3><span>2 hours ago</span></a><button class="f default star on" data-fz title="Unfavorite board">${I.starOn}</button></div>
+    <div class="brow"><a href="#" class="f default blink"><h3>Ranked supports</h3><span>3 days ago</span></a><button class="f default star" title="Favorite board">${I.star}</button></div>
+  </div>
+  <div class="btnrow">
+    <button class="f btn primary" style="padding:8px 12px">Try again</button>
+    <button class="f btn clear" data-fz>Cancel</button>
+    <button class="f btn danger" data-fz>Delete</button>
+    <a href="#" class="f discord" data-fz>${I.discord}Continue with Discord</a>
+  </div>
+</div>
+
+<div>
+  <div class="zl">Board</div>
+  <div class="ws">
+    <div class="cat f default" tabindex="0" role="button" aria-roledescription="draggable">
+      <div class="cath">
+        <span class="grip">${I.bars}</span>
+        <input class="f title" value="Carries" data-fz aria-label="Category name" />
+        <button class="f default trash" data-fz title="Delete category">${I.trash}</button>
+      </div>
+      <div class="tray">
+        <div class="f default hero" tabindex="0" data-fz><div class="portrait p1" data-n="Crystal"></div></div>
+        <div class="f default hero" tabindex="0"><div class="portrait p2" data-n="Axe"></div></div>
+        <div class="f default hero" tabindex="0"><div class="portrait p3" data-n="Venomancer"></div></div>
+        <div class="f default hero" tabindex="0" data-fz><div class="portrait p5" data-n="Juggernaut"></div></div>
+        <div class="addw"><button class="f default add" data-fz><span class="ic">${I.plusc}</span>Add</button></div>
+      </div>
+    </div>
+
+    <div class="cat f default" tabindex="0" role="button" aria-roledescription="draggable" data-fz>
+      <div class="cath">
+        <span class="grip">${I.bars}</span>
+        <input class="f title" value="Supports" aria-label="Category name" />
+        <button class="f default trash" title="Delete category" style="opacity:0">${I.trash}</button>
+      </div>
+      <div class="tray" style="width:272px">
+        <div class="f default hero" tabindex="0"><div class="portrait p4" data-n="Lion"></div></div>
+        <div class="f default hero" tabindex="0"><div class="portrait p6" data-n="Omniknight"></div></div>
+        <div class="addw"><button class="f default add"><span class="ic">${I.plusc}</span>Add</button></div>
+      </div>
+    </div>
+
+    <div class="cat confirming">
+      <div class="cath" style="width:272px">
+        <div class="confirmbar"><span>Delete Offlane?</span>
+          <button class="f mini" data-fz>Cancel</button><button class="f mini del" data-fz>Delete</button></div>
+      </div>
+      <div class="tray" style="width:272px; opacity:.4; filter: grayscale(1)">
+        <div class="hero"><div class="portrait p2" data-n="Mars"></div></div>
+        <div class="hero"><div class="portrait p3" data-n="Tide"></div></div>
+      </div>
+    </div>
+
+    <div class="dockwrap">
+      <div class="dock">
+        <button class="f sw" data-fz><span class="dot"></span>Carry pool<span class="ch">${I.updown}</span></button>
+        <div style="display:flex;gap:2px;margin-left:4px">
+          <button class="f ib" style="color:#eab308" title="Unfavorite board">${I.starSm}</button>
+          <button class="f ib" data-fz title="Rename board">${I.pencil}</button>
+          <button class="f ib" title="More board actions">${I.dots}</button>
+        </div>
+      </div>
+      <button class="f metal" data-fz><span>${I.plus}</span>New category</button>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="zl">Popovers and menus</div>
+  <div class="pops">
+    <div>
+      <div class="pop">
+        <label class="field">${I.search}<input class="f" placeholder="Find a board…" aria-label="Find a board" data-fz /></label>
+        <div class="sec">Favorites</div>
+        <button class="f row cur"><span class="ck">${I.check}</span><span class="nm">Carry pool</span><span class="ct">12 heroes</span></button>
+        <div class="sec">All boards</div>
+        <button class="f row" data-fz><span class="ck"></span><span class="nm">Ranked supports</span><span class="ct">8 heroes</span></button>
+        <button class="f row"><span class="ck"></span><span class="nm">Turbo</span><span class="ct">20 heroes</span></button>
+        <div class="sep"></div>
+        <button class="f row new"><span>${I.plus.replace(/20"/g, '16"')}</span>New board</button>
+      </div>
+      <div class="pop rename">
+        <h2>Rename board</h2>
+        <input class="f rinput" value="Carry pool" data-fz aria-label="Board name" />
+        <div class="racts"><button class="f ghost" data-fz>Cancel</button><button class="f metal md">Save</button></div>
+      </div>
+    </div>
+    <div class="pop">
+      <div class="f mi" tabindex="0" data-fz><span class="ic">${I.dup}</span>Duplicate board</div>
+      <div class="sep"></div>
+      <div class="f mi danger" tabindex="0"><span class="ic">${I.trash}</span>Delete board…</div>
+    </div>
+    <div class="picker">
+      <button class="f default close" data-fz title="Close">${I.x}</button>
+      <div class="phead">Select Hero
+        <label class="search"><input class="f" placeholder="Search..." aria-label="Search heroes" data-fz /><span class="ic">${I.search}</span></label></div>
+      <div class="pgrid">
+        ${['p2','p5','p3','p1','p4','p6','p2','p3'].map((p, i) => `<div class="pk"><button class="f pick-t" ${i === 3 ? 'data-fz' : ''} title="Select hero"><div class="portrait ${p}"></div></button></div>`).join('')}
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const letterOf = (v) => v.id;
+const promptFor = (verb, v) => {
+  const tail = `${letterOf(v)} in ${FILE}`;
+  if (verb === 'explore') return `Explore from ${tail}`;
+  if (verb === 'remix') return `Remix ${tail}:`;
+  return `Settle on ${tail}. Use it as target output and implementation reference. Build it in the codebase's conventions and tech stack.`;
+};
+const ACTIONS = [
+  ['explore', 'Explore from this', 'New variations in this direction'],
+  ['remix', 'Remix this', 'Fork it and apply your changes'],
+  ['settle', 'Settle on this', 'Build it in the codebase']
+];
+
+const root = document.getElementById('variations');
+const minimap = document.getElementById('minimap');
+
+VARIATIONS.forEach((v) => {
+  const sec = document.createElement('section');
+  sec.className = 'variation';
+  sec.id = `v-${v.id}`;
+  sec.innerHTML = `
+    <div class="vhead">
+      <span class="vid">${v.id}</span><span class="vname">${v.name}</span><span class="spacer"></span>
+      <div class="seg" role="group" aria-label="Focus display">
+        <button type="button" data-mode="frozen" aria-pressed="true">All focused</button>
+        <button type="button" data-mode="live" aria-pressed="false">Tab through</button>
+      </div>
+      ${v.shades ? `<div class="seg shades" role="group" aria-label="Indigo shade">${v.shades.map(([n], i) => `<button type="button" data-shade="${i}" aria-pressed="${i === 0}">${n}</button>`).join('')}</div>` : ''}
+      <button type="button" class="pick" aria-haspopup="menu" aria-expanded="false">Pick ▾</button>
+      <div class="menu" role="menu" hidden>
+        ${ACTIONS.map(([k, label, hint]) => `<button type="button" role="menuitem" data-verb="${k}"><b>${label}</b><span>${hint}</span></button>`).join('')}
+      </div>
+    </div>
+    <div class="copied" hidden></div>
+    <div class="canvas"><div class="app ${v.cls}">${mockup()}</div></div>
+    <div class="notes">${v.notes.map(([k, t]) => `<div class="note ${k}"><i>${k === 'good' ? 'Good' : 'Bad'}</i>${t}</div>`).join('')}</div>`;
+  root.appendChild(sec);
+
+  const app = sec.querySelector('.app');
+  app.addEventListener('click', (e) => { if (e.target.closest('a')) e.preventDefault(); });
+  const setMode = (mode) => {
+    sec.querySelectorAll('.seg button[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+    app.querySelectorAll('[data-fz]').forEach((el) => el.classList.toggle('fz', mode === 'frozen'));
+    if (mode === 'live') app.querySelector('.f')?.focus({ preventScroll: true });
+  };
+  sec.querySelectorAll('.seg button[data-mode]').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  sec.querySelectorAll('.seg button[data-shade]').forEach((b) => b.addEventListener('click', () => {
+    sec.querySelectorAll('.seg button[data-shade]').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+    app.style.setProperty('--ring', v.shades[b.dataset.shade][1]);
+  }));
+  setMode('frozen');
+
+  const pick = sec.querySelector('.pick');
+  const menu = sec.querySelector('.menu');
+  const copied = sec.querySelector('.copied');
+  pick.addEventListener('click', (e) => { e.stopPropagation(); menu.hidden ? openMenu(pick, menu) : closeMenus(); });
+  menu.querySelectorAll('button').forEach((b) => b.addEventListener('click', async () => {
+    const text = promptFor(b.dataset.verb, v);
+    closeMenus(); pick.focus();
+    try {
+      await navigator.clipboard.writeText(text);
+      copied.innerHTML = '<em>Copied</em><code></code>';
+      copied.querySelector('code').textContent = text;
+    } catch {
+      copied.innerHTML = '<em style="color:var(--ink-2)">Copy this</em><input readonly />';
+      const input = copied.querySelector('input'); input.value = text; input.focus(); input.select();
+    }
+    copied.hidden = false;
+  }));
+
+  const mm = document.createElement('button');
+  mm.type = 'button';
+  mm.innerHTML = `<span class="ln"></span><span class="lb">${v.id} · ${v.name}</span>`;
+  mm.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
+  minimap.appendChild(mm);
+});
+
+function closeMenus() {
+  document.querySelectorAll('.menu').forEach((m) => { m.hidden = true; });
+  document.querySelectorAll('.pick').forEach((p) => p.setAttribute('aria-expanded', 'false'));
+}
+function openMenu(pick, menu) {
+  closeMenus(); menu.hidden = false; pick.setAttribute('aria-expanded', 'true'); menu.querySelector('button').focus();
+}
+document.addEventListener('click', (e) => { if (!e.target.closest('.menu')) closeMenus(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const open = document.querySelector('.menu:not([hidden])');
+    if (open) { closeMenus(); open.previousElementSibling.focus(); }
+  }
+});
+
+const sections = [...document.querySelectorAll('.variation')];
+const lines = [...minimap.children];
+const updateMinimap = () => {
+  let idx = 0;
+  sections.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight * 0.35) idx = i; });
+  lines.forEach((l, i) => l.classList.toggle('on', i === idx));
+};
+window.addEventListener('scroll', updateMinimap, { passive: true });
+updateMinimap();
+</script>
+</body>
+</html>
