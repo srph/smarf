@@ -207,6 +207,24 @@ describe('drag and drop', () => {
       expect(writes[0]).toMatch(/^DELETE \/api\/categories\/.+\/heroes\/.+$/)
     })
 
+    it('poofs where it was dropped, then clears the poof', async () => {
+      const { user } = renderApp(`/b/${board.id}`)
+      const carries = await findCategory('Carries')
+
+      await user.pointer([
+        { keys: '[MouseLeft>]', target: heroTile(carries, 'Juggernaut'), coords: { clientX: 95, clientY: 140 } },
+        { coords: { clientX: 95, clientY: 300 } },
+        { coords: { clientX: 95, clientY: 600 } },
+        { keys: '[/MouseLeft]' }
+      ])
+
+      // Juggernaut's center, moved down with the pointer.
+      const poof = await waitFor(() => document.querySelector<HTMLElement>('[data-drop-poof]')!)
+      expect(poof.style.left).toBe('95px')
+      expect(poof.style.top).toBe('600px')
+      await waitFor(() => expect(document.querySelector('[data-drop-poof]')).toBeNull(), { timeout: 2000 })
+    })
+
     it("keeps it when it's dropped on a category's heading", async () => {
       const writes = recordWrites()
       const { user } = renderApp(`/b/${board.id}`)

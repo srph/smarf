@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
+import { useReducedMotion } from 'motion/react'
 import { Container } from '~/src/components/container/container'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { useQueryClient } from '@tanstack/react-query'
@@ -13,6 +14,7 @@ import {
 import { useMoveCategoryMutation } from '../mutations/use-move-category-mutation'
 import { useRemoveHeroMutation, removeHeroVariables } from '../mutations/use-remove-hero-mutation'
 import { BoardWorkspaceCategoryBody } from './board-workspace-category-body'
+import { BoardWorkspaceDropPoof } from './board-workspace-drop-poof'
 import { Board, Category } from '~/src/types/api'
 import { Translate } from '~/src/types/board-operations'
 
@@ -65,12 +67,18 @@ const BoardWorkspace: React.FC = () => {
     clearDraft()
   }
 
+  // A poof for each hero dropped off every category, until its animation ends.
+  const [poofs, setPoofs] = useState<{ id: number; x: number; y: number }[]>([])
+  const nextPoofId = useRef(0)
+  const reduceMotion = useReducedMotion()
+
   // Dropped off every category: remove the hero from where it started on the cached board.
-  const handleHeroRemove = (start: HeroPosition) => {
+  const handleHeroRemove = (start: HeroPosition, at: { x: number; y: number } | null) => {
     const savedBoard = getSavedBoard()
     const variables = savedBoard && removeHeroVariables(savedBoard, start)
     if (variables) removeHero(variables)
     clearDraft()
+    if (variables && at && !reduceMotion) setPoofs((p) => [...p, { id: nextPoofId.current++, ...at }])
   }
 
   // While dragging a category: show its position as a draft (saved on drop).
@@ -187,6 +195,14 @@ const BoardWorkspace: React.FC = () => {
             })}
           </div>
         </DndContext>
+        {poofs.map((poof) => (
+          <BoardWorkspaceDropPoof
+            key={poof.id}
+            x={poof.x}
+            y={poof.y}
+            onDone={() => setPoofs((p) => p.filter((other) => other.id !== poof.id))}
+          />
+        ))}
         <div className="pointer-events-none h-100" />
       </Container>
     </div>

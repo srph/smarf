@@ -33,8 +33,11 @@ interface CustomGridCollisionDetectionProps<T> {
   onCancel: () => void
   /** An item was picked up. */
   onStart?: () => void
-  /** Dropped off every container: remove the item from where it started. Without it, such a drop puts it back. */
-  onRemove?: (start: CustomGridCollisionDetectionEvent) => void
+  /**
+   * Dropped off every container: remove the item from where it started. Without it, such a drop puts it back.
+   * `at` is the dropped item's center on screen (client coordinates), or null if dnd-kit didn't measure it.
+   */
+  onRemove?: (start: CustomGridCollisionDetectionEvent, at: { x: number; y: number } | null) => void
   /**
    * How far around a container's droppable the pointer still counts as on the container: `top` for a heading above
    * it, `edge` on the other sides. Only used with `onRemove`.
@@ -275,7 +278,8 @@ function useBoardWorkspaceGridCollisionDetection<T>(
 
     // Dropped off every container: remove it from where it started, whatever the drag showed on the way.
     if (startEvent && props.onRemove && isOffContainers(collisions)) {
-      props.onRemove(startEvent)
+      const rect = active.rect.current.translated
+      props.onRemove(startEvent, rect && { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
       reset()
       return
     }
