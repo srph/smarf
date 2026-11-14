@@ -144,6 +144,8 @@
 
   /* Sign-in lockup: the badge's indigo glow, and the spaced-out tagline under the wordmark. */
   --drop-shadow-glow: 0 0 24px oklch(58.5% 0.233 277.117 / 0.7);
+  /* The navigation's smaller badge gets a tighter glow. */
+  --drop-shadow-glow-sm: 0 0 12px oklch(58.5% 0.233 277.117 / 0.6);
   --tracking-spaced: 0.28em;
 
   @keyframes favorite-burst {

@@ -2,7 +2,7 @@ import React from 'react'
 import { Outlet } from 'react-router'
 import { LockClosedIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
-import logo from '~/src/assets/images/logo.png'
+import { LogoBadge } from '~/src/components/logo-badge/logo-badge'
 import { HeroBackdrop } from './hero-backdrop'
 
 /** The sign-in pages' layout: drifting heroes behind a centered column with the Smarf lockup, the page, and what Discord shares. */
@@ -14,9 +14,7 @@ const AuthRoute = () => {
       <div className="relative flex min-h-screen items-center justify-center px-4">
         <div className="w-full max-w-105 text-center">
           <div className="flex items-center justify-center gap-3.5">
-            <div className="grid size-11 shrink-0 place-items-center rounded-xl border border-primary-200/40 bg-indigo-metal inset-shadow-xs inset-shadow-white/50 drop-shadow-glow">
-              <img src={logo} alt="" className="size-6 brightness-0 invert" />
-            </div>
+            <LogoBadge size="lg" />
             <h1 className="bg-indigo-metal-text bg-clip-text pt-1 text-5xl leading-none font-black tracking-wide text-transparent uppercase">
               Smarf
             </h1>
