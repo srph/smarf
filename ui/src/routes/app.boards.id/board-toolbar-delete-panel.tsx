@@ -1,20 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { cn } from 'cn'
+import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
-import { Spinner } from '~/src/components/spinner/spinner'
 import { type Board } from '~/src/types/api'
 import { useBoard } from './board-context'
 import { useDeleteBoardMutation } from './mutations/use-delete-board-mutation'
 import { BoardToolbarPanelClose } from './board-toolbar-panel'
-
-// How long the button has to be held. Matches the fill's duration-1200.
-const HOLD_MS = 1200
-
-// The labels swap with label-out's and label-in's timing: the leaving one fades 6px up, then the other rises in from 6px below.
-const label =
-  'col-start-1 row-start-1 flex items-center justify-center gap-2 transition-[opacity,translate] motion-reduce:transition-none'
-const shown = 'delay-140 duration-260 ease-morph'
-const hidden = 'opacity-0 duration-140 ease-in'
+import { MetalHoldButton, MetalHoldButtonText } from './metal-hold-button'
 
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`
 
@@ -39,45 +29,12 @@ const BoardToolbarDeletePanel: React.FC<Props> = ({ onClose }) => {
 
   const { mutate: deleteBoard, isPending: isDeleting, isError } = useDeleteBoardMutation(board.id)
 
-  const [isHolding, setIsHolding] = useState(false)
-
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
-
   const cancelRef = useRef<HTMLButtonElement>(null)
 
   // Focus Cancel, so a stray Enter backs out instead of starting a hold.
   useEffect(() => cancelRef.current?.focus({ preventScroll: true }), [])
 
-  useEffect(() => () => clearTimeout(timerRef.current), [])
-
-  const startHold = () => {
-    if (isDeleting || timerRef.current) return
-    setIsHolding(true)
-    timerRef.current = setTimeout(() => {
-      timerRef.current = undefined
-      deleteBoard(undefined, { onSuccess: () => navigate('/'), onSettled: () => setIsHolding(false) })
-    }, HOLD_MS)
-  }
-
-  // Letting go early backs out. After the hold completes, the delete is already on its way.
-  const cancelHold = () => {
-    if (!timerRef.current) return
-    clearTimeout(timerRef.current)
-    timerRef.current = undefined
-    setIsHolding(false)
-  }
-
-  const handleKeyDown = (evt: React.KeyboardEvent) => {
-    if (evt.key !== 'Enter' && evt.key !== ' ') return
-    evt.preventDefault()
-    if (!evt.repeat) startHold()
-  }
-
-  const handleKeyUp = (evt: React.KeyboardEvent) => {
-    if (evt.key === 'Enter' || evt.key === ' ') cancelHold()
-  }
-
-  const filled = isHolding || isDeleting
+  const handleHold = () => deleteBoard(undefined, { onSuccess: () => navigate('/') })
 
   return (
     <div className="p-4">
@@ -102,49 +59,9 @@ const BoardToolbarDeletePanel: React.FC<Props> = ({ onClose }) => {
           Cancel
         </button>
 
-        <button
-          type="button"
-          aria-busy={isDeleting || undefined}
-          onPointerDown={startHold}
-          onPointerUp={cancelHold}
-          onPointerLeave={cancelHold}
-          onPointerCancel={cancelHold}
-          onKeyDown={handleKeyDown}
-          onKeyUp={handleKeyUp}
-          onBlur={cancelHold}
-          // Holding on touch shouldn't open the long-press menu.
-          onContextMenu={(evt) => evt.preventDefault()}
-          className={cn(
-            // Graphite metal (MetalButton's disabled finish) whose border warms as the red fills it.
-            'relative h-9 min-w-33 shrink-0 cursor-pointer touch-none overflow-hidden rounded-lg border bg-graphite-metal px-3.5 font-bold text-zinc-50 shadow-md shadow-black/60 select-none text-shadow-black/55 text-shadow-xs hover:brightness-110',
-            'transition-[border-color,filter] focus-visible:ring-focus-danger',
-            filled ? 'border-red-300/55 duration-1200 ease-linear' : 'border-white/17 duration-250'
-          )}>
-          {/* The red wipes in under the highlight, so the metal changes colour instead of being covered. */}
-          <span
-            className={cn(
-              'absolute inset-0 bg-red-metal transition-[clip-path]',
-              filled ? 'duration-1200 ease-linear clip-wipe-full' : 'duration-250 clip-wipe-empty',
-              isDeleting && 'transition-none'
-            )}
-          />
-          <span className="absolute inset-0 rounded-lg inset-shadow-xs inset-shadow-white/30" />
-
-          {/* Both labels stay mounted in one cell and swap like the sign-in button's: out up, then in from below. */}
-          <span className="relative grid">
-            <span
-              aria-hidden={isDeleting || undefined}
-              className={cn(label, isDeleting ? cn(hidden, '-translate-y-1.5') : shown)}>
-              Hold to delete
-            </span>
-            <span
-              aria-hidden={!isDeleting || undefined}
-              className={cn(label, isDeleting ? shown : cn(hidden, 'translate-y-1.5'))}>
-              <Spinner tone="white" />
-              Deleting…
-            </span>
-          </span>
-        </button>
+        <MetalHoldButton busy={isDeleting} onHold={handleHold}>
+          <MetalHoldButtonText>{isDeleting ? 'Deleting…' : 'Hold to delete'}</MetalHoldButtonText>
+        </MetalHoldButton>
       </div>
     </div>
   )
