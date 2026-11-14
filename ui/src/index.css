@@ -231,6 +231,20 @@
   background-size: 260% 100%;
 }
 
+/*
+  Fades a Base UI ScrollArea.Viewport's top and bottom edges, but only on a side with more to scroll to: Base UI sets
+  how far the content runs past each edge, so a fade grows in as you scroll away from it.
+*/
+@utility scroll-fade-y {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black min(24px, var(--scroll-area-overflow-y-start, 0px)),
+    black calc(100% - min(24px, var(--scroll-area-overflow-y-end, 0px))),
+    transparent 100%
+  );
+}
+
 /* Text fill for animate-creating-glint: a white band over grey. Pair with bg-clip-text text-transparent. */
 @utility bg-creating-glint {
   background-image: linear-gradient(

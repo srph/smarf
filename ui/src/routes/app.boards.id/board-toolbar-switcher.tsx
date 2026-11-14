@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react'
 import { cn } from 'cn'
 import { useNavigate } from 'react-router'
 import { Popover } from '@base-ui/react/popover'
+import { ScrollArea } from '@base-ui/react/scroll-area'
 import { CheckIcon, ChevronUpDownIcon, MagnifyingGlassIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
 import { favoritesFirst } from '~/src/queries/boards/favorites-first'
@@ -157,24 +158,33 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
         />
       </label>
 
-      <div className="max-h-80 overflow-y-auto">
-        {boardsStatus === 'pending' && <p className="px-2.5 py-2 text-zinc-500">Loading boards…</p>}
-        {boardsStatus === 'error' && <p className="px-2.5 py-2 text-zinc-500">Couldn't load your boards.</p>}
+      {/* The scroll area runs into the popup's right padding, so its scrollbar sits in that gutter, clear of the rows. */}
+      <ScrollArea.Root className="relative -mr-1.5">
+        <ScrollArea.Viewport className="max-h-80 overscroll-contain scroll-fade-y outline-none">
+          <ScrollArea.Content className="flex flex-col gap-0.5 pr-1.5">
+            {boardsStatus === 'pending' && <p className="px-2.5 py-2 text-zinc-500">Loading boards…</p>}
+            {boardsStatus === 'error' && <p className="px-2.5 py-2 text-zinc-500">Couldn't load your boards.</p>}
 
-        {favorites.length > 0 && <SectionLabel>Favorites</SectionLabel>}
-        {favorites.map((b) => (
-          <BoardRow key={b.id} board={b} current={b.id === board.id} onSelect={open} />
-        ))}
+            {favorites.length > 0 && <SectionLabel>Favorites</SectionLabel>}
+            {favorites.map((b) => (
+              <BoardRow key={b.id} board={b} current={b.id === board.id} onSelect={open} />
+            ))}
 
-        {others.length > 0 && favorites.length > 0 && <SectionLabel>All boards</SectionLabel>}
-        {others.map((b) => (
-          <BoardRow key={b.id} board={b} current={b.id === board.id} onSelect={open} />
-        ))}
+            {others.length > 0 && favorites.length > 0 && <SectionLabel>All boards</SectionLabel>}
+            {others.map((b) => (
+              <BoardRow key={b.id} board={b} current={b.id === board.id} onSelect={open} />
+            ))}
 
-        {boardsStatus === 'success' && !favorites.length && !others.length && (
-          <p className="px-2.5 py-2 text-zinc-500">No boards match “{query.trim()}”.</p>
-        )}
-      </div>
+            {boardsStatus === 'success' && !favorites.length && !others.length && (
+              <p className="px-2.5 py-2 text-zinc-500">No boards match “{query.trim()}”.</p>
+            )}
+          </ScrollArea.Content>
+        </ScrollArea.Viewport>
+        {/* Thin and faint; it brightens while the pointer is over the list or it's scrolling. */}
+        <ScrollArea.Scrollbar className="my-1 mr-px flex w-1 justify-center opacity-40 transition-opacity duration-150 data-hovering:opacity-100 data-scrolling:opacity-100">
+          <ScrollArea.Thumb className="w-full rounded-full bg-white/25" />
+        </ScrollArea.Scrollbar>
+      </ScrollArea.Root>
 
       <div className="mx-1 my-1 border-t border-white/8" />
 
@@ -210,9 +220,9 @@ const BoardRow: React.FC<BoardRowProps> = ({ board, current, onSelect }) => (
       'flex h-9 w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left text-zinc-200 outline-none',
       // In a list, the ring sits inside the row.
       'hover:bg-white/6 focus-visible:bg-white/6 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400',
-      current && 'bg-sky-500/12 hover:bg-sky-500/16 focus-visible:bg-sky-500/16'
+      current && 'bg-primary-500/15 hover:bg-primary-500/20 focus-visible:bg-primary-500/20'
     )}>
-    <span className="w-3.5 shrink-0 text-sky-500">{current && <Icon icon={CheckIcon} size={14} />}</span>
+    <span className="w-3.5 shrink-0 text-primary-300">{current && <Icon icon={CheckIcon} size={14} />}</span>
     <span className="min-w-0 flex-1 truncate">{board.name}</span>
     <span className="shrink-0 text-xs text-zinc-500">
       {board.heroes_count} {board.heroes_count === 1 ? 'hero' : 'heroes'}
