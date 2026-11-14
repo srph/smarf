@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "short_name": "",
+  "name": "Smarf — Dota 2 Hero Organizer",
+  "short_name": "Smarf",
   "icons": [
     {
       "src": "./android-chrome-192x192.png",
@@ -13,7 +13,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#18181b",
+  "background_color": "#18181b",
   "display": "standalone"
 }
