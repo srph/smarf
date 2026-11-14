@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import { cn } from 'cn'
-import { AcademicCapIcon, BoltIcon, FireIcon, XMarkIcon } from '@heroicons/react/20/solid'
+import { AcademicCapIcon, BoltIcon, FireIcon, SparklesIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
 import { ImageAspectRatio } from '~/src/components/image-aspect-ratio/image-aspect-ratio'
 import { SearchInput } from '~/src/components/search-input/search-input'
@@ -106,7 +106,8 @@ const BoardWorkspaceHeroSelector: React.FC<Props> = ({ open, onOpenChange, onSel
 const groupByAttribute = (heroes: Hero[]): HeroAttributeGroup[] => [
   { id: '1', name: 'Strength', heroes: heroes.filter((hero) => hero.attribute === 'strength') },
   { id: '2', name: 'Agility', heroes: heroes.filter((hero) => hero.attribute === 'agility') },
-  { id: '3', name: 'Intelligence', heroes: heroes.filter((hero) => hero.attribute === 'intelligence') }
+  { id: '3', name: 'Intelligence', heroes: heroes.filter((hero) => hero.attribute === 'intelligence') },
+  { id: '4', name: 'Universal', heroes: heroes.filter((hero) => hero.attribute === 'universal') }
 ]
 
 const getAttributeIconColor = (name: string) => {
@@ -117,6 +118,8 @@ const getAttributeIconColor = (name: string) => {
       return 'bg-green-500'
     case 'Intelligence':
       return 'bg-sky-500'
+    case 'Universal':
+      return 'bg-amber-500'
     default:
       return 'bg-zinc-500'
   }
@@ -130,6 +133,8 @@ const getAttributeIcon = (name: string) => {
       return BoltIcon
     case 'Intelligence':
       return AcademicCapIcon
+    case 'Universal':
+      return SparklesIcon
     default:
       return BoltIcon
   }

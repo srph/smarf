@@ -5,7 +5,7 @@ export interface DbHero {
   id: string
   name: string
   thumbnail: string
-  attribute: 'strength' | 'agility' | 'intelligence'
+  attribute: 'strength' | 'agility' | 'intelligence' | 'universal'
 }
 
 export interface DbPivot {
@@ -57,7 +57,7 @@ const hero = (name: string, attribute: DbHero['attribute']): DbHero => ({
 })
 
 export const HEROES: DbHero[] = [
-  hero('Abaddon', 'strength'),
+  hero('Abaddon', 'universal'),
   hero('Axe', 'strength'),
   hero('Anti-Mage', 'agility'),
   hero('Juggernaut', 'agility'),

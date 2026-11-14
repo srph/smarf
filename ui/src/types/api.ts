@@ -1,6 +1,6 @@
 export type ID = string
 
-export type HeroAttribute = 'strength' | 'agility' | 'intelligence'
+export type HeroAttribute = 'strength' | 'agility' | 'intelligence' | 'universal'
 
 export interface Hero {
   id: ID

@@ -39,7 +39,9 @@ class FetchHeroList extends Command
                     'attribute' => match ($hero['primary_attr']) {
                         'str' => 'strength',
                         'agi' => 'agility',
-                        'int' => 'intelligence'
+                        'int' => 'intelligence',
+                        // Universal heroes (patch 7.33 on); the match threw on them before
+                        'all' => 'universal'
                     },
                     'thumbnail' => "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/{$name}.png"
 
