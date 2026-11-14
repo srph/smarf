@@ -25,7 +25,8 @@ const Navigation: React.FC = () => {
 
       <Container>
         <div className="flex items-center justify-between py-6">
-          <Link to="/" className="block rounded-xl focus-visible:ring-focus">
+          {/* Padded (and pulled back by as much) so the focus ring clears the wordmark. */}
+          <Link to="/" className="-m-1 block rounded-xl p-1 focus-visible:ring-focus">
             <Logo />
           </Link>
 
