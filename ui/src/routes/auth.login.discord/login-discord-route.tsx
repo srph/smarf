@@ -85,7 +85,7 @@ const LoginDiscordRoute = () => {
       {problem ? (
         <div
           role="alert"
-          className="mb-4 flex animate-rise-in items-start gap-2.5 rounded-md border border-red-400/35 bg-red-950/55 px-3 py-2.5 text-left text-red-300 motion-reduce:animate-none">
+          className="mb-4 flex animate-rise-in items-start gap-2.5 rounded-lg border border-red-400/35 bg-red-950/55 px-3 py-2.5 text-left text-red-300 motion-reduce:animate-none">
           <span className="mt-px text-red-400">
             <Icon icon={ExclamationCircleIcon} />
           </span>

@@ -35,7 +35,7 @@ const BoardWorkspaceCategoryHero: React.FC<Props> = ({ hero, removing = false })
         {/* Off a category: a red outline with a gap, so it reads around the portrait rather than on it. */}
         <div
           className={cn(
-            'overflow-hidden rounded ring-sky-500',
+            'overflow-hidden rounded-sm ring-sky-500',
             removing ? 'outline-3 outline-offset-3 outline-red-500' : 'hover:ring-2'
           )}>
           {/* Greyed out while its category asks to be deleted (the card sets data-deleting). */}

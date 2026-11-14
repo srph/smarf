@@ -77,5 +77,6 @@ tests/
 - TypeScript is strict. Prefer a null check over `!`; when `!` is right (for example a route param the route guarantees), say why in a comment.
 - Lint suppressions (`// oxlint-disable-next-line rule`) need a comment saying why.
 - Stay on Tailwind's scales: spacing in 4px steps, `zinc` for neutrals, `primary-*` for the brand color, the default palette for the rest. Avoid arbitrary values (`p-[13px]`); snap to the nearest step. Stacking order uses the `--z-*` variables in `index.css` (`z-(--z-popover)`).
+- Corner radius goes by height. Hero portraits are `rounded-sm` (4px); anything under 32px tall (`h-6`, `size-7`, tooltips, the category title) is `rounded-md`; controls 32 to 40px tall (`h-8` to `h-10`: buttons, inputs, menu rows) are `rounded-lg`; anything 44px or taller and every surface (popups, panels, cards, the toolbar, board rows) is `rounded-xl`. Dots and avatars are `rounded-full`. Don't use bare `rounded`. A surface whose rows have hover backgrounds also gets `overflow-hidden` so they don't poke past its corners.
 - Read env vars only in `config.ts`.
 - Export types with `export { type Foo }`. Vite compiles each file on its own, so a bare type re-export breaks the build.

@@ -35,7 +35,7 @@ const BoardListItem: React.FC<Props> = ({ board }) => {
       transition={moveTransition}
       onLayoutAnimationComplete={() => setIsMoving(false)}
       className={cn(
-        'relative flex items-center rounded bg-zinc-700 ring-2 ring-transparent transition-shadow duration-200 not-last:mb-4 hover:ring-sky-500',
+        'relative flex items-center rounded-xl bg-zinc-700 ring-2 ring-transparent transition-shadow duration-200 not-last:mb-4 hover:ring-sky-500',
         isMoving && 'z-(--z-board-list-moving-item)'
       )}>
       <Link to={`/b/${board.id}`} className="flex w-full items-center justify-between p-4 pr-0">

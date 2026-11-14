@@ -58,7 +58,7 @@ const HeroBackdrop: React.FC = () => {
                     key={`${repeat}-${i}`}
                     src={hero.thumbnail}
                     alt=""
-                    className="shrink-0 rounded-md object-cover opacity-55"
+                    className="shrink-0 rounded-sm object-cover opacity-55"
                     style={{ width: TILE_WIDTH, height: TILE_HEIGHT, marginBottom: TILE_GAP }}
                   />
                 ))

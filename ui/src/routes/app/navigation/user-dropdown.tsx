@@ -28,7 +28,7 @@ const UserDropdown: React.FC = () => {
 
       <Menu.Portal>
         <Menu.Positioner side="bottom" align="end" sideOffset={24} className="z-(--z-user-dropdown)">
-          <Menu.Popup className="w-60 rounded border border-zinc-700 bg-zinc-900 outline-none">
+          <Menu.Popup className="w-60 overflow-hidden rounded-xl border border-zinc-700 bg-zinc-900 outline-none">
             <div className="flex items-center border-b border-zinc-700 p-4">
               <Avatar src={user.avatar || avatar} />
 

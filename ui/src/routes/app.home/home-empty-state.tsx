@@ -40,7 +40,7 @@ const HomeEmptyState: React.FC = () => {
           return (
             <div
               key={hero?.id ?? i}
-              className={cn('overflow-hidden rounded bg-zinc-700 ring-3 ring-zinc-900', className)}
+              className={cn('overflow-hidden rounded-sm bg-zinc-700 ring-3 ring-zinc-900', className)}
               style={{ width: CATEGORY_HERO_WIDTH, height: CATEGORY_HERO_HEIGHT }}>
               {hero ? <img src={hero.thumbnail} alt="" className="size-full object-cover" /> : null}
             </div>

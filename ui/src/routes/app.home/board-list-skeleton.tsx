@@ -26,7 +26,7 @@ const BoardListSkeleton: React.FC<Props> = ({ title }) => {
           // Same box as BoardListItem: p-4 around an lg title with my-4.5, then a p-4 star button.
           <div
             key={i}
-            className={cn('flex items-center rounded bg-zinc-800 not-last:mb-4', row.opacity)}
+            className={cn('flex items-center rounded-xl bg-zinc-800 not-last:mb-4', row.opacity)}
             aria-hidden="true">
             <div className="flex w-full items-center justify-between p-4 pr-0">
               <div className="my-4.5 flex h-7 items-center">

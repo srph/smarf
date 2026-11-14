@@ -63,7 +63,7 @@ const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Disco
       href={pending ? undefined : discordAuthorizeUrl(state)}
       aria-disabled={pending || undefined}
       className={cn(
-        'flex w-full items-center justify-center overflow-hidden rounded bg-primary-500 px-4 py-3 text-base font-bold text-zinc-50 ring-sky-500 transition-shadow duration-200',
+        'flex w-full items-center justify-center overflow-hidden rounded-xl bg-primary-500 px-4 py-3 text-base font-bold text-zinc-50 ring-sky-500 transition-shadow duration-200',
         pending ? 'cursor-progress' : 'hover:ring-2 focus:ring-2'
       )}>
       {/* One grid cell, so the button keeps its size while the two overlap. */}

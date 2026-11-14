@@ -168,7 +168,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
             type="button"
             title="Delete category"
             onClick={() => setIsConfirmingDelete(true)}
-            className="ml-auto grid size-7 cursor-pointer place-items-center rounded-lg text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100">
+            className="ml-auto grid size-7 cursor-pointer place-items-center rounded-md text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100">
             <Icon icon={TrashIcon} size={16} />
           </button>
 
@@ -244,7 +244,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
                 }}
                 trigger={
                   <button
-                    className="flex cursor-pointer items-center justify-center rounded border-2 border-dashed border-zinc-500 bg-zinc-700 p-2"
+                    className="flex cursor-pointer items-center justify-center rounded-sm border-2 border-dashed border-zinc-500 bg-zinc-700 p-2"
                     style={{ width: CATEGORY_HERO_WIDTH, height: CATEGORY_HERO_HEIGHT }}>
                     <div className="mr-2 text-zinc-500">
                       <Icon icon={PlusCircleIcon} size={16} />

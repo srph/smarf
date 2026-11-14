@@ -43,7 +43,7 @@ const BoardWorkspaceHeroSelector: React.FC<Props> = ({ open, onOpenChange, onSel
       align="start"
       sideOffset={32}
       initialFocus={searchRef}>
-      <div className="w-240 rounded border border-zinc-700 bg-zinc-900">
+      <div className="w-240 overflow-hidden rounded-xl border border-zinc-700 bg-zinc-900">
         <PopoverClose title="Close" className="absolute -top-8 right-0 cursor-pointer text-zinc-500">
           <Icon icon={XMarkIcon} />
         </PopoverClose>
@@ -67,7 +67,7 @@ const BoardWorkspaceHeroSelector: React.FC<Props> = ({ open, onOpenChange, onSel
             heroAttributeGroups.map((attribute) => (
               <React.Fragment key={attribute.id}>
                 <div className="mb-4 flex items-center">
-                  <div className={cn('mr-3 rounded p-1', getAttributeIconColor(attribute.name))}>
+                  <div className={cn('mr-3 rounded-md p-1', getAttributeIconColor(attribute.name))}>
                     <Icon icon={getAttributeIcon(attribute.name)} />
                   </div>
                   <h4 className="font-bold">{attribute.name}</h4>
@@ -84,7 +84,7 @@ const BoardWorkspaceHeroSelector: React.FC<Props> = ({ open, onOpenChange, onSel
                           onClick={() => onSelectHero(hero)}
                           title={`Select ${hero.name}`}
                           className={cn(
-                            'inline-block w-15 cursor-pointer rounded border-2 border-transparent hover:border-sky-500 focus:border-sky-500',
+                            'inline-block w-15 cursor-pointer rounded-sm border-2 border-transparent hover:border-sky-500 focus:border-sky-500',
                             searchInput !== '' && !name.includes(searchInput) && 'opacity-30'
                           )}>
                           <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />

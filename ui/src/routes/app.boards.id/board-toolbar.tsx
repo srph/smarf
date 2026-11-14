@@ -162,7 +162,7 @@ const BoardToolbar: React.FC = () => {
                 </div>
 
                 {status === 'error' && (
-                  <span className="mr-1 ml-3 flex h-7 items-center gap-1.5 rounded-lg bg-red-500/16 px-2.5 text-xs font-semibold text-red-200">
+                  <span className="mr-1 ml-3 flex h-7 items-center gap-1.5 rounded-md bg-red-500/16 px-2.5 text-xs font-semibold text-red-200">
                     <span className="text-red-400">
                       <Icon icon={ExclamationCircleIcon} size={16} />
                     </span>

@@ -14,7 +14,7 @@ const SearchInput: React.FC<Props> = ({ value, onChange, ref }) => {
   }
 
   return (
-    <label className="flex rounded border border-zinc-700 bg-zinc-900 ring-sky-500 focus-within:ring-2 hover:ring-2">
+    <label className="flex rounded-lg border border-zinc-700 bg-zinc-900 ring-sky-500 focus-within:ring-2 hover:ring-2">
       <input
         ref={ref}
         type="text"

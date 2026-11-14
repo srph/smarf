@@ -23,7 +23,7 @@ const Input: React.FC<Props> = ({ ref, ...props }) => {
         value={props.value}
         onChange={handleChange}
         placeholder={props.placeholder}
-        className="flex h-8 w-full items-center rounded border border-zinc-700 bg-transparent p-2 text-zinc-50"
+        className="flex h-8 w-full items-center rounded-lg border border-zinc-700 bg-transparent p-2 text-zinc-50"
       />
     </div>
   )
