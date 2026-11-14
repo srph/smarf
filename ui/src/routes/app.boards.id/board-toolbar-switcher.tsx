@@ -118,7 +118,7 @@ interface ListProps {
   onDone: () => void
 }
 
-/** Search, favorites, the rest, and New board. */
+/** Search with New board beside it, then favorites and the rest. */
 const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
   const { board } = useBoard()
 
@@ -157,24 +157,41 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
       onPointerDownCapture={() => {
         viaKeyboard.current = false
       }}>
-      <label
-        className={cn(
-          'mb-1 flex h-9 items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 text-zinc-500 transition-colors duration-150 has-focus:border-primary-400',
-          searchRing && 'ring-2 ring-primary-400/35 ring-offset-2 ring-offset-(--focus-gap)'
-        )}>
-        <Icon icon={MagnifyingGlassIcon} size={16} />
-        <input
-          ref={searchRef}
-          data-row
-          value={query}
-          onFocus={() => setSearchRing(viaKeyboard.current)}
-          onBlur={() => setSearchRing(false)}
-          onChange={(evt) => setQuery(evt.target.value)}
-          placeholder="Find a board…"
-          aria-label="Find a board"
-          className="h-full min-w-0 flex-1 bg-transparent text-zinc-50 outline-none placeholder:text-zinc-500"
-        />
-      </label>
+      {/* New board sits beside search, so the list below holds boards only. */}
+      <div className="mb-1 flex gap-1.5">
+        <label
+          className={cn(
+            'flex h-9 min-w-0 flex-1 items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 text-zinc-500 transition-colors duration-150 has-focus:border-primary-400',
+            searchRing && 'ring-2 ring-primary-400/35 ring-offset-2 ring-offset-(--focus-gap)'
+          )}>
+          <Icon icon={MagnifyingGlassIcon} size={16} />
+          <input
+            ref={searchRef}
+            data-row
+            value={query}
+            onFocus={() => setSearchRing(viaKeyboard.current)}
+            onBlur={() => setSearchRing(false)}
+            onChange={(evt) => setQuery(evt.target.value)}
+            placeholder="Find a board…"
+            aria-label="Find a board"
+            className="h-full min-w-0 flex-1 bg-transparent text-zinc-50 outline-none placeholder:text-zinc-500"
+          />
+        </label>
+
+        {/* Tab reaches it from search; the arrows stay on the list. */}
+        <BoardToolbarTooltip label="New board">
+          <button
+            type="button"
+            aria-label="New board"
+            onClick={handleNewBoard}
+            className={cn(
+              'grid size-9 shrink-0 cursor-pointer place-items-center rounded-lg bg-white/6 text-zinc-300 inset-ring inset-ring-white/8 transition-colors duration-150',
+              'hover:bg-white/12 hover:text-zinc-50 focus-visible:text-zinc-50 focus-visible:ring-focus'
+            )}>
+            <Icon icon={PlusIcon} />
+          </button>
+        </BoardToolbarTooltip>
+      </div>
 
       {/* The scroll area runs into the popup's right padding, so its scrollbar sits in that gutter, clear of the rows. */}
       <ScrollArea.Root className="relative -mr-1.5">
@@ -203,17 +220,6 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
           <ScrollArea.Thumb className="w-full rounded-full bg-white/25" />
         </ScrollArea.Scrollbar>
       </ScrollArea.Root>
-
-      <div className="mx-1 my-1 border-t border-white/8" />
-
-      <button
-        data-row
-        type="button"
-        onClick={handleNewBoard}
-        className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 font-semibold text-primary-300 outline-none hover:bg-white/6 focus-visible:bg-white/6 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400">
-        <Icon icon={PlusIcon} size={16} />
-        New board
-      </button>
     </div>
   )
 }

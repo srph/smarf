@@ -44,6 +44,20 @@ describe('board workspace', () => {
     expect(await findCategory('Mid')).toBeInTheDocument()
   })
 
+  it('starts a new board from the button beside the switcher search', async () => {
+    const { user } = renderApp(`/b/${board.id}`)
+
+    await user.click(await screen.findByRole('button', { name: 'Switch board (current: Ranked)' }))
+    await screen.findByRole('textbox', { name: 'Find a board' })
+    // Tab from the search field lands on it.
+    await user.tab()
+    expect(screen.getByRole('button', { name: 'New board' })).toHaveFocus()
+    await user.keyboard('{Enter}')
+
+    await waitFor(() => expect(currentPath()).toBe('/b/new'))
+    expect(db.boards).toHaveLength(1)
+  })
+
   it('renames the board', async () => {
     const { user } = renderApp(`/b/${board.id}`)
 
