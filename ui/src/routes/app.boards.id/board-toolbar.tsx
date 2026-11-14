@@ -140,12 +140,13 @@ const BoardToolbar: React.FC = () => {
               }
               inert={isEditing}
               className="overflow-hidden">
-              {/* Arriving from New Board, the row stays blurred out while "Creating …" holds its place. */}
+              {/* Arriving from New Board, the row waits blurred out, a step low, while "Creating …" holds its place;
+                  then it fades up into place. */}
               <div
                 className={cn(
                   'flex h-11 items-center px-1 whitespace-nowrap',
                   handoff.arrived && blurSwap,
-                  handoff.stage === 'sliding' && blurSwapHidden
+                  handoff.stage === 'sliding' && cn(blurSwapHidden, 'translate-y-1')
                 )}>
                 <BoardToolbarSwitcher status={status} justRenamed={justRenamed} anchor={dockElement} />
 
@@ -179,14 +180,14 @@ const BoardToolbar: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* New Board's "Creating …", carried over from its bar, then blurred into the row */}
+            {/* New Board's "Creating …", carried over from its bar, then lifted and blurred out as the row comes up */}
             {handoff.stage && (
               <p
                 aria-hidden="true"
                 className={cn(
                   'pointer-events-none absolute inset-0 grid animate-creating-glint place-items-center bg-creating-glint bg-clip-text font-semibold text-transparent motion-reduce:animate-none',
                   blurSwap,
-                  handoff.stage === 'swapping' && blurSwapHidden
+                  handoff.stage === 'swapping' && cn(blurSwapHidden, '-translate-y-1')
                 )}>
                 Creating {handoff.start}
               </p>
