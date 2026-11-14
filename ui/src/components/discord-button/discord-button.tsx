@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { cn } from 'cn'
+import { LabelSwap } from '~/src/components/label-swap/label-swap'
 import { Spinner } from '~/src/components/spinner/spinner'
 import { discordAuthorizeUrl, randomState, savePendingLogin } from '~/src/lib/discord'
 
@@ -18,25 +19,9 @@ const DiscordLogo = () => (
   </svg>
 )
 
-interface Content {
-  pending: boolean
-  label: string
-}
-
-const contentKey = ({ pending, label }: Content) => (pending ? 'pending' : label)
-
-/** The logo and label, or, while pending, a spinner (given more room: its rings sit inside its box) and its label. */
-const ButtonContent = ({ pending, label }: Content) => (
-  <span className={cn('flex items-center', pending ? 'gap-3' : 'gap-2')}>
-    {pending ? <Spinner tone="primary" /> : <DiscordLogo />}
-    <span>{pending ? 'Signing in with Discord…' : label}</span>
-  </span>
-)
-
 /**
  * A link to Discord's sign-in page; Discord then sends the visitor to /login/discord, which shows it again
- * as `pending` and, if signing in fails, as a retry. When its content changes, the old content lifts out
- * and the new one rises in after it.
+ * as `pending` and, if signing in fails, as a retry. When its content changes, the labels swap (LabelSwap).
  */
 const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Discord' }: Props) => {
   const [state] = useState(randomState)
@@ -47,17 +32,6 @@ const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Disco
     if (!pending) savePendingLogin({ state, returnTo })
   }, [pending, state, returnTo])
 
-  // The outgoing content stays mounted until its exit animation ends. `swapped` keeps the first
-  // content from animating in on mount.
-  const [shown, setShown] = useState<Content>({ pending, label })
-  const [leaving, setLeaving] = useState<Content | null>(null)
-  const [swapped, setSwapped] = useState(false)
-  if (shown.pending !== pending || shown.label !== label) {
-    setLeaving(shown)
-    setShown({ pending, label })
-    setSwapped(true)
-  }
-
   return (
     <a
       href={pending ? undefined : discordAuthorizeUrl(state)}
@@ -66,25 +40,13 @@ const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Disco
         'flex w-full items-center justify-center overflow-hidden rounded-xl bg-primary-500 px-4 py-3 text-base font-bold text-zinc-50 ring-sky-500 transition-shadow duration-200',
         pending ? 'cursor-progress' : 'hover:ring-2 focus-visible:ring-focus'
       )}>
-      {/* One grid cell, so the button keeps its size while the two overlap. */}
-      <span className="grid justify-items-center">
-        {leaving ? (
-          <span
-            key={`${contentKey(leaving)}-leaving`}
-            className="col-start-1 row-start-1 animate-label-out motion-reduce:hidden"
-            aria-hidden="true"
-            onAnimationEnd={(event) => {
-              if (event.target === event.currentTarget) setLeaving(null)
-            }}>
-            <ButtonContent {...leaving} />
-          </span>
-        ) : null}
-        <span
-          key={contentKey(shown)}
-          className={cn('col-start-1 row-start-1', swapped && 'animate-label-in motion-reduce:animate-none')}>
-          <ButtonContent {...shown} />
+      <LabelSwap swapKey={pending ? 'pending' : label}>
+        {/* While pending, the spinner gets more room: its rings sit inside its box. */}
+        <span className={cn('flex items-center', pending ? 'gap-3' : 'gap-2')}>
+          {pending ? <Spinner tone="primary" /> : <DiscordLogo />}
+          <span>{pending ? 'Signing in with Discord…' : label}</span>
         </span>
-      </span>
+      </LabelSwap>
     </a>
   )
 }

@@ -123,22 +123,13 @@
     }
   }
 
-  /* Sign-in: the alert rises in; the Discord button's old label lifts out, then the new one rises in after it. */
+  /* Sign-in: the alert rises in. */
   --animate-rise-in: rise-in 0.32s var(--ease-morph) both;
-  --animate-label-in: rise-in 0.26s var(--ease-morph) 0.14s both;
-  --animate-label-out: rise-out 0.14s ease-in forwards;
 
   @keyframes rise-in {
     from {
       opacity: 0;
       transform: translateY(6px);
-    }
-  }
-
-  @keyframes rise-out {
-    to {
-      opacity: 0;
-      transform: translateY(-6px);
     }
   }
 
