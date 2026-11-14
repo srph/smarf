@@ -176,6 +176,29 @@
   background-image: linear-gradient(180deg, #64646d 0%, #48484f 44%, #36363c 56%, #4b4b53 100%);
 }
 
+/* The same metal in dark red: Hold to delete's fill. Two steps darker than red-500, so it sits close to the graphite. */
+@utility bg-red-metal {
+  background-image: linear-gradient(
+    180deg,
+    var(--color-red-600) 0%,
+    var(--color-red-700) 42%,
+    var(--color-red-800) 58%,
+    var(--color-red-700) 100%
+  );
+}
+
+/*
+  A fill wiped in from the left: transition clip-path between clip-wipe-empty and clip-wipe-full. The front edge is
+  rounded like a rounded-lg button's inner corners (8px less its 1px border).
+*/
+@utility clip-wipe-empty {
+  clip-path: inset(0 100% 0 0 round 7px);
+}
+
+@utility clip-wipe-full {
+  clip-path: inset(0 0 0 0 round 7px);
+}
+
 /* Text fill for the sign-in wordmark: the indigo metal, lighter. Pair with bg-clip-text text-transparent. */
 @utility bg-indigo-metal-text {
   background-image: linear-gradient(

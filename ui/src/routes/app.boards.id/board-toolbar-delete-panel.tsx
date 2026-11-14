@@ -10,6 +10,12 @@ import { BoardToolbarPanelClose } from './board-toolbar-panel'
 // How long the button has to be held. Matches the fill's duration-1200.
 const HOLD_MS = 1200
 
+// The labels swap with label-out's and label-in's timing: the leaving one fades 6px up, then the other rises in from 6px below.
+const label =
+  'col-start-1 row-start-1 flex items-center justify-center gap-2 transition-[opacity,translate] motion-reduce:transition-none'
+const shown = 'delay-140 duration-260 ease-morph'
+const hidden = 'opacity-0 duration-140 ease-in'
+
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`
 
 // What goes with the board: "its 2 categories and 3 heroes", or a note that it's empty.
@@ -109,22 +115,34 @@ const BoardToolbarDeletePanel: React.FC<Props> = ({ onClose }) => {
           // Holding on touch shouldn't open the long-press menu.
           onContextMenu={(evt) => evt.preventDefault()}
           className={cn(
-            'relative h-9 shrink-0 cursor-pointer touch-none overflow-hidden rounded-lg border border-red-500/55 bg-red-500/8 px-3.5 font-bold text-red-300 transition-colors duration-200 select-none',
-            'focus-visible:ring-focus-danger',
-            filled && 'text-white'
+            // Graphite metal (MetalButton's disabled finish) whose border warms as the red fills it.
+            'relative h-9 min-w-33 shrink-0 cursor-pointer touch-none overflow-hidden rounded-lg border bg-graphite-metal px-3.5 font-bold text-zinc-50 shadow-md shadow-black/60 select-none text-shadow-black/55 text-shadow-xs hover:brightness-110',
+            'transition-[border-color,filter] focus-visible:ring-focus-danger',
+            filled ? 'border-red-300/55 duration-1200 ease-linear' : 'border-white/17 duration-250'
           )}>
+          {/* The red wipes in under the highlight, so the metal changes colour instead of being covered. */}
           <span
             className={cn(
-              'absolute inset-0 origin-left bg-linear-to-b from-red-500 to-red-600',
-              filled
-                ? 'scale-x-100 transition-transform duration-1200 ease-linear'
-                : 'scale-x-0 transition-transform duration-250',
+              'absolute inset-0 bg-red-metal transition-[clip-path]',
+              filled ? 'duration-1200 ease-linear clip-wipe-full' : 'duration-250 clip-wipe-empty',
               isDeleting && 'transition-none'
             )}
           />
-          <span className="relative flex items-center justify-center gap-2">
-            {isDeleting && <Spinner />}
-            {isDeleting ? 'Deleting…' : 'Hold to delete'}
+          <span className="absolute inset-0 rounded-lg inset-shadow-xs inset-shadow-white/30" />
+
+          {/* Both labels stay mounted in one cell and swap like the sign-in button's: out up, then in from below. */}
+          <span className="relative grid">
+            <span
+              aria-hidden={isDeleting || undefined}
+              className={cn(label, isDeleting ? cn(hidden, '-translate-y-1.5') : shown)}>
+              Hold to delete
+            </span>
+            <span
+              aria-hidden={!isDeleting || undefined}
+              className={cn(label, isDeleting ? shown : cn(hidden, 'translate-y-1.5'))}>
+              <Spinner tone="white" />
+              Deleting…
+            </span>
           </span>
         </button>
       </div>
