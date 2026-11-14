@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Public Board Sharing</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .states .sep-l { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: board page (glass category cards, the dock, New category in indigo metal) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p700: oklch(45.7% 0.24 277.023); --p950: oklch(25.7% 0.09 281.288);
+    --green: #00c950; --sky: #00bcff;
+    position: relative; width: 1000px; height: 480px; margin: 0 auto; color: var(--z50);
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.43;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  .app svg { display: block; flex: none; }
+  :where(.app button) { font-family: inherit; font-size: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; outline: none; }
+  .app button:focus-visible { box-shadow: 0 0 0 2px var(--z800), 0 0 0 4px #00bcff; }
+
+  /* Categories */
+  .cat { position: absolute; display: inline-block; border-radius: 12px; background: rgba(39,39,42,.8);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -4px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.08); }
+  .cat:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -4px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.15); }
+  .head { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 6px 0 8px; }
+  .head.ro { padding-left: 12px; }
+  .grip { color: var(--z600); cursor: grab; }
+  .cat:hover .grip { color: var(--z300); }
+  .title { font-weight: 600; white-space: nowrap; }
+  .tools { margin-left: auto; }
+  .ibtn { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; color: var(--z400); opacity: 0; }
+  .cat:hover .ibtn { opacity: 1; }
+  .tray { display: flex; flex-wrap: wrap; align-content: flex-start; padding: 3px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px 8px 12px 12px; background: var(--z900); }
+  .cell { flex-shrink: 0; width: 88px; padding: 4px; }
+  .portrait { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); }
+  .portrait img { width: 80px; height: 45px; object-fit: cover; display: block; pointer-events: none; }
+  .ed .hero:hover .portrait, .ro-board .hero:hover .portrait { box-shadow: 0 0 0 2px var(--p500); }
+  .add { width: 80px; height: 45px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 4px; padding: 8px; background: var(--z700); border: 2px dashed var(--z500); font-size: 12px; font-weight: 700; letter-spacing: .025em; }
+  .add svg { color: var(--z500); }
+
+  /* The dock and New category */
+  .dockwrap { position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: center; align-items: flex-end; gap: 8px; z-index: 10; padding: 0 24px; }
+  .dockwrap.split { justify-content: space-between; }
+  .dockbox { position: relative; }
+  .dock { position: relative; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.6);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05);
+    backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); }
+  .row { display: flex; align-items: center; height: 44px; padding: 0 4px; white-space: nowrap; }
+  .row.folded { height: 0; overflow: hidden; visibility: hidden; }
+  .sw { display: flex; align-items: center; width: 194px; height: 36px; padding: 0 6px 0 12px; border-radius: 8px; background: rgba(255,255,255,.04); font-weight: 600; transition: background-color .15s; }
+  .sw:hover { background: rgba(255,255,255,.08); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex: none; }
+  .nm { margin-left: 8px; flex: 1; text-align: left; overflow: hidden; }
+  .pubmark { color: var(--p300); margin-left: 6px; }
+  .chev { margin-left: 8px; color: var(--z500); }
+  .ibs { margin-left: 4px; display: flex; gap: 2px; }
+  .ib { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); transition: background-color .15s, color .15s; }
+  .ib:hover, .ib.on { background: rgba(255,255,255,.09); color: var(--z50); }
+  .ib.tint { color: var(--p300); }
+  .ib.tint:hover, .ib.tint.on { color: var(--p200); background: color-mix(in oklab, var(--p500) 20%, transparent); }
+
+  .metal { position: relative; height: 46px; padding: 0 18px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; color: #fff; white-space: nowrap;
+    border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background: linear-gradient(180deg, var(--p300) 0%, var(--p500) 42%, var(--p600) 58%, var(--p500) 100%);
+    box-shadow: 0 25px 50px -12px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 1px rgba(255,255,255,.5);
+    text-shadow: 0 1px 1px color-mix(in oklab, var(--p950) 50%, transparent); transition: filter .25s; }
+  .metal:hover { filter: brightness(1.1); }
+  .metal.locked { color: var(--z400); border-color: rgba(255,255,255,.17); background: linear-gradient(180deg, #64646d 0%, #48484f 44%, #36363c 56%, #4b4b53 100%); box-shadow: 0 25px 50px -12px rgba(0,0,0,.9), inset 0 1px 1px rgba(255,255,255,.3); text-shadow: 0 1px 1px rgba(0,0,0,.55); cursor: not-allowed; }
+  .metal.sm { height: 34px; padding: 0 12px; border-radius: 9px; font-size: 13px; }
+
+  /* Popovers and menus above the dock */
+  .pop { position: absolute; bottom: calc(100% + 10px); right: 4px; z-index: 20; border-radius: 12px; border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.95);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 6px; animation: rise .2s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(4px); } }
+  .pop.mm { width: 224px; }
+  .mi { display: flex; align-items: center; gap: 10px; width: 100%; height: 36px; padding: 0 8px 0 10px; border-radius: 8px; color: var(--z200); text-align: left; }
+  .mi:hover { background: rgba(255,255,255,.07); }
+  .mi > svg { color: var(--z400); }
+  .mi.red, .mi.red > svg { color: #ff6467; }
+  .mi.red:hover { background: rgba(251,44,54,.14); }
+  .mi .tag { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--p300); }
+  .msep { margin: 4px; border-top: 1px solid rgba(255,255,255,.08); }
+  .mlabel { padding: 8px 10px 4px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--z500); }
+
+  /* Share card (grows from the dock's top edge, like rename and delete) */
+  .scard { padding: 10px 10px 8px; contain: inline-size; animation: grow .28s cubic-bezier(.2,.8,.2,1) both; }
+  .scard.wide { contain: none; width: 440px; }
+  @keyframes grow { from { opacity: 0; transform: translateY(6px); } }
+  .card-h { display: flex; align-items: center; justify-content: space-between; height: 28px; padding-left: 4px; margin-bottom: 8px; font-weight: 600; }
+  .x { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; color: var(--z500); }
+  .x:hover { background: rgba(255,255,255,.08); color: var(--z50); }
+  .tgrow { display: flex; gap: 10px; align-items: flex-start; width: 100%; padding: 9px 10px; border-radius: 8px; background: rgba(255,255,255,.04); text-align: left; }
+  .tgrow:hover { background: rgba(255,255,255,.07); }
+  .tgrow b { display: block; font-weight: 600; }
+  .tgrow small, .opt small { display: block; font-size: 12px; color: var(--z400); white-space: normal; line-height: 1.35; }
+  .switch { position: relative; width: 32px; height: 18px; border-radius: 9px; background: var(--z600); flex: none; margin-top: 1px; transition: background-color .2s; }
+  .switch::after { content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .2s cubic-bezier(.3,.7,.2,1); }
+  .switch.on { background: var(--p500); }
+  .switch.on::after { left: 16px; }
+  .link { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .field { flex: 1; min-width: 0; height: 32px; display: flex; align-items: center; gap: 6px; padding: 0 10px; border-radius: 8px; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.08); color: var(--z300); font-size: 13px; overflow: hidden; white-space: nowrap;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 20px), transparent); }
+  .field svg { color: var(--z500); }
+  .copy { height: 32px; padding: 0 10px; border-radius: 8px; background: rgba(255,255,255,.08); font-weight: 600; font-size: 13px; display: flex; gap: 6px; align-items: center; white-space: nowrap; transition: background-color .15s, color .15s; }
+  .copy:hover { background: rgba(255,255,255,.13); }
+  .copy.done { color: #7bf1a8; background: rgba(0,201,80,.14); }
+
+  /* B: Private / Public rows */
+  .pop.sharepop { width: 300px; padding: 8px; }
+  .ph { padding: 4px 6px 8px; font-weight: 600; }
+  .opt { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 8px; text-align: left; color: var(--z200); }
+  .opt:hover { background: rgba(255,255,255,.06); }
+  .opt.sel { background: rgba(255,255,255,.08); }
+  .opt > svg:first-child { color: var(--z400); }
+  .opt.sel > svg:first-child { color: var(--p300); }
+  .opt b { display: block; font-weight: 600; }
+  .opt .ck { margin-left: auto; color: var(--p300); }
+  .sharepop .link { margin: 0 2px 2px; }
+
+  /* B visitor: a banner across the top */
+  .banner { position: absolute; top: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 16px; z-index: 10;
+    background: rgba(9,9,11,.72); border-bottom: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .banner .who { color: var(--z400); }
+  .banner .who b { color: var(--z50); }
+  .vpill { display: flex; gap: 5px; align-items: center; height: 22px; font-size: 12px; color: var(--z400); background: rgba(255,255,255,.06); padding: 0 8px; border-radius: 99px; }
+  .banner .metal { margin-left: auto; }
+
+  /* C: Share pill that turns into Public */
+  .spill { height: 36px; margin-left: 4px; display: flex; align-items: center; gap: 6px; padding: 0 12px 0 10px; border-radius: 8px; background: rgba(255,255,255,.04); font-weight: 600; color: var(--z200); transition: background-color .2s, color .2s; }
+  .spill svg { color: var(--z400); }
+  .spill:hover { background: rgba(255,255,255,.08); }
+  .spill.pub { background: color-mix(in oklab, var(--p500) 18%, transparent); color: var(--p200); }
+  .spill.pub svg { color: var(--p300); }
+  .spill.pub:hover, .spill.pub.on { background: color-mix(in oklab, var(--p500) 26%, transparent); }
+  .spill.ok { color: #7bf1a8; background: rgba(0,201,80,.12); }
+  .spill.ok svg { color: #05df72; }
+  .toast { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); z-index: 20; white-space: nowrap; display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 12px; border-radius: 10px;
+    background: var(--z950); border: 1px solid var(--z700); font-size: 13px; color: var(--z200); box-shadow: 0 12px 24px -8px rgba(0,0,0,.7); animation: rise .2s ease both; }
+  .toast svg { color: var(--p300); }
+  .toast button { color: var(--p300); font-weight: 600; padding: 4px 8px; border-radius: 6px; }
+  .toast button:hover { background: rgba(255,255,255,.07); }
+
+  /* Visitor dock: the owner and the board, no tools */
+  .vrow { gap: 10px; padding: 0 14px 0 8px; }
+  .av { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: linear-gradient(180deg, var(--p400), var(--p700)); flex: none; }
+  .vtxt { display: flex; flex-direction: column; line-height: 1.2; }
+  .vtxt b { font-weight: 600; }
+  .vtxt small { font-size: 12px; color: var(--z400); display: flex; align-items: center; gap: 4px; }
+
+  /* D: Private | Public, and a Discord preview */
+  .seg { display: flex; padding: 3px; border-radius: 10px; background: rgba(0,0,0,.28); }
+  .seg button { flex: 1; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--z400); font-weight: 600; font-size: 13px; transition: background-color .15s, color .15s; }
+  .seg button:hover { color: var(--z200); }
+  .seg button.on { background: rgba(255,255,255,.1); color: var(--z50); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+  .seg button.on svg { color: var(--p300); }
+  .elabel { margin: 10px 2px 6px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--z500); }
+  .embed { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 8px 12px 12px; border-radius: 4px; background: #2b2d31; border-left: 4px solid var(--p500); font-family: 'gg sans', 'Noto Sans', ui-sans-serif, system-ui, sans-serif; }
+  .embed .site { font-size: 11px; color: #b5bac1; }
+  .embed .t { color: #00a8fc; font-weight: 600; font-size: 14px; }
+  .embed .d { font-size: 13px; color: #dbdee1; }
+  .embed .img { position: relative; margin-top: 8px; height: 118px; border-radius: 4px; overflow: hidden; background: var(--z900); }
+  .mini { position: absolute; left: 0; top: 0; width: 1000px; height: 310px; transform: scale(.385); transform-origin: 0 0; pointer-events: none;
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px); background-size: 64px 64px; background-position: -32px 16px; }
+  .embed.off > :not(.lockover) { opacity: .25; filter: grayscale(1); }
+  .lockover { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 6px; color: var(--z300); font-size: 13px; text-align: center; }
+  .lockover svg { color: var(--z400); }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>Share a board with a link anyone can open</h1>
+    <div class="chips">
+      <div class="chip"><b>Private by default</b>Nothing is shared until the owner turns it on.</div>
+      <div class="chip"><b>View only</b>Visitors look and copy; they never edit.</div>
+      <div class="chip"><b>Works signed out</b>A link from Discord opens without signing in.</div>
+      <div class="chip"><b>Easy to take back</b>Making it private again kills the link.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="No sharing; every board is private" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>No sharing; every board is private</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note bad">No way to show a board to anyone.</div>
+      <div class="note bad">Every page needs a Discord sign-in.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="Share in More; the dock grows a card" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>Share in More; the dock grows a card</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Same card morph as Rename and Delete.</div>
+      <div class="note good">A globe by the name says it's public.</div>
+      <div class="note bad">Two clicks deep, behind More.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="A share button in the dock, Private or Public" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>A share button in the dock, Private or Public</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">One click away; the button turns indigo while public.</div>
+      <div class="note good">Private and Public read as a choice.</div>
+      <div class="note bad">A fourth icon in the dock.</div>
+      <div class="note bad">Visitors get a banner instead of the dock.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="One click shares and copies; Undo takes it back" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>One click shares and copies; Undo takes it back</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The fastest: public and copied in one click.</div>
+      <div class="note good">The Public pill stays as a reminder.</div>
+      <div class="note bad">Publishes before you've read what that means.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="A share card with the Discord preview" data-v="d">
+    <div class="v-head"><span class="v-id">D</span><h2>A share card with the Discord preview</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Shows what friends will see in Discord.</div>
+      <div class="note bad">Wider than the dock, so the dock resizes.</div>
+      <div class="note bad">Needs a rendered preview image per board.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from B: a visitor view that keeps the dock.</div>
+      <div class="card"><b>Remix</b>Remix A: add D's Discord preview under the switch.</div>
+      <div class="card"><b>Settle</b>Settle on A; it adds the least new UI.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/e1f8-public-board-sharing.html';
+
+/* ---------- Icons: heroicons v2, 20/solid ---------- */
+const E = (d) => `<path fill-rule="evenodd" clip-rule="evenodd" d="${d}"/>`;
+const N = (d) => `<path d="${d}"/>`;
+const P = {
+  chevUD: E('M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z'),
+  star: E('M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z'),
+  pencil: N('m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.419a4 4 0 0 0-.885 1.343Z'),
+  dots: N('M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z'),
+  dup: N('M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z') + N('M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z'),
+  trash: E('M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z'),
+  plus: N('M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z'),
+  plusCircle: E('M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z'),
+  link: N('M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z') + N('M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z'),
+  globe: N('M16.555 5.412a8.028 8.028 0 0 0-3.503-2.81 14.899 14.899 0 0 1 1.663 4.472 8.547 8.547 0 0 0 1.84-1.662ZM13.326 7.825a13.43 13.43 0 0 0-2.413-5.773 8.087 8.087 0 0 0-1.826 0 13.43 13.43 0 0 0-2.413 5.773A8.473 8.473 0 0 0 10 8.5c1.18 0 2.304-.24 3.326-.675ZM6.514 9.376A9.98 9.98 0 0 0 10 10c1.226 0 2.4-.22 3.486-.624a13.54 13.54 0 0 1-.351 3.759A13.54 13.54 0 0 1 10 13.5c-1.079 0-2.128-.127-3.134-.366a13.538 13.538 0 0 1-.352-3.758ZM5.285 7.074a14.9 14.9 0 0 1 1.663-4.471 8.028 8.028 0 0 0-3.503 2.81c.529.638 1.149 1.199 1.84 1.66ZM17.334 6.798a7.973 7.973 0 0 1 .614 4.115 13.47 13.47 0 0 1-3.178 1.72 15.093 15.093 0 0 0 .174-3.939 10.043 10.043 0 0 0 2.39-1.896ZM2.666 6.798a10.042 10.042 0 0 0 2.39 1.896 15.196 15.196 0 0 0 .174 3.94 13.472 13.472 0 0 1-3.178-1.72 7.973 7.973 0 0 1 .615-4.115ZM10 15c.898 0 1.778-.079 2.633-.23a13.473 13.473 0 0 1-1.72 3.178 8.099 8.099 0 0 1-1.826 0 13.47 13.47 0 0 1-1.72-3.178c.855.151 1.735.23 2.633.23ZM14.357 14.357a14.912 14.912 0 0 1-1.305 3.04 8.027 8.027 0 0 0 4.345-4.345c-.953.542-1.971.981-3.04 1.305ZM6.948 17.397a8.027 8.027 0 0 1-4.345-4.345c.953.542 1.971.981 3.04 1.305a14.912 14.912 0 0 0 1.305 3.04Z'),
+  lock: E('M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z'),
+  check: E('M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z'),
+  shareUp: E('M13.75 7h-3V3.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0L6.2 4.74a.75.75 0 0 0 1.1 1.02l1.95-2.1V7h-3A2.25 2.25 0 0 0 4 9.25v7.5A2.25 2.25 0 0 0 6.25 19h7.5A2.25 2.25 0 0 0 16 16.75v-7.5A2.25 2.25 0 0 0 13.75 7Zm-3 0h-1.5v5.25a.75.75 0 0 0 1.5 0V7Z'),
+  x: N('M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z'),
+  bars2: E('M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z'),
+  eye: N('M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z') + E('M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z')
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+
+/* ---------- Board data ---------- */
+const NAMES = { antimage: 'Anti-Mage', juggernaut: 'Juggernaut', phantom_assassin: 'Phantom Assassin', luna: 'Luna', medusa: 'Medusa',
+  crystal_maiden: 'Crystal Maiden', lion: 'Lion', witch_doctor: 'Witch Doctor', axe: 'Axe', mars: 'Mars', tidehunter: 'Tidehunter', centaur: 'Centaur Warrunner',
+  invoker: 'Invoker', storm_spirit: 'Storm Spirit', queenofpain: 'Queen of Pain' };
+const thumb = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const BOARD_NAME = 'Ranked picks';
+const OWNER = 'Kier';
+const LINK = 'smarf.kierb.com/b/48213';
+const BOARD = [
+  { name: 'Carries', x: 32, y: 32, w: 536, heroes: ['antimage', 'juggernaut', 'phantom_assassin', 'luna', 'medusa'] },
+  { name: 'Supports', x: 608, y: 32, w: 360, heroes: ['crystal_maiden', 'lion', 'witch_doctor'] },
+  { name: 'Offlane', x: 32, y: 176, w: 448, heroes: ['axe', 'mars', 'tidehunter', 'centaur'] },
+  { name: 'Mid', x: 520, y: 176, w: 448, heroes: ['invoker', 'storm_spirit', 'queenofpain'] }
+];
+const HERO_COUNT = BOARD.reduce((n, c) => n + c.heroes.length, 0);
+
+/* ---------- Pieces ---------- */
+const heroCell = (s) => `<div class="cell hero"><div class="portrait"><img src="${thumb(s)}" alt="${NAMES[s]}" draggable="false"></div></div>`;
+
+// ro: read-only, for visitors (no grip, no trash, no Add cell)
+function boardHTML(ro, dy = 0) {
+  return `<div class="${ro ? 'ro-board' : 'ed'}">` + BOARD.map((c) => `<div class="cat" style="left:${c.x}px;top:${c.y + dy}px">
+    ${ro ? `<div class="head ro"><span class="title">${c.name}</span></div>`
+         : `<div class="head"><span class="grip">${icon('bars2')}</span><span class="title">${c.name}</span><span class="tools"><span class="ibtn">${icon('trash', 16)}</span></span></div>`}
+    <div class="tray" style="width:${c.w}px">${c.heroes.map(heroCell).join('')}${ro ? '' : `<div class="cell"><div class="add">${icon('plusCircle', 16)}Add</div></div>`}</div>
+  </div>`).join('') + '</div>';
+}
+
+const ib = (name, label, go, cls = '') => `<button class="ib ${cls}" data-go="${go}" title="${label}" aria-label="${label}">${icon(name)}</button>`;
+const sw = (pub) => `<button class="sw" title="Switch board"><span class="dot"></span><span class="nm">${BOARD_NAME}</span>${pub ? `<span class="pubmark" title="Public">${icon('globe', 14)}</span>` : ''}<span class="chev">${icon('chevUD', 16)}</span></button>`;
+const newCat = (locked) => `<button class="metal ${locked ? 'locked' : ''}">${icon('plus')}New category</button>`;
+const copyBtn = (done) => `<button class="copy ${done ? 'done' : ''}" data-go="copy">${done ? `${icon('check', 16)}Copied` : `${icon('link', 16)}Copy`}</button>`;
+const linkRow = (done) => `<div class="link"><span class="field">${icon('globe', 14)}${LINK}</span>${copyBtn(done)}</div>`;
+const copyToMine = (sm) => `<button class="metal ${sm ? 'sm' : ''}">${icon('dup', sm ? 16 : 20)}Copy to my boards</button>`;
+const visitorRow = () => `<div class="row vrow"><span class="av">${OWNER[0]}</span><span class="vtxt"><b>${BOARD_NAME}</b><small>by ${OWNER} · ${icon('eye', 12)}view only</small></span></div>`;
+
+function moreMenu(v, m) {
+  const share = v === 'a' ? `<button class="mi" data-go="menu-share">${icon('link', 16)}Share board…${m.pub ? '<span class="tag">Public</span>' : ''}</button>` : '';
+  return `<div class="pop mm" role="menu">${share}
+    <button class="mi">${icon('dup', 16)}Duplicate board</button>
+    <div class="msep"></div>
+    <button class="mi red">${icon('trash', 16)}Delete board…</button></div>`;
+}
+
+/* ---------- Share UI per variation ---------- */
+function cardA(m) {
+  return `<div class="scard">
+    <div class="card-h">Share board<button class="x" data-go="close" aria-label="Close">${icon('x', 16)}</button></div>
+    <button class="tgrow" data-go="toggle"><span class="switch ${m.pub ? 'on' : ''}"></span>
+      <span><b>Public link</b><small>${m.pub ? 'Anyone with the link can view it. Only you can edit.' : 'Off. Only you can see this board.'}</small></span></button>
+    ${m.pub ? linkRow(m.copied) : ''}
+  </div>`;
+}
+
+function popB(m) {
+  const opt = (on, go, ic, title, sub) => `<button class="opt ${on ? 'sel' : ''}" data-go="${go}">${icon(ic, 18)}<span><b>${title}</b><small>${sub}</small></span>${on ? `<span class="ck">${icon('check', 16)}</span>` : ''}</button>`;
+  return `<div class="pop sharepop">
+    <div class="ph">Share board</div>
+    ${opt(!m.pub, 'priv', 'lock', 'Private', 'Only you can see it')}
+    ${opt(m.pub, 'pub', 'globe', 'Public', 'Anyone with the link can view')}
+    ${m.pub ? `<div class="msep"></div>${linkRow(m.copied)}` : ''}
+  </div>`;
+}
+
+function cardD(m) {
+  return `<div class="scard wide">
+    <div class="card-h">Share board<button class="x" data-go="close" aria-label="Close">${icon('x', 16)}</button></div>
+    <div class="seg"><button data-go="priv" class="${m.pub ? '' : 'on'}">${icon('lock', 16)}Private</button><button data-go="pub" class="${m.pub ? 'on' : ''}">${icon('globe', 16)}Public</button></div>
+    <div class="elabel">In Discord</div>
+    <div class="embed ${m.pub ? '' : 'off'}">
+      <span class="site">Smarf</span><span class="t">${BOARD_NAME}</span><span class="d">${BOARD.length} categories · ${HERO_COUNT} heroes · by ${OWNER}</span>
+      <div class="img"><div class="mini">${boardHTML(true)}</div></div>
+      ${m.pub ? '' : `<div class="lockover">${icon('lock', 18)}Private boards don't preview</div>`}
+    </div>
+    ${m.pub ? linkRow(m.copied) : ''}
+  </div>`;
+}
+
+/* ---------- Render a canvas from its state ---------- */
+function render(v, m) {
+  if (m.visitor) {
+    if (v === 'b') return `<div class="banner"><span class="av">${OWNER[0]}</span><span class="who"><b>${BOARD_NAME}</b> by ${OWNER}</span><span class="vpill">${icon('eye', 12)}View only</span>${copyToMine(true)}</div>` + boardHTML(true, 40);
+    if (v === 'c') return boardHTML(true) + `<div class="dockwrap split"><div class="dock">${visitorRow()}</div>${copyToMine()}</div>`;
+    return boardHTML(true) + `<div class="dockwrap"><div class="dockbox"><div class="dock">${visitorRow()}</div></div>${copyToMine()}</div>`;
+  }
+
+  const card = (v === 'a' || v === 'd') && m.open === 'share';
+  let extra = '';
+  if (v === 'b') extra = ib(m.pub ? 'globe' : 'link', m.pub ? 'Public · Share board' : 'Share board', 'share', `${m.pub ? 'tint' : ''} ${m.open === 'share' ? 'on' : ''}`);
+  if (v === 'd') extra = ib(m.pub ? 'globe' : 'shareUp', 'Share board', 'share', `${m.pub ? 'tint' : ''} ${m.open === 'share' ? 'on' : ''}`);
+
+  let pill = '';
+  if (v === 'c') {
+    if (m.copied && !m.open) pill = `<button class="spill ok" data-go="share">${icon('check', 16)}Link copied</button>`;
+    else if (m.pub) pill = `<button class="spill pub ${m.open === 'pubmenu' ? 'on' : ''}" data-go="share">${icon('globe', 16)}Public</button>`;
+    else pill = `<button class="spill" data-go="share">${icon('link', 16)}Share</button>`;
+  }
+
+  const row = `<div class="row ${card ? 'folded' : ''}">${sw(v === 'a' && m.pub)}<div class="ibs">${ib('star', 'Favorite board', 'noop')}${ib('pencil', 'Rename board', 'noop')}${extra}${ib('dots', 'More board actions', 'more', m.open === 'more' ? 'on' : '')}</div>${pill}</div>`;
+
+  let over = '';
+  if (m.open === 'more') over = moreMenu(v, m);
+  if (v === 'b' && m.open === 'share') over = popB(m);
+  if (v === 'c' && m.open === 'pubmenu') over = `<div class="pop mm"><div class="mlabel">Anyone with the link</div>
+    <button class="mi" data-go="copy">${icon('link', 16)}Copy link</button>
+    <div class="msep"></div><button class="mi" data-go="priv">${icon('lock', 16)}Make private</button></div>`;
+  if (v === 'c' && m.copied && !m.open) over = `<div class="toast">${icon('globe', 16)}Public. Anyone with the link can view it.<button data-go="undo">Undo</button></div>`;
+
+  const inner = (card ? (v === 'a' ? cardA(m) : cardD(m)) : '') + row;
+  return boardHTML(false) + `<div class="dockwrap"><div class="dockbox"><div class="dock">${inner}</div>${over}</div>${newCat(card)}</div>`;
+}
+
+/* ---------- States per variation (toggle row), plus real clicks in the canvas ---------- */
+const PRESETS = {
+  now: [['Rest', {}], ['More menu', { open: 'more' }]],
+  a: [['Private', {}], ['More menu', { open: 'more' }], ['Card · off', { open: 'share' }], ['Card · on', { open: 'share', pub: 1 }], ['Copied', { open: 'share', pub: 1, copied: 1 }], ['Public at rest', { pub: 1 }], '|', ['Visitor', { pub: 1, visitor: 1 }]],
+  b: [['Private', {}], ['Popover · private', { open: 'share' }], ['Popover · public', { open: 'share', pub: 1 }], ['Copied', { open: 'share', pub: 1, copied: 1 }], ['Public at rest', { pub: 1 }], '|', ['Visitor', { pub: 1, visitor: 1 }]],
+  c: [['Private', {}], ['Just shared', { pub: 1, copied: 1 }], ['Public at rest', { pub: 1 }], ['Public menu', { pub: 1, open: 'pubmenu' }], '|', ['Visitor', { pub: 1, visitor: 1 }]],
+  d: [['Private', {}], ['Card · private', { open: 'share' }], ['Card · public', { open: 'share', pub: 1 }], ['Copied', { open: 'share', pub: 1, copied: 1 }], '|', ['Visitor', { pub: 1, visitor: 1 }]]
+};
+
+function step(v, m, go) {
+  switch (go) {
+    case 'more': m.open = m.open === 'more' ? null : 'more'; break;
+    case 'menu-share': m.open = 'share'; m.copied = 0; break;
+    case 'share':
+      if (v === 'c') {
+        if (!m.pub) { m.pub = 1; m.copied = 1; m.open = null; }
+        else { m.copied = 0; m.open = m.open === 'pubmenu' ? null : 'pubmenu'; }
+      } else { m.open = m.open === 'share' ? null : 'share'; m.copied = 0; }
+      break;
+    case 'close': m.open = null; m.copied = 0; break;
+    case 'toggle': m.pub = !m.pub; m.copied = 0; break;
+    case 'pub': m.pub = 1; m.copied = 0; break;
+    case 'priv': m.pub = 0; m.copied = 0; if (v === 'c') m.open = null; break;
+    case 'copy': m.copied = 1; if (v === 'c') m.open = null; break;
+    case 'undo': m.pub = 0; m.copied = 0; break;
+  }
+}
+
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const v = sec.dataset.v;
+  const notes = sec.querySelector('.notes');
+  let m = {};
+
+  const row = document.createElement('div'); row.className = 'states'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', 'State');
+  const frame = document.createElement('div'); frame.className = 'frame';
+  const app = document.createElement('div'); app.className = 'app'; frame.appendChild(app);
+  const draw = () => { app.innerHTML = render(v, m); };
+
+  const btns = [];
+  PRESETS[v].forEach((p) => {
+    if (p === '|') { const s = document.createElement('span'); s.className = 'sep-l'; row.appendChild(s); return; }
+    const b = document.createElement('button'); b.textContent = p[0]; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => { btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); m = { ...p[1] }; draw(); });
+    row.appendChild(b); btns.push(b);
+  });
+
+  sec.insertBefore(row, notes); sec.insertBefore(frame, notes);
+  btns[0].click();
+
+  app.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-go]');
+    if (t) step(v, m, t.dataset.go);
+    else if (!e.target.closest('.pop, .scard, .dock, .toast')) { m.open = null; if (v === 'c') m.copied = 0; }
+    else return;
+    btns.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+    draw();
+  });
+  frame.addEventListener('keydown', (e) => { if (e.key === 'Escape' && m.open) { e.stopPropagation(); m.open = null; m.copied = 0; draw(); } });
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
