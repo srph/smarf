@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Border Radius</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css" />
+<style>
+/* ───────── Page chrome (neutral) ───────── */
+:root {
+  --ink: #1c1c1e; --ink-2: #5b5b60; --ink-3: #8e8e93; --line: #e2e2e0; --paper: #f6f6f3; --card: #fff;
+  --good: #1f8a4c; --bad: #c2410c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+main { max-width: 1240px; margin: 0 auto; padding: 56px 32px 96px 72px; }
+.brief h1 { font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; max-width: 900px; }
+.goals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 56px; }
+.goal { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink-2); }
+.goal b { display: block; color: var(--ink); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.variation { margin-bottom: 64px; scroll-margin-top: 24px; }
+.vhead { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: relative; }
+.vid { font-weight: 800; font-size: 13px; background: var(--ink); color: #fff; border-radius: 6px; padding: 2px 8px; }
+.vname { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.vhead .spacer { flex: 1; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
+.seg button { border: 0; background: none; font: inherit; font-size: 12px; padding: 5px 10px; cursor: pointer; color: var(--ink-2); }
+.seg button[aria-pressed=true] { background: var(--ink); color: #fff; }
+.pick { border: 1px solid var(--line); background: var(--card); border-radius: 8px; font: inherit; font-size: 12px; font-weight: 600; padding: 5px 12px; cursor: pointer; color: var(--ink); }
+.pick:hover { background: #efefec; }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: 300px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,.12); padding: 6px; }
+.menu[hidden] { display: none; }
+.menu button { display: block; width: 100%; text-align: left; border: 0; background: none; font: inherit; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+.menu button:hover, .menu button:focus-visible { background: #f1f1ee; }
+.menu button b { display: block; font-size: 13px; }
+.menu button span { font-size: 12px; color: var(--ink-3); }
+.copied { margin: -4px 0 12px; font-size: 12px; color: var(--ink-2); display: flex; gap: 8px; align-items: center; }
+.copied[hidden] { display: none; }
+.copied code, .copied input { font: 12px ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; flex: 1; min-width: 0; }
+.copied em { font-style: normal; font-weight: 700; color: var(--good); }
+.pick:focus-visible, .seg button:focus-visible, .menu button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.canvas { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #18181b; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.notes { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.note { flex: 1 1 220px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+.note.good { border-left-color: var(--good); }
+.note.bad { border-left-color: var(--bad); }
+.note i { font-style: normal; font-weight: 700; margin-right: 6px; }
+.note.good i { color: var(--good); } .note.bad i { color: var(--bad); }
+.further h2 { font-size: 22px; margin: 0 0 12px; }
+.further .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.further .cards div { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink-2); }
+.further .cards b { display: block; color: var(--ink); margin-bottom: 2px; }
+.minimap { position: fixed; left: 18px; top: 50%; transform: translateY(-50%); z-index: 30; display: flex; flex-direction: column; gap: 2px; padding: 8px; border-radius: 10px; }
+.minimap button { display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 5px 4px; cursor: pointer; font: inherit; font-size: 12px; color: var(--ink-2); text-align: left; }
+.minimap .ln { width: 14px; height: 2px; border-radius: 2px; background: #c9c9c5; transition: width .2s, background .2s; flex: none; }
+.minimap button.on .ln { width: 24px; background: var(--ink); }
+.minimap .lb { display: none; white-space: nowrap; }
+.minimap:hover { background: var(--card); box-shadow: 0 8px 24px rgba(0,0,0,.1); border: 1px solid var(--line); }
+.minimap:hover .lb { display: inline; }
+.minimap button.on .lb { color: var(--ink); font-weight: 600; }
+
+/* ───────── Radius scales ─────────
+   Every mockup surface reads one of these roles. Variations set the roles; Now also overrides single elements, as the code does today. */
+.app { --r-full: 9999px; }
+.v-a { --r-tile: 4px; --r-xs: 6px; --r-sm: 6px; --r-ctrl: 8px; --r-lg: 12px; --r-row: 12px; --r-panel: 12px; }
+.v-b { --r-tile: 2px; --r-xs: 2px; --r-sm: 4px; --r-ctrl: 4px; --r-lg: 4px; --r-row: 4px; --r-panel: 6px; }
+.v-c { --r-tile: 6px; --r-xs: 6px; --r-sm: 8px; --r-ctrl: 10px; --r-lg: 14px; --r-row: 16px; --r-panel: 16px; }
+.v-d { --r-tile: 6px; --r-xs: 6px; --r-sm: 6px; --r-ctrl: 6px; --r-lg: 12px; --r-row: 12px; --r-panel: 12px; }
+/* Now: the toolbar's lg/xl ladder, plus older components still on `rounded` (4px), plus one-offs. */
+.v-now { --r-tile: 4px; --r-xs: 6px; --r-sm: 8px; --r-ctrl: 8px; --r-lg: 12px; --r-row: 4px; --r-panel: 12px; }
+.v-now :is(.btn, .input, .search, .discord, .pick-search) { --r-ctrl: 4px; --r-lg: 4px; }
+.v-now :is(.udrop, .picker) { --r-panel: 4px; }
+.v-now .attr { --r-xs: 4px; }
+.v-now .pclose { --r-sm: 6px; }
+.v-now .alert { --r-ctrl: 6px; }
+
+/* ───────── Mockup: Smarf's look ───────── */
+.app {
+  --z50:#fafafa; --z200:#e4e4e7; --z300:#d4d4d8; --z400:#a1a1aa; --z500:#71717a; --z600:#52525b; --z700:#3f3f46; --z800:#27272a; --z900:#18181b; --z950:#09090b;
+  --sky:#0ea5e9; --red:#ef4444; --red6:#dc2626; --red4:#f87171; --red3:#fca5a5;
+  --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117);
+  font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: var(--z50); background: var(--z900);
+  padding: 28px; display: grid; gap: 32px; position: relative;
+}
+.app * { box-sizing: border-box; }
+:where(.app) :where(button, input) { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; }
+:where(.app) :where(button, a) { cursor: pointer; }
+:where(.app) a { color: inherit; text-decoration: none; }
+.app svg { display: block; }
+:where(.app) input { outline: none; }
+.zl { font: 600 11px/1 ui-sans-serif, system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--z500); margin-bottom: 14px; }
+
+/* Scale strip */
+.scale { display: flex; gap: 18px; align-items: flex-end; flex-wrap: wrap; padding-bottom: 24px; border-bottom: 1px solid var(--z800); }
+.tok { display: grid; justify-items: center; gap: 8px; font: 600 11px/1.2 ui-sans-serif, system-ui, sans-serif; color: var(--z400); text-align: center; }
+.tok i { display: block; width: 56px; height: 40px; background: var(--z800); border: 1px solid var(--z700); border-top-color: var(--z500); border-left-color: var(--z500); }
+.tok b { display: block; color: var(--z200); font-size: 12px; }
+.scale .msg { margin-left: auto; align-self: center; max-width: 330px; font: 12px/1.45 ui-sans-serif, system-ui, sans-serif; color: var(--z400); text-align: right; }
+
+/* Navigation + home */
+.nav { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--z800); padding-bottom: 20px; margin-bottom: 24px; }
+.logo { display: inline-flex; align-items: center; gap: 12px; }
+.badge { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--r-ctrl); border: 1px solid color-mix(in oklch, var(--p200) 40%, transparent); background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: inset 0 1px 1px rgba(255,255,255,.5); filter: drop-shadow(0 0 12px oklch(58.5% 0.233 277.117 / .6)); font-weight: 900; font-size: 17px; }
+.word { font-weight: 900; font-size: 20px; letter-spacing: .025em; padding-top: 4px; }
+.navr { display: flex; align-items: center; gap: 24px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; border-radius: var(--r-ctrl); padding: 0 12px; font-weight: 700; transition: box-shadow .2s; }
+.btn.primary { background: var(--p500); padding-left: 8px; }
+.btn.primary .ic { color: var(--p200); }
+.btn.danger { background: var(--red); }
+.btn.clear { border: 1px solid var(--z700); }
+.btn:hover { box-shadow: 0 0 0 2px var(--sky); }
+.avatar { border-radius: var(--r-full); border: 2px solid var(--z700); padding: 6px; display: block; }
+.av { display: block; width: 40px; height: 40px; border-radius: var(--r-full); background: radial-gradient(circle at 35% 30%, #fde68a, #f97316 45%, #7c2d12); }
+.av.sm { width: 32px; height: 32px; }
+.home { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+.hhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.hhead h2 { margin: 0; font-size: 20px; }
+.search { display: flex; align-items: center; height: 32px; border-radius: var(--r-ctrl); border: 1px solid var(--z700); background: var(--z900); transition: box-shadow .2s; }
+.search:hover { box-shadow: 0 0 0 2px var(--sky); }
+.search input { padding: 0 8px; width: 160px; }
+.search input::placeholder { color: var(--z500); }
+.search .ic { padding: 0 8px; color: var(--z400); }
+.brow { display: flex; align-items: center; background: var(--z700); border-radius: var(--r-row); transition: box-shadow .2s; margin-bottom: 16px; }
+.brow:hover { box-shadow: 0 0 0 2px var(--sky); }
+.blink { display: flex; flex: 1; align-items: center; justify-content: space-between; padding: 0 0 0 16px; }
+.blink h3 { margin: 22px 0; font-size: 18px; font-weight: 500; }
+.blink span { font-size: 12px; color: var(--z400); }
+.star { padding: 16px; color: var(--z400); }
+.star.on { color: #eab308; }
+.skel { display: flex; align-items: center; gap: 16px; background: var(--z800); border-radius: var(--r-row); padding: 22px 16px; opacity: .6; }
+.skel i { display: block; height: 12px; width: 140px; background: var(--z700); border-radius: var(--r-tile); }
+.skel i.s { height: 8px; width: 64px; margin-left: auto; }
+.skel i.q { height: 24px; width: 24px; }
+.side { display: grid; gap: 16px; }
+.input { display: block; width: 100%; height: 32px; border-radius: var(--r-ctrl); border: 1px solid var(--z700); padding: 0 8px; }
+.discord { display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; background: var(--p500); border-radius: var(--r-lg); font-weight: 700; font-size: 16px; }
+.alert { display: flex; gap: 10px; align-items: flex-start; border-radius: var(--r-ctrl); border: 1px solid rgba(248,113,113,.35); background: rgba(69,10,10,.55); color: var(--red3); padding: 10px 12px; font-size: 13px; }
+.btnrow { display: flex; gap: 8px; }
+
+/* Board */
+.ws { background: var(--z950); border-radius: 10px; padding: 28px 28px 24px; display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px); background-size: 16px 16px; }
+.cat { border-radius: var(--r-panel); background: rgba(39,39,42,.8); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 1px rgba(0,0,0,.5), 0 10px 15px -3px rgba(0,0,0,.3); position: relative; }
+.cath { height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 8px; position: relative; }
+.grip { color: var(--z600); }
+.title { field-sizing: content; min-width: 1ch; border-radius: var(--r-xs); padding: 2px 6px; margin: 0 -6px; font-weight: 600; }
+.title:hover { background: rgba(255,255,255,.05); }
+.trash { margin-left: auto; width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--r-sm); color: var(--z400); }
+.trash:hover { background: rgba(255,255,255,.08); color: var(--red4); }
+.tray { display: flex; flex-wrap: wrap; padding: 3px; border-radius: var(--r-ctrl) var(--r-ctrl) var(--r-panel) var(--r-panel); border: 1px solid rgba(255,255,255,.08); background: var(--z900); width: 448px; }
+.hero { padding: 4px; }
+.portrait { width: 80px; height: 45px; border-radius: var(--r-tile); overflow: hidden; position: relative; transition: box-shadow .2s; }
+.hero:hover .portrait { box-shadow: 0 0 0 2px var(--sky); }
+.portrait::after { content: attr(data-n); position: absolute; left: 6px; bottom: 3px; font-size: 10px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.8); }
+.p1 { background: radial-gradient(circle at 60% 35%, #e0f2fe, #38bdf8 35%, #0c4a6e 80%); }
+.p2 { background: radial-gradient(circle at 40% 40%, #fecaca, #b91c1c 45%, #3f0d0d 85%); }
+.p3 { background: radial-gradient(circle at 55% 30%, #d9f99d, #4d7c0f 50%, #1a2e05 90%); }
+.p4 { background: radial-gradient(circle at 50% 30%, #f5d0fe, #a21caf 45%, #2e0636 90%); }
+.p5 { background: radial-gradient(circle at 50% 40%, #fef3c7, #d97706 45%, #451a03 90%); }
+.p6 { background: linear-gradient(160deg, #f8fafc, #94a3b8 50%, #1e293b); }
+.addw { padding: 4px; }
+.add { width: 80px; height: 45px; border-radius: var(--r-tile); border: 2px dashed var(--z500); background: var(--z700); display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; font-weight: 700; }
+.add .ic { color: var(--z500); }
+.confirmbar { position: absolute; left: 1px; right: 1px; top: 1px; height: 35px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 12px; background: linear-gradient(90deg, rgba(239,68,68,.35), rgba(239,68,68,.1) 45%, transparent 80%), var(--z800); border-radius: max(0px, calc(var(--r-panel) - 1px)) max(0px, calc(var(--r-panel) - 1px)) 0 0; font-size: 12px; }
+.confirmbar span { margin-right: auto; font-weight: 600; }
+.mini { height: 24px; border-radius: var(--r-xs); padding: 0 8px; font-size: 12px; font-weight: 700; background: var(--z700); color: var(--z200); }
+.mini:hover { background: var(--z600); }
+.mini.del { background: var(--red6); color: #fff; }
+.dockwrap { display: flex; align-items: flex-end; gap: 8px; width: 100%; justify-content: center; margin-top: 28px; }
+.dock { display: flex; align-items: center; height: 46px; padding: 0 4px; border-radius: var(--r-panel); border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.6); box-shadow: 0 25px 50px -12px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.05); backdrop-filter: blur(16px) saturate(1.5); }
+.sw { display: flex; align-items: center; height: 36px; border-radius: var(--r-ctrl); padding: 0 6px 0 12px; font-weight: 600; }
+.sw:hover, .ib:hover { background: rgba(255,255,255,.09); }
+.sw .dot { width: 8px; height: 8px; border-radius: var(--r-full); background: #22c55e; margin-right: 8px; }
+.sw .ch { margin-left: 12px; color: var(--z500); }
+.ib { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--r-ctrl); color: var(--z400); position: relative; }
+.unsaved { display: flex; align-items: center; height: 28px; margin: 0 4px 0 12px; padding: 0 10px; border-radius: var(--r-sm); background: rgba(239,68,68,.16); color: #fecaca; font-size: 12px; font-weight: 600; }
+.tip { position: absolute; bottom: calc(100% + 14px); left: 50%; transform: translateX(-50%); white-space: nowrap; border-radius: var(--r-xs); border: 1px solid var(--z700); background: var(--z950); padding: 4px 8px; font-size: 12px; color: var(--z200); box-shadow: 0 10px 15px -3px rgba(0,0,0,.6); }
+.metal { display: flex; align-items: center; gap: 8px; height: 46px; border-radius: var(--r-lg); padding: 0 20px 0 16px; font-weight: 700; color: #fff; border: 1px solid color-mix(in oklch, var(--p200) 40%, transparent); background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: inset 0 1px 1px rgba(255,255,255,.5), 0 10px 15px -3px rgba(0,0,0,.4); text-shadow: 0 1px 1px rgba(0,0,0,.25); }
+.metal.md { height: 36px; border-radius: var(--r-ctrl); padding: 0 12px; }
+
+/* Popovers */
+.pops { display: grid; grid-template-columns: 336px 336px 1fr; gap: 28px; align-items: start; }
+.stack { display: grid; gap: 20px; align-content: start; }
+.pop { border-radius: var(--r-panel); border: 1px solid rgba(255,255,255,.1); background: rgba(39,39,42,.95); padding: 6px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.7); }
+.field { display: flex; height: 36px; align-items: center; gap: 8px; border-radius: var(--r-ctrl); border: 1px solid var(--z700); background: var(--z900); padding: 0 10px; color: var(--z500); margin-bottom: 4px; }
+.field input { flex: 1; min-width: 0; height: 100%; color: var(--z50); }
+.field input::placeholder { color: var(--z500); }
+.sec { padding: 8px 10px 4px; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--z500); }
+.row { display: flex; width: 100%; height: 36px; align-items: center; gap: 10px; border-radius: var(--r-ctrl); padding: 0 10px; text-align: left; color: var(--z200); }
+.row:hover { background: rgba(255,255,255,.06); }
+.row .ck { width: 14px; color: var(--sky); }
+.row .nm { flex: 1; }
+.row .ct { font-size: 12px; color: var(--z500); }
+.row.cur { background: rgba(14,165,233,.12); }
+.row.new { color: var(--p300); font-weight: 600; }
+.sep { margin: 4px; border-top: 1px solid rgba(255,255,255,.08); }
+.mi { display: flex; width: 100%; align-items: center; gap: 10px; height: 36px; border-radius: var(--r-ctrl); padding: 0 8px 0 10px; color: var(--z200); }
+.mi .ic { color: var(--z400); }
+.mi.danger, .mi.danger .ic { color: var(--red4); }
+.mi:hover { background: rgba(255,255,255,.07); }
+.mi.danger:hover { background: rgba(239,68,68,.14); }
+.panel { padding: 16px; }
+.phd { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.phd h4 { margin: 0; font-size: 14px; line-height: 1.2; }
+.phd p { margin: 0; font-size: 12px; color: var(--z400); }
+.phd > div { flex: 1; }
+.pclose { width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--r-sm); color: var(--z500); margin-right: -6px; }
+.pclose:hover { background: var(--z700); color: var(--z50); }
+.well { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: var(--r-ctrl); background: rgba(239,68,68,.15); color: var(--red4); }
+.info { border-radius: var(--r-ctrl); border: 1px solid rgba(255,255,255,.06); background: rgba(0,0,0,.3); padding: 10px 12px; }
+.info b { display: block; }
+.info span { font-size: 12px; color: var(--z400); }
+.rinput { display: block; width: 100%; height: 40px; border-radius: var(--r-ctrl); border: 1px solid var(--sky); box-shadow: 0 0 0 3px rgba(14,165,233,.2); background: var(--z900); padding: 0 12px; font-weight: 600; }
+.racts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.ghost { height: 36px; border-radius: var(--r-ctrl); padding: 0 14px; font-weight: 700; color: var(--z300); }
+.ghost:hover { background: rgba(255,255,255,.08); }
+.hold { flex: 1; height: 36px; border-radius: var(--r-ctrl); border: 1px solid rgba(239,68,68,.55) !important; background: rgba(239,68,68,.08) !important; color: var(--red3) !important; font-weight: 700; }
+.udrop { width: 240px; border-radius: var(--r-panel); border: 1px solid var(--z700); background: var(--z900); overflow: hidden; }
+.udrop .uh { display: flex; align-items: center; gap: 16px; padding: 16px; border-bottom: 1px solid var(--z700); }
+.udrop .uh span { display: block; font-size: 12px; color: var(--z400); }
+.udrop a { display: flex; align-items: center; gap: 16px; padding: 16px; transition: background .2s; }
+.udrop a:not(:last-child) { border-bottom: 1px solid var(--z700); }
+.udrop a:hover { background: var(--z700); }
+.udrop a .ic { color: var(--z400); }
+.picker { border-radius: var(--r-panel); border: 1px solid var(--z700); background: var(--z900); overflow: hidden; }
+.phead { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--z700); font-weight: 700; }
+.pick-search input { width: 120px; }
+.pattr { display: flex; align-items: flex-start; padding: 12px 12px 4px; }
+.attr { margin: 4px 12px 0 4px; padding: 4px; border-radius: var(--r-xs); background: rgba(239,68,68,.2); color: var(--red4); }
+.pgrid { display: flex; flex-wrap: wrap; }
+.pk { padding: 3px; }
+.pick-t { display: block; width: 60px; border-radius: var(--r-tile); border: 2px solid transparent; }
+.pick-t:hover { border-color: var(--sky); }
+.pick-t .portrait { width: 100%; height: 32px; border-radius: max(0px, calc(var(--r-tile) - 2px)); }
+.pick-t .portrait::after { display: none; }
+
+/* Radii overlay: a tag at each surface's top-left corner with its computed radius. */
+.rlayer { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+.rtag { position: absolute; transform: translate(-4px, -9px); font: 700 10px/14px ui-monospace, Menlo, monospace; padding: 0 4px; border-radius: 3px; background: #fef08a; color: #1c1917; box-shadow: 0 1px 3px rgba(0,0,0,.5); }
+.rtag.odd { background: #fb923c; }
+.rbox { position: absolute; outline: 1px dashed rgba(254,240,138,.55); }
+</style>
+</head>
+<body>
+<nav class="minimap" id="minimap" aria-label="Variations"></nav>
+<main>
+  <section class="brief">
+    <h1>One radius scale for every surface in Smarf</h1>
+    <div class="goals">
+      <div class="goal"><b>Few steps</b>Each step has a rule you can apply without looking.</div>
+      <div class="goal"><b>Old meets new</b>Home, nav and hero picker match the board toolbar.</div>
+      <div class="goal"><b>Nesting</b>Rows inside popups sit concentric with their panel.</div>
+      <div class="goal"><b>Tokens</b>Lives in <code>@theme</code> as named <code>--radius-*</code>.</div>
+    </div>
+  </section>
+
+  <div id="variations"></div>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div><b>Explore</b>From A: try tiles at 6 so hero portraits echo the controls.</div>
+      <div><b>Remix</b>Remix D: keep hero tiles at 4 and the CTA buttons at 8.</div>
+      <div><b>Settle</b>Settle on A: three tokens in @theme, then sweep the 23 bare <code>rounded</code>s.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/explore/0002-border-radius.html';
+
+// Scale strip per variation: [label, role var, sub-label]. `msg` sits at the right of the strip.
+const VARIATIONS = [
+  { id: 'Now', cls: 'v-now', name: 'Toolbar ladder on top of old 4px',
+    scale: [['4', 'Old controls, tiles, rows'], ['6', 'Tooltip, title, mini'], ['8', 'Toolbar controls'], ['12', 'Toolbar, cards, popups']],
+    msg: 'Two systems side by side: board toolbar on lg/xl, everything older on bare <code>rounded</code>. Turn on Radii to see the clash.',
+    notes: [['bad', 'Home, nav, user menu and hero picker are 4px; the board around them is 8 and 12.'],
+            ['bad', 'Same-size icon buttons differ: category trash 8, panel close 6.'],
+            ['bad', 'User menu (4) and board popups (12) are both popovers.']] },
+  { id: 'A', cls: 'v-a', name: 'Finish the toolbar ladder: 4 · 6 · 8 · 12',
+    scale: [['4', 'tile', 'Hero portraits'], ['6', 'sm', 'Under 32px'], ['8', 'control', '32–40px'], ['12', 'panel', '44px+ and surfaces']],
+    msg: 'Radius by height. Already Tailwind’s sm / md / lg / xl, so most of the board doesn’t change.',
+    notes: [['good', 'Smallest diff: only the 4px leftovers move.'],
+            ['good', 'Rule is height-based, so new components pick a step without asking.'],
+            ['bad', 'Rows (8) in popups (12, 6px padding) are 2px off concentric.']] },
+  { id: 'B', cls: 'v-b', name: 'Sharp, like Dota’s grid: 2 · 4 · 6',
+    scale: [['2', 'tile', 'Portraits, mini'], ['4', 'control', 'All controls'], ['6', 'panel', 'Surfaces']],
+    msg: 'Pulls the toolbar down to the in-game hero grid’s near-square corners.',
+    notes: [['good', 'Closest to the Dota client; portraits read as cards, not chips.'],
+            ['bad', 'Fights the metal badge and the glassy toolbar, which want softness.'],
+            ['bad', 'Rewrites the newest, most polished work rather than the oldest.']] },
+  { id: 'C', cls: 'v-c', name: 'Soft and concentric: 6 · 8 · 10 · 16',
+    scale: [['6', 'tile', 'Portraits, xs'], ['8', 'sm', 'Under 32px'], ['10', 'control', '32–40px'], ['16', 'panel', 'Surfaces']],
+    msg: 'Panel minus padding: 16 − 6 = 10, so popup rows nest exactly.',
+    notes: [['good', 'Popup rows nest exactly inside their panel.'],
+            ['bad', '10 and 14 are off Tailwind’s scale: needs custom tokens.'],
+            ['bad', 'Categories at 16 look bubbly next to 6px portraits.']] },
+  { id: 'D', cls: 'v-d', name: 'Just two: 6 inside, 12 outside',
+    scale: [['6', 'inner', 'Anything inside a surface'], ['12', 'outer', 'Surfaces and big CTAs']],
+    msg: 'One question per element: is it a surface? 12. Otherwise 6.',
+    notes: [['good', 'Fewest decisions; 12 − 6 padding nests popup rows exactly.'],
+            ['good', 'Portraits, buttons and fields share one corner.'],
+            ['bad', 'Toolbar buttons and switcher go 8 → 6, slightly tighter than today.']] }
+];
+
+const I = {
+  plus: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/></svg>',
+  star: '<svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M10 2.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L10 14.4l-4.6 2.5.9-5.2L2.5 8l5.2-.8L10 2.5z" stroke-linejoin="round"/></svg>',
+  starOn: '<svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L10 14.4l-4.6 2.5.9-5.2L2.5 8l5.2-.8L10 2.5z"/></svg>',
+  starSm: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5l2.3 4.7 5.2.8-3.8 3.7.9 5.2L10 14.4l-4.6 2.5.9-5.2L2.5 8l5.2-.8L10 2.5z"/></svg>',
+  bars: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"/></svg>',
+  trash: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.44c-.8.08-1.57.18-2.34.32a.75.75 0 1 0 .26 1.48l.15-.03.8 10.06A2.75 2.75 0 0 0 7.62 18.5h4.76a2.75 2.75 0 0 0 2.74-2.48l.81-10.06.15.03a.75.75 0 1 0 .26-1.48A41 41 0 0 0 14 4.19v-.44A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.67.03 2.5.08v-.33c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.33C8.33 4.03 9.16 4 10 4Z" clip-rule="evenodd"/></svg>',
+  plusc: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd"/></svg>',
+  pencil: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="m2.7 13.6-.8 3.6a.75.75 0 0 0 .9.9l3.6-.8L15.9 7.8 12.2 4.1 2.7 13.6ZM16.9 6.8l.8-.8a2.6 2.6 0 0 0-3.7-3.7l-.8.8 3.7 3.7Z"/></svg>',
+  dots: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm5.5 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm7-1.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/></svg>',
+  updown: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z" clip-rule="evenodd"/></svg>',
+  search: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.45 4.39l3.08 3.08a.75.75 0 1 1-1.06 1.06l-3.08-3.08A7 7 0 0 1 2 9Z" clip-rule="evenodd"/></svg>',
+  check: '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 4.15a.75.75 0 0 1 .14 1.05l-8 10.5a.75.75 0 0 1-1.13.08l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.9 3.9 7.47-9.82a.75.75 0 0 1 1.05-.14Z" clip-rule="evenodd"/></svg>',
+  dup: '<svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.88a1.5 1.5 0 0 1 1.06.44l3.12 3.12A1.5 1.5 0 0 1 17 6.62V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.38a3 3 0 0 0-.88-2.12L10.5 5.38A3 3 0 0 0 8.38 4.5H7v-1Z"/><path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.88a1.5 1.5 0 0 0-.44-1.06L9.44 6.44A1.5 1.5 0 0 0 8.38 6H4.5Z"/></svg>',
+  x: '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>',
+  discord: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52c-.21.38-.45.87-.61 1.25a18.3 18.3 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25 19.7 19.7 0 0 0-4.88 1.52C.53 9.05-.32 13.58.1 18.06a19.9 19.9 0 0 0 6 3.03c.49-.66.92-1.36 1.3-2.1-.71-.27-1.39-.6-2.04-.98.17-.13.34-.26.5-.4a14.2 14.2 0 0 0 12.28 0c.17.14.34.27.5.4-.65.38-1.33.71-2.04.98.38.74.81 1.44 1.3 2.1a19.9 19.9 0 0 0 6-3.03c.5-5.18-.84-9.67-3.58-13.69ZM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42s.96-2.42 2.16-2.42 2.18 1.1 2.16 2.42c0 1.33-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42s.95-2.42 2.15-2.42 2.18 1.1 2.16 2.42c0 1.33-.95 2.42-2.16 2.42Z"/></svg>'
+};
+
+const mockup = (v) => `
+<div class="scale">
+  ${v.scale.map(([px, role, sub]) => `<div class="tok"><i style="border-radius:${px}px"></i><b>${px}px</b>${sub ? `${role}<br>${sub}` : role}</div>`).join('')}
+  <div class="msg">${v.msg}</div>
+</div>
+
+<div>
+  <div class="zl">Navigation and home</div>
+  <div class="nav">
+    <a href="#" class="logo"><span class="badge r">S</span><span class="word">SMARF</span></a>
+    <div class="navr">
+      <button class="btn primary r"><span class="ic">${I.plus}</span>New Board</button>
+      <button class="avatar" title="Account menu"><span class="av"></span></button>
+    </div>
+  </div>
+  <div class="home">
+    <div>
+      <div class="hhead"><h2>Boards</h2><label class="search r"><input placeholder="Search..." /><span class="ic">${I.search}</span></label></div>
+      <div class="brow r"><a href="#" class="blink"><h3>Carry pool</h3><span>2 hours ago</span></a><button class="star on">${I.starOn}</button></div>
+      <div class="brow"><a href="#" class="blink"><h3>Ranked supports</h3><span>3 days ago</span></a><button class="star">${I.star}</button></div>
+      <div class="skel r"><i class="r"></i><i class="s"></i><i class="q"></i></div>
+    </div>
+    <div class="side">
+      <div class="alert r">${I.x}<span>Discord sign-in didn’t finish. Try again.</span></div>
+      <a href="#" class="discord r">${I.discord}Continue with Discord</a>
+      <input class="input r" value="Carry pool" aria-label="Board name" />
+      <div class="btnrow"><button class="btn clear r">Cancel</button><button class="btn danger">Delete</button></div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="zl">Board</div>
+  <div class="ws">
+    <div class="cat r">
+      <div class="cath">
+        <span class="grip">${I.bars}</span>
+        <input class="title r" value="Carries" aria-label="Category name" style="background:rgba(255,255,255,.05)" />
+        <button class="trash r" title="Delete category">${I.trash}</button>
+      </div>
+      <div class="tray r">
+        <div class="hero"><div class="portrait p1 r" data-n="Crystal"></div></div>
+        <div class="hero"><div class="portrait p2" data-n="Axe"></div></div>
+        <div class="hero"><div class="portrait p3" data-n="Venomancer"></div></div>
+        <div class="hero"><div class="portrait p5" data-n="Juggernaut"></div></div>
+        <div class="addw"><button class="add r"><span class="ic">${I.plusc}</span>Add</button></div>
+      </div>
+    </div>
+    <div class="cat">
+      <div class="cath" style="width:272px">
+        <div class="confirmbar"><span>Delete Offlane?</span>
+          <button class="mini r">Cancel</button><button class="mini del">Delete</button></div>
+      </div>
+      <div class="tray" style="width:272px; opacity:.45; filter: grayscale(1)">
+        <div class="hero"><div class="portrait p2" data-n="Mars"></div></div>
+        <div class="hero"><div class="portrait p3" data-n="Tide"></div></div>
+      </div>
+    </div>
+    <div class="dockwrap">
+      <div class="dock r">
+        <button class="sw r"><span class="dot"></span>Carry pool<span class="ch">${I.updown}</span></button>
+        <span class="unsaved r">Couldn’t save</span>
+        <div style="display:flex;gap:2px">
+          <button class="ib" style="color:#eab308">${I.starSm}</button>
+          <button class="ib r" style="background:rgba(255,255,255,.09);color:var(--z50)"><span class="tip r">Rename board</span>${I.pencil}</button>
+          <button class="ib">${I.dots}</button>
+        </div>
+      </div>
+      <button class="metal r"><span>${I.plus}</span>New category</button>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="zl">Popovers and menus</div>
+  <div class="pops">
+    <div class="stack">
+      <div class="pop r">
+        <label class="field r">${I.search}<input placeholder="Find a board…" aria-label="Find a board" /></label>
+        <div class="sec">Favorites</div>
+        <button class="row cur r"><span class="ck">${I.check}</span><span class="nm">Carry pool</span><span class="ct">12 heroes</span></button>
+        <div class="sec">All boards</div>
+        <button class="row"><span class="ck"></span><span class="nm">Ranked supports</span><span class="ct">8 heroes</span></button>
+        <button class="row"><span class="ck"></span><span class="nm">Turbo</span><span class="ct">20 heroes</span></button>
+        <div class="sep"></div>
+        <button class="row new"><span>${I.plus.replace(/20"/g, '16"')}</span>New board</button>
+      </div>
+      <div class="pop" style="width:224px">
+        <button class="mi r"><span class="ic">${I.dup}</span>Duplicate board</button>
+        <div class="sep"></div>
+        <button class="mi danger"><span class="ic">${I.trash}</span>Delete board…</button>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="pop panel">
+        <div class="phd"><div><h4>Rename board</h4></div><button class="pclose r" title="Close">${I.x}</button></div>
+        <input class="rinput r" value="Carry pool" aria-label="Board name" />
+        <div class="racts"><button class="ghost r">Cancel</button><button class="metal md r">Save</button></div>
+      </div>
+      <div class="pop panel">
+        <div class="phd"><span class="well r">${I.trash}</span><div><h4>Delete this board?</h4><p>This can’t be undone.</p></div><button class="pclose" title="Close">${I.x}</button></div>
+        <div class="info r"><b>Carry pool</b><span>4 categories · 12 heroes · edited 2 hours ago</span></div>
+        <div class="racts"><button class="ghost">Cancel</button><button class="hold r">Hold to delete</button></div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="udrop r">
+        <div class="uh"><span class="av sm"></span><div><b>Kunkka</b><span>Signed in with Discord</span></div></div>
+        <a href="#"><span class="ic">${I.pencil}</span>Account</a>
+        <a href="#"><span class="ic">${I.dots}</span>About</a>
+        <a href="#"><span class="ic">${I.x}</span>Log out</a>
+      </div>
+      <div class="picker r">
+        <div class="phead">Select Hero
+          <label class="search pick-search r"><input placeholder="Search..." aria-label="Search heroes" /><span class="ic">${I.search}</span></label></div>
+        <div class="pattr">
+          <span class="attr r">${I.trash.replace(/16"/g, '14"')}</span>
+          <div class="pgrid">${['p2','p5','p3','p1','p4','p6','p2','p3','p5'].map((p, i) => `<div class="pk"><button class="pick-t ${i === 0 ? 'r' : ''}"><div class="portrait ${p}"></div></button></div>`).join('')}</div>
+        </div>
+        <div style="height:10px"></div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const promptFor = (verb, v) => {
+  const tail = `${v.id} in ${FILE}`;
+  if (verb === 'explore') return `Explore from ${tail}`;
+  if (verb === 'remix') return `Remix ${tail}:`;
+  return `Settle on ${tail}. Use it as target output and implementation reference. Build it in the codebase's conventions and tech stack.`;
+};
+const ACTIONS = [
+  ['explore', 'Explore from this', 'New variations in this direction'],
+  ['remix', 'Remix this', 'Fork it and apply your changes'],
+  ['settle', 'Settle on this', 'Build it in the codebase']
+];
+
+const root = document.getElementById('variations');
+const minimap = document.getElementById('minimap');
+
+// Draws a tag with the computed radius on each `.r` surface. Orange marks values off the variation's own scale.
+function drawRadii(app, v) {
+  app.querySelector('.rlayer')?.remove();
+  const layer = document.createElement('div');
+  layer.className = 'rlayer';
+  const base = app.getBoundingClientRect();
+  const allowed = new Set(v.scale.map(([px]) => px));
+  app.querySelectorAll('.r').forEach((el) => {
+    const b = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    const tl = parseFloat(cs.borderTopLeftRadius), bl = parseFloat(cs.borderBottomLeftRadius);
+    const val = tl === bl ? `${tl}` : `${tl}/${bl}`;
+    const box = document.createElement('div');
+    box.className = 'rbox';
+    Object.assign(box.style, { left: `${b.left - base.left}px`, top: `${b.top - base.top}px`, width: `${b.width}px`, height: `${b.height}px`, borderRadius: cs.borderRadius });
+    const tag = document.createElement('div');
+    tag.className = 'rtag' + (v.id !== 'Now' && ![tl, bl].every((n) => allowed.has(String(n))) ? ' odd' : '');
+    tag.textContent = val;
+    // Surfaces that hold other tagged surfaces put their tag top-right, so the child's tag doesn't cover it.
+    const outer = el.querySelector('.r');
+    Object.assign(tag.style, outer
+      ? { left: `${b.right - base.left}px`, top: `${b.top - base.top}px`, transform: 'translate(calc(-100% + 4px), -9px)' }
+      : { left: `${b.left - base.left}px`, top: `${b.top - base.top}px` });
+    layer.append(box, tag);
+  });
+  app.appendChild(layer);
+}
+
+VARIATIONS.forEach((v) => {
+  const sec = document.createElement('section');
+  sec.className = 'variation';
+  sec.id = `v-${v.id}`;
+  sec.innerHTML = `
+    <div class="vhead">
+      <span class="vid">${v.id}</span><span class="vname">${v.name}</span><span class="spacer"></span>
+      <div class="seg" role="group" aria-label="Radius labels">
+        <button type="button" data-mode="clean" aria-pressed="true">Clean</button>
+        <button type="button" data-mode="radii" aria-pressed="false">Radii</button>
+      </div>
+      <button type="button" class="pick" aria-haspopup="menu" aria-expanded="false">Pick ▾</button>
+      <div class="menu" role="menu" hidden>
+        ${ACTIONS.map(([k, label, hint]) => `<button type="button" role="menuitem" data-verb="${k}"><b>${label}</b><span>${hint}</span></button>`).join('')}
+      </div>
+    </div>
+    <div class="copied" hidden></div>
+    <div class="canvas"><div class="app ${v.cls}">${mockup(v)}</div></div>
+    <div class="notes">${v.notes.map(([k, t]) => `<div class="note ${k}"><i>${k === 'good' ? 'Good' : 'Bad'}</i>${t}</div>`).join('')}</div>`;
+  root.appendChild(sec);
+
+  const app = sec.querySelector('.app');
+  app.addEventListener('click', (e) => { if (e.target.closest('a')) e.preventDefault(); });
+  let mode = 'clean';
+  const setMode = (m) => {
+    mode = m;
+    sec.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+    if (m === 'radii') drawRadii(app, v); else app.querySelector('.rlayer')?.remove();
+  };
+  sec.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  window.addEventListener('resize', () => { if (mode === 'radii') drawRadii(app, v); });
+  document.fonts?.ready.then(() => { if (mode === 'radii') drawRadii(app, v); });
+
+  const pick = sec.querySelector('.pick');
+  const menu = sec.querySelector('.menu');
+  const copied = sec.querySelector('.copied');
+  pick.addEventListener('click', (e) => { e.stopPropagation(); menu.hidden ? openMenu(pick, menu) : closeMenus(); });
+  menu.querySelectorAll('button').forEach((b) => b.addEventListener('click', async () => {
+    const text = promptFor(b.dataset.verb, v);
+    closeMenus(); pick.focus();
+    try {
+      await navigator.clipboard.writeText(text);
+      copied.innerHTML = '<em>Copied</em><code></code>';
+      copied.querySelector('code').textContent = text;
+    } catch {
+      copied.innerHTML = '<em style="color:var(--ink-2)">Copy this</em><input readonly />';
+      const input = copied.querySelector('input'); input.value = text; input.focus(); input.select();
+    }
+    copied.hidden = false;
+  }));
+
+  const mm = document.createElement('button');
+  mm.type = 'button';
+  mm.innerHTML = `<span class="ln"></span><span class="lb">${v.id} · ${v.name}</span>`;
+  mm.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
+  minimap.appendChild(mm);
+});
+
+function closeMenus() {
+  document.querySelectorAll('.menu').forEach((m) => { m.hidden = true; });
+  document.querySelectorAll('.pick').forEach((p) => p.setAttribute('aria-expanded', 'false'));
+}
+function openMenu(pick, menu) {
+  closeMenus(); menu.hidden = false; pick.setAttribute('aria-expanded', 'true'); menu.querySelector('button').focus();
+}
+document.addEventListener('click', (e) => { if (!e.target.closest('.menu')) closeMenus(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const open = document.querySelector('.menu:not([hidden])');
+    if (open) { closeMenus(); open.previousElementSibling.focus(); }
+  }
+});
+
+const sections = [...document.querySelectorAll('.variation')];
+const lines = [...minimap.children];
+const updateMinimap = () => {
+  let idx = 0;
+  sections.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight * 0.35) idx = i; });
+  lines.forEach((l, i) => l.classList.toggle('on', i === idx));
+};
+window.addEventListener('scroll', updateMinimap, { passive: true });
+updateMinimap();
+</script>
+</body>
+</html>
