@@ -45,6 +45,8 @@ class DiscordAuthTest extends TestCase
 
         $user = User::where('discord_id', '1001')->firstOrFail();
         $this->assertSame('Pudge', $user->name);
+        $this->assertSame('pudge', $user->discord_username);
+        $this->assertSame('Pudge', $user->discord_global_name);
         $this->assertSame('pudge@example.com', $user->email);
         $this->assertSame('https://cdn.discordapp.com/avatars/1001/abc.png', $user->avatar);
 
@@ -75,6 +77,8 @@ class DiscordAuthTest extends TestCase
         $this->assertSame(1, User::where('discord_id', '1002')->count());
         // No display name: falls back to the username.
         $this->assertSame('axe', $user->fresh()->name);
+        $this->assertSame('axe', $user->fresh()->discord_username);
+        $this->assertNull($user->fresh()->discord_global_name);
     }
 
     public function test_an_unverified_email_is_not_stored()

@@ -57,6 +57,9 @@ class DiscordAuthController extends Controller
         $user = User::firstOrNew(['discord_id' => $discord->getId()]);
 
         $user->fill([
+            // The unique handle, and the optional display name.
+            'discord_username' => $discord->user['username'],
+            'discord_global_name' => $discord->user['global_name'] ?? null,
             // Discord's display name; Socialite's getName() is the username.
             'name' => $discord->user['global_name'] ?? $discord->getName(),
             // An unverified email could belong to someone else.
