@@ -35,10 +35,13 @@ const BoardListItem: React.FC<Props> = ({ board }) => {
       transition={moveTransition}
       onLayoutAnimationComplete={() => setIsMoving(false)}
       className={cn(
-        'relative flex items-center rounded-xl bg-zinc-700 ring-2 ring-transparent transition-shadow duration-200 not-last:mb-4 hover:ring-sky-500',
+        // Focusing the link rings the whole row, star included; the star rings itself.
+        'relative flex items-center rounded-xl bg-zinc-700 ring-2 ring-transparent transition-shadow duration-200 not-last:mb-4 hover:ring-sky-500 has-[a:focus-visible]:ring-focus',
         isMoving && 'z-(--z-board-list-moving-item)'
       )}>
-      <Link to={`/b/${board.id}`} className="flex w-full items-center justify-between p-4 pr-0">
+      <Link
+        to={`/b/${board.id}`}
+        className="flex w-full items-center justify-between p-4 pr-0 focus-visible:outline-none">
         <h3 className="my-4.5 text-lg font-medium">{board.name}</h3>
         <span className="text-xs text-zinc-400">
           <TimeAgo time={board.updated_at} />
@@ -48,9 +51,13 @@ const BoardListItem: React.FC<Props> = ({ board }) => {
       <PlainButton
         type="button"
         title={board.is_favorite ? 'Unfavorite board' : 'Favorite board'}
-        onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}>
-        <div className="p-4 text-zinc-400">
-          <FavoriteIcon value={board.is_favorite} size={24} />
+        onClick={() => favoriteBoard({ is_favorite: !board.is_favorite })}
+        className="group/star focus-visible:outline-none">
+        {/* The ring hugs the star, so it stays inside the row. */}
+        <div className="p-3 text-zinc-400">
+          <div className="rounded-lg p-1 focus-gap-zinc-700 group-focus-visible/star:ring-focus">
+            <FavoriteIcon value={board.is_favorite} size={24} />
+          </div>
         </div>
       </PlainButton>
     </motion.div>

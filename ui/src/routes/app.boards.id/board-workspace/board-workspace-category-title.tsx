@@ -31,7 +31,7 @@ const BoardWorkspaceCategoryTitle: React.FC<Props> = ({ value, onChange }) => {
       size={Math.max(input.length, 1)}
       aria-label="Category name"
       // No rename button: the hover tint says it's editable, and focus shows the sky ring.
-      className="-mx-1.5 field-sizing-content min-w-[1ch] rounded-md px-1.5 py-0.5 font-semibold outline-none hover:bg-white/5 focus:bg-zinc-900 focus:ring-2 focus:ring-sky-500"
+      className="-mx-1.5 field-sizing-content min-w-[1ch] rounded-md px-1.5 py-0.5 font-semibold outline-none hover:bg-white/5 focus:bg-zinc-900 focus-visible:ring-focus"
     />
   )
 }

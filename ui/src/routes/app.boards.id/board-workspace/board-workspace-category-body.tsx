@@ -141,7 +141,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
       <div
         {...attributes}
         className={cn(
-          'group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg inset-ring backdrop-blur-sm transition-shadow',
+          'group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg inset-ring backdrop-blur-sm transition-shadow focus-visible:ring-focus',
           isActive
             ? 'ring-2 ring-sky-500 inset-ring-white/15'
             : isConfirmingDelete
@@ -153,7 +153,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
         // Heroes grey out while the card asks to be deleted (group-data-deleting: in the hero tile).
         data-deleting={isConfirmingDelete || undefined}
         style={{ transform: `translate3d(${category.x_position}px, ${category.y_position}px, 0)` }}>
-        <div className="relative flex h-9 items-center gap-2 pr-1.5 pl-2">
+        <div className="relative flex h-9 items-center gap-2 pr-1.5 pl-2 focus-gap-zinc-800">
           <div
             ref={setDraggableNodeRef}
             {...listeners}
@@ -168,7 +168,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
             type="button"
             title="Delete category"
             onClick={() => setIsConfirmingDelete(true)}
-            className="ml-auto grid size-7 cursor-pointer place-items-center rounded-md text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100">
+            className="ml-auto grid size-7 cursor-pointer place-items-center rounded-md text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100 focus-visible:ring-focus">
             <Icon icon={TrashIcon} size={16} />
           </button>
 
@@ -217,7 +217,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
           }}>
           <div
             ref={mergeRefs<HTMLDivElement>(setDroppableNodeRef, setContainerElement)}
-            className="flex flex-wrap rounded-t-lg rounded-b-xl border border-white/8 bg-zinc-900"
+            className="flex flex-wrap rounded-t-lg rounded-b-xl border border-white/8 bg-zinc-900 focus-gap-zinc-900"
             // Sizes come from constants the drag-and-drop math also uses, so they stay inline. The border comes out of
             // the padding, so heroes keep their cells.
             style={{
@@ -244,7 +244,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
                 }}
                 trigger={
                   <button
-                    className="flex cursor-pointer items-center justify-center rounded-sm border-2 border-dashed border-zinc-500 bg-zinc-700 p-2"
+                    className="flex cursor-pointer items-center justify-center rounded-sm border-2 border-dashed border-zinc-500 bg-zinc-700 p-2 focus-visible:ring-focus"
                     style={{ width: CATEGORY_HERO_WIDTH, height: CATEGORY_HERO_HEIGHT }}>
                     <div className="mr-2 text-zinc-500">
                       <Icon icon={PlusCircleIcon} size={16} />

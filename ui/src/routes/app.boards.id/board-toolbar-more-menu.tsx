@@ -13,7 +13,7 @@ interface Props {
 }
 
 const item =
-  'flex h-9 cursor-pointer items-center gap-2.5 rounded-lg pr-2 pl-2.5 text-zinc-200 outline-none data-disabled:cursor-progress data-disabled:opacity-60 data-highlighted:bg-white/7'
+  'flex h-9 cursor-pointer items-center gap-2.5 rounded-lg pr-2 pl-2.5 text-zinc-200 outline-none data-disabled:cursor-progress data-disabled:opacity-60 data-highlighted:bg-white/7 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400'
 
 /** The board's less frequent actions: Duplicate, and Delete below a rule. */
 const BoardToolbarMoreMenu: React.FC<Props> = ({ onDuplicate, onDelete, isDuplicating, ref }) => (
@@ -39,7 +39,9 @@ const BoardToolbarMoreMenu: React.FC<Props> = ({ onDuplicate, onDelete, isDuplic
 
           <Menu.Separator className="mx-1 my-1 border-t border-white/8" />
 
-          <Menu.Item className={cn(item, 'text-red-400 data-highlighted:bg-red-500/14')} onClick={onDelete}>
+          <Menu.Item
+            className={cn(item, 'text-red-400 focus-visible:inset-ring-red-400 data-highlighted:bg-red-500/14')}
+            onClick={onDelete}>
             <Icon icon={TrashIcon} size={16} />
             Delete board…
           </Menu.Item>

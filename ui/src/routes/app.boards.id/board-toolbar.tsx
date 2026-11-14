@@ -109,7 +109,8 @@ const BoardToolbar: React.FC = () => {
               'animate-toolbar-rise motion-reduce:animate-none',
               'relative overflow-hidden rounded-xl border border-white/10 bg-zinc-800/60 shadow-2xl ring-1 inset-shadow-xs shadow-black/70 ring-black/50 inset-shadow-white/5 backdrop-blur-lg backdrop-saturate-150',
               'transition-colors duration-250',
-              isDanger && 'border-red-500/55 bg-red-950/70'
+              // The focus ring's gap matches the glass, which turns red while a delete is armed.
+              isDanger ? 'border-red-500/55 bg-red-950/70 focus-gap-red-950' : 'focus-gap-zinc-800'
             )}>
             {/* The card grows from the dock's top edge. contain-inline-size keeps it to the dock's width: the row sets that. */}
             <AnimatePresence initial={false}>

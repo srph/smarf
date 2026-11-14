@@ -48,7 +48,7 @@ const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
         onChange={(evt) => setName(evt.target.value)}
         aria-label="Board name"
         spellCheck={false}
-        className="block h-10 w-full rounded-lg border border-sky-500 bg-zinc-900 px-3 font-semibold text-zinc-50 ring-3 ring-sky-500/20 outline-none selection:bg-sky-500/45"
+        className="block h-10 w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 font-semibold text-zinc-50 outline-none selection:bg-sky-500/45 focus-visible:border-sky-400 focus-visible:ring-focus-field"
       />
 
       <div className="mt-3 flex items-center gap-2">
@@ -57,7 +57,7 @@ const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
         <button
           type="button"
           onClick={onClose}
-          className="ml-auto h-9 cursor-pointer rounded-lg px-3.5 font-bold text-zinc-300 transition-colors hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-sky-500">
+          className="ml-auto h-9 cursor-pointer rounded-lg px-3.5 font-bold text-zinc-300 transition-colors hover:bg-white/8 focus-visible:ring-focus">
           Cancel
         </button>
 

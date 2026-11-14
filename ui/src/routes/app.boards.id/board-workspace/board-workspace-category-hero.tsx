@@ -30,13 +30,19 @@ const BoardWorkspaceCategoryHero: React.FC<Props> = ({ hero, removing = false })
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="shrink-0">
+    // Focus lands on this padded cell; the portrait inside shows the ring.
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="group/hero shrink-0 focus-visible:outline-none">
       <div className="relative" style={{ width: CATEGORY_HERO_WIDTH }}>
         {/* Off a category: a red outline with a gap, so it reads around the portrait rather than on it. */}
         <div
           className={cn(
             'overflow-hidden rounded-sm ring-sky-500',
-            removing ? 'outline-3 outline-offset-3 outline-red-500' : 'hover:ring-2'
+            removing ? 'outline-3 outline-offset-3 outline-red-500' : 'group-focus-visible/hero:ring-focus hover:ring-2'
           )}>
           {/* Greyed out while its category asks to be deleted (the card sets data-deleting). */}
           <div

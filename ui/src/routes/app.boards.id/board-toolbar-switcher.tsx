@@ -51,7 +51,7 @@ const BoardToolbarSwitcher: React.FC<Props> = ({ status, justRenamed, anchor }) 
         aria-label={`Switch board (current: ${board.name})`}
         className={cn(
           'flex h-9 min-w-0 cursor-pointer items-center rounded-lg pr-1.5 pl-3 font-semibold transition-colors duration-150',
-          'hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-sky-500 data-popup-open:bg-white/8'
+          'hover:bg-white/8 focus-visible:ring-focus data-popup-open:bg-white/8'
         )}>
         <span className="relative size-2 shrink-0">
           <span className={cn('absolute inset-0 rounded-full transition-colors duration-250', STATUS_DOT[status])} />
@@ -89,7 +89,7 @@ const BoardToolbarSwitcher: React.FC<Props> = ({ status, justRenamed, anchor }) 
             initialFocus={searchRef}
             onKeyDown={moveBetweenRows}
             className={cn(
-              'w-84 rounded-xl border border-white/10 bg-zinc-800/95 p-1.5 shadow-2xl shadow-black/70 backdrop-blur-md outline-none',
+              'w-84 rounded-xl border border-white/10 bg-zinc-800/95 p-1.5 shadow-2xl shadow-black/70 backdrop-blur-md outline-none focus-gap-zinc-800',
               'transition-[opacity,translate] duration-200 data-ending-style:translate-y-1 data-ending-style:opacity-0 data-ending-style:duration-150',
               'data-starting-style:translate-y-1 data-starting-style:opacity-0'
             )}>
@@ -146,7 +146,7 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
 
   return (
     <>
-      <label className="mb-1 flex h-9 items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 text-zinc-500 focus-within:border-sky-500">
+      <label className="mb-1 flex h-9 items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 text-zinc-500 has-focus-visible:border-sky-400 has-focus-visible:ring-focus-field">
         <Icon icon={MagnifyingGlassIcon} size={16} />
         <input
           ref={searchRef}
@@ -185,7 +185,7 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
         type="button"
         onClick={handleNewBoard}
         disabled={isCreating}
-        className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 font-semibold text-primary-300 outline-none hover:bg-white/6 focus-visible:bg-white/6 disabled:cursor-progress">
+        className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 font-semibold text-primary-300 outline-none hover:bg-white/6 focus-visible:bg-white/6 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400 disabled:cursor-progress">
         {isCreating ? <Spinner /> : <Icon icon={PlusIcon} size={16} />}
         {isCreating ? 'Creating board…' : 'New board'}
       </button>
@@ -211,7 +211,8 @@ const BoardRow: React.FC<BoardRowProps> = ({ board, current, onSelect }) => (
     onClick={() => onSelect(board.id)}
     className={cn(
       'flex h-9 w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left text-zinc-200 outline-none',
-      'hover:bg-white/6 focus-visible:bg-white/6',
+      // In a list, the ring sits inside the row.
+      'hover:bg-white/6 focus-visible:bg-white/6 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400',
       current && 'bg-sky-500/12 hover:bg-sky-500/16 focus-visible:bg-sky-500/16'
     )}>
     <span className="w-3.5 shrink-0 text-sky-500">{current && <Icon icon={CheckIcon} size={14} />}</span>

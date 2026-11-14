@@ -63,7 +63,7 @@ const MetalButton: React.FC<Props> = ({
         'group relative flex shrink-0 cursor-pointer items-center overflow-hidden border font-bold',
         'border-primary-200/40 bg-indigo-metal text-white inset-shadow-xs shadow-primary-500/45 inset-shadow-white/50 text-shadow-primary-950/50 text-shadow-xs',
         'transition-[filter,translate,scale,color,border-color,box-shadow] duration-250 hover:brightness-110 active:translate-y-px active:scale-99',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500',
+        'focus-visible:ring-focus',
         sizes[size],
         busy && 'cursor-progress brightness-90 saturate-75 hover:brightness-90',
         // Graphite: the indigo stops at the padding edge, so the border shows what's behind, not indigo.

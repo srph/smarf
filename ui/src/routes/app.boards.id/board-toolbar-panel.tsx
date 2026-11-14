@@ -8,7 +8,7 @@ const BoardToolbarPanelClose: React.FC<{ onClick: () => void }> = ({ onClick }) 
     type="button"
     aria-label="Close"
     onClick={onClick}
-    className="-mr-1.5 grid size-7 cursor-pointer place-items-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-700 hover:text-zinc-50 focus-visible:outline-2 focus-visible:outline-sky-500">
+    className="-mr-1.5 grid size-7 cursor-pointer place-items-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-700 hover:text-zinc-50 focus-visible:ring-focus">
     <Icon icon={XMarkIcon} size={16} />
   </button>
 )

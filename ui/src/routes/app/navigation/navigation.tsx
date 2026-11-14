@@ -25,7 +25,7 @@ const Navigation: React.FC = () => {
 
       <Container>
         <div className="flex items-center justify-between py-6">
-          <Link to="/">
+          <Link to="/" className="block rounded-xl focus-visible:ring-focus">
             <Logo />
           </Link>
 

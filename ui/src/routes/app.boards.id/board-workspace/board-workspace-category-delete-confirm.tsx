@@ -62,13 +62,13 @@ const BoardWorkspaceCategoryDeleteConfirm: React.FC<Props> = ({ name, onCancel, 
           ref={cancelRef}
           type="button"
           onClick={onCancel}
-          className="h-6 cursor-pointer rounded-md bg-zinc-700 px-2 text-xs font-bold text-zinc-200 hover:bg-zinc-600 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none">
+          className="h-6 cursor-pointer rounded-md bg-zinc-700 px-2 text-xs font-bold text-zinc-200 hover:bg-zinc-600 focus-visible:ring-focus">
           Cancel
         </button>
         <button
           type="button"
           onClick={onConfirm}
-          className="h-6 cursor-pointer rounded-md bg-red-600 px-2 text-xs font-bold text-white hover:bg-red-500 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none">
+          className="h-6 cursor-pointer rounded-md bg-red-600 px-2 text-xs font-bold text-white hover:bg-red-500 focus-visible:ring-focus-danger">
           Delete
         </button>
       </div>

@@ -98,7 +98,7 @@ const BoardToolbarDeletePanel: React.FC<Props> = ({ onClose, onDangerChange }) =
           ref={cancelRef}
           type="button"
           onClick={onClose}
-          className="h-9 cursor-pointer rounded-lg px-3.5 font-bold text-zinc-300 transition-colors hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-sky-500">
+          className="h-9 cursor-pointer rounded-lg px-3.5 font-bold text-zinc-300 transition-colors hover:bg-white/8 focus-visible:ring-focus">
           Cancel
         </button>
 
@@ -116,7 +116,7 @@ const BoardToolbarDeletePanel: React.FC<Props> = ({ onClose, onDangerChange }) =
           onContextMenu={(evt) => evt.preventDefault()}
           className={cn(
             'relative h-9 flex-1 cursor-pointer touch-none overflow-hidden rounded-lg border border-red-500/55 bg-red-500/8 font-bold text-red-300 transition-colors duration-200 select-none',
-            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500',
+            'focus-visible:ring-focus-danger',
             filled && 'text-white'
           )}>
           <span

@@ -44,7 +44,9 @@ const BoardWorkspaceHeroSelector: React.FC<Props> = ({ open, onOpenChange, onSel
       sideOffset={32}
       initialFocus={searchRef}>
       <div className="w-240 overflow-hidden rounded-xl border border-zinc-700 bg-zinc-900">
-        <PopoverClose title="Close" className="absolute -top-8 right-0 cursor-pointer text-zinc-500">
+        <PopoverClose
+          title="Close"
+          className="absolute -top-8 right-0 cursor-pointer rounded-md text-zinc-500 focus-visible:ring-focus">
           <Icon icon={XMarkIcon} />
         </PopoverClose>
 
@@ -84,7 +86,7 @@ const BoardWorkspaceHeroSelector: React.FC<Props> = ({ open, onOpenChange, onSel
                           onClick={() => onSelectHero(hero)}
                           title={`Select ${hero.name}`}
                           className={cn(
-                            'inline-block w-15 cursor-pointer rounded-sm border-2 border-transparent hover:border-sky-500 focus:border-sky-500',
+                            'inline-block w-15 cursor-pointer rounded-sm border-2 border-transparent hover:border-sky-500 focus-visible:ring-focus',
                             searchInput !== '' && !name.includes(searchInput) && 'opacity-30'
                           )}>
                           <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />

@@ -43,7 +43,7 @@ const BoardToolbarIconButton: React.FC<IconButtonProps> = ({ label, className, .
       className={cn(
         'grid size-9 shrink-0 cursor-pointer place-items-center rounded-lg text-zinc-400 transition-[background-color,color,scale] duration-150',
         'hover:bg-white/9 hover:text-zinc-50 active:scale-94 data-popup-open:bg-white/9 data-popup-open:text-zinc-50',
-        'focus-visible:outline-2 focus-visible:outline-sky-500 disabled:cursor-not-allowed disabled:opacity-50',
+        'focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}
     />
