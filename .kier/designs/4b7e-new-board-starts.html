@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Board Starts</title>
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 1100px) { .wrap { margin-left: max(200px, calc((100vw - 1140px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .states .sp { margin-left: auto; }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 1100px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: matches ui/src (Tailwind 4 zinc, primary indigo, sky focus, glass dock, layer cards) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b;
+    --sky: #00a6f4; --green: #00c950;
+    --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966);
+    --morph: cubic-bezier(0.3, 0.7, 0.2, 1);
+    position: relative; width: 1080px; height: 660px; margin: 0 auto; color: var(--z50); background: var(--z900);
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 20px;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  .app button { font-family: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; text-align: inherit; font-size: inherit; line-height: inherit; }
+  .app svg { display: block; }
+  .app :focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+  .page { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: var(--z700) transparent; }
+
+  /* Navigation */
+  .nav { border-bottom: 1px solid var(--z800); margin-bottom: 48px; position: relative; z-index: 5; background: var(--z900); }
+  .on-board .nav { margin-bottom: 0; }
+  .nav .bar { height: 4px; background: linear-gradient(to right, var(--p600), var(--p400)); }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; padding: 24px 16px; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo img { width: 36px; height: 36px; filter: drop-shadow(0 0 12px oklch(58.5% 0.233 277.117 / .6)); }
+  .logo b { font-size: 20px; line-height: 1; font-weight: 900; letter-spacing: .025em; text-transform: uppercase; padding-top: 4px; }
+  .nav-r { display: flex; align-items: center; gap: 24px; }
+  .nb { position: relative; }
+  .btn { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 4px; padding: 8px 12px 8px 8px; font-weight: 700; background: var(--p500) !important; color: var(--z50); transition: box-shadow .2s; }
+  .btn:hover:not([aria-busy]), .btn:focus-visible { box-shadow: 0 0 0 2px var(--sky); outline: none !important; }
+  .btn .bi { color: var(--p200); margin-right: 8px; width: 20px; height: 20px; display: grid; place-items: center; }
+  .btn .caret { color: var(--p200); margin-left: 6px; margin-right: -4px; transition: rotate .2s; }
+  .btn[aria-expanded="true"] .caret { rotate: 180deg; }
+  .btn.clear { background: none !important; border: 1px solid var(--z700); padding: 7px 12px; }
+  .btn[aria-busy] { cursor: progress; }
+  .spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { rotate: 360deg; } }
+  .avatar { border-radius: 50%; border: 2px solid var(--z700); padding: 6px; }
+  .avatar span { display: block; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c4b5fd, #6d28d9 70%); }
+
+  /* Home */
+  .home { width: 480px; margin: 0 auto; padding-bottom: 48px; }
+  .h5 { font-size: 12px; font-weight: 700; color: var(--z300); margin: 0 0 16px; }
+  .brow { display: flex; align-items: center; border-radius: 4px; background: var(--z700); margin-bottom: 16px; box-shadow: 0 0 0 2px transparent; transition: box-shadow .2s; }
+  .brow:hover { box-shadow: 0 0 0 2px var(--sky); }
+  .brow .nm { flex: 1; padding: 16px 0 16px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .brow .nm span:first-child { font-size: 18px; line-height: 28px; font-weight: 500; margin: 18px 0; }
+  .brow .ago { font-size: 12px; color: var(--z400); }
+  .brow .st { padding: 16px; color: var(--z400); }
+  .brow .st.on { color: #facc15; }
+
+  /* Board workspace: dots from under the navigation */
+  .dots { padding: 48px 16px 0; min-height: calc(100% - 89px);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -16px 16px, 8px 8px; }
+  .ws { position: relative; }
+
+  /* Category: layer card (board-workspace-category-body.tsx) */
+  .cat { position: absolute; left: 0; top: 0; display: inline-block; border-radius: 12px; background: rgb(39 39 42 / .8);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .08), 0 10px 15px -3px rgb(0 0 0 / .25);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: box-shadow .15s; }
+  .cat:hover { box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .15), 0 10px 15px -3px rgb(0 0 0 / .25); }
+  .cat-head { height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 8px; }
+  .cat-head .g { color: var(--z600); transition: color .15s; }
+  .cat:hover .cat-head .g { color: var(--z300); }
+  .cat-head .n { font-weight: 600; white-space: nowrap; }
+  .tray { display: flex; flex-wrap: wrap; border-radius: 8px 8px 12px 12px; border: 1px solid rgb(255 255 255 / .08); background: var(--z900); padding: 3px; }
+  .hc { padding: 4px; flex: none; }
+  .hi { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); }
+  .hi img { width: 80px; height: 45px; object-fit: cover; display: block; }
+  .addt { width: 80px; height: 45px; border: 2px dashed var(--z500); background: var(--z700); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; letter-spacing: .025em; }
+  .addt svg { color: var(--z500); margin-right: 8px; }
+  .cat.enter { animation: rise .42s var(--morph) both; animation-delay: calc(var(--i) * 45ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+  /* Dock + New category (board-toolbar.tsx, metal-button.tsx) */
+  .dock-wrap { position: absolute; left: 0; right: 0; bottom: 24px; z-index: 20; display: flex; justify-content: center; align-items: flex-end; gap: 8px; pointer-events: none; }
+  .dock-wrap > * { pointer-events: auto; }
+  .dock-wrap.enter > * { animation: rise .5s var(--morph) .1s both; }
+  .glass { border-radius: 12px; border: 1px solid rgb(255 255 255 / .1); background: rgb(39 39 42 / .6);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7), 0 0 0 1px rgb(0 0 0 / .5), inset 0 1px 2px rgb(255 255 255 / .05);
+    backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); }
+  .dock-row { height: 44px; display: flex; align-items: center; padding: 0 4px; white-space: nowrap; }
+  .switcher { display: flex; align-items: center; height: 36px; padding: 0 6px 0 12px; border-radius: 8px; font-weight: 600; }
+  .switcher .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .switcher .nm { margin-left: 8px; max-width: 232px; overflow: hidden; text-overflow: ellipsis; }
+  .switcher .chev { margin-left: 12px; color: var(--z500); }
+  .ibtns { display: flex; gap: 2px; margin-left: 4px; }
+  .ibtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .metal { position: relative; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px 0 16px; border-radius: 12px; font-weight: bold; color: #fff;
+    border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgb(255 255 255 / .5); transition: box-shadow .2s; }
+
+  /* Previews: the real board, scaled down */
+  .pv { position: relative; overflow: hidden; border-radius: 6px; background-color: var(--z900); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08);
+    background-image: radial-gradient(circle, var(--z700) 1px, transparent 1px); background-size: 8px 8px; background-position: 4px 4px; pointer-events: none; }
+  .pv-in { position: absolute; transform-origin: 0 0; }
+  .pv .cat { backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .12); }
+  .pv-blank { position: absolute; inset: 0; display: grid; place-items: center; color: var(--z600); }
+  .pv-blank span { display: grid; place-items: center; width: 34%; aspect-ratio: 16 / 10; border: 2px dashed var(--z600); border-radius: 8px; }
+  .tname { font-weight: 600; }
+  .tdesc { font-size: 12px; line-height: 16px; color: var(--z400); }
+
+  /* A: menu under New Board (Base UI popover, the switcher's popup look) */
+  .pop { position: absolute; right: 0; top: calc(100% + 10px); width: 352px; z-index: 30; padding: 6px; border-radius: 12px;
+    border: 1px solid rgb(255 255 255 / .1); background: rgb(39 39 42 / .95); box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7); backdrop-filter: blur(12px); }
+  .pop.in { animation: drop .2s var(--morph) both; }
+  @keyframes drop { from { opacity: 0; transform: translateY(-4px); } }
+  .pop-h { font-size: 12px; font-weight: 600; color: var(--z500); padding: 4px 8px 6px; }
+  .prow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px; border-radius: 8px; }
+  .prow:hover, .prow:focus-visible { background: rgb(255 255 255 / .08); outline: none !important; }
+  .prow .pv { flex: none; width: 72px; height: 45px; }
+  .prow .k { margin-left: auto; align-self: flex-start; font-size: 11px; color: var(--z500); padding-top: 2px; }
+
+  /* B: dialog */
+  .scrim { position: absolute; inset: 0; z-index: 40; display: grid; place-items: center; background: rgb(0 0 0 / .6); backdrop-filter: blur(2px); }
+  .scrim.in { animation: fade .2s ease both; }
+  .scrim.in .dlg { animation: lift .28s var(--morph) both; }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes lift { from { opacity: 0; transform: translateY(8px) scale(.98); } }
+  .dlg { width: 720px; background: var(--z900); border: 1px solid var(--z700); border-radius: 12px; box-shadow: 0 25px 50px -12px rgb(0 0 0 / .8); padding: 24px; }
+  .dlg-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .dlg-h h3 { margin: 0; font-size: 18px; line-height: 28px; font-weight: 500; }
+  .x { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .x:hover { background: rgb(255 255 255 / .08); color: var(--z200); }
+  .lbl { display: block; font-size: 12px; font-weight: 700; color: var(--z300); margin-bottom: 8px; }
+  .inp { width: 100%; font: inherit; color: var(--z50); background: var(--z800); border: 1px solid var(--z700); border-radius: 4px; padding: 8px 12px; margin-bottom: 20px; user-select: text; }
+  .inp::placeholder { color: var(--z500); }
+  .inp:focus { outline: none; box-shadow: 0 0 0 2px var(--sky); }
+  .tcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .app .tcard { display: flex; flex-direction: column; justify-content: flex-start; position: relative; padding: 8px 8px 12px; border-radius: 10px; background: var(--z800); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); transition: box-shadow .15s; }
+  .tcard:hover { box-shadow: inset 0 0 0 1px rgb(255 255 255 / .2); }
+  .tcard[aria-checked="true"] { box-shadow: 0 0 0 2px var(--sky); }
+  .tcard:focus-visible { outline: none !important; box-shadow: 0 0 0 2px var(--sky); }
+  .tcard .pv { height: 124px; margin-bottom: 10px; }
+  .tcard .tname, .tcard .tdesc { padding: 0 4px; }
+  .tcard .ck { position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--sky); color: #fff; opacity: 0; scale: .6; transition: opacity .15s, scale .2s var(--morph); }
+  .tcard[aria-checked="true"] .ck { opacity: 1; scale: 1; }
+  .dlg-f { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+
+  /* C: start tray above the dock, ghosts on the canvas */
+  .start { position: absolute; left: 50%; bottom: 82px; translate: -50% 0; z-index: 21; padding: 6px; border-radius: 16px; }
+  .start.in { animation: rise .45s var(--morph) .15s both; }
+  .start.out { opacity: 0; translate: -50% 8px; transition: opacity .2s, translate .2s; pointer-events: none; }
+  .start-h { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--z400); padding: 4px 8px 6px; }
+  .start-h kbd { font: inherit; color: var(--z500); font-weight: 400; }
+  .start-row { display: flex; gap: 4px; }
+  .ct { display: flex; align-items: center; gap: 10px; width: 232px; padding: 6px; border-radius: 10px; }
+  .ct:hover, .ct:focus-visible { background: rgb(255 255 255 / .08); outline: none !important; }
+  .ct .pv { flex: none; width: 72px; height: 45px; }
+  .ghosts { position: absolute; left: 0; top: 0; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .ghosts .cat { box-shadow: none; outline: 1.5px dashed rgb(161 161 170 / .55); outline-offset: -1px; background: rgb(255 255 255 / .02); backdrop-filter: none; }
+  .ghosts .tray { opacity: .35; filter: grayscale(.7); background: transparent; }
+  .app[data-hover="default"] .ghosts[data-g="default"], .app[data-hover="tier"] .ghosts[data-g="tier"], .app[data-hover="tier2"] .ghosts[data-g="tier2"] { opacity: 1; }
+
+  /* C2: the tray takes the dock's place until you choose */
+  .pick-tray { position: absolute; left: 50%; bottom: 24px; translate: -50% 0; z-index: 21; width: 694px; padding: 12px; border-radius: 18px; }
+  .pick-tray.in { animation: tray-in .5s var(--morph) .1s both; }
+  .pick-tray.out { opacity: 0; translate: -50% 12px; scale: .98; transition: opacity .2s, translate .2s, scale .2s; pointer-events: none; }
+  @keyframes tray-in { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+  .pick-tray-h { display: flex; align-items: baseline; gap: 8px; padding: 2px 4px 12px; }
+  .pick-tray-h b { font-weight: 600; color: var(--z200); }
+  .pick-tray-h span { font-size: 12px; color: var(--z500); }
+  .pick-tray-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .app .st2 { display: flex; flex-direction: column; justify-content: flex-start; padding: 6px 6px 10px; border-radius: 12px; background: rgb(255 255 255 / .03);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); transition: background .15s, box-shadow .15s, translate .25s var(--morph); }
+  .app .st2:hover { background: rgb(255 255 255 / .07); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .14); translate: 0 -2px; }
+  .app .st2:focus-visible { outline: none; background: rgb(255 255 255 / .07); box-shadow: 0 0 0 2px var(--sky); translate: 0 -2px; }
+  .st2 .pv { margin-bottom: 10px; border-radius: 8px; transition: box-shadow .15s; }
+  .st2:hover .pv, .st2:focus-visible .pv { box-shadow: inset 0 0 0 1px rgb(255 255 255 / .16); }
+  .st2-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
+  .st2 .tdesc { padding: 0 4px; margin-top: 2px; }
+  .st2 kbd { font: 600 11px/18px inherit; font-family: inherit; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 5px; text-align: center; color: var(--z400); background: rgb(255 255 255 / .06); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); }
+  .st2:hover kbd, .st2:focus-visible kbd { color: var(--z200); }
+
+  /* C2b: a wider tray; previews are still crops of the board's top-left at a readable zoom */
+  .v-c2b .pick-tray { width: 840px; background: rgb(39 39 42 / .88); }
+  .v-c2b .pick-tray-h { padding-bottom: 10px; }
+  .pv.crop { -webkit-mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent);
+    -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent); mask-composite: intersect; }
+  /* The board's own 64px dot grid, inside the scaled layer so it lines up with the cards. The dot
+     radius is divided by the zoom so it still draws at about 1.25px. The inset is 32px + a multiple of 64, which puts a
+     dot on the board's top-left corner, as on the real workspace. */
+  .pv.crop { background-image: none; }
+  /* The real card's 80% fill over the workspace, made solid: there's no backdrop blur in a preview to hide the dots. */
+  .pv.crop .cat { background: rgb(36 36 39); }
+  .pv.crop .pv-in::before { content: ""; position: absolute; inset: -416px -800px; z-index: -1; pointer-events: none;
+    background-image: radial-gradient(circle, var(--z600) calc(1.25px / var(--dz)), transparent calc(1.25px / var(--dz) + .5px));
+    background-size: 64px 64px; background-position: 0 0; }
+  /* Ghosts: the real cards, faded, with no dashed outline */
+  .v-c2b .ghosts .cat { outline: none; opacity: .6; background: rgb(39 39 42 / .8); box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .08); }
+  .v-c2b .ghosts .tray { opacity: 1; filter: none; background: var(--z900); }
+  .app[data-hover="blank2"] .ghosts[data-g="blank2"] { opacity: 1; }
+  /* C2c: Dota's colours on each category, heroes grey until hover (like unavailable heroes in-game), a hero glow behind */
+  .acc .pv.crop .cat.ac { box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 5px 0 var(--ac), inset 0 0 0 1px rgb(255 255 255 / .12); }
+  .acc .pv.crop .cat.ac .cat-head { border-radius: 12px 12px 0 0; background: linear-gradient(90deg, color-mix(in oklab, var(--ac) 42%, transparent), transparent 75%); }
+  .acc .pv.crop .cat.ac .cat-head .n { color: color-mix(in oklab, var(--ac) 45%, #fff); }
+  .acc .pv.crop .cat.ac .cat-head .g { color: color-mix(in oklab, var(--ac) 70%, #000); }
+  .lit .pv .glow { position: absolute; right: -24px; top: -36px; width: 240px; height: 136px; object-fit: cover; filter: blur(20px) saturate(1.5); opacity: .28; transition: opacity .25s; }
+  .lit .st2 .hi img { filter: grayscale(.9) brightness(.62); transition: filter .25s; }
+  .lit .st2:hover .hi img, .lit .st2:focus-visible .hi img { filter: none; }
+  .lit .st2:hover .glow, .lit .st2:focus-visible .glow { opacity: .6; }
+  /* C2d: the same crop, tilted like a board on a table; the cards cast shadows onto the grid */
+  .tilt .pv-in { transform-style: preserve-3d; }
+  .tilt .pv.crop .cat { box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .12), 0 36px 32px -8px rgb(0 0 0 / .75); }
+  /* Perspective magnifies the near dots, so the floor's dots are smaller and fainter than C2b's */
+  .tilt .pv.crop .pv-in::before { opacity: .6;
+    background-image: radial-gradient(circle, var(--z600) calc(.8px / var(--dz)), transparent calc(.8px / var(--dz) + .5px)); }
+  .app[data-hover="blank"] .metal { box-shadow: 0 0 0 2px var(--sky), 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgb(255 255 255 / .5); }
+
+  /* D: start strip on Home */
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 40px; }
+  .app .dt { display: flex; flex-direction: column; justify-content: flex-start; position: relative; padding: 8px 8px 12px; border-radius: 4px; background: var(--z700); box-shadow: 0 0 0 2px transparent; transition: box-shadow .2s; }
+  .dt:hover, .dt:focus-visible { box-shadow: 0 0 0 2px var(--sky); outline: none !important; }
+  .dt .pv { width: 100%; height: 80px; margin-bottom: 8px; }
+  .dt .tname, .dt .tdesc { padding: 0 2px; }
+  .dt .busy { position: absolute; inset: 0; display: grid; place-items: center; border-radius: 4px; background: rgb(24 24 27 / .7); }
+  .dt .tag { position: absolute; z-index: 1; top: 12px; left: 12px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; background: var(--p500); color: #fff; }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>New boards should start as Default, Tier List or Blank</h1>
+    <div class="chips">
+      <div class="chip"><b>Default</b>The in-game grid: every hero, by attribute.</div>
+      <div class="chip"><b>Tier List</b>S to D tiers, every hero waiting in Unranked.</div>
+      <div class="chip"><b>Blank Slate</b>No categories; build from New category.</div>
+      <div class="chip"><b>Stay quick</b>Never slower than today's one click.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="One click, two placeholder categories" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>One click, two placeholder categories</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">One click and you're on a board.</div>
+      <div class="note bad">Every board starts as two made-up categories you delete first.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="A menu under New Board" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>A menu under New Board</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">One extra click; the same menu fits the switcher's New board row.</div>
+      <div class="note good">Looks like the switcher popup, so nothing new to learn.</div>
+      <div class="note bad">Thumbnails this small hint at the layout more than show it.</div>
+      <div class="note bad">Nowhere to name the board, so Untitled piles up.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="A dialog with big previews and a name" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>A dialog with big previews and a name</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Previews big enough to tell Tier List from Default at a glance.</div>
+      <div class="note good">Named before it exists.</div>
+      <div class="note bad">A modal and two clicks every time, even for regulars.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="Land first, choose from a tray above the dock" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>Land first, choose from a tray above the dock</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Hovering a start ghosts its categories onto the real canvas.</div>
+      <div class="note good">New Board stays one click; you're on the board instantly.</div>
+      <div class="note bad">The board exists before you choose; walk away and it stays Blank.</div>
+      <div class="note bad">The tray covers the bottom of Tier List's ghost.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2" data-name="C with the tray in the dock's place and a meta tier list" data-v="c2">
+    <div class="v-head"><span class="v-id">C2</span><h2>C with the tray in the dock's place and a meta tier list</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">One thing at the bottom: the tray, then the dock once you've chosen.</div>
+      <div class="note good">Tier List arrives ranked by the current 7000+ MMR meta, so it's useful before you drag a single hero.</div>
+      <div class="note good">Bigger previews, with keys 1, 2 and 3 to choose.</div>
+      <div class="note bad">The ranking goes stale every patch unless someone updates it.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2b" data-name="C2 with readable previews and a two-category Blank Slate" data-v="c2b">
+    <div class="v-head"><span class="v-id">C2b</span><h2>C2 with readable previews and a two-category Blank Slate</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Previews crop at a zoom where heroes are recognisable, and stay still.</div>
+      <div class="note good">Ghosts look like the real cards, just faded.</div>
+      <div class="note good">Blank Slate still has something to drag and rename.</div>
+      <div class="note bad">A crop shows only the board's top-left corner.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2c" data-name="C2b in Dota's colours, with heroes grey until hover" data-v="c2c">
+    <div class="v-head"><span class="v-id">C2c</span><h2>C2b in Dota's colours, with heroes grey until hover</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Each start has its own colour: attribute colours for Default, gold down to grey for the tiers.</div>
+      <div class="note good">Heroes stay grey, like unavailable heroes in-game, until you hover. Then the start lights up, and a glow of its hero shows behind it.</div>
+      <div class="note bad">The colours only exist in the preview; the board's categories have none.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2d" data-name="C2c without the colours, tilted like a board on a table" data-v="c2d">
+    <div class="v-head"><span class="v-id">C2d</span><h2>C2c without the colours, tilted like a board on a table</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Reads as a board rather than a screenshot: the dot grid recedes like a floor, and the cards cast shadows on it.</div>
+      <div class="note good">Keeps C2c's grey-until-hover heroes and glow, and drops its coloured headers.</div>
+      <div class="note bad">The tilt shows fewer heroes, and nothing else in Smarf is in perspective.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="New Board makes Default; Home offers all three" data-v="d">
+    <div class="v-head"><span class="v-id">D</span><h2>New Board makes Default; Home offers all three</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Today's speed, with a start worth keeping.</div>
+      <div class="note good">Home shows the options without a modal.</div>
+      <div class="note bad">From a board, a Tier List means a trip to Home first.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from C2c: the same coloured tray as Home's first-board empty state.</div>
+      <div class="card"><b>Remix</b>Remix C2c: carry the category colours onto the board itself.</div>
+      <div class="card"><b>Settle</b>Settle on C2c: C2b's flow, and the previews finally look like Dota.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/4b7e-new-board-starts.html';
+
+/* ---------- Icons (Heroicons 20 solid) ---------- */
+const P = {
+  squaresPlus: '<path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/>',
+  bars2: '<path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/>',
+  plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>',
+  plusCircle: '<path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd"/>',
+  chevronUpDown: '<path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z" clip-rule="evenodd"/>',
+  chevronDown: '<path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"/>',
+  pencil: '<path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.419a4 4 0 0 0-.885 1.343Z"/>',
+  ellipsis: '<path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>',
+  check: '<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/>',
+  xmark: '<path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>',
+  starSolid: '<path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const starOutline = (s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.563.563 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg>`;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- Templates (category geometry matches contexts/board-list/constants.ts) ---------- */
+const CELL_W = 88, CELL_H = 53, HEAD = 36;
+const thumb = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const perRow = (w) => Math.floor((w - 8) / CELL_W);
+const catH = (c) => HEAD + Math.ceil((c.heroes.length + 1) / perRow(c.w)) * CELL_H + 8;
+
+const STR = ['axe', 'pudge', 'earthshaker', 'tiny', 'sven', 'kunkka', 'tidehunter', 'mars', 'centaur'];
+const AGI = ['antimage', 'juggernaut', 'phantom_assassin', 'drow_ranger', 'slark', 'faceless_void', 'morphling', 'terrorblade', 'luna'];
+const INT = ['crystal_maiden', 'invoker', 'lina', 'lion', 'zuus', 'storm_spirit', 'shadow_shaman', 'witch_doctor', 'rubick'];
+const UNI = ['void_spirit', 'pangolier', 'windrunner', 'mirana', 'dark_willow', 'snapfire', 'marci', 'dazzle', 'enigma'];
+const ALL = ['abaddon', 'alchemist', 'ancient_apparition', 'bane', 'batrider', 'beastmaster', 'bloodseeker', 'bounty_hunter', 'brewmaster', 'bristleback',
+  'broodmother', 'chen', 'clinkz', 'dawnbreaker', 'disruptor', 'earth_spirit', 'elder_titan', 'ember_spirit', 'enchantress'];
+
+function stack(cats, gap) { let y = 0; return cats.map((c) => { const out = { ...c, x: c.x || 0, y: c.y ?? y }; y = out.y + catH(out) + (c.gapAfter ?? gap); return out; }); }
+
+const TEMPLATES = {
+  default: { name: 'Default', desc: 'The in-game grid: every hero, by attribute.', cats: (() => {
+    const w = 448, h = catH({ w, heroes: STR });
+    return [
+      { name: 'Strength', heroes: STR, w, x: 0, y: 0 }, { name: 'Agility', heroes: AGI, w, x: 480, y: 0 },
+      { name: 'Intelligence', heroes: INT, w, x: 0, y: h + 32 }, { name: 'Universal', heroes: UNI, w, x: 480, y: h + 32 }
+    ];
+  })() },
+  tier: { name: 'Tier List', desc: 'S to D tiers, every hero waiting in Unranked.', cats: stack([
+    ...['S', 'A', 'B', 'C'].map((t) => ({ name: `${t} Tier`, heroes: [], w: 888 })),
+    { name: 'D Tier', heroes: [], w: 888, gapAfter: 32 },
+    { name: 'Unranked', heroes: ALL, w: 888 }
+  ], 12) },
+  blank: { name: 'Blank Slate', desc: 'No categories. Start from New category.', cats: [] },
+  starter: { name: 'Starter', cats: stack([
+    { name: 'Mid Farming', heroes: ['abaddon', 'alchemist'], w: 360 },
+    { name: 'Suntukan Offlane', heroes: ['abaddon', 'alchemist'], w: 360 }
+  ], 96) }
+};
+// C2's Tier List: D2PT's tiers (patch 7.41f, 7000+ MMR, all roles, last 8 days). S repeats its one hero; F is the four
+// heroes under 44% winrate, in the top-right corner; C and D keep their first eight. S and F are one row each, so the
+// rows below start level, and every gap is 12px. S + gap + F = the rows' width.
+TEMPLATES.tier2 = { name: 'Tier List', desc: 'Ranked by this patch’s 7000+ MMR meta, S to F.', cats: (() => {
+  const row = (name, heroes, y) => ({ name, heroes, w: 996, x: 0, y });
+  const s = { name: 'S Tier', heroes: Array(5).fill('bounty_hunter'), w: 536, x: 0, y: 0 };
+  const f = { name: 'F Tier', heroes: ['nevermore', 'abyssal_underlord', 'drow_ranger', 'bristleback'], w: 448, x: 548, y: 0 };
+  const tiers = [
+    ['A Tier', ['obsidian_destroyer', 'enigma', 'spirit_breaker', 'slark', 'invoker', 'nyx_assassin', 'phantom_lancer', 'winter_wyvern', 'pudge']],
+    ['B Tier', ['dragon_knight', 'night_stalker', 'techies', 'luna', 'witch_doctor', 'rubick', 'earthshaker', 'oracle', 'earth_spirit', 'antimage',
+      'dawnbreaker', 'sven', 'wisp', 'tinker', 'keeper_of_the_light', 'meepo', 'visage', 'disruptor', 'juggernaut']],
+    ['C Tier', ['ember_spirit', 'hoodwink', 'dark_willow', 'marci', 'legion_commander', 'dazzle', 'lone_druid', 'lich']],
+    ['D Tier', ['troll_warlord', 'skywrath_mage', 'rattletrap', 'phantom_assassin', 'morphling', 'silencer', 'elder_titan', 'treant']]
+  ];
+  let y = Math.max(catH(s), catH(f)) + 12;
+  return [s, f, ...tiers.map(([n, h]) => { const c = row(n, h, y); y += catH(c) + 12; return c; })];
+})() };
+const CHOICES = ['default', 'tier', 'blank'];
+TEMPLATES.blank2 = { name: 'Blank Slate', desc: 'Two small categories to rename, fill or delete.', cats: [
+  { name: 'Pubstomp', heroes: ['lion', 'bounty_hunter'], w: 360, x: 0, y: 0 },
+  { name: 'Grief Squad', heroes: ['keeper_of_the_light', 'techies'], w: 360, x: 392, y: 0 }
+] };
+const CHOICES_OF = { c2: ['default', 'tier2', 'blank'], c2b: ['default', 'tier2', 'blank2'], c2c: ['default', 'tier2', 'blank2'], c2d: ['default', 'tier2', 'blank2'] };
+const bounds = (cats) => ({ w: Math.max(...cats.map((c) => c.x + c.w)), h: Math.max(...cats.map((c) => c.y + catH(c))) });
+
+// Dota's attribute colours, and tier colours from gold down to grey. Only C2c and C2d's previews draw them.
+const ACCENT = { Strength: '#f0533a', Agility: '#46d860', Intelligence: '#38c3f0', Universal: '#e3b448',
+  'S Tier': '#f5b83d', 'A Tier': '#b38cff', 'B Tier': '#4fa8ff', 'C Tier': '#3fd18a', 'D Tier': '#a1a1aa', 'F Tier': '#71717b' };
+const GLOW = { default: 'axe', tier2: 'bounty_hunter', blank2: 'lion' };
+const catHTML = (c, i, enter) => `
+  <div class="cat${enter ? ' enter' : ''}${ACCENT[c.name] ? ' ac' : ''}" style="translate:${c.x}px ${c.y}px;--i:${i}${ACCENT[c.name] ? `;--ac:${ACCENT[c.name]}` : ''}">
+    <div class="cat-head"><span class="g">${icon('bars2')}</span><span class="n">${esc(c.name)}</span></div>
+    <div class="tray" style="width:${c.w}px">${c.heroes.map((h) => `<div class="hc"><div class="hi"><img src="${thumb(h)}" alt="" loading="lazy" draggable="false"></div></div>`).join('')}<div class="hc"><span class="addt">${icon('plusCircle', 16)}Add</span></div></div>
+  </div>`;
+
+function preview(key, W, H, pad = 6) {
+  const t = TEMPLATES[key];
+  if (!t.cats.length) return `<div class="pv" style="width:${W}px;height:${H}px"><div class="pv-blank"><span>${icon('plus', Math.max(12, Math.round(H / 5)))}</span></div></div>`;
+  const b = bounds(t.cats);
+  const s = Math.min((W - pad * 2) / b.w, (H - pad * 2) / b.h);
+  const left = (W - b.w * s) / 2, top = Math.max(pad, (H - b.h * s) / 2);
+  return `<div class="pv" style="width:${W}px;height:${H}px"><div class="pv-in" style="left:${left}px;top:${top}px;width:${b.w}px;height:${b.h}px;transform:scale(${s})">${t.cats.map((c, i) => catHTML(c, i, false)).join('')}</div></div>`;
+}
+
+// A still crop at a fixed zoom, from the board's top-left.
+function cropPreview(key, W, H, zoom = 0.42, pad = 10) {
+  return litPreview(key, W, H, { zoom, pad });
+}
+// The crop with options: a blurred hero glow behind it, and a transform other than a flat scale (C2d's tilt).
+function litPreview(key, W, H, { zoom = 0.42, pad = 10, glow = '', tf = '' } = {}) {
+  const t = TEMPLATES[key], b = bounds(t.cats);
+  return `<div class="pv crop" style="width:${W}px;height:${H}px">${glow ? `<img class="glow" src="${thumb(glow)}" alt="">` : ''}<div class="pv-in" style="left:${pad}px;top:${pad}px;width:${b.w}px;height:${b.h}px;transform:${tf || `scale(${zoom})`};--dz:${zoom}">${t.cats.map((c, i) => catHTML(c, i, false)).join('')}</div></div>`;
+}
+
+// C2d's tilt: scale last, so the perspective is in board pixels.
+const TILT = { zoom: 0.42, tf: 'translate(14px, 30px) scale(0.42) perspective(1400px) rotateX(36deg) rotateZ(-10deg)' };
+
+/* ---------- One live canvas per variation ---------- */
+const JUMPS = {
+  now: ['Home', 'Created'],
+  a: ['Home', 'Menu open', 'Default', 'Tier List', 'Blank Slate'],
+  b: ['Home', 'Dialog open', 'Default', 'Tier List', 'Blank Slate'],
+  c: ['Home', 'Choosing', 'Default', 'Tier List', 'Blank Slate'],
+  c2: ['Home', 'Choosing', 'Default', 'Tier List', 'Blank Slate'],
+  c2b: ['Home', 'Choosing', 'Default', 'Tier List', 'Blank Slate'],
+  c2c: ['Home', 'Choosing', 'Default', 'Tier List', 'Blank Slate'],
+  c2d: ['Home', 'Choosing', 'Default', 'Tier List', 'Blank Slate'],
+  d: ['Home', 'Default', 'Tier List', 'Blank Slate']
+};
+
+class Sim {
+  constructor(app, v, onState) {
+    this.app = app; this.v = v; this.onState = onState;
+    this.base = v.replace(/\d.*$/, ''); this.choices = CHOICES_OF[v] || CHOICES;
+    app.addEventListener('click', (e) => this.click(e));
+    app.addEventListener('keydown', (e) => this.key(e));
+    app.addEventListener('input', (e) => { if (e.target.matches('[data-name]')) this.s.name = e.target.value; });
+    app.addEventListener('pointerover', (e) => this.hover(e.target.closest('[data-hv]')));
+    app.addEventListener('focusin', (e) => this.hover(e.target.closest('[data-hv]')));
+    app.addEventListener('pointerleave', () => this.hover(null));
+    this.jump('Home');
+  }
+  fresh() { return { page: 'home', open: false, tpl: null, busy: null, sel: 'default', name: '', enter: false, popIn: false, flash: false, focus: null }; }
+  jump(label) {
+    clearTimeout(this.t);
+    const s = this.s = this.fresh();
+    if (label === 'Menu open' || label === 'Dialog open') { s.open = true; s.popIn = true; s.focus = this.v === 'a' ? '.prow' : '[data-name]'; }
+    if (label === 'Choosing') { s.page = 'board'; s.tpl = null; s.enter = true; }
+    const key = label === 'Created' ? 'starter' : this.choices.find((k) => TEMPLATES[k].name === label);
+    if (key) { s.page = 'board'; s.tpl = key; s.enter = true; }
+    this.render(); this.onState(label);
+  }
+  create(key, from) {
+    const s = this.s; if (s.busy) return;
+    s.busy = from; s.open = from === 'dialog' ? s.open : false; this.render();
+    this.t = setTimeout(() => {
+      Object.assign(s, { page: 'board', tpl: key, busy: null, open: false, enter: true });
+      this.render();
+      this.onState(this.base === 'c' && key === null ? 'Choosing' : this.v === 'now' ? 'Created' : TEMPLATES[key].name);
+    }, 650);
+  }
+  hover(el) { this.app.dataset.hover = el ? el.dataset.hv : ''; }
+  click(e) {
+    const s = this.s, t = e.target, act = t.closest('[data-act]');
+    const a = act && act.dataset.act, key = act && act.dataset.t;
+    if (s.busy) return;
+    if (this.v === 'a' && s.open && !t.closest('.pop') && a !== 'new') { s.open = false; this.render(); this.onState('Home'); if (!a) return; }
+    if (!a) return;
+    if (a === 'home') { this.jump('Home'); return; }
+    if (a === 'new') {
+      if (this.v === 'now') this.create('starter', 'nav');
+      if (this.v === 'a') { s.open = !s.open; s.popIn = s.open; s.focus = s.open ? '.prow' : null; this.render(); this.onState(s.open ? 'Menu open' : (s.page === 'home' ? 'Home' : null)); }
+      if (this.v === 'b') { s.open = true; s.popIn = true; s.sel = 'default'; s.name = ''; s.focus = '[data-name]'; this.render(); this.onState('Dialog open'); }
+      if (this.base === 'c') this.create(null, 'nav');
+      if (this.v === 'd') this.create('default', 'nav');
+      return;
+    }
+    if (a === 'pick') {
+      if (this.v === 'a') this.create(key, 'nav');
+      if (this.v === 'b') { s.sel = key; s.focus = `[data-t="${key}"]`; this.render(); }
+      if (this.base === 'c') this.choose(key);
+      if (this.v === 'd') this.create(key, 'tile:' + key);
+      return;
+    }
+    if (a === 'create') this.create(s.sel, 'dialog');
+    if (a === 'close') { s.open = false; this.render(); this.onState(s.page === 'home' ? 'Home' : null); }
+  }
+  choose(key) {
+    const tray = this.app.querySelector('.start, .pick-tray');
+    if (tray) tray.classList.add('out');
+    this.hover(null);
+    setTimeout(() => { Object.assign(this.s, { tpl: key, enter: key !== 'blank', dockStill: !this.v.startsWith('c2'), dockIn: this.v.startsWith('c2') }); this.render(); this.onState(TEMPLATES[key].name); }, 180);
+  }
+  key(e) {
+    const s = this.s;
+    if (e.key === 'Escape') {
+      if (s.open) { s.open = false; this.render(); this.app.querySelector('[data-act="new"]').focus(); this.onState(s.page === 'home' ? 'Home' : null); e.stopPropagation(); }
+      else if (this.base === 'c' && s.page === 'board' && s.tpl === null) { this.choose(this.choices[2]); e.stopPropagation(); }
+      return;
+    }
+    if (this.v === 'c2' && s.page === 'board' && s.tpl === null && /^[1-3]$/.test(e.key)) { this.choose(this.choices[+e.key - 1]); return; }
+    if (e.key === 'Enter' && e.target.matches('[data-name]')) { this.create(s.sel, 'dialog'); return; }
+    const group = e.target.closest('[data-group]');
+    if (group && ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      const items = [...group.querySelectorAll('[data-act="pick"]')];
+      const i = items.indexOf(e.target.closest('[data-act="pick"]'));
+      const next = items[(i + (e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length];
+      e.preventDefault();
+      if (this.v === 'b') { s.sel = next.dataset.t; s.focus = `[data-t="${s.sel}"]`; this.render(); } else next.focus();
+    }
+  }
+
+  /* ----- markup ----- */
+  navHTML() {
+    const s = this.s, busy = s.busy === 'nav', isA = this.v === 'a';
+    const label = busy ? 'Creating' : 'New Board';
+    const ic = busy ? '<span class="spin"></span>' : icon('squaresPlus');
+    const menu = isA && s.open ? `
+      <div class="pop${s.popIn ? ' in' : ''}" role="menu" data-group>
+        <div class="pop-h">Start with</div>
+        ${this.choices.map((k) => `<button class="prow" role="menuitem" data-act="pick" data-t="${k}">${preview(k, 72, 45, 4)}<span><span class="tname">${TEMPLATES[k].name}</span><span class="tdesc" style="display:block">${TEMPLATES[k].desc}</span></span></button>`).join('')}
+      </div>` : '';
+    return `
+      <div class="nav"><div class="bar"></div><div class="nav-row">
+        <button class="logo" data-act="home" aria-label="Home"><img src="logo-assets/smarf-badge.svg" alt=""><b>Smarf</b></button>
+        <div class="nav-r">
+          <div class="nb"><button class="btn" data-act="new" ${busy ? 'aria-busy="true"' : ''} ${isA ? `aria-haspopup="menu" aria-expanded="${s.open}"` : ''}><span class="bi">${ic}</span>${label}${isA && !busy ? `<span class="caret">${icon('chevronDown', 16)}</span>` : ''}</button>${menu}</div>
+          <span class="avatar"><span></span></span>
+        </div>
+      </div></div>`;
+  }
+  homeHTML() {
+    const s = this.s;
+    const strip = this.v !== 'd' ? '' : `
+      <h5 class="h5">Start a board</h5>
+      <div class="strip">${this.choices.map((k) => `
+        <button class="dt" data-act="pick" data-t="${k}">${k === 'default' ? '<span class="tag">New Board</span>' : ''}${preview(k, 136, 80, 6)}<div class="tname">${TEMPLATES[k].name}</div><div class="tdesc">${TEMPLATES[k].desc}</div>${s.busy === 'tile:' + k ? '<span class="busy"><span class="spin"></span></span>' : ''}</button>`).join('')}
+      </div>`;
+    const rows = [['Laning plan', '2 hours ago', true], ['Pos 5 pool', '3 days ago', false], ['Turbo picks', 'last week', false]];
+    return `<div class="home">${strip}<h5 class="h5">Your Boards</h5>${rows.map(([n, ago, fav]) => `
+      <div class="brow"><span class="nm"><span>${n}</span><span class="ago">${ago}</span></span><span class="st${fav ? ' on' : ''}">${fav ? icon('starSolid', 24) : starOutline(24)}</span></div>`).join('')}</div>`;
+  }
+  dialogHTML() {
+    const s = this.s;
+    if (this.v !== 'b' || !s.open) return '';
+    const busy = s.busy === 'dialog';
+    return `
+      <div class="scrim${s.popIn ? ' in' : ''}">
+        <div class="dlg" role="dialog" aria-label="New board">
+          <div class="dlg-h"><h3>New board</h3><button class="x" data-act="close" aria-label="Close">${icon('xmark')}</button></div>
+          <label class="lbl" for="nm-${this.v}">Name</label>
+          <input id="nm-${this.v}" class="inp" data-name placeholder="Untitled" maxlength="40" value="${esc(s.name)}" autocomplete="off">
+          <span class="lbl">Start with</span>
+          <div class="tcards" role="radiogroup" data-group>${this.choices.map((k) => `
+            <button class="tcard" role="radio" aria-checked="${s.sel === k}" tabindex="${s.sel === k ? 0 : -1}" data-act="pick" data-t="${k}">
+              ${preview(k, 200, 124, 10)}<span class="ck">${icon('check', 14)}</span>
+              <div class="tname">${TEMPLATES[k].name}</div><div class="tdesc">${TEMPLATES[k].desc}</div>
+            </button>`).join('')}
+          </div>
+          <div class="dlg-f">
+            <button class="btn clear" data-act="close">Cancel</button>
+            <button class="btn" data-act="create" ${busy ? 'aria-busy="true"' : ''}><span class="bi">${busy ? '<span class="spin"></span>' : icon('squaresPlus')}</span>${busy ? 'Creating' : 'Create board'}</button>
+          </div>
+        </div>
+      </div>`;
+  }
+  boardHTML() {
+    const s = this.s, cats = s.tpl ? TEMPLATES[s.tpl].cats : [];
+    const choosing = this.base === 'c' && s.tpl === null;
+    const ghosts = choosing ? this.choices.filter((k) => k !== 'blank').map((k) => `<div class="ghosts" data-g="${k}">${TEMPLATES[k].cats.map((c, i) => catHTML(c, i, false)).join('')}</div>`).join('') : '';
+    const h = cats.length ? bounds(cats).h + 160 : 420;
+    return `<div class="dots"><div class="ws" style="height:${Math.max(h, choosing ? 720 : 420)}px">${ghosts}${cats.map((c, i) => catHTML(c, i, s.enter)).join('')}</div></div>`;
+  }
+  dockHTML() {
+    const s = this.s;
+    const name = this.v === 'b' && s.name.trim() ? s.name.trim() : 'Untitled';
+    const choosing = this.base === 'c' && s.tpl === null;
+    const lit = this.v === 'c2c' || this.v === 'c2d', tilt = this.v === 'c2d';
+    const pv = (k) => !lit ? cropPreview(k, 254, 128) : litPreview(k, 254, 128, tilt ? { zoom: TILT.zoom, pad: 0, glow: GLOW[k], tf: TILT.tf } : { glow: GLOW[k] });
+    if (['c2b', 'c2c', 'c2d'].includes(this.v) && choosing) return `
+      <div class="pick-tray glass in${lit ? ' lit' : ''}${this.v === 'c2c' ? ' acc' : ''}${tilt ? ' tilt' : ''}" role="group" aria-label="Start this board with">
+        <div class="pick-tray-h"><b>Start this board with</b></div>
+        <div class="pick-tray-row" data-group>${this.choices.map((k) => `
+          <button class="st2" data-act="pick" data-t="${k}" data-hv="${k}">${pv(k)}
+            <span class="st2-row"><span class="tname">${TEMPLATES[k].name}</span></span>
+            <span class="tdesc">${TEMPLATES[k].desc}</span></button>`).join('')}
+        </div>
+      </div>`;
+    if (this.v === 'c2' && choosing) return `
+      <div class="pick-tray glass in" role="group" aria-label="Start this board with">
+        <div class="pick-tray-h"><b>Start this board with</b><span>Hover to see it on the board</span></div>
+        <div class="pick-tray-row" data-group>${this.choices.map((k, i) => `
+          <button class="st2" data-act="pick" data-t="${k}" data-hv="${k}">${preview(k, 206, 100, 8)}
+            <span class="st2-row"><span class="tname">${TEMPLATES[k].name}</span><kbd>${i + 1}</kbd></span>
+            <span class="tdesc">${TEMPLATES[k].desc}</span></button>`).join('')}
+        </div>
+      </div>`;
+    const tray = choosing ? `
+      <div class="start glass in" role="group" aria-label="Start this board with">
+        <div class="start-h"><span>Start this board with</span><kbd>Esc for blank</kbd></div>
+        <div class="start-row" data-group>${this.choices.map((k) => `
+          <button class="ct" data-act="pick" data-t="${k}" data-hv="${k}">${preview(k, 72, 45, 4)}<span><span class="tname">${TEMPLATES[k].name}</span><span class="tdesc" style="display:block">${TEMPLATES[k].desc}</span></span></button>`).join('')}
+        </div>
+      </div>` : '';
+    return `${tray}
+      <div class="dock-wrap${(s.enter && !s.dockStill) || s.dockIn ? ' enter' : ''}">
+        <div class="glass"><div class="dock-row">
+          <div class="switcher"><span class="dot"></span><span class="nm">${esc(name)}</span><span class="chev">${icon('chevronUpDown', 16)}</span></div>
+          <div class="ibtns"><span class="ibtn">${starOutline()}</span><span class="ibtn">${icon('pencil')}</span><span class="ibtn">${icon('ellipsis')}</span></div>
+        </div></div>
+        <div class="metal">${icon('plus')}<span>New category</span></div>
+      </div>`;
+  }
+  render() {
+    const s = this.s, onBoard = s.page === 'board';
+    this.app.classList.toggle('on-board', onBoard);
+    this.app.classList.add('v-' + this.v);
+    if (this.v === 'c2c' || this.v === 'c2d') this.app.classList.add('v-c2b'); // same tray size and ghosts as C2b
+    this.app.innerHTML = `<div class="page">${this.navHTML()}${onBoard ? this.boardHTML() : this.homeHTML()}</div>${onBoard ? this.dockHTML() : ''}${this.dialogHTML()}`;
+    const scrim = this.app.querySelector('.scrim');
+    if (scrim) scrim.addEventListener('click', (e) => { if (e.target === scrim && !s.busy) { s.open = false; this.render(); this.onState('Home'); } });
+    if (s.focus) { const f = this.app.querySelector(s.focus); if (f) f.focus({ preventScroll: true }); }
+    s.enter = false; s.popIn = false; s.focus = null; s.dockStill = false; s.dockIn = false;
+  }
+}
+
+/* ---------- Build each canvas ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const v = sec.dataset.v;
+  const states = document.createElement('div'); states.className = 'states';
+  states.innerHTML = '<span>Jump to</span>' + JUMPS[v].map((l) => `<button type="button" aria-pressed="false">${l}</button>`).join('') +
+    `<span class="sp">Live: click ${v.startsWith('c') ? 'New Board, then hover a start' : 'New Board'}</span>`;
+  const frame = document.createElement('div'); frame.className = 'frame';
+  const app = document.createElement('div'); app.className = 'app'; frame.appendChild(app);
+  const notes = sec.querySelector('.notes');
+  sec.insertBefore(states, notes); sec.insertBefore(frame, notes);
+  const btns = [...states.querySelectorAll('button')];
+  const mark = (label) => { if (label == null) return; btns.forEach((b) => b.setAttribute('aria-pressed', String(b.textContent === label))); };
+  const sim = new Sim(app, v, mark);
+  btns.forEach((b) => b.addEventListener('click', () => sim.jump(b.textContent)));
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>

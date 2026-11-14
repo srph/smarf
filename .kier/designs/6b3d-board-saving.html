@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Board Saving</title>
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 1100px) { .wrap { margin-left: max(200px, calc((100vw - 1140px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .states .sp { margin-left: auto; }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 1100px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: matches ui/src (Tailwind 4 zinc, primary indigo, sky focus, glass dock, layer cards) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b;
+    --sky: #00a6f4; --green: #00c950;
+    --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966);
+    --morph: cubic-bezier(0.3, 0.7, 0.2, 1);
+    position: relative; width: 1080px; height: 660px; margin: 0 auto; color: var(--z50); background: var(--z900);
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 20px;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  .app button { font-family: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; text-align: inherit; font-size: inherit; line-height: inherit; }
+  .app svg { display: block; }
+  .app :focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+  .page { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: var(--z700) transparent; }
+
+  /* Navigation */
+  .nav { border-bottom: 1px solid var(--z800); margin-bottom: 48px; position: relative; z-index: 5; background: var(--z900); }
+  .on-board .nav { margin-bottom: 0; }
+  .nav .bar { height: 4px; background: linear-gradient(to right, var(--p600), var(--p400)); }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; padding: 24px 16px; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo img { width: 36px; height: 36px; filter: drop-shadow(0 0 12px oklch(58.5% 0.233 277.117 / .6)); }
+  .logo b { font-size: 20px; line-height: 1; font-weight: 900; letter-spacing: .025em; text-transform: uppercase; padding-top: 4px; }
+  .nav-r { display: flex; align-items: center; gap: 24px; }
+  .nb { position: relative; }
+  .btn { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 4px; padding: 8px 12px 8px 8px; font-weight: 700; background: var(--p500) !important; color: var(--z50); transition: box-shadow .2s; }
+  .btn:hover:not([aria-busy]), .btn:focus-visible { box-shadow: 0 0 0 2px var(--sky); outline: none !important; }
+  .btn .bi { color: var(--p200); margin-right: 8px; width: 20px; height: 20px; display: grid; place-items: center; }
+  .btn .caret { color: var(--p200); margin-left: 6px; margin-right: -4px; transition: rotate .2s; }
+  .btn[aria-expanded="true"] .caret { rotate: 180deg; }
+  .btn.clear { background: none !important; border: 1px solid var(--z700); padding: 7px 12px; }
+  .btn[aria-busy] { cursor: progress; }
+  .spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { rotate: 360deg; } }
+  .avatar { border-radius: 50%; border: 2px solid var(--z700); padding: 6px; }
+  .avatar span { display: block; width: 24px; height: 24px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c4b5fd, #6d28d9 70%); }
+
+  /* Board workspace: dots from under the navigation */
+  .dots { padding: 48px 16px 0; min-height: calc(100% - 89px);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -16px 16px, 8px 8px; }
+  .ws { position: relative; }
+
+  /* Category: layer card (board-workspace-category-body.tsx) */
+  .cat { position: absolute; left: 0; top: 0; display: inline-block; border-radius: 12px; background: rgb(39 39 42 / .8);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .08), 0 10px 15px -3px rgb(0 0 0 / .25);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: box-shadow .15s; }
+  .cat:hover { box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .15), 0 10px 15px -3px rgb(0 0 0 / .25); }
+  .cat-head { height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 6px 0 8px; }
+  .cat-head .g { color: var(--z600); transition: color .15s; }
+  .cat:hover .cat-head .g { color: var(--z300); }
+  .cat-head .n { font-weight: 600; white-space: nowrap; }
+  .tray { display: flex; flex-wrap: wrap; border-radius: 8px 8px 12px 12px; border: 1px solid rgb(255 255 255 / .08); background: var(--z900); padding: 3px; }
+  .hc { padding: 4px; flex: none; }
+  .hi { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); }
+  .hi img { width: 80px; height: 45px; object-fit: cover; display: block; }
+  .addt { width: 80px; height: 45px; border: 2px dashed var(--z500); background: var(--z700); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; letter-spacing: .025em; }
+  .addt svg { color: var(--z500); margin-right: 8px; }
+  .cat.enter { animation: rise .42s var(--morph) both; animation-delay: calc(var(--i) * 45ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+  /* Dock + New category (board-toolbar.tsx, metal-button.tsx) */
+  .dock-wrap { position: absolute; left: 0; right: 0; bottom: 24px; z-index: 20; display: flex; justify-content: center; align-items: flex-end; gap: 8px; pointer-events: none; }
+  .dock-wrap > * { pointer-events: auto; }
+  .dock-wrap.enter > * { animation: rise .5s var(--morph) .1s both; }
+  .glass { border-radius: 12px; border: 1px solid rgb(255 255 255 / .1); background: rgb(39 39 42 / .6);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7), 0 0 0 1px rgb(0 0 0 / .5), inset 0 1px 2px rgb(255 255 255 / .05);
+    backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); }
+  .dock-row { height: 44px; display: flex; align-items: center; padding: 0 4px; white-space: nowrap; }
+  .switcher { display: flex; align-items: center; height: 36px; padding: 0 6px 0 12px; border-radius: 8px; font-weight: 600; }
+  .switcher .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .switcher .nm { margin-left: 8px; max-width: 232px; overflow: hidden; text-overflow: ellipsis; }
+  .switcher .chev { margin-left: 12px; color: var(--z500); }
+  .ibtns { display: flex; gap: 2px; margin-left: 4px; }
+  .ibtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .metal { position: relative; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px 0 16px; border-radius: 12px; font-weight: bold; color: #fff;
+    border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgb(255 255 255 / .5); transition: box-shadow .2s; }
+
+  /* Previews: the real board, scaled down */
+  .pv { position: relative; overflow: hidden; border-radius: 6px; background-color: var(--z900); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08);
+    background-image: radial-gradient(circle, var(--z700) 1px, transparent 1px); background-size: 8px 8px; background-position: 4px 4px; pointer-events: none; }
+  .pv-in { position: absolute; transform-origin: 0 0; }
+  .pv .cat { backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .12); }
+  .pv-blank { position: absolute; inset: 0; display: grid; place-items: center; color: var(--z600); }
+  .pv-blank span { display: grid; place-items: center; width: 34%; aspect-ratio: 16 / 10; border: 2px dashed var(--z600); border-radius: 8px; }
+  .tname { font-weight: 600; }
+  .tdesc { font-size: 12px; line-height: 16px; color: var(--z400); }
+
+  /* C2: the tray takes the dock's place until you choose */
+  .pick-tray { position: absolute; left: 50%; bottom: 24px; translate: -50% 0; z-index: 21; width: 694px; padding: 12px; border-radius: 18px; }
+  .pick-tray.in { animation: tray-in .5s var(--morph) .1s both; }
+  .pick-tray.out { opacity: 0; translate: -50% 12px; scale: .98; transition: opacity .2s, translate .2s, scale .2s; pointer-events: none; }
+  @keyframes tray-in { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+  .pick-tray-h { display: flex; align-items: baseline; gap: 8px; padding: 2px 4px 12px; }
+  .pick-tray-h b { font-weight: 600; color: var(--z200); }
+  .pick-tray-h span { font-size: 12px; color: var(--z500); }
+  .pick-tray-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .app .st2 { display: flex; flex-direction: column; justify-content: flex-start; padding: 6px 6px 10px; border-radius: 12px; background: rgb(255 255 255 / .03);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); transition: background .15s, box-shadow .15s, translate .25s var(--morph); }
+  .app .st2:hover { background: rgb(255 255 255 / .07); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .14); translate: 0 -2px; }
+  .app .st2:focus-visible { outline: none; background: rgb(255 255 255 / .07); box-shadow: 0 0 0 2px var(--sky); translate: 0 -2px; }
+  .st2 .pv { margin-bottom: 10px; border-radius: 8px; transition: box-shadow .15s; }
+  .st2:hover .pv, .st2:focus-visible .pv { box-shadow: inset 0 0 0 1px rgb(255 255 255 / .16); }
+  .st2-row { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; }
+  .st2 .tdesc { padding: 0 4px; margin-top: 2px; }
+  .st2 kbd { font: 600 11px/18px inherit; font-family: inherit; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 5px; text-align: center; color: var(--z400); background: rgb(255 255 255 / .06); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); }
+  .st2:hover kbd, .st2:focus-visible kbd { color: var(--z200); }
+
+  /* C2b: a wider tray; previews are still crops of the board's top-left at a readable zoom */
+  .v-c2b .pick-tray { width: 840px; background: rgb(39 39 42 / .88); }
+  .v-c2b .pick-tray-h { padding-bottom: 10px; }
+  .pv.crop { -webkit-mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent);
+    -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent); mask-composite: intersect; }
+  /* The board's own 64px dot grid, inside the scaled layer so it lines up with the cards. The dot
+     radius is divided by the zoom so it still draws at about 1.25px. The inset is 32px + a multiple of 64, which puts a
+     dot on the board's top-left corner, as on the real workspace. */
+  .pv.crop { background-image: none; }
+  /* The real card's 80% fill over the workspace, made solid: there's no backdrop blur in a preview to hide the dots. */
+  .pv.crop .cat { background: rgb(36 36 39); }
+  .pv.crop .pv-in::before { content: ""; position: absolute; inset: -416px -800px; z-index: -1; pointer-events: none;
+    background-image: radial-gradient(circle, var(--z600) calc(1.25px / var(--dz)), transparent calc(1.25px / var(--dz) + .5px));
+    background-size: 64px 64px; background-position: 0 0; }
+  /* Ghosts: the real cards, faded, with no dashed outline */
+  .v-c2b .ghosts .cat { outline: none; opacity: .6; background: rgb(39 39 42 / .8); box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .08); }
+  .v-c2b .ghosts .tray { opacity: 1; filter: none; background: var(--z900); }
+  .app[data-hover="blank2"] .ghosts[data-g="blank2"] { opacity: 1; }
+  /* C2c: Dota's colours on each category, heroes grey until hover (like unavailable heroes in-game), a hero glow behind */
+  .acc .pv.crop .cat.ac { box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 5px 0 var(--ac), inset 0 0 0 1px rgb(255 255 255 / .12); }
+  .acc .pv.crop .cat.ac .cat-head { border-radius: 12px 12px 0 0; background: linear-gradient(90deg, color-mix(in oklab, var(--ac) 42%, transparent), transparent 75%); }
+  .acc .pv.crop .cat.ac .cat-head .n { color: color-mix(in oklab, var(--ac) 45%, #fff); }
+  .acc .pv.crop .cat.ac .cat-head .g { color: color-mix(in oklab, var(--ac) 70%, #000); }
+  .lit .pv .glow { position: absolute; right: -24px; top: -36px; width: 240px; height: 136px; object-fit: cover; filter: blur(20px) saturate(1.5); opacity: .28; transition: opacity .25s; }
+  .lit .st2 .hi img { filter: grayscale(.9) brightness(.62); transition: filter .25s; }
+  .lit .st2:hover .hi img, .lit .st2:focus-visible .hi img { filter: none; }
+  .lit .st2:hover .glow, .lit .st2:focus-visible .glow { opacity: .6; }
+  /* C2d: the same crop, tilted like a board on a table; the cards cast shadows onto the grid */
+  .tilt .pv-in { transform-style: preserve-3d; }
+  .tilt .pv.crop .cat { box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .12), 0 36px 32px -8px rgb(0 0 0 / .75); }
+  /* Perspective magnifies the near dots, so the floor's dots are smaller and fainter than C2b's */
+  .tilt .pv.crop .pv-in::before { opacity: .6;
+    background-image: radial-gradient(circle, var(--z600) calc(.8px / var(--dz)), transparent calc(.8px / var(--dz) + .5px)); }
+  .app[data-hover="blank"] .metal { box-shadow: 0 0 0 2px var(--sky), 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgb(255 255 255 / .5); }
+
+
+  /* ---------- This page: /b/new while the chosen start saves ---------- */
+  .app { height: 640px; }
+  .app[data-phase="saving"] { cursor: progress; }
+  .app[data-phase="saving"] * { cursor: progress !important; }
+  .still, .still * { transition: none !important; animation-duration: 0s !important; animation-delay: 0s !important; }
+
+  /* Start layers on the board: the hovered or chosen one shows; faded is the ghost, solid is the board */
+  .layer { position: absolute; left: 0; top: 0; opacity: 0; transition: opacity .25s; pointer-events: none; }
+  .layer .cat { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .layer.on { opacity: .6; }
+  .app[data-phase="landed"] .layer.on { opacity: 1; pointer-events: auto; }
+
+  /* The tray (C2d) */
+  .pick-tray { transition: opacity .25s, translate .3s var(--morph), scale .3s var(--morph); }
+  .pick-tray.gone { opacity: 0; translate: -50% 16px; scale: .98; pointer-events: none; }
+  .pick-tray-h { min-height: 30px; }
+  .pick-tray-h .err { margin-left: auto; color: #ffa1ad; font-size: 13px; opacity: 0; transition: opacity .2s; }
+  .app[data-phase="failed"] .pick-tray-h .err { opacity: 1; }
+  .st2 .tdesc { min-height: 32px; }
+  .st2.hov { background: rgb(255 255 255 / .07) !important; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .14) !important; translate: 0 -2px; }
+  .lit .st2.hov .hi img { filter: none; } .lit .st2.hov .glow { opacity: .6; }
+  .st2 { transition: background .15s, box-shadow .15s, translate .25s var(--morph), opacity .25s, filter .25s !important; }
+
+  /* The swap inside a card's description (ButtonLoader's blur swap) */
+  .swap { display: grid; padding: 0 4px; margin-top: 2px; }
+  .swap > * { grid-area: 1 / 1; transition: opacity .25s var(--morph), filter .25s var(--morph); }
+  .swap .busy, .swap .bad { opacity: 0; filter: blur(4px); display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 16px; }
+  .swap .busy { color: var(--z200); font-weight: 600; }
+  .swap .bad { color: #ffa1ad; }
+  .swap .tdesc { padding: 0; margin: 0; }
+
+  /* The app's Spinner: three sky rings */
+  .ring { position: relative; display: inline-block; width: 20px; height: 20px; flex: none; }
+  .ring i { position: absolute; margin: 2px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--sky); animation: spin 1.2s cubic-bezier(.5, 0, .5, 1) infinite; }
+  .ring i:nth-child(1) { animation-delay: -.45s; } .ring i:nth-child(2) { animation-delay: -.3s; } .ring i:nth-child(3) { animation-delay: -.15s; }
+
+  /* The dock, hidden until the board exists */
+  .dock-wrap { opacity: 0; translate: 0 16px; transition: opacity .3s, translate .45s var(--morph); pointer-events: none; }
+  .dock-wrap > * { pointer-events: none; }
+  .app[data-phase="landed"] .dock-wrap { opacity: 1; translate: 0 0; }
+
+  /* Bottom bars (B's pill and failure bar) */
+  .bar-b { position: absolute; left: 50%; bottom: 24px; z-index: 22; height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 8px 0 14px; white-space: nowrap;
+    translate: -50% 16px; opacity: 0; pointer-events: none; transition: opacity .25s, translate .4s var(--morph); }
+  .bar-b.show { opacity: 1; translate: -50% 0; pointer-events: auto; }
+  .bar-b .t { font-weight: 600; color: var(--z200); padding-right: 6px; }
+  .bar-b .t.bad { color: #ffa1ad; }
+  .sbtn { height: 32px; padding: 0 12px; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; }
+  .sbtn.metal { height: 32px; padding: 0 12px; border-radius: 8px; box-shadow: inset 0 1px 2px rgb(255 255 255 / .5); }
+  .sbtn.plain { color: var(--z300); } .sbtn.plain:hover { background: rgb(255 255 255 / .08); }
+
+  /* Now: as designed, choosing just waits, and a failure says nothing */
+  .v-now[data-phase="failed"] .pick-tray-h .err { display: none; }
+
+  /* A: the chosen card spins, the others step back */
+  .v-a[data-phase="saving"] .layer.on { opacity: .85; }
+  .v-a[data-phase="saving"] .st2:not(.chosen) { opacity: .35; filter: saturate(.4); pointer-events: none; }
+  .v-a[data-phase="saving"] .st2.chosen .swap .tdesc, .v-a[data-phase="failed"] .st2.chosen .swap .tdesc { opacity: 0; filter: blur(4px); }
+  .v-a[data-phase="saving"] .st2.chosen .swap .busy { opacity: 1; filter: none; }
+  .v-a[data-phase="failed"] .st2.chosen .swap .bad { opacity: 1; filter: none; }
+  .v-a[data-phase="failed"] .st2.chosen { box-shadow: inset 0 0 0 1px rgb(255 99 126 / .45) !important; }
+  .v-a[data-phase="failed"] .pick-tray-h .err { display: none; }
+
+  /* B: the board lands on click; a pill holds the dock's place */
+  .v-b[data-phase="saving"] .layer.on { opacity: 1; }
+  .v-b[data-phase="saving"] .layer.on .cat { animation: rise .42s var(--morph) both; animation-delay: calc(var(--i) * 45ms); }
+  .v-b[data-phase="saving"] .layer.on .addt { opacity: .4; }
+
+  /* C: the tray folds into the dock */
+  .v-c .pick-tray { left: calc(50% - 420px); translate: none; overflow: hidden; height: var(--th);
+    transition: left .5s var(--morph), width .5s var(--morph), height .5s var(--morph), border-radius .5s var(--morph), opacity .2s, padding .5s var(--morph); }
+  .v-c .pick-tray > .pick-tray-h, .v-c .pick-tray > .pick-tray-row { transition: opacity .18s; }
+  .v-c .mini { position: absolute; inset: 0; display: flex; align-items: center; gap: 10px; padding: 0 14px; white-space: nowrap; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .v-c .mini .t { font-weight: 600; color: var(--z200); }
+  .v-c[data-phase="saving"] .pick-tray, .v-c[data-phase="landed"] .pick-tray { left: var(--dl); width: var(--dw); height: 46px; border-radius: 12px; padding: 0; }
+  .v-c[data-phase="saving"] .pick-tray > :not(.mini), .v-c[data-phase="landed"] .pick-tray > :not(.mini) { opacity: 0; pointer-events: none; }
+  .v-c[data-phase="saving"] .mini { opacity: 1; transition-delay: .3s; }
+  .v-c[data-phase="landed"] .pick-tray { opacity: 0; transition: opacity .25s; }
+  .v-c .dock-wrap { translate: 0 0; }
+  .v-c[data-phase="landed"] .layer.on .cat { animation: none; }
+
+  /* C2: C folds to the centre, then glides to the dock's place once the board exists */
+  .v-c2 .pick-tray { left: calc(50% - 420px); translate: none; overflow: hidden; height: var(--th);
+    transition: left .5s var(--morph), width .5s var(--morph), height .5s var(--morph), border-radius .5s var(--morph), padding .5s var(--morph), opacity .2s; }
+  .v-c2 .pick-tray > .pick-tray-h, .v-c2 .pick-tray > .pick-tray-row { transition: opacity .18s; }
+  .v-c2 .mini { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 14px; white-space: nowrap; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .v-c2 .mini .t { font-weight: 600; color: var(--z200); }
+  .v-c2[data-phase="saving"] .pick-tray, .v-c2[data-phase="landed"] .pick-tray { left: var(--dc); width: var(--dw); height: 46px; border-radius: 12px; padding: 0; }
+  .v-c2[data-phase="saving"] .pick-tray > :not(.mini), .v-c2[data-phase="landed"] .pick-tray > :not(.mini) { opacity: 0; pointer-events: none; }
+  .v-c2[data-phase="saving"] .mini, .v-c2[data-phase="landed"] .mini { opacity: 1; transition-delay: .3s; }
+  /* Landing: the bar steps left to the dock's place as New category rises beside it, then hands over to the dock */
+  .v-c2[data-phase="landed"] .pick-tray { left: var(--dl); opacity: 0; transition: left .45s var(--morph), opacity .15s .45s; }
+  .v-c2 .dock-wrap { opacity: 1; translate: 0 0; }
+  .v-c2 .dock-wrap .dock { opacity: 0; transition: opacity .15s .4s; }
+  .v-c2 .dock-wrap .metal { opacity: 0; translate: 0 12px; transition: opacity .3s .2s, translate .45s var(--morph) .2s; }
+  .v-c2[data-phase="landed"] .dock-wrap .dock, .v-c2[data-phase="landed"] .dock-wrap .metal { opacity: 1; translate: 0 0; }
+  /* The ghost goes solid while it saves: the board's categories land in the same place, so the route change doesn't show */
+  .v-c2[data-phase="saving"] .layer.on { opacity: 1; }
+  .v-c2[data-phase="saving"] .layer.on .addt { opacity: .4; }
+
+  /* C2b: C2, with the bar's contents handing over to the dock's (fork of C2) */
+  .v-c2x .pick-tray { left: calc(50% - 420px); translate: none; overflow: hidden; height: var(--th);
+    transition: left .5s var(--morph), width .5s var(--morph), height .5s var(--morph), border-radius .5s var(--morph), padding .5s var(--morph), opacity .2s; }
+  .v-c2x .pick-tray > .pick-tray-h, .v-c2x .pick-tray > .pick-tray-row { transition: opacity .18s; }
+  .v-c2x .mini { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 14px; white-space: nowrap; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .v-c2x .mini .t { font-weight: 600; color: var(--z200); }
+  .v-c2x[data-phase="saving"] .pick-tray, .v-c2x[data-phase="landed"] .pick-tray { left: var(--dc); width: var(--dw); height: 46px; border-radius: 12px; padding: 0; }
+  .v-c2x[data-phase="saving"] .pick-tray > :not(.mini), .v-c2x[data-phase="landed"] .pick-tray > :not(.mini) { opacity: 0; pointer-events: none; }
+  .v-c2x[data-phase="saving"] .mini, .v-c2x[data-phase="landed"] .mini { opacity: 1; transition-delay: .3s; }
+  .v-c2x .dock-wrap { opacity: 1; translate: 0 0; }
+  .v-c2x .dock-wrap .dock { opacity: 0; transition: opacity .15s .4s; }
+  .v-c2x .dock-wrap .metal { opacity: 0; translate: 0 12px; transition: opacity .3s .2s, translate .45s var(--morph) .2s; }
+  .v-c2x[data-phase="landed"] .dock-wrap .dock, .v-c2x[data-phase="landed"] .dock-wrap .metal { opacity: 1; translate: 0 0; }
+  /* The ghost goes solid while it saves: the board's categories land in the same place, so the route change doesn't show */
+  .v-c2x[data-phase="saving"] .layer.on { opacity: 1; }
+  .v-c2x[data-phase="saving"] .layer.on .addt { opacity: .4; }
+
+  /* The bar is the dock's glass from the fold on, so the two boxes match when they swap */
+  .v-c2x .pick-tray { transition: left .5s var(--morph), width .5s var(--morph), height .5s var(--morph), border-radius .5s var(--morph), padding .5s var(--morph), opacity .2s, background-color .5s; }
+  .v-c2x[data-phase="saving"] .pick-tray, .v-c2x[data-phase="landed"] .pick-tray { background-color: rgb(39 39 42 / .6); }
+  /* Centred, no ellipsis; the spinner sits 8px from the text, like a button's icon */
+  .v-c2x .mini { justify-content: center; padding: 0; gap: 8px; }
+  .v-c2x .mini .ell { display: none; }
+  /* A white spinner at 16px, the size of the text beside it (the app's is 20px, sized for a button's icon slot) */
+  .v-c2x .mini .ring { width: 16px; height: 16px; }
+  .v-c2x .mini .ring i { margin: 1px; width: 14px; height: 14px; border-width: 2px; border-top-color: var(--z50); }
+  .v-c2x .mini > * { transition: opacity .2s, filter .2s, translate .25s var(--morph); }
+  /* Landing: the bar slides to the dock's place; there its glass hands over to the dock's (identical, same box),
+     "Creating" and its spinner blur out, and the dock's contents blur in together */
+  .v-c2x[data-phase="landed"] .pick-tray { left: var(--dl); border-color: transparent; box-shadow: none; background-color: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+    transition: left .45s var(--morph), border-color 0s .45s, box-shadow 0s .45s, background-color 0s .45s, backdrop-filter 0s .45s, -webkit-backdrop-filter 0s .45s; }
+  .v-c2x[data-phase="landed"] .mini > * { opacity: 0; filter: blur(4px); translate: 0 -3px; transition-delay: .45s; }
+  .v-c2x .dock-wrap { opacity: 1; translate: 0 0; }
+  .v-c2x .dock-wrap .dock { opacity: 0; transition: opacity 0s .45s; }
+  .v-c2x .dock-wrap .metal { opacity: 0; translate: 0 12px; transition: opacity .3s .2s, translate .45s var(--morph) .2s; }
+  .v-c2x .dock-row .switcher > *, .v-c2x .dock-row .ibtn { opacity: 0; filter: blur(4px); translate: 0 3px; transition: opacity .3s, filter .3s, translate .35s var(--morph); transition-delay: .52s; }
+  .v-c2x[data-phase="landed"] .dock-wrap .dock, .v-c2x[data-phase="landed"] .dock-wrap .metal { opacity: 1; translate: 0 0; }
+  .v-c2x[data-phase="landed"] .dock-row .switcher > *, .v-c2x[data-phase="landed"] .dock-row .ibtn { opacity: 1; filter: none; translate: 0 0; }
+
+  /* C2c, C2d, C2e: C2b with a shimmer instead of the spinner (each app also carries .v-c2x) */
+  .v-c2x-text .mini .ring, .v-c2x-sheen .mini .ring, .v-c2x-edge .mini .ring { display: none; }
+  /* C2c: the board name's rename glint (bg-name-glint), in white and on a loop */
+  .v-c2x-text .mini .t { background: linear-gradient(100deg, var(--z400) 35%, #fff 50%, var(--z400) 65%) 0 0 / 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: glint 1.6s ease-in-out infinite; }
+  @keyframes glint { from { background-position: 100% 0; } to { background-position: 0 0; } }
+  /* C2d: the toolbar's hover sheen (toolbar-sheen), swept across the bar on a loop */
+  .v-c2x-sheen .pick-tray::after { content: ""; position: absolute; top: -12px; bottom: -12px; left: 0; width: 40%; pointer-events: none; opacity: 0; transition: opacity .2s;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / .3) 45% 55%, transparent); }
+  .v-c2x-sheen[data-phase="saving"] .pick-tray::after { opacity: 1; animation: sheen 1.8s cubic-bezier(.3, .6, .3, 1) .35s infinite both; }
+  @keyframes sheen { 0% { transform: translateX(-170%) skewX(-20deg); } 70%, 100% { transform: translateX(360%) skewX(-20deg); } }
+  /* C2e: a light runs round the bar's edge */
+  @property --edge { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  .v-c2x-edge .pick-tray::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; opacity: 0; transition: opacity .25s;
+    background: conic-gradient(from var(--edge), transparent 0 58%, rgb(255 255 255 / .9) 72% 82%, transparent 94%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  .v-c2x-edge[data-phase="saving"] .pick-tray::after { opacity: 1; transition-delay: .35s; animation: edge 1.8s linear infinite; }
+  @keyframes edge { to { --edge: 360deg; } }
+
+  /* D: the heroes fill in while it saves */
+  .v-d[data-phase="saving"] .layer.on { opacity: 1; }
+  .v-d[data-phase="saving"] .layer.on .hi img { animation: pop .3s var(--morph) both; animation-delay: calc(min(var(--k) * 16ms, 640ms) + 120ms); }
+  .v-d[data-phase="saving"] .layer.on .addt { opacity: 0; }
+  .v-d[data-phase="saving"] .layer.on .cat-head .n { background: linear-gradient(90deg, var(--z50) 40%, var(--z500) 50%, var(--z50) 60%) 0 0 / 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shimmer 1.4s linear .9s infinite; }
+  @keyframes pop { from { opacity: 0; scale: .7; } }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+
+  .states .sep { width: 1px; height: 18px; background: var(--line); margin: 0 6px; }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>Choosing a start waits on a save; show the wait</h1>
+    <div class="chips">
+      <div class="chip"><b>Parent</b>C2d in 4b7e-new-board-starts.html</div>
+      <div class="chip"><b>No board yet</b>/b/new has no id until the save returns.</div>
+      <div class="chip"><b>Heavy</b>Default saves every hero; slow links take seconds.</div>
+      <div class="chip"><b>Fails</b>Say so, keep the choice, one click to retry.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="C2d as designed: choosing just waits" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>C2d as designed: choosing just waits</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note bad">Nothing answers the click until the save returns; a slow save invites a second click.</div>
+      <div class="note bad">A failed save is silent.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="The chosen card spins; the others step back" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>The chosen card spins; the others step back</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The wait sits where you clicked, like New Board's spinner today.</div>
+      <div class="note good">A failure stays on that card; the other starts are one click away.</div>
+      <div class="note bad">The tray drops and the dock rises only after the wait.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="The board lands on click; a pill holds the dock's place" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>The board lands on click; a pill holds the dock's place</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Feels instant: the categories rise as you click.</div>
+      <div class="note bad">A failure takes the board back, which stings.</div>
+      <div class="note bad">The categories look ready but can't be edited until saved.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="The tray folds into the dock" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>The tray folds into the dock</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">One motion from choice to dock: the tray becomes what you use next.</div>
+      <div class="note bad">The ghost stays faded while it saves, so the board looks unsettled.</div>
+      <div class="note bad">The most to build: a measured morph across two routes.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2" data-name="C folds to the centre, then glides to the dock" data-v="c2">
+    <div class="v-head"><span class="v-id">C2</span><h2>C folds to the centre, then glides to the dock</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The wait stays centred like the tray; it steps aside only when New category arrives.</div>
+      <div class="note good">The ghost goes solid while saving, so landing on the board is seamless.</div>
+      <div class="note bad">Two motions after choosing: a fold, then a slide.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2b" data-name="C2, with the bar's contents handing over to the dock's" data-v="c2x">
+    <div class="v-head"><span class="v-id">C2b</span><h2>C2, with the bar's contents handing over to the dock's</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">"Creating Tier List" blurs straight into the dock's contents, all at once.</div>
+      <div class="note good">One box from fold to dock; only its contents change.</div>
+      <div class="note bad">On a quick save, fold, slide and swap run back to back.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2c" data-name="C2b with the words shimmering, no spinner" data-v="c2x-text">
+    <div class="v-head"><span class="v-id">C2c</span><h2>C2b with the words shimmering, no spinner</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Quietest: only the words move.</div>
+      <div class="note good">Reuses the dock's rename glint, in white and on a loop.</div>
+      <div class="note bad">A shimmer on text can read as a placeholder, not progress.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2d" data-name="C2b with a sheen sweeping the bar" data-v="c2x-sheen">
+    <div class="v-head"><span class="v-id">C2d</span><h2>C2b with a sheen sweeping the bar</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Reuses the dock's hover sheen.</div>
+      <div class="note bad">Faint on dark glass; a quick save may never show it.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2e" data-name="C2b with a light running round the bar's edge" data-v="c2x-edge">
+    <div class="v-head"><span class="v-id">C2e</span><h2>C2b with a light running round the bar's edge</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Clearly busy without touching the words.</div>
+      <div class="note bad">Nothing else in Smarf glows on its edge.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="The heroes fill in while it saves" data-v="d">
+    <div class="v-head"><span class="v-id">D</span><h2>The heroes fill in while it saves</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The wait becomes the reveal; no spinner.</div>
+      <div class="note bad">The fill is timed, not real: a slow save ends on shimmering names.</div>
+      <div class="note bad">Needs a still version for reduced motion.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from A: add B's instant board when the save is fast.</div>
+      <div class="card"><b>Remix</b>Remix C2c: shimmer the words and sweep the bar together.</div>
+      <div class="card"><b>Settle</b>Settle on C2c for the quietest wait.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/6b3d-board-saving.html';
+
+const P = {
+  squaresPlus: '<path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/>',
+  bars2: '<path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/>',
+  plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>',
+  plusCircle: '<path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd"/>',
+  chevronUpDown: '<path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z" clip-rule="evenodd"/>',
+  pencil: '<path d="m2.695 14.762-1.262 3.155a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.886L17.5 5.501a2.121 2.121 0 0 0-3-3L3.58 13.419a4 4 0 0 0-.885 1.343Z"/>',
+  ellipsis: '<path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>',
+  xCircle: '<path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const starOutline = (s = 20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.563.563 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/></svg>`;
+const ring = '<span class="ring" aria-hidden="true"><i></i><i></i><i></i></span>';
+
+/* ---------- The three starts (C2d's geometry: 88×53 cells, 36px header) ---------- */
+const thumb = (s) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${s}.png`;
+const perRow = (w) => Math.floor((w - 8) / 88);
+const catH = (c) => 36 + Math.ceil((c.heroes.length + 1) / perRow(c.w)) * 53 + 8;
+
+const TIER = (() => {
+  const s = { name: 'S Tier', heroes: ['bounty_hunter'], w: 536, x: 0, y: 0 };
+  const f = { name: 'F Tier', heroes: ['nevermore', 'abyssal_underlord', 'drow_ranger', 'bristleback'], w: 448, x: 548, y: 0 };
+  const rows = [
+    ['A Tier', ['obsidian_destroyer', 'enigma', 'spirit_breaker', 'slark', 'invoker', 'nyx_assassin', 'phantom_lancer', 'winter_wyvern', 'pudge']],
+    ['B Tier', ['dragon_knight', 'night_stalker', 'techies', 'luna', 'witch_doctor', 'rubick', 'earthshaker', 'oracle', 'earth_spirit', 'antimage', 'dawnbreaker', 'sven', 'wisp', 'tinker', 'keeper_of_the_light', 'meepo', 'visage', 'disruptor', 'juggernaut']],
+    ['C Tier', ['ember_spirit', 'hoodwink', 'dark_willow', 'marci', 'legion_commander', 'dazzle', 'lone_druid', 'lich']],
+    ['D Tier', ['troll_warlord', 'skywrath_mage', 'rattletrap', 'phantom_assassin', 'morphling', 'silencer', 'elder_titan', 'treant']]
+  ];
+  let y = Math.max(catH(s), catH(f)) + 12;
+  return [s, f, ...rows.map(([name, heroes]) => { const c = { name, heroes, w: 996, x: 0, y }; y += catH(c) + 12; return c; })];
+})();
+const DEF = (() => {
+  const g = { Strength: ['axe', 'pudge', 'earthshaker', 'tiny', 'sven', 'kunkka', 'tidehunter', 'mars', 'centaur', 'slardar'], Agility: ['antimage', 'juggernaut', 'phantom_assassin', 'drow_ranger', 'slark', 'faceless_void', 'morphling', 'terrorblade', 'luna', 'medusa'],
+    Intelligence: ['crystal_maiden', 'invoker', 'lina', 'lion', 'zuus', 'storm_spirit', 'shadow_shaman', 'witch_doctor', 'rubick', 'leshrac'], Universal: ['void_spirit', 'pangolier', 'windrunner', 'mirana', 'dark_willow', 'snapfire', 'marci', 'dazzle', 'enigma', 'batrider'] };
+  const h = catH({ w: 448, heroes: g.Strength });
+  return Object.entries(g).map(([name, heroes], i) => ({ name, heroes, w: 448, x: (i % 2) * 480, y: i > 1 ? h + 32 : 0 }));
+})();
+const BLANK = [{ name: 'Pubstomp', heroes: ['lion', 'bounty_hunter'], w: 360, x: 0, y: 0 }, { name: 'Grief Squad', heroes: ['keeper_of_the_light', 'techies'], w: 360, x: 392, y: 0 }];
+const STARTS = {
+  default: { name: 'Default', desc: 'The in-game grid: every hero, by attribute.', cats: DEF, glow: 'axe' },
+  tier: { name: 'Tier List', desc: 'Ranked by this patch’s 7000+ MMR meta, S to F.', cats: TIER, glow: 'bounty_hunter' },
+  blank: { name: 'Blank Slate', desc: 'Two small categories to rename, fill or delete.', cats: BLANK, glow: 'lion' }
+};
+const KEYS = Object.keys(STARTS);
+
+const card = (c, i, k0) => `<div class="cat" style="translate:${c.x}px ${c.y}px; --i:${i}">
+  <div class="cat-head"><span class="g">${icon('bars2')}</span><span class="n">${c.name}</span></div>
+  <div class="tray" style="width:${c.w}px">${c.heroes.map((h, j) => `<div class="hc"><div class="hi"><img src="${thumb(h)}" alt="" loading="lazy" draggable="false" style="--k:${k0 + j}"></div></div>`).join('')}<div class="hc"><span class="addt">${icon('plusCircle', 16)}Add</span></div></div></div>`;
+const cards = (cats) => { let k = 0; return cats.map((c, i) => { const h = card(c, i, k); k += c.heroes.length; return h; }).join(''); };
+const TILT = 'translate(14px, 30px) scale(0.42) perspective(1400px) rotateX(36deg) rotateZ(-10deg)';
+
+/* ---------- One canvas: renders once, then phases only toggle classes ---------- */
+class Sim {
+  constructor(app, v, mark) {
+    this.app = app; this.v = v; this.mark = mark;
+    this.slow = false; this.fails = false;
+    app.className = `app on-board v-c2b lit tilt v-${v}${v.startsWith('c2x-') ? ' v-c2x' : ''}`;
+    app.innerHTML = `
+      <div class="page">
+        <div class="nav"><div class="bar"></div><div class="nav-row">
+          <span class="logo"><img src="logo-assets/smarf-badge.svg" alt=""><b>Smarf</b></span>
+          <div class="nav-r"><span class="btn"><span class="bi">${icon('squaresPlus')}</span>New Board</span><span class="avatar"><span></span></span></div>
+        </div></div>
+        <div class="dots"><div class="ws">${KEYS.map((k) => `<div class="layer" data-g="${k}">${cards(STARTS[k].cats)}</div>`).join('')}</div></div>
+      </div>
+      <div class="dock-wrap">
+        <div class="glass dock"><div class="dock-row">
+          <div class="switcher"><span class="dot"></span><span class="nm">Untitled</span><span class="chev">${icon('chevronUpDown', 16)}</span></div>
+          <div class="ibtns"><span class="ibtn">${starOutline()}</span><span class="ibtn">${icon('pencil')}</span><span class="ibtn">${icon('ellipsis')}</span></div>
+        </div></div>
+        <div class="metal">${icon('plus')}<span>New category</span></div>
+      </div>
+      <div class="pick-tray glass" role="group" aria-label="Start this board with">
+        <div class="pick-tray-h"><b>Start this board with</b><span class="err">Couldn’t create the board. Choose again.</span></div>
+        <div class="pick-tray-row">${KEYS.map((k) => `
+          <button class="st2" data-t="${k}">
+            <div class="pv crop" style="height:128px"><img class="glow" src="${thumb(STARTS[k].glow)}" alt=""><div class="pv-in" style="--dz:.42; transform:${TILT}">${cards(STARTS[k].cats)}</div></div>
+            <div class="st2-row"><span class="tname">${STARTS[k].name}</span></div>
+            <div class="swap"><span class="tdesc">${STARTS[k].desc}</span><span class="busy">${ring}Creating…</span><span class="bad">${icon('xCircle', 16)}Couldn’t create it. Try again.</span></div>
+          </button>`).join('')}</div>
+        ${v.startsWith('c') ? `<div class="mini">${ring}<span class="t">Creating <span class="nm"></span><span class="ell">…</span></span></div>` : ''}
+      </div>
+      ${v === 'b' ? `
+        <div class="bar-b glass pill">${ring}<span class="t">Creating <span class="nm"></span>…</span></div>
+        <div class="bar-b glass fail"><span style="color:#ff637e">${icon('xCircle')}</span><span class="t bad">Couldn’t create the board.</span>
+          <button class="sbtn metal" data-act="retry">Try again</button><button class="sbtn plain" data-act="another">Choose another</button></div>` : ''}`;
+    this.cardsEls = [...app.querySelectorAll('.st2')];
+    this.layers = [...app.querySelectorAll('.layer')];
+    this.tray = app.querySelector('.pick-tray');
+    app.querySelector('.pick-tray-row').addEventListener('mouseover', (e) => { const b = e.target.closest('.st2'); if (b && this.canChoose()) this.set({ hover: b.dataset.t }); });
+    app.querySelector('.pick-tray-row').addEventListener('mouseleave', () => { if (this.canChoose()) this.set({ hover: null }); });
+    app.addEventListener('focusin', (e) => { const b = e.target.closest('.st2'); if (b && this.canChoose()) this.set({ hover: b.dataset.t }); });
+    app.addEventListener('click', (e) => {
+      const b = e.target.closest('.st2'), act = e.target.closest('[data-act]');
+      if (b && this.canChoose()) this.choose(b.dataset.t);
+      if (act && act.dataset.act === 'retry') this.choose(this.chosen);
+      if (act && act.dataset.act === 'another') { this.set({ phase: 'choosing', hover: null }); this.mark('Choosing'); }
+    });
+    this.phase = 'choosing'; this.hover = null; this.chosen = null;
+    requestAnimationFrame(() => this.measure());
+    this.jump('Choosing');
+  }
+  canChoose() { return this.phase === 'choosing' || (this.phase === 'failed' && this.v !== 'b'); }
+  // C folds the tray onto the dock's glass, so it needs the tray's height and the glass's place.
+  measure() {
+    const dock = this.app.querySelector('.dock'), a = this.app.getBoundingClientRect(), d = dock.getBoundingClientRect();
+    this.app.style.setProperty('--dl', `${d.left - a.left}px`);
+    this.app.style.setProperty('--dw', `${d.width}px`);
+    this.app.style.setProperty('--dc', `${(a.width - d.width) / 2}px`);
+    this.tray.style.setProperty('--th', `${this.tray.scrollHeight}px`);
+  }
+  set(p) {
+    Object.assign(this, p);
+    const shown = this.phase === 'choosing' ? this.hover : this.phase === 'failed' ? (this.hover || this.chosen) : this.chosen;
+    this.app.dataset.phase = this.phase;
+    this.layers.forEach((l) => l.classList.toggle('on', l.dataset.g === shown));
+    this.cardsEls.forEach((c) => { c.classList.toggle('chosen', c.dataset.t === this.chosen && this.phase !== 'choosing'); c.disabled = !this.canChoose(); });
+    this.app.querySelectorAll('.nm').forEach((n) => { if (this.chosen && !n.closest('.switcher')) n.textContent = STARTS[this.chosen].name; });
+    // Which phases hide the tray, per variation
+    const gone = { now: ['landed'], a: ['landed'], b: ['saving', 'landed', 'failed'], c: [], c2: [], c2x: [], d: ['saving', 'landed'] }[this.v.startsWith('c2x') ? 'c2x' : this.v].includes(this.phase);
+    this.tray.classList.toggle('gone', gone);
+    if (this.v === 'b') {
+      this.app.querySelector('.pill').classList.toggle('show', this.phase === 'saving');
+      this.app.querySelector('.fail').classList.toggle('show', this.phase === 'failed');
+    }
+  }
+  choose(k) {
+    clearTimeout(this.t);
+    this.set({ phase: 'saving', chosen: k, hover: null });
+    this.mark('Saving');
+    this.t = setTimeout(() => { const ok = !this.fails; this.set({ phase: ok ? 'landed' : 'failed' }); this.mark(ok ? 'Landed' : 'Failed'); }, this.slow ? 3200 : 900);
+  }
+  // Jumps render a phase without its motion.
+  jump(label) {
+    clearTimeout(this.t);
+    this.app.classList.add('still');
+    const chosen = 'tier';
+    if (label === 'Choosing') this.set({ phase: 'choosing', hover: chosen, chosen: null });
+    else this.set({ phase: label.toLowerCase(), chosen, hover: null });
+    this.cardsEls.forEach((c) => c.classList.toggle('hov', label === 'Choosing' && c.dataset.t === chosen));
+    this.mark(label);
+    this.app.offsetWidth;
+    requestAnimationFrame(() => requestAnimationFrame(() => { this.app.classList.remove('still'); this.cardsEls.forEach((c) => c.classList.remove('hov')); if (label === 'Choosing') this.cardsEls.find((c) => c.dataset.t === chosen).classList.add('hov'); }));
+  }
+}
+// Moving the pointer clears the jumped-to hover.
+document.addEventListener('mousemove', (e) => { if (e.target.closest && e.target.closest('.pick-tray-row')) document.querySelectorAll('.st2.hov').forEach((c) => c.classList.remove('hov')); });
+
+/* ---------- Build each canvas ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const states = document.createElement('div'); states.className = 'states';
+  states.innerHTML = '<span>Jump to</span>' + ['Choosing', 'Saving', 'Failed', 'Landed'].map((l) => `<button type="button" data-j aria-pressed="false">${l}</button>`).join('') +
+    `<span class="sep"></span><button type="button" data-o="slow" aria-pressed="false">Slow save</button><button type="button" data-o="fails" aria-pressed="false">Save fails</button>` +
+    '<span class="sp">Live: hover, then click a start</span>';
+  const frame = document.createElement('div'); frame.className = 'frame';
+  const app = document.createElement('div'); frame.appendChild(app);
+  const notes = sec.querySelector('.notes');
+  sec.insertBefore(states, notes); sec.insertBefore(frame, notes);
+  const jumps = [...states.querySelectorAll('[data-j]')];
+  const mark = (label) => jumps.forEach((b) => b.setAttribute('aria-pressed', String(b.textContent === label)));
+  const sim = new Sim(app, sec.dataset.v, mark);
+  addEventListener('load', () => sim.measure());
+  jumps.forEach((b) => b.addEventListener('click', () => sim.jump(b.textContent)));
+  states.querySelectorAll('[data-o]').forEach((b) => b.addEventListener('click', () => {
+    sim[b.dataset.o] = !sim[b.dataset.o]; b.setAttribute('aria-pressed', String(sim[b.dataset.o]));
+  }));
+});
+</script>
+</body>
+</html>

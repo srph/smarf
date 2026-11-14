@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Board Starts</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/diff.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf9; --card: #fff; --ink: #1c1917; --mute: #78716c; --line: #d6d3d1; --soft: #f5f5f4;
+    --new: #15803d; --newbg: #dcfce7; --mod: #b45309; --modbg: #fef3c7; --del: #b91c1c; --delbg: #fee2e2; --acc: #4f46e5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1160px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -.02em; margin: 0 0 20px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); margin: 56px 0 14px; }
+  .cap { color: var(--mute); font-size: 14px; margin: 10px 0 0; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .fact { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+  .fact b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 2px; }
+  .fact code { font-size: 12px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; overflow-x: auto; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  .b { display: inline-block; font: 600 10px/16px ui-sans-serif, system-ui; text-transform: uppercase; letter-spacing: .05em; padding: 0 6px; border-radius: 4px; vertical-align: 1px; }
+  .b.new { color: var(--new); background: var(--newbg); } .b.mod { color: var(--mod); background: var(--modbg); } .b.del { color: var(--del); background: var(--delbg); }
+  .b.same { color: var(--mute); background: var(--soft); } .b.mv { color: var(--acc); background: #eef2ff; }
+
+  /* Endpoint and cache tables */
+  table.t { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 760px; }
+  table.t th { text-align: left; font: 600 11px ui-sans-serif, system-ui; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); padding: 4px 10px 8px; border-bottom: 1px solid var(--line); }
+  table.t td { padding: 9px 10px; border-bottom: 1px solid var(--soft); vertical-align: top; }
+  table.t tr:last-child td { border-bottom: 0; }
+  table.t tr.g td { color: #a8a29e; }
+  table.t td:first-child { white-space: nowrap; font: 600 13px ui-monospace, Menlo, monospace; }
+  .verb { display: inline-block; width: 44px; font: 700 11px ui-monospace, Menlo, monospace; color: var(--mute); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .pair > * { min-width: 0; }
+  @media (max-width: 860px) { .pair { grid-template-columns: 1fr; } }
+
+  /* Tree */
+  .tree, .tree ul { list-style: none; margin: 0; padding: 0 }
+  .tree ul { position: relative; padding-left: 20px }
+  .tree ul::before { content: ""; position: absolute; left: 6px; top: 0; bottom: 14px; border-left: 1px solid var(--line) }
+  .tree li { position: relative; padding-left: 14px; font: 13px/26px ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .tree li::before { content: ""; position: absolute; left: -14px; top: 13px; width: 20px; border-top: 1px solid var(--line) }
+  .tree > li { padding-left: 0 }
+  .tree > li::before { display: none }
+  .tree .d { font-weight: 700; }
+  .tree .g { color: #a8a29e; }
+  .tree s { color: #a8a29e; }
+  .trees { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .trees { grid-template-columns: 1fr; } }
+
+  /* Schema */
+  .schema { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .tbl { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--card); }
+  .tbl.g { opacity: .55; }
+  .tbl h4 { margin: 0; padding: 8px 12px; font: 700 13px ui-monospace, Menlo, monospace; background: var(--soft); border-bottom: 1px solid var(--line); }
+  .tbl div { display: flex; gap: 8px; padding: 5px 12px; font: 12px/18px ui-monospace, Menlo, monospace; border-top: 1px solid var(--soft); }
+  .tbl div span:nth-child(2) { color: var(--mute); margin-left: auto; text-align: right; }
+  .tbl div.g { color: #a8a29e; }
+
+  /* Phases and other collapsibles */
+  .timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; margin-bottom: 16px; position: relative; }
+  .timeline::before { content: ""; position: absolute; left: 10%; right: 10%; top: 13px; border-top: 2px solid var(--line); }
+  .tl { text-align: center; position: relative; font-size: 13px; padding: 0 6px; }
+  .tl i { display: grid; place-items: center; width: 28px; height: 28px; margin: 0 auto 6px; border-radius: 50%; background: var(--ink); color: #fff; font: 700 13px ui-sans-serif; font-style: normal; }
+  .tl.ui i { background: var(--soft); color: var(--mute); border: 1px solid var(--line); }
+  details.phase { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+  details.phase > summary { list-style: none; cursor: pointer; padding: 14px 16px 14px 40px; position: relative; }
+  details.phase > summary::-webkit-details-marker { display: none; }
+  details.phase > summary::before { content: ""; position: absolute; left: 16px; top: 21px; border: 5px solid transparent; border-left: 7px solid var(--mute); transition: rotate .15s; transform-origin: 3px 5px; }
+  details.phase[open] > summary::before { rotate: 90deg; }
+  .ph-t { font-weight: 700; } .ph-t span { color: var(--mute); font-weight: 400; }
+  .files { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .files span { font: 11px/18px ui-monospace, Menlo, monospace; padding: 1px 7px; border-radius: 5px; }
+  .files .new { color: var(--new); background: var(--newbg); } .files .mod { color: var(--mod); background: var(--modbg); } .files .mv { color: var(--acc); background: #eef2ff; }
+  .ph-body { padding: 0 16px 16px; }
+  .snip { margin-top: 14px; }
+  .snip-h { font: 12px ui-monospace, Menlo, monospace; color: var(--mute); margin-bottom: 6px; }
+  pre { margin: 0; border-radius: 10px; overflow-x: auto; }
+  pre code.hljs { font-size: 12.5px; line-height: 1.55; padding: 14px 16px; border-radius: 10px; }
+
+  /* Decisions, risks */
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+  .dec, .risk { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-size: 14px; }
+  .dec b { display: block; margin-bottom: 8px; }
+  .opt { padding: 6px 10px; border-radius: 8px; margin-bottom: 4px; color: var(--mute); border: 1px solid transparent; }
+  .opt.pick { color: var(--ink); border-color: var(--acc); background: #eef2ff; }
+  .opt.pick::after { content: "Pick"; float: right; font: 700 10px/20px ui-sans-serif; text-transform: uppercase; color: var(--acc); }
+  .why { margin-top: 8px; color: var(--mute); font-size: 13px; }
+  .sev { font: 700 10px/18px ui-sans-serif; text-transform: uppercase; letter-spacing: .05em; padding: 0 7px; border-radius: 4px; margin-right: 6px; }
+  .sev.med { background: var(--modbg); color: var(--mod); } .sev.low { background: var(--soft); color: var(--mute); }
+  .risk p { margin: 6px 0 0; color: var(--mute); font-size: 13px; }
+
+  /* Verify */
+  .vgroup { margin-bottom: 16px; }
+  .vgroup h3 { font-size: 14px; margin: 0 0 6px; }
+  .check { display: flex; align-items: baseline; gap: 10px; padding: 7px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 6px; font-size: 14px; }
+  .check::before { content: ""; flex: none; width: 13px; height: 13px; border: 1.5px solid var(--mute); border-radius: 3px; translate: 0 2px; }
+  .check .mono { margin-left: auto; color: var(--mute); font-size: 12px; white-space: nowrap; }
+  .next { font-size: 16px; font-weight: 600; }
+
+  /* Mockup: the C2d screen in Smarf's look, at real size */
+  .canvas { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #e7e5e4; padding: 8px 0; margin-top: 4px; }
+  .app { --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b;
+    position: relative; width: 1080px; height: 600px; margin: 0 auto; overflow: hidden; border-radius: 8px; color: var(--z50); background: var(--z900);
+    font: 14px/20px Interstate, ui-sans-serif, system-ui, sans-serif; }
+  .app .nav { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--z800); background: var(--z900); position: relative; z-index: 3; }
+  .app .logo { font-weight: 800; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+  .app .logo i { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #818cf8, #4f46e5); }
+  .app .nbtn { display: flex; align-items: center; gap: 8px; background: #6366f1; border-radius: 8px; padding: 8px 12px; font-weight: 700; }
+  .app .board { position: absolute; inset: 64px 0 0; padding: 40px 16px 0;
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -16px 8px, 8px 8px; }
+  .app .ws { position: relative; }
+  .cat { position: absolute; left: 0; top: 0; border-radius: 12px; background: rgb(39 39 42 / .8); box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .08); }
+  .cat-h { height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 8px; font-weight: 600; white-space: nowrap; }
+  .cat-h s { width: 14px; height: 8px; border-top: 2px solid var(--z600); border-bottom: 2px solid var(--z600); text-decoration: none; }
+  .tray { display: flex; flex-wrap: wrap; border-radius: 8px 8px 12px 12px; border: 1px solid rgb(255 255 255 / .08); background: var(--z900); padding: 3px; }
+  .hc { padding: 4px; } .hi { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); } .hi img { width: 80px; height: 45px; object-fit: cover; display: block; }
+  .addt { width: 80px; height: 45px; border: 2px dashed var(--z500); background: var(--z700); border-radius: 4px; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .ghost .cat { opacity: .6; }
+  .ghost-tag { position: absolute; z-index: 4; left: 16px; top: 76px; font: 600 11px/18px ui-sans-serif; padding: 0 8px; border-radius: 5px; background: #4f46e5; color: #fff; }
+  .ptray { position: absolute; left: 50%; bottom: 24px; translate: -50% 0; z-index: 5; width: 840px; padding: 12px; border-radius: 18px;
+    background: rgb(39 39 42 / .88); border: 1px solid rgb(255 255 255 / .1); box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7), 0 0 0 1px rgb(0 0 0 / .5), 0 0 0 4px #4f46e5; backdrop-filter: blur(16px); }
+  .ptray-h { padding: 2px 4px 10px; font-weight: 600; color: var(--z200); }
+  .prow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .st { padding: 6px 6px 10px; border-radius: 12px; background: rgb(255 255 255 / .03); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); }
+  .st.hov { background: rgb(255 255 255 / .07); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .14); translate: 0 -2px; }
+  .st b { display: block; padding: 0 4px; font-weight: 600; } .st small { display: block; padding: 0 4px; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--z400); }
+  .pv { position: relative; overflow: hidden; height: 128px; margin-bottom: 10px; border-radius: 8px; background: var(--z900); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08);
+    mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent); mask-composite: intersect;
+    -webkit-mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent); -webkit-mask-composite: source-in; }
+  .pv .glow { position: absolute; right: -24px; top: -36px; width: 240px; height: 136px; object-fit: cover; filter: blur(20px) saturate(1.5); opacity: .28; }
+  .st.hov .glow { opacity: .6; }
+  .pv-in { position: absolute; left: 0; top: 0; transform-origin: 0 0; transform-style: preserve-3d; transform: translate(14px, 30px) scale(.42) perspective(1400px) rotateX(36deg) rotateZ(-10deg); }
+  .pv-in::before { content: ""; position: absolute; inset: -416px -800px; z-index: -1; opacity: .6; background-image: radial-gradient(circle, var(--z600) 1.9px, transparent 2.4px); background-size: 64px 64px; }
+  .pv .cat { background: rgb(36 36 39); box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .12), 0 36px 32px -8px rgb(0 0 0 / .75); }
+  .st:not(.hov) .pv .hi img { filter: grayscale(.9) brightness(.62); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>New Board opens /b/new; one POST creates the board</h1>
+<div class="facts">
+  <div class="fact"><b>Endpoints</b>0 new · 2 changed responses</div>
+  <div class="fact"><b>Schema</b>1 enum widened, hero rows synced</div>
+  <div class="fact"><b>Cache</b>Create seeds <code>boardKeys.detail</code></div>
+  <div class="fact"><b>Rule</b>Nothing is saved until a start is chosen</div>
+  <div class="fact"><b>Source</b>C2d in <code>4b7e</code>, C2c in <code>6b3d</code></div>
+  <div class="fact"><b>Hand-over</b>Motion <code>layoutId</code> across routes</div>
+  <div class="fact"><b>Status</b>Scoped, not started</div>
+</div>
+
+<h2>Shape</h2>
+<div class="panel">
+<svg viewBox="0 0 1080 360" width="100%" style="min-width:820px" font-family="ui-sans-serif, system-ui" font-size="13">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#78716c"/></marker>
+    <marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4f46e5"/></marker>
+  </defs>
+  <text x="0" y="18" font-weight="700" fill="#78716c" font-size="11" letter-spacing="1">BEFORE</text>
+  <rect x="0" y="32" width="200" height="56" rx="10" fill="#f5f5f4" stroke="#d6d3d1"/>
+  <text x="100" y="56" text-anchor="middle" font-weight="600">New Board</text><text x="100" y="74" text-anchor="middle" fill="#78716c" font-size="12">runs the create mutation</text>
+  <line x1="200" y1="60" x2="290" y2="60" stroke="#78716c" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="290" y="32" width="270" height="56" rx="10" fill="#f5f5f4" stroke="#d6d3d1"/>
+  <text x="425" y="56" text-anchor="middle" font-weight="600">POST /boards</text><text x="425" y="74" text-anchor="middle" fill="#78716c" font-size="12">2 placeholders → { board } bare</text>
+  <line x1="560" y1="60" x2="650" y2="60" stroke="#78716c" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="650" y="32" width="200" height="56" rx="10" fill="#f5f5f4" stroke="#d6d3d1"/>
+  <text x="750" y="56" text-anchor="middle" font-weight="600">/b/:id</text><text x="750" y="74" text-anchor="middle" fill="#78716c" font-size="12">GET /boards/:id, spinner</text>
+
+  <text x="0" y="138" font-weight="700" fill="#4f46e5" font-size="11" letter-spacing="1">AFTER</text>
+  <rect x="0" y="152" width="200" height="56" rx="10" fill="#fef3c7" stroke="#b45309"/>
+  <text x="100" y="176" text-anchor="middle" font-weight="600">New Board</text><text x="100" y="194" text-anchor="middle" fill="#78716c" font-size="12">navigates, no request</text>
+  <line x1="200" y1="180" x2="260" y2="180" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#ac)"/>
+  <rect x="260" y="152" width="230" height="56" rx="10" fill="#dcfce7" stroke="#15803d" stroke-dasharray="5 4"/>
+  <text x="375" y="176" text-anchor="middle" font-weight="600">/b/new</text><text x="375" y="194" text-anchor="middle" fill="#78716c" font-size="12">reads ['heroes'] only</text>
+  <line x1="490" y1="180" x2="560" y2="180" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#ac)"/>
+  <text x="525" y="170" text-anchor="middle" fill="#4f46e5" font-size="11">choose</text>
+  <rect x="560" y="152" width="250" height="56" rx="10" fill="#fef3c7" stroke="#b45309"/>
+  <text x="685" y="176" text-anchor="middle" font-weight="600">POST /boards</text><text x="685" y="194" text-anchor="middle" fill="#78716c" font-size="12">start's categories → { board } whole</text>
+  <line x1="810" y1="180" x2="870" y2="180" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#ac)"/>
+  <rect x="870" y="152" width="200" height="56" rx="10" fill="#fef3c7" stroke="#b45309"/>
+  <text x="970" y="176" text-anchor="middle" font-weight="600">/b/:id (replace)</text><text x="970" y="194" text-anchor="middle" fill="#78716c" font-size="12">from seeded detail cache</text>
+
+  <rect x="260" y="262" width="230" height="56" rx="10" fill="#dcfce7" stroke="#15803d" stroke-dasharray="5 4"/>
+  <text x="375" y="286" text-anchor="middle" font-weight="600">starts/*.ts</text><text x="375" y="304" text-anchor="middle" fill="#78716c" font-size="12">heroes → categories, in the UI</text>
+  <line x1="375" y1="262" x2="375" y2="212" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#ac)"/>
+  <path d="M490 290 H685 V212" fill="none" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#ac)"/>
+  <text x="500" y="308" fill="#78716c" font-size="11">the request body is the start's layout</text>
+  <rect x="0" y="262" width="200" height="56" rx="10" fill="#fef3c7" stroke="#b45309"/>
+  <text x="100" y="286" text-anchor="middle" font-weight="600">GET /heroes</text><text x="100" y="304" text-anchor="middle" fill="#78716c" font-size="12">+ universal, + missing heroes</text>
+  <line x1="200" y1="290" x2="260" y2="290" stroke="#4f46e5" stroke-width="1.5" marker-end="url(#ac)"/>
+  <g font-size="11" fill="#78716c"><rect x="830" y="270" width="12" height="12" rx="3" fill="#dcfce7" stroke="#15803d" stroke-dasharray="3 2"/><text x="848" y="280">new</text>
+  <rect x="890" y="270" width="12" height="12" rx="3" fill="#fef3c7" stroke="#b45309"/><text x="908" y="280">changed</text>
+  <rect x="970" y="270" width="12" height="12" rx="3" fill="#f5f5f4" stroke="#d6d3d1"/><text x="988" y="280">unchanged</text></g>
+</svg>
+</div>
+<p class="cap">Two requests: the cached heroes list, then one POST.</p>
+
+<h2>Endpoints</h2>
+<div class="panel">
+<table class="t">
+  <tr><th>Endpoint</th><th>Request</th><th>Response</th><th></th></tr>
+  <tr><td><span class="verb">GET</span>/heroes</td><td>unchanged</td><td><code>"universal"</code> attribute; missing heroes added</td><td><span class="b mod">data</span></td></tr>
+  <tr><td><span class="verb">POST</span>/boards</td><td>unchanged</td><td>the whole board, as GET /boards/:id</td><td><span class="b mod">shape</span></td></tr>
+  <tr class="g"><td><span class="verb">GET</span>/boards/:id</td><td>unchanged</td><td>skipped on landing</td><td><span class="b same">same</span></td></tr>
+  <tr class="g"><td><span class="verb">GET</span>/boards</td><td>unchanged</td><td>unchanged</td><td><span class="b same">same</span></td></tr>
+</table>
+</div>
+<div class="snip"><div class="snip-h">api/app/Http/Controllers/BoardsController.php <span class="b mod">modify</span></div>
+<pre><code class="language-diff">  public function store(CreateBoardRequest $request)
+  {
+      // ... Board::create, then each category, as today
+
+-         collect($input['heroes'])->each(function ($hero) use ($category) {
+-             $category->heroes()->attach($hero['id'], [/* one INSERT per hero */]);
+-         });
++         // One INSERT per category: Default posts every hero (~127 today)
++         $category->heroes()->attach(collect($input['heroes'])->mapWithKeys(fn ($hero) => [
++             $hero['id'] => ['id' => Str::orderedUuid(), 'order' => $hero['order']]
++         ]));
+
+      return response()->json([
+-         'board' => $board
++         // Same shape as show(). fresh() also reads back is_favorite and favorited_at, which create() leaves out.
++         'board' => $board->fresh(['categories', 'categories.heroes'])
+      ]);
+  }</code></pre></div>
+<p class="cap"><code>CreateBoardRequest</code> already fits every start.</p>
+
+<h2>Schema</h2>
+<div class="schema">
+  <div class="tbl"><h4>heroes <span class="b mod">modified</span></h4>
+    <div class="g"><span>id</span><span>uuid · PK</span></div>
+    <div class="g"><span>name</span><span>string</span></div>
+    <div class="g"><span>thumbnail</span><span>string(100)</span></div>
+    <div><span>attribute <span class="b mod">modified</span></span><span>enum str·agi·int·<b>universal</b></span></div>
+    <div><span>rows <span class="b mod">modified</span></span><span>re-tagged + new heroes</span></div>
+  </div>
+  <div class="tbl g"><h4>category_hero</h4>
+    <div><span>hero_id</span><span>FK → heroes</span></div><div><span>category_id</span><span>FK → categories</span></div><div><span>order</span><span>int</span></div></div>
+  <div class="tbl g"><h4>categories</h4>
+    <div><span>board_id</span><span>FK → boards</span></div><div><span>name · x · y · w · h</span><span></span></div></div>
+</div>
+<div class="snip"><div class="snip-h">api/database/migrations/2026_11_16_000000_add_universal_heroes.php <span class="b new">new</span></div>
+<pre><code class="language-php">return new class extends Migration
+{
+    // Generated by `artisan smarf:hero` (OpenDota's primary_attr 'all' becomes 'universal')
+    protected $heroes = [/* ... every hero: name, attribute, thumbnail */];
+
+    public function up()
+    {
+        DB::statement("ALTER TABLE heroes MODIFY attribute ENUM('strength','agility','intelligence','universal') NOT NULL");
+
+        foreach ($this->heroes as $hero) {
+            // Matched by name: existing heroes keep their id, so every board keeps its heroes.
+            Hero::firstOrNew(['name' => $hero['name']])->fill($hero)->save();
+        }
+    }
+
+    public function down()
+    {
+        // Put universal heroes back on their old attribute, delete the added heroes, then shrink the enum.
+        // ...
+    }
+};</code></pre></div>
+<p class="cap">No backfill or downtime.</p>
+
+<h2>Queries and mutation</h2>
+<div class="panel">
+<table class="t">
+  <tr><th>Key</th><th>Read by</th><th>Written by</th><th></th></tr>
+  <tr class="g"><td>['heroes']</td><td>/b/new, hero picker</td><td>its query, once</td><td><span class="b same">same</span></td></tr>
+  <tr><td>boardKeys.detail(id)</td><td>/b/:id</td><td>its query <b>and the create mutation</b></td><td><span class="b mod">seeded</span></td></tr>
+  <tr class="g"><td>boardKeys.list()</td><td>Home, switcher</td><td>invalidated after create</td><td><span class="b same">same</span></td></tr>
+  <tr><td><s>boardKeys.create()</s></td><td><s>useIsBoardCreating, 3 buttons</s></td><td></td><td><span class="b del">deleted</span></td></tr>
+</table>
+</div>
+<div class="snip"><div class="snip-h">ui/src/routes/app.boards.new/mutations/use-create-board-mutation.ts <span class="b mv">moved</span> from src/queries/boards/ · only /b/new creates now</div>
+<pre><code class="language-typescript">/** Create an "Untitled" board laid out by a start. Resolves to the board, categories and all. */
+const useCreateBoardMutation = () =&gt; {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    // The whole start, so the mutation's variables tell the tray which one is saving
+    mutationFn: async (start: ResolvedStart) =&gt; {
+      const body: CreateBoardVariables = {
+        name: 'Untitled',
+        // Starts carry whole heroes (previews need thumbnails); the API takes ids and orders
+        categories: start.categories.map(({ heroes, ...category }) =&gt; ({
+          ...category,
+          heroes: heroes.map((hero, i) =&gt; ({ id: hero.id, order: (i + 1) * ORDER_BUFFER }))
+        }))
+      }
+      return (await http&lt;{ board: Board }&gt;('boards', { method: 'POST', body })).board
+    },
+    onSuccess: (board) =&gt; {
+      // /b/:id renders from this instead of waiting on GET /boards/:id
+      queryClient.setQueryData(boardKeys.detail(board.id), board)
+      return queryClient.invalidateQueries({ queryKey: boardKeys.list() })
+    }
+  })
+}
+
+// Deleted: starterBoard() (the two placeholder categories), useIsBoardCreating, mutationKey</code></pre></div>
+<div class="pair">
+<div class="snip"><div class="snip-h">ui/src/queries/boards/board-keys.ts <span class="b mod">modify</span></div>
+<pre><code class="language-diff">  detail: (id: ID) =&gt; [...boardKeys.all, 'detail', id] as const,
+- // Outside `all` on purpose: creating a board isn't a board save, ...
+- create: () =&gt; ['create-board'] as const
+}</code></pre></div>
+<div class="snip"><div class="snip-h">navigation.tsx · board-toolbar-switcher.tsx · home-empty-state.tsx <span class="b mod">modify</span></div>
+<pre><code class="language-diff">- const { mutate: createBoard, isPending: isCreating } = useCreateBoardMutation()
+- const isBoardCreating = useIsBoardCreating()
+  // ...
+- onClick={() =&gt; createBoard(undefined, { onSuccess: (board) =&gt; navigate(`/b/${board.id}`) })}
++ onClick={() =&gt; navigate('/b/new')}</code></pre></div>
+</div>
+<div class="pair">
+<div class="snip"><div class="snip-h">ui/src/types/api.ts <span class="b mod">modify</span></div>
+<pre><code class="language-diff">- export type HeroAttribute = 'strength' | 'agility' | 'intelligence'
++ export type HeroAttribute = 'strength' | 'agility' | 'intelligence' | 'universal'</code></pre></div>
+<div class="snip"><div class="snip-h">ui/tests/support/handlers.ts <span class="b mod">modify</span> · POST /boards</div>
+<pre><code class="language-diff">- // Like the real API, the created board comes back without categories.
+- return HttpResponse.json({ board })
++ return HttpResponse.json({ board: boardJson(board) })</code></pre></div>
+</div>
+
+<h2>Saving and landing</h2>
+<div class="panel">
+<svg viewBox="0 0 1080 250" width="100%" style="min-width:820px" font-family="ui-sans-serif, system-ui" font-size="13">
+  <defs><marker id="sa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4f46e5"/></marker>
+  <marker id="sg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#78716c"/></marker></defs>
+  <text x="0" y="16" font-weight="700" fill="#78716c" font-size="11" letter-spacing="1">/B/NEW · BOARDSNEWROUTE</text>
+  <text x="600" y="16" font-weight="700" fill="#78716c" font-size="11" letter-spacing="1">/B/:ID · BOARDTOOLBAR</text>
+  <line x1="565" y1="0" x2="565" y2="250" stroke="#d6d3d1" stroke-dasharray="4 4"/>
+  <rect x="0" y="36" width="170" height="56" rx="10" fill="#f5f5f4" stroke="#d6d3d1"/>
+  <text x="85" y="60" text-anchor="middle" font-weight="600">Choosing</text><text x="85" y="78" text-anchor="middle" fill="#78716c" font-size="12">tray · ghost on hover</text>
+  <line x1="170" y1="64" x2="250" y2="64" stroke="#78716c" stroke-width="1.5" marker-end="url(#sg)"/><text x="210" y="56" text-anchor="middle" fill="#78716c" font-size="11">choose</text>
+  <rect x="250" y="36" width="270" height="56" rx="10" fill="#dcfce7" stroke="#15803d"/>
+  <text x="385" y="60" text-anchor="middle" font-weight="600">Saving</text><text x="385" y="78" text-anchor="middle" fill="#78716c" font-size="12">fold 500ms · ghost solid · words glint</text>
+  <rect x="250" y="160" width="270" height="56" rx="10" fill="#f5f5f4" stroke="#d6d3d1"/>
+  <text x="385" y="184" text-anchor="middle" font-weight="600">Failed</text><text x="385" y="202" text-anchor="middle" fill="#78716c" font-size="12">unfolds · error in the header</text>
+  <line x1="350" y1="92" x2="350" y2="160" stroke="#78716c" stroke-width="1.5" marker-end="url(#sg)"/><text x="342" y="130" text-anchor="end" fill="#78716c" font-size="11">save fails</text>
+  <line x1="420" y1="160" x2="420" y2="92" stroke="#78716c" stroke-width="1.5" marker-end="url(#sg)"/><text x="428" y="130" fill="#78716c" font-size="11">choose</text>
+  <line x1="520" y1="64" x2="600" y2="64" stroke="#4f46e5" stroke-width="2" marker-end="url(#sa)"/>
+  <text x="560" y="112" text-anchor="middle" fill="#4f46e5" font-size="11">saved + folded</text><text x="560" y="126" text-anchor="middle" fill="#4f46e5" font-size="11">navigate (replace)</text>
+  <rect x="600" y="36" width="220" height="56" rx="10" fill="#dcfce7" stroke="#15803d"/>
+  <text x="710" y="60" text-anchor="middle" font-weight="600">Sliding</text><text x="710" y="78" text-anchor="middle" fill="#78716c" font-size="12">dock takes the bar's layoutId</text>
+  <line x1="820" y1="64" x2="870" y2="64" stroke="#78716c" stroke-width="1.5" marker-end="url(#sg)"/>
+  <rect x="870" y="36" width="210" height="56" rx="10" fill="#dcfce7" stroke="#15803d"/>
+  <text x="975" y="60" text-anchor="middle" font-weight="600">Swapping</text><text x="975" y="78" text-anchor="middle" fill="#78716c" font-size="12">"Creating" blurs into the row</text>
+  <line x1="975" y1="92" x2="975" y2="160" stroke="#78716c" stroke-width="1.5" marker-end="url(#sg)"/>
+  <rect x="870" y="160" width="210" height="56" rx="10" fill="#f5f5f4" stroke="#d6d3d1"/>
+  <text x="975" y="184" text-anchor="middle" font-weight="600">Dock</text><text x="975" y="202" text-anchor="middle" fill="#78716c" font-size="12">router state cleared</text>
+</svg>
+</div>
+<p class="cap">Only the slide crosses routes.</p>
+
+<div class="snip"><div class="snip-h">ui/src/routes/app.boards.new/boards-new-route.tsx <span class="b new">new</span> · choosing and navigating</div>
+<pre><code class="language-tsx">// The tray's fold. Navigation waits for it, so the dock picks the bar up at rest, not mid-fold.
+const FOLD_MS = 500
+
+const { mutateAsync: createBoard, status: createStatus, variables: chosen } = useCreateBoardMutation()
+// 'success' stays 'saving': the route is about to unmount
+const phase = createStatus === 'idle' ? 'choosing' : createStatus === 'error' ? 'failed' : 'saving'
+
+// Set when /b/new unmounts, so a save that finishes after they've left doesn't pull them back
+const leftRef = useRef(false)
+useEffect(() =&gt; {
+  leftRef.current = false
+  return () =&gt; void (leftRef.current = true)
+}, [])
+
+const choose = async (start: ResolvedStart) =&gt; {
+  try {
+    const [board] = await Promise.all([createBoard(start), wait(reduceMotion ? 0 : FOLD_MS)])
+    if (leftRef.current) return
+    const state: NewBoardHandoffState = { newBoard: { start: start.name } }
+    // replace: Back from the new board goes where New Board was clicked, not to /b/new
+    navigate(`/b/${board.id}`, { replace: true, state })
+  } catch {
+    // phase is now 'failed': the tray unfolds with its error, and every start can be chosen again
+  }
+}</code></pre></div>
+
+<div class="snip"><div class="snip-h">ui/src/routes/app.boards.new/start-tray.tsx <span class="b new">new</span> · the fold</div>
+<pre><code class="language-tsx">{/* The toolbar's own wrapper, so the bar is centred exactly where the dock's row will centre */}
+&lt;div className="pointer-events-none fixed inset-x-0 bottom-6 z-(--z-board-toolbar) flex justify-center px-4"&gt;
+  &lt;motion.div
+    layoutId={NEW_BOARD_DOCK} // /b/:id's dock takes this id and slides from wherever the bar is
+    transition={FOLD}
+    style={{ borderRadius: phase === 'saving' ? 12 : 18 }} // in style, so Motion keeps it round while scaling
+    className={cn(glass, phase === 'saving' ? 'h-11.5 w-60' : 'w-210 p-3')}&gt;
+    &lt;AnimatePresence initial={false} mode="popLayout"&gt;
+      {phase === 'saving' ? (
+        // layout="position": moves with the fold instead of stretching with it
+        &lt;motion.p key="bar" layout="position" initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.3 } }}
+          className="grid h-full place-items-center font-semibold animate-creating-glint bg-creating-glint bg-clip-text text-transparent motion-reduce:animate-none"&gt;
+          Creating {chosen.name}
+        &lt;/motion.p&gt;
+      ) : (
+        &lt;motion.div key="tray" layout="position" exit={{ opacity: 0, transition: { duration: 0.18 } }}&gt;
+          {/* "Start this board with", the error when phase is 'failed', the three starts */}
+        &lt;/motion.div&gt;
+      )}
+    &lt;/AnimatePresence&gt;
+  &lt;/motion.div&gt;
+&lt;/div&gt;</code></pre></div>
+
+<div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/use-new-board-handoff.ts <span class="b new">new</span></div>
+<pre><code class="language-typescript">/** What /b/new puts in router state when it lands on the board it just created. */
+interface NewBoardHandoffState { newBoard: { start: string } }
+
+const NEW_BOARD_DOCK = 'new-board-dock'
+
+/**
+ * The dock's arrival from /b/new: 'sliding' from the "Creating" bar, then 'swapping' as "Creating …" blurs into
+ * the row, then null. `arrived` holds for the toolbar's life, so the dock's rise never plays afterwards.
+ */
+const useNewBoardHandoff = () =&gt; {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [start] = useState(() =&gt; (location.state as Partial&lt;NewBoardHandoffState&gt; | null)?.newBoard?.start ?? null)
+  const [stage, setStage] = useState&lt;'sliding' | 'swapping' | null&gt;(start ? 'sliding' : null)
+
+  // No layout to animate (reduced motion, jsdom) means no onLayoutAnimationComplete: time out instead
+  useEffect(() =&gt; { /* 'sliding' → 'swapping' after SLIDE_MS + 100 */ }, [stage])
+  useEffect(() =&gt; { /* 'swapping' → null after 250ms; then clear router state so Back or refresh can't replay it */ }, [stage])
+
+  return { arrived: start !== null, start, stage, slid: () =&gt; setStage((s) =&gt; (s === 'sliding' ? 'swapping' : s)) }
+}</code></pre></div>
+
+<div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/board-toolbar.tsx <span class="b mod">modify</span></div>
+<pre><code class="language-diff">+ const handoff = useNewBoardHandoff()
+  // ...
+- &lt;div
++ &lt;motion.div
+    ref={setDockElement}
++   // Only while sliding: later, the rename and delete cards resize the dock, and that mustn't animate as a layout
++   layoutId={handoff.stage === 'sliding' ? NEW_BOARD_DOCK : undefined}
++   transition={FOLD}
++   onLayoutAnimationComplete={handoff.slid}
++   style={{ borderRadius: 12 }}
+    className={cn(
+-     'animate-toolbar-rise motion-reduce:animate-none',
++     !handoff.arrived &amp;&amp; 'animate-toolbar-rise motion-reduce:animate-none', // the slide replaces the rise
+  // ...
+- &lt;div className="flex h-11 items-center px-1 whitespace-nowrap"&gt;
++ {/* ButtonLoader's blur swap (swap, hidden: moved to lib/blur-swap.ts) */}
++ &lt;div className={cn('flex h-11 items-center px-1 whitespace-nowrap', swap, handoff.stage === 'sliding' &amp;&amp; hidden)}&gt;
+  // ...
++ {handoff.stage &amp;&amp; (
++   &lt;p className={cn('absolute inset-0 grid place-items-center font-semibold bg-creating-glint ...', swap, handoff.stage === 'swapping' &amp;&amp; hidden)}&gt;
++     Creating {handoff.start}
++   &lt;/p&gt;
++ )}</code></pre></div>
+
+<div class="pair">
+<div class="snip"><div class="snip-h">ui/src/index.css <span class="b mod">modify</span></div>
+<pre><code class="language-diff">+ /* New board's "Creating …": the rename glint, white, looping */
++ --animate-creating-glint: name-glint 1.6s ease-in-out infinite;
+  // ...
++ @utility bg-creating-glint {
++   background-image: linear-gradient(100deg, var(--color-zinc-400) 35%, var(--color-white) 50%, var(--color-zinc-400) 65%);
++   background-size: 300% 100%;
++ }</code></pre></div>
+<div class="snip"><div class="snip-h">ui/src/routes/app.boards.new/start-category-card.tsx <span class="b new">new</span> · the ghost</div>
+<pre><code class="language-diff">+ // Solid while saving: the board's own cards then land in the
++ // same place, so the route change doesn't show
++ className={cn('transition-opacity duration-300',
++   ghost &amp;&amp; !solid &amp;&amp; 'opacity-60')}</code></pre></div>
+</div>
+
+<h2>Tree</h2>
+<div class="trees">
+<div class="panel">
+<ul class="tree">
+  <li><span class="d">ui/</span>
+    <ul>
+      <li><span class="d">src/</span>
+        <ul>
+          <li>app.tsx · index.css <span class="b mod">modified</span></li>
+          <li><span class="d">components/</span>
+            <ul><li><span class="d">board-dot-grid/</span><ul><li>board-dot-grid.tsx <span class="b new">new</span></li></ul></li><li><span class="d">button-loader/</span><ul><li>button-loader.tsx <span class="b mod">modified</span></li></ul></li></ul></li>
+          <li><span class="d">lib/</span><ul><li>blur-swap.ts <span class="b new">new</span></li><li class="g">http.ts …</li></ul></li>
+          <li><span class="d">queries/boards/</span>
+            <ul><li>board-keys.ts <span class="b mod">modified</span></li><li><s>use-create-board-mutation.ts</s> <span class="b mv">moved</span></li><li class="g">use-boards-query.ts …</li></ul></li>
+          <li><span class="d">routes/</span>
+            <ul>
+              <li><span class="d">app/navigation/</span><ul><li>navigation.tsx <span class="b mod">modified</span></li></ul></li>
+              <li><span class="d">app.boards.id/</span>
+                <ul><li>board-toolbar.tsx · board-toolbar-switcher.tsx <span class="b mod">modified</span></li><li>use-new-board-handoff.ts <span class="b new">new</span></li>
+                  <li><span class="d">board-workspace/</span><ul><li>board-workspace.tsx <span class="b mod">modified</span></li><li>board-workspace-hero-selector.tsx <span class="b mod">modified</span></li></ul></li>
+                  <li class="g">queries/use-board-query.ts</li></ul></li>
+              <li><span class="d">app.boards.new/</span> <span class="b new">new</span>
+                <ul><li>boards-new-route.tsx <span class="b new">new</span></li><li>start-tray.tsx · start-preview.tsx · start-category-card.tsx <span class="b new">new</span></li>
+                  <li><span class="d">mutations/</span><ul><li>use-create-board-mutation.ts <span class="b mv">moved</span></li></ul></li>
+                  <li><span class="d">starts/</span><ul><li>start.ts · default.ts · tier-list.ts · blank-slate.ts <span class="b new">new</span></li></ul></li></ul></li>
+              <li><span class="d">app.home/</span><ul><li>home-empty-state.tsx <span class="b mod">modified</span></li></ul></li>
+            </ul></li>
+          <li><span class="d">types/</span><ul><li>api.ts <span class="b mod">modified</span></li></ul></li>
+        </ul></li>
+      <li><span class="d">tests/</span>
+        <ul><li>board-new.test.tsx <span class="b new">new</span></li><li>board-list.test.tsx <span class="b mod">modified</span></li>
+          <li><span class="d">support/</span><ul><li>db.ts <span class="b mod">modified</span></li><li>handlers.ts <span class="b mod">modified</span></li></ul></li></ul></li>
+    </ul></li>
+</ul>
+</div>
+<div class="panel">
+<ul class="tree">
+  <li><span class="d">api/</span>
+    <ul>
+      <li><span class="d">app/</span>
+        <ul><li><span class="d">Console/Commands/</span><ul><li>FetchHeroList.php <span class="b mod">modified</span></li></ul></li>
+          <li><span class="d">Http/Controllers/</span><ul><li>BoardsController.php <span class="b mod">modified</span></li><li class="g">HeroesController.php</li></ul></li>
+          <li><span class="d">Http/Requests/</span><ul><li class="g">CreateBoardRequest.php</li></ul></li></ul></li>
+      <li><span class="d">database/migrations/</span>
+        <ul><li class="g">2026_11_15_…_sanctum.php</li><li>2026_11_16_000000_add_universal_heroes.php <span class="b new">new</span></li></ul></li>
+      <li><span class="d">tests/Feature/</span>
+        <ul><li>BoardsStoreTest.php <span class="b new">new</span></li><li>HeroesIndexTest.php <span class="b new">new</span></li><li class="g">BoardsIndexTest.php</li></ul></li>
+    </ul></li>
+</ul>
+</div>
+</div>
+<p class="cap">The create mutation becomes route-local.</p>
+
+<details class="phase"><summary><div class="ph-t">What it looks like <span>— /b/new with Tier List hovered (UI reference)</span></div></summary>
+  <div class="ph-body"><div class="canvas"><div class="app" id="mock"></div></div></div>
+</details>
+
+<h2>Phases</h2>
+<div class="timeline">
+  <div class="tl"><i>1</i>Hero data</div>
+  <div class="tl"><i>2</i>POST /boards returns the board whole</div>
+  <div class="tl"><i>3</i>Create mutation</div>
+  <div class="tl ui"><i>4</i>Starts and /b/new (UI)</div>
+  <div class="tl"><i>5</i>Saving and landing</div>
+  <div class="tl"><i>6</i>Tests and browser check</div>
+</div>
+
+<details class="phase"><summary><div class="ph-t">1 · Hero data <span>— Universal exists, and every current hero is in the table</span></div>
+  <div class="files"><span class="mod">FetchHeroList.php</span><span class="new">…_add_universal_heroes.php</span><span class="new">HeroesIndexTest.php</span><span class="mod">types/api.ts</span><span class="mod">board-workspace-hero-selector.tsx</span><span class="mod">tests/support/db.ts</span></div></summary>
+  <div class="ph-body">
+    <div class="snip"><div class="snip-h">api/app/Console/Commands/FetchHeroList.php <span class="b mod">modify</span></div>
+<pre><code class="language-diff">  'attribute' => match ($hero['primary_attr']) {
+      'str' => 'strength',
+      'agi' => 'agility',
+-     'int' => 'intelligence'
++     'int' => 'intelligence',
++     // Universal heroes (patch 7.33 on); the match threw on them before
++     'all' => 'universal'
+  },</code></pre></div>
+    <div class="snip"><div class="snip-h">ui/src/routes/app.boards.id/board-workspace/board-workspace-hero-selector.tsx <span class="b mod">modify</span></div>
+<pre><code class="language-diff">+ { id: '4', name: 'Universal', heroes: heroes.filter((hero) => hero.attribute === 'universal') }
+  // ... plus bg-amber-500 and SparklesIcon for the group</code></pre></div>
+  </div>
+</details>
+
+<details class="phase"><summary><div class="ph-t">2 · POST /boards returns the board whole <span>— same shape as GET /boards/:id, one insert per category</span></div>
+  <div class="files"><span class="mod">BoardsController.php</span><span class="new">BoardsStoreTest.php</span><span class="mod">tests/support/handlers.ts</span></div></summary>
+  <div class="ph-body">
+    <div class="snip"><div class="snip-h">api/tests/Feature/BoardsStoreTest.php <span class="b new">new</span></div>
+<pre><code class="language-php">public function test_it_returns_the_board_with_its_categories_and_heroes()
+{
+    Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
+    // Hero rows come from migrations, as in BoardsIndexTest
+    [$a, $b] = Hero::take(2)->get();
+
+    $this->postJson('/api/boards',['name' => 'Untitled', 'categories' => [[
+            'name' => 'S Tier', 'x_position' => 0, 'y_position' => 0, 'width' => 536, 'height' => 97,
+            'heroes' => [['id' => $b->id, 'order' => 1024], ['id' => $a->id, 'order' => 2048]]
+        ]]])
+        ->assertOk()
+        ->assertJsonPath('board.is_favorite', null)
+        ->assertJsonPath('board.categories.0.name', 'S Tier')
+        ->assertJsonPath('board.categories.0.heroes.*.id', [$b->id, $a->id]);
+}
+// ... and: 422 for an unknown hero id, 401 signed out</code></pre></div>
+  </div>
+</details>
+
+<details class="phase"><summary><div class="ph-t">3 · Create mutation <span>— takes a start's categories, seeds the detail cache, moves to /b/new</span></div>
+  <div class="files"><span class="mv">use-create-board-mutation.ts</span><span class="mod">board-keys.ts</span><span class="mod">navigation.tsx</span><span class="mod">board-toolbar-switcher.tsx</span><span class="mod">home-empty-state.tsx</span><span class="mod">board-list.test.tsx</span></div></summary>
+  <div class="ph-body"><p class="cap">Snippets are under Queries and mutation above.</p></div>
+</details>
+
+<details class="phase"><summary><div class="ph-t">4 · Starts and /b/new <span>— UI only: the start definitions, the route, the tray and previews</span></div>
+  <div class="files"><span class="new">starts/*.ts</span><span class="new">boards-new-route.tsx</span><span class="new">start-tray.tsx</span><span class="new">start-preview.tsx</span><span class="new">start-category-card.tsx</span><span class="new">board-dot-grid.tsx</span><span class="mod">board-workspace.tsx</span><span class="mod">app.tsx</span></div></summary>
+  <div class="ph-body">
+    <div class="snip"><div class="snip-h">ui/src/routes/app.boards.new/boards-new-route.tsx <span class="b new">new</span> · the data wiring only</div>
+<pre><code class="language-tsx">const { data: heroes, status: heroesStatus, refetch: refetchHeroes } = useHeroesQuery()
+
+// Each start's categories, laid out once per hero list
+const starts = useMemo(() =&gt; heroes &amp;&amp; STARTS.map((s) =&gt; ({ ...s, categories: s.categories(heroes) })), [heroes])
+
+// choose(): see Saving and landing</code></pre></div>
+  </div>
+</details>
+
+<details class="phase"><summary><div class="ph-t">5 · Saving and landing <span>— the fold, the failure, the slide and the swap</span></div>
+  <div class="files"><span class="new">use-new-board-handoff.ts</span><span class="new">lib/blur-swap.ts</span><span class="mod">board-toolbar.tsx</span><span class="mod">button-loader.tsx</span><span class="mod">index.css</span><span class="mod">start-tray.tsx</span><span class="mod">boards-new-route.tsx</span></div></summary>
+  <div class="ph-body"><p class="cap">Snippets are under Saving and landing above.</p></div>
+</details>
+
+<details class="phase"><summary><div class="ph-t">6 · Tests and browser check <span>— the whole flow against the fake API, then by eye</span></div>
+  <div class="files"><span class="new">tests/board-new.test.tsx</span></div></summary>
+  <div class="ph-body">
+    <div class="snip"><div class="snip-h">ui/tests/board-new.test.tsx <span class="b new">new</span></div>
+<pre><code class="language-tsx">test('New Board saves nothing until Tier List is chosen, then opens it without a refetch', async () =&gt; {
+  const user = userEvent.setup()
+  renderApp('/')
+
+  await user.click(await screen.findByRole('button', { name: 'New Board' }))
+  expect(db.boards).toHaveLength(0)
+
+  await user.click(await screen.findByRole('button', { name: /Tier List/ }))
+  expect(await screen.findByText('Creating Tier List')).toBeVisible()
+  await screen.findByText('A Tier')
+  // No layout in jsdom: the hand-over finishes on its timeout
+  await waitFor(() =&gt; expect(screen.queryByText(/Creating/)).toBeNull())
+  expect(db.categories.map((c) =&gt; c.name)).toEqual(['S Tier', 'F Tier', 'A Tier', 'B Tier', 'C Tier', 'D Tier'])
+})
+
+test('a failed save brings the tray back with its error', async () =&gt; {
+  // server.use(http.post(`${API}/boards`, () =&gt; HttpResponse.json({}, { status: 500 }))) ...
+})
+
+test('every start names only heroes that exist', () =&gt; {
+  // ...
+})</code></pre></div>
+  </div>
+</details>
+
+<h2>Decisions</h2>
+<div class="grid2">
+  <div class="dec"><b>How does /b/:id get the new board?</b>
+    <div class="opt pick">POST returns it whole; seed the detail cache</div><div class="opt">Navigate and let GET /boards/:id fetch it</div>
+    <div class="why">No spinner between choosing and the board.</div></div>
+  <div class="dec"><b>How does the bar become the dock across routes?</b>
+    <div class="opt pick">Motion <code>layoutId</code> on both</div><div class="opt">One bar in a shared /b layout route</div><div class="opt">No slide: cut to the dock</div>
+    <div class="why">The seeded cache renders /b/:id in the same commit.</div></div>
+  <div class="dec"><b>When does /b/new navigate?</b>
+    <div class="opt pick">After both the save and the fold</div><div class="opt">As soon as the save returns</div>
+    <div class="why">A fast save would cut the fold mid-way.</div></div>
+  <div class="dec"><b>How does the dock know it's arriving?</b>
+    <div class="opt pick">Router state, cleared after the swap</div><div class="opt">A module-level one-shot flag</div>
+    <div class="why">Explicit; cleared, so it never replays.</div></div>
+</div>
+
+<h2>Risks</h2>
+<div class="grid2">
+  <div class="risk"><span class="sev med">Medium</span><b>The hero migration breaks boards' heroes</b><p>Match by name; never delete.</p></div>
+  <div class="risk"><span class="sev med">Medium</span><b>The seeded board lacks fields</b><p><code>fresh()</code>; a test pins it.</p></div>
+  <div class="risk"><span class="sev med">Medium</span><b>/b/:id spins first, so nothing slides</b><p>Seeded cache; falls back to a cut.</p></div>
+  <div class="risk"><span class="sev low">Low</span><b>The dock's layoutId animates its own resizes</b><p>Set only while sliding.</p></div>
+  <div class="risk"><span class="sev low">Low</span><b>Leaving mid-save still creates it</b><p>No navigation; it shows on Home.</p></div>
+  <div class="risk"><span class="sev low">Low</span><b>Default posts ~127 heroes</b><p>One pivot insert per category.</p></div>
+  <div class="risk"><span class="sev low">Low</span><b>Double-click creates two boards</b><p>Starts disable while saving.</p></div>
+</div>
+
+<h2>Verify</h2>
+<div class="vgroup"><h3>User</h3>
+  <div class="check">User can pick Tier List and land on its board, no spinner<span class="mono">board-new.test.tsx</span></div>
+  <div class="check">User sees the tray fold into "Creating Tier List", then into the dock<span class="mono">manual</span></div>
+  <div class="check">User sees the tray return with an error if the save fails<span class="mono">board-new.test.tsx</span></div>
+</div>
+<div class="vgroup"><h3>System</h3>
+  <div class="check">Leaving /b/new never creates a board<span class="mono">board-new.test.tsx</span></div>
+  <div class="check">Back or refresh never replays the hand-over<span class="mono">manual</span></div>
+  <div class="check">Reduced motion still lands, without motion<span class="mono">manual</span></div>
+  <div class="check">POST /boards returns what GET /boards/:id returns<span class="mono">BoardsStoreTest</span></div>
+  <div class="check">Existing boards keep their heroes<span class="mono">HeroesIndexTest</span></div>
+  <div class="check">Every start's hero names resolve<span class="mono">board-new.test.tsx</span></div>
+</div>
+<div class="vgroup"><h3>Automated</h3>
+  <div class="check">UI checks pass<span class="mono">npm run typecheck · lint · format:check · test</span></div>
+  <div class="check">API tests pass<span class="mono">valet php --site=smarf vendor/bin/phpunit</span></div>
+  <div class="check">Migration rolls back cleanly<span class="mono">artisan migrate · migrate:rollback</span></div>
+</div>
+
+<h2>Next</h2>
+<p class="next">Run <code>artisan smarf:hero</code> with the <code>'all' =&gt; 'universal'</code> mapping and turn its output into phase 1's migration.</p>
+
+</main>
+
+<script>
+hljs.highlightAll();
+
+/* The C2d screen, built the way the design page builds it: 88×53 hero cells, a 36px header, 4px tray padding. */
+const thumb = (s) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${s}.png`;
+const perRow = (w) => Math.floor((w - 8) / 88);
+const catH = (c) => 36 + Math.ceil((c.heroes.length + 1) / perRow(c.w)) * 53 + 8;
+const card = (c) => `<div class="cat" style="translate:${c.x}px ${c.y}px"><div class="cat-h"><s></s>${c.name}</div><div class="tray" style="width:${c.w}px">${c.heroes.map((h) => `<div class="hc"><div class="hi"><img src="${thumb(h)}" alt="" loading="lazy"></div></div>`).join('')}<div class="hc"><div class="addt">Add</div></div></div></div>`;
+
+const tier = (() => {
+  const s = { name: 'S Tier', heroes: ['bounty_hunter'], w: 536, x: 0, y: 0 };
+  const f = { name: 'F Tier', heroes: ['nevermore', 'abyssal_underlord', 'drow_ranger', 'bristleback'], w: 448, x: 548, y: 0 };
+  const rows = [
+    ['A Tier', ['obsidian_destroyer', 'enigma', 'spirit_breaker', 'slark', 'invoker', 'nyx_assassin', 'phantom_lancer', 'winter_wyvern', 'pudge']],
+    ['B Tier', ['dragon_knight', 'night_stalker', 'techies', 'luna', 'witch_doctor', 'rubick', 'earthshaker', 'oracle', 'earth_spirit', 'antimage', 'dawnbreaker', 'sven', 'wisp', 'tinker', 'keeper_of_the_light', 'meepo', 'visage', 'disruptor', 'juggernaut']],
+    ['C Tier', ['ember_spirit', 'hoodwink', 'dark_willow', 'marci', 'legion_commander', 'dazzle', 'lone_druid', 'lich']],
+    ['D Tier', ['troll_warlord', 'skywrath_mage', 'rattletrap', 'phantom_assassin', 'morphling', 'silencer', 'elder_titan', 'treant']]
+  ];
+  let y = Math.max(catH(s), catH(f)) + 12;
+  return [s, f, ...rows.map(([name, heroes]) => { const c = { name, heroes, w: 996, x: 0, y }; y += catH(c) + 12; return c; })];
+})();
+const def = (() => {
+  const g = { Strength: ['axe', 'pudge', 'earthshaker', 'tiny', 'sven', 'kunkka', 'tidehunter', 'mars', 'centaur'], Agility: ['antimage', 'juggernaut', 'phantom_assassin', 'drow_ranger', 'slark', 'faceless_void', 'morphling', 'terrorblade', 'luna'],
+    Intelligence: ['crystal_maiden', 'invoker', 'lina', 'lion', 'zuus', 'storm_spirit', 'shadow_shaman', 'witch_doctor', 'rubick'], Universal: ['void_spirit', 'pangolier', 'windrunner', 'mirana', 'dark_willow', 'snapfire', 'marci', 'dazzle', 'enigma'] };
+  const h = catH({ w: 448, heroes: g.Strength });
+  return Object.entries(g).map(([name, heroes], i) => ({ name, heroes, w: 448, x: (i % 2) * 480, y: i > 1 ? h + 32 : 0 }));
+})();
+const blank = [{ name: 'Pubstomp', heroes: ['lion', 'bounty_hunter'], w: 360, x: 0, y: 0 }, { name: 'Grief Squad', heroes: ['keeper_of_the_light', 'techies'], w: 360, x: 392, y: 0 }];
+const STARTS = [
+  ['Default', 'The in-game grid: every hero, by attribute.', def, 'axe'],
+  ['Tier List', 'Ranked by this patch’s 7000+ MMR meta, S to F.', tier, 'bounty_hunter'],
+  ['Blank Slate', 'Two small categories to rename, fill or delete.', blank, 'lion']
+];
+document.getElementById('mock').innerHTML = `
+  <div class="nav"><span class="logo"><i></i>Smarf</span><span class="nbtn">New Board</span></div>
+  <div class="board"><div class="ws ghost">${tier.map(card).join('')}</div></div>
+  <span class="ghost-tag">Ghost of the hovered start</span>
+  <div class="ptray"><div class="ptray-h">Start this board with</div><div class="prow">${STARTS.map(([n, d, cats, glow], i) => `
+    <div class="st${i === 1 ? ' hov' : ''}"><div class="pv"><img class="glow" src="${thumb(glow)}" alt=""><div class="pv-in">${cats.map(card).join('')}</div></div><b>${n}</b><small>${d}</small></div>`).join('')}</div></div>`;
+</script>
+</body>
+</html>
