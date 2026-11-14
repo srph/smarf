@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hold On Metal</title>
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 1100px) { .wrap { margin-left: max(200px, calc((100vw - 1140px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .states .sp { margin-left: auto; }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 1100px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: D5b's card and its hold button (graphite MetalButton finish) ---------- */
+  .cv {
+    --z50: #fafafa; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z700: #3f3f46; --z800: #27272a; --z900: #18181b;
+    --r300: #ffa2a2; --r400: #ff6467; --r500: #fb2c36; --r600: #e7000b; --r700: #c10007; --r800: #9f0712;
+    --p200: oklch(87% 0.065 274.039);
+    --graphite: linear-gradient(180deg, #64646d 0%, #48484f 44%, #36363c 56%, #4b4b53 100%);
+    /* The same metal in red: lit top, darker band through the middle, like bg-indigo-metal. */
+    --red-metal: linear-gradient(180deg, var(--r400) 0%, var(--r500) 42%, var(--r600) 58%, var(--r500) 100%);
+    /* Two steps darker: red-600 top, red-800 band. */
+    --red-metal-dark: linear-gradient(180deg, var(--r600) 0%, var(--r700) 42%, var(--r800) 58%, var(--r700) 100%);
+    --p: 0; --x: 50%; --y: 50%;
+    position: relative; width: 1080px; height: 320px; margin: 0 auto; display: flex; color: var(--z50); background: var(--z900);
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 20px;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  :where(.cv) button { font-family: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; text-align: inherit; font-size: inherit; line-height: inherit; }
+  .cv svg { display: block; flex: none; }
+  .cv p, .cv h3, .cv figure { margin: 0; }
+  .cv :where(button):focus-visible { outline: none; box-shadow: 0 0 0 2px var(--gap), 0 0 0 4px #00bcff; }
+
+  /* Left: the button alone at 1× and 2× */
+  .stage { --gap: #222225; width: 400px; flex: none; background: #222225; border-right: 1px solid rgb(255 255 255 / .06);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+  .stage figure { display: flex; flex-direction: column; align-items: center; }
+  .zoom { width: 280px; height: 80px; display: grid; place-items: center; }
+  .zoom > .hb { scale: 2; }
+  .tag { font-size: 11px; line-height: 14px; color: var(--z500); margin-top: 10px; }
+
+  /* Right: in the dock */
+  .situ { position: relative; flex: 1; overflow: hidden;
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -16px 16px, 8px 8px; }
+  .sk { position: absolute; border-radius: 12px; background: rgb(39 39 42 / .8); opacity: .55; box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .08); }
+  .sk .h { height: 36px; display: flex; align-items: center; padding: 0 10px; }
+  .sk .h i { height: 10px; border-radius: 5px; background: var(--z700); }
+  .sk .t { display: flex; flex-wrap: wrap; border-radius: 8px 8px 12px 12px; border: 1px solid rgb(255 255 255 / .08); background: var(--z900); padding: 3px; }
+  .sk .t i { width: 80px; height: 45px; margin: 4px; border-radius: 4px; background: var(--z800); }
+  .dwrap { position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: center; align-items: flex-end; gap: 8px; }
+  .dock { --gap: var(--z800); width: 345px; border-radius: 12px; border: 1px solid rgb(255 255 255 / .1); background-color: rgb(39 39 42 / .6);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7), 0 0 0 1px rgb(0 0 0 / .5), inset 0 1px 2px rgb(255 255 255 / .05);
+    backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); padding: 16px; }
+  .head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .head .t { flex: 1; min-width: 0; font-weight: 700; line-height: 1.25; }
+  .x { width: 28px; height: 28px; margin-right: -6px; display: grid; place-items: center; border-radius: 6px; color: var(--z500); }
+  .x:hover { background: var(--z700); color: var(--z50); }
+  .sent { color: var(--z300); }
+  .brow { display: flex; align-items: center; gap: 8px; margin-top: 16px; }
+  .ghost { margin-left: auto; height: 36px; padding: 0 14px; border-radius: 8px; font-weight: 700; color: var(--z300); }
+  .ghost:hover { background: rgb(255 255 255 / .08); }
+  .err { display: none; font-size: 12px; line-height: 16px; color: var(--r400); }
+  .cv[data-s=error] .err { display: block; }
+  .metal { display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px 0 16px; border-radius: 12px; font-weight: 700; color: var(--z400); cursor: not-allowed;
+    border: 1px solid rgb(255 255 255 / .17); background-image: var(--graphite); box-shadow: 0 10px 15px -3px rgb(0 0 0 / .9), inset 0 1px 2px rgb(255 255 255 / .3); }
+
+  /* ---------- The hold button: layers inside the metal, driven by --p (0 → 1 over 1.2s) ---------- */
+  .hb { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 36px; min-width: 132px; padding: 0 14px;
+    border-radius: 8px; font-weight: 700; color: var(--z50); touch-action: none; text-shadow: 0 1px 1px rgb(0 0 0 / .55);
+    border: 1px solid color-mix(in oklab, rgb(255 255 255 / .17), rgb(255 162 162 / .55) calc(var(--p) * 100%));
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / .6); transition: translate .12s, box-shadow .12s, filter .2s; }
+  .hb > span:not(.lbl), .hb > svg { position: absolute; pointer-events: none; }
+  .face { inset: 0; border-radius: 7px; background-image: var(--graphite); }
+  .red { inset: 0; border-radius: 7px; background-image: var(--red-metal); }
+  .sheen { inset: 0; border-radius: 7px; box-shadow: inset 0 1px 2px rgb(255 255 255 / .3); }
+  .lbl { position: relative; display: flex; align-items: center; gap: 8px; }
+  .lbl .busy { display: none; align-items: center; gap: 8px; }
+  .cv[data-s=deleting] .lbl .busy { display: flex; }
+  .cv[data-s=deleting] .lbl .idle { display: none; }
+  .hb:hover, .cv.is-hover .hb { filter: brightness(1.1); }
+  .cv .hb:focus-visible, .cv.is-focus .hb { outline: none; box-shadow: 0 0 0 2px var(--gap), 0 0 0 4px var(--r400), 0 4px 6px -1px rgb(0 0 0 / .6); }
+  .spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { rotate: 360deg; } }
+
+  /* Now: D5b as built, a flat red bar scaled over the metal */
+  .v-now .hb { border-color: rgb(255 255 255 / .17); background-image: var(--graphite); box-shadow: inset 0 1px 2px rgb(255 255 255 / .3), 0 4px 6px -1px rgb(0 0 0 / .6); }
+  .v-now .hb:focus-visible, .v-now.is-focus .hb { box-shadow: 0 0 0 2px var(--gap), 0 0 0 4px var(--r400), inset 0 1px 2px rgb(255 255 255 / .3); }
+  .v-now .red { inset: -1px; border-radius: 8px; background-image: linear-gradient(to bottom, var(--r500), var(--r600)); transform-origin: left; transform: scaleX(var(--p)); }
+
+  /* A: red metal wipes in under the highlight */
+  .v-a .red { clip-path: inset(0 calc(100% - var(--p) * 100%) 0 0); }
+
+  /* A forks: darker red metal, rounded leading edge */
+  .v-a2 .red, .v-a2b .red { background-image: var(--red-metal-dark); }
+  .v-a2 .red { clip-path: inset(0 calc(100% - var(--p) * 100%) 0 0 round 7px); }
+  /* A2b: a half-round front; it starts 18px further right so the curve has left the button by the end */
+  .v-a2b .red { clip-path: inset(0 calc((1 - var(--p)) * (100% + 18px) - 18px) 0 0 round 7px 18px 18px 7px); }
+
+  /* A2 forks: A2's fill, plus motion on the label as it turns to Deleting… (both labels stay mounted, stacked) */
+  .v-a2c .red, .v-a2c2 .red, .v-a2d .red { background-image: var(--red-metal-dark); clip-path: inset(0 calc(100% - var(--p) * 100%) 0 0 round 7px); }
+  .cv.v-a2c .lbl, .cv.v-a2c2 .lbl, .cv.v-a2d .lbl { display: grid; }
+  .cv.v-a2c .lbl .idle, .cv.v-a2c .lbl .busy, .cv.v-a2c2 .lbl .idle, .cv.v-a2c2 .lbl .busy, .cv.v-a2d .lbl .idle, .cv.v-a2d .lbl .busy {
+    grid-area: 1 / 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  /* A2c: the label rolls up, like an odometer */
+  .cv.v-a2c .lbl { overflow: clip; overflow-clip-margin: 3px; }
+  .cv.v-a2c .lbl .idle, .cv.v-a2c .lbl .busy { transition: translate .38s cubic-bezier(.3, 1.35, .5, 1), opacity .2s; }
+  .cv.v-a2c .lbl .busy { translate: 0 110%; opacity: 0; }
+  .cv.v-a2c[data-s=deleting] .lbl .idle { translate: 0 -110%; opacity: 0; }
+  .cv.v-a2c[data-s=deleting] .lbl .busy { translate: 0 0; opacity: 1; transition-delay: .04s; }
+  /* A2c2: the Discord button's swap (label-out, then label-in): 6px, no clip, no overshoot */
+  .cv.v-a2c2 { --ease-morph: cubic-bezier(.3, .7, .2, 1); }
+  .cv.v-a2c2 .lbl .idle { transition: opacity .26s var(--ease-morph) .14s, translate .26s var(--ease-morph) .14s; }
+  .cv.v-a2c2 .lbl .busy { translate: 0 6px; opacity: 0; transition: opacity .14s ease-in, translate .14s ease-in; }
+  .cv.v-a2c2[data-s=deleting] .lbl .idle { translate: 0 -6px; opacity: 0; transition: opacity .14s ease-in, translate .14s ease-in; }
+  .cv.v-a2c2[data-s=deleting] .lbl .busy { translate: 0 0; opacity: 1; transition: opacity .26s var(--ease-morph) .14s, translate .26s var(--ease-morph) .14s; }
+  /* A2d: the old label blurs away; the spinner pops in, then Deleting… rises letter by letter */
+  .cv.v-a2d .lbl .idle { transition: opacity .16s, filter .16s, scale .16s; }
+  .cv.v-a2d[data-s=deleting] .lbl .idle { opacity: 0; filter: blur(4px); scale: .94; }
+  .cv.v-a2d .lbl .busy .spin, .cv.v-a2d .lbl .busy .ch { display: inline-block; opacity: 0; transition: opacity .12s, translate .12s, scale .12s, filter .12s; }
+  .cv.v-a2d .lbl .busy .spin { scale: .3; }
+  .cv.v-a2d .lbl .busy .ch { translate: 0 7px; filter: blur(2px); white-space: pre; }
+  .cv.v-a2d[data-s=deleting] .lbl .busy .spin { opacity: 1; scale: 1; transition: opacity .2s .08s, scale .35s cubic-bezier(.3, 1.6, .5, 1) .08s; }
+  .cv.v-a2d[data-s=deleting] .lbl .busy .ch { opacity: 1; translate: 0 0; filter: blur(0);
+    transition: opacity .22s, translate .34s cubic-bezier(.3, 1.5, .5, 1), filter .22s; transition-delay: calc(.14s + var(--i) * 28ms); }
+
+  /* B: the whole face warms; a thin line counts */
+  .v-b .red { opacity: var(--p); }
+  .v-b .bar { left: 10px; right: 10px; bottom: 4px; height: 2px; border-radius: 1px; background: rgb(255 255 255 / .9);
+    transform-origin: left; transform: scaleX(var(--p)); opacity: min(1, calc(var(--p) * 20)); }
+
+  /* C: a red line traces the edge, then the face turns */
+  .v-c .hb { border-color: rgb(255 255 255 / .17); }
+  .v-c .red { opacity: 0; transition: opacity .15s; }
+  .v-c[data-s=deleting] .red { opacity: 1; }
+  .v-c .ring { inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); overflow: visible; opacity: min(1, calc(var(--p) * 20));
+    filter: drop-shadow(0 0 4px rgb(251 44 54 / .7)); }
+  .v-c .ring rect { x: 1px; y: 1px; width: calc(100% - 2px); height: calc(100% - 2px); rx: 7.5px; fill: none; stroke: var(--r400); stroke-width: 2;
+    stroke-dasharray: 1 1; stroke-dashoffset: calc(1 - var(--p)); }
+
+  /* C2: C, red metal at rest (a red MetalButton); the traced line is white */
+  .v-c2 .hb { border-color: rgb(255 162 162 / .45); box-shadow: 0 4px 6px -1px rgb(251 44 54 / .35); text-shadow: 0 1px 1px rgb(70 8 9 / .5); }
+  .v-c2 .hb:focus-visible, .v-c2.is-focus .hb { box-shadow: 0 0 0 2px var(--gap), 0 0 0 4px var(--r400), 0 4px 6px -1px rgb(251 44 54 / .35); }
+  .v-c2 .face { background-image: var(--red-metal); transition: filter .15s; }
+  .v-c2 .red { display: none; }
+  .v-c2 .sheen { box-shadow: inset 0 1px 2px rgb(255 255 255 / .5); }
+  .v-c2[data-s=deleting] .face { filter: brightness(1.12); }
+  .v-c2 .ring { inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); overflow: visible; opacity: min(1, calc(var(--p) * 20));
+    filter: drop-shadow(0 0 4px rgb(255 255 255 / .55)); }
+  .v-c2 .ring rect { x: 1px; y: 1px; width: calc(100% - 2px); height: calc(100% - 2px); rx: 7.5px; fill: none; stroke: #fff; stroke-width: 2;
+    stroke-dasharray: 1 1; stroke-dashoffset: calc(1 - var(--p)); }
+
+  /* C2 forks: same red button, other lines, no glow */
+  .v-c2b .ring, .v-c2c .ring, .v-c2d .ring, .v-c2e .ring, .v-c2e2 .ring, .v-c2e2b .ring, .v-c2e3 .ring { filter: none; }
+  .v-c2c .ring rect { stroke: rgb(70 8 9 / .85); }
+  .v-c2d .ring { inset: -5px; width: calc(100% + 10px); height: calc(100% + 10px); }
+  .v-c2d .ring rect { rx: 11px; stroke: var(--r400); }
+  .v-c2e .ring rect, .v-c2e2 .ring rect, .v-c2e2b .ring rect, .v-c2e3 .ring rect { stroke: #ffc9c9; stroke-width: 2.5; }
+  /* C2e forks: the line starts at the top centre (--s = how far along the rect that is, set by script) */
+  .v-c2e2 .ring rect, .v-c2e2b .ring rect, .v-c2e3 .ring rect { stroke-dasharray: var(--p) calc(1 - var(--p)); }
+  .v-c2e2 .ring rect, .v-c2e2b .ring rect { stroke-dashoffset: calc(-1 * var(--s)); }
+  .v-c2e2b .ring rect { stroke-linecap: round; }
+  .v-c2e3 .ring rect { stroke-dashoffset: calc(var(--p) / 2 - var(--s)); }
+
+  /* D: pressed in; red spreads from where you pressed */
+  .v-d .red { clip-path: circle(calc(var(--p) * 145%) at var(--x) var(--y)); }
+  .v-d[data-s=holding] .hb { translate: 0 1px; box-shadow: 0 1px 2px rgb(0 0 0 / .6); }
+  .v-d[data-s=holding] .sheen { box-shadow: inset 0 2px 3px rgb(0 0 0 / .45); }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>Holding should change the metal, not cover it</h1>
+    <div class="chips">
+      <div class="chip"><b>From</b>D5b in 9d1f-delete-board-calm.html.</div>
+      <div class="chip"><b>Hold</b>1.2s, Enter or Space too; letting go drains it.</div>
+      <div class="chip"><b>At rest</b>Graphite metal; no red until you press.</div>
+      <div class="chip"><b>Feel</b>The button itself changes; nothing laid on top.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="A flat red bar scales over the metal" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>A flat red bar scales over the metal</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note bad">The bar covers the top highlight and the border, so the metal vanishes.</div>
+      <div class="note bad">Flat red on brushed graphite: two materials, one pasted on.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="The metal turns red, left to right" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>The metal turns red, left to right</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Same lit-top finish in red; highlight and border stay on top.</div>
+      <div class="note good">Still reads as progress.</div>
+      <div class="note bad">The wipe's edge is still a seam mid-hold.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A2" data-name="A in darker red, front edge rounded like the corners" data-v="a2">
+    <div class="v-head"><span class="v-id">A2</span><h2>A in darker red, front edge rounded like the corners</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The front matches the button's corners, so it looks like a second button sliding in.</div>
+      <div class="note good">Darker red sits closer to the graphite; less of a jolt.</div>
+      <div class="note bad">7px is subtle at 1×.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A2b" data-name="A in darker red, front edge half-round" data-v="a2b">
+    <div class="v-head"><span class="v-id">A2b</span><h2>A in darker red, front edge half-round</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Clearly rounded front, like liquid filling the metal.</div>
+      <div class="note good">The curve slides out past the right edge, so the end fills cleanly.</div>
+      <div class="note bad">A shape the app doesn't use elsewhere.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A2c" data-name="A2, label rolls up into Deleting…" data-v="a2c">
+    <div class="v-head"><span class="v-id">A2c</span><h2>A2, label rolls up into Deleting…</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">One quick move, like the fill pushed the label over.</div>
+      <div class="note good">A slight overshoot gives it weight without bounce.</div>
+      <div class="note bad">Vertical motion fights the left-to-right fill a little.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A2c2" data-name="A2c with the Discord button's rise" data-v="a2c2">
+    <div class="v-head"><span class="v-id">A2c2</span><h2>A2c with the Discord button's rise</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Same motion as signing in: out up 6px in 0.14s, in from below in 0.26s.</div>
+      <div class="note good">Reuses label-out and label-in; nothing new in index.css.</div>
+      <div class="note bad">A beat of empty button between the two labels.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A2d" data-name="A2, Deleting… rises letter by letter" data-v="a2d">
+    <div class="v-head"><span class="v-id">A2d</span><h2>A2, Deleting… rises letter by letter</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Spinner pops first, then the word types in left to right, carrying the fill's direction.</div>
+      <div class="note bad">About 0.4s of choreography; busier than the rest of the app.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="The whole face warms; a thin line counts" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>The whole face warms; a thin line counts</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">No seam: the metal changes all at once.</div>
+      <div class="note bad">Progress lives in a 2px line.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="A red line traces the edge, then the face turns" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>A red line traces the edge, then the face turns</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The face and label stay untouched until it fires.</div>
+      <div class="note bad">The ring starts at an arbitrary corner.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2" data-name="C, red metal at rest, a white line traces the edge" data-v="c2">
+    <div class="v-head"><span class="v-id">C2</span><h2>C, red metal at rest, a white line traces the edge</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Reads as the destructive action at a glance, as New category reads as the primary one.</div>
+      <div class="note good">White on red stays visible all the way round.</div>
+      <div class="note bad">Louder at rest than D5b's calm card.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2b" data-name="C2 with a crisp white line, no glow" data-v="c2b">
+    <div class="v-head"><span class="v-id">C2b</span><h2>C2 with a crisp white line, no glow</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Clear on red, without the haze.</div>
+      <div class="note bad">Still the brightest thing in the card.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2c" data-name="C2 with a dark line, like a groove" data-v="c2c">
+    <div class="v-head"><span class="v-id">C2c</span><h2>C2 with a dark line, like a groove</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Calm: the edge darkens as if pressed into the metal.</div>
+      <div class="note bad">Low contrast on the darker bottom half.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2d" data-name="C2 with the line outside, where the focus halo goes" data-v="c2d">
+    <div class="v-head"><span class="v-id">C2d</span><h2>C2 with the line outside, where the focus halo goes</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Same shape and red as the focus halo, so it feels native.</div>
+      <div class="note good">Leaves the metal untouched.</div>
+      <div class="note bad">Overlaps the halo when you hold with the keyboard.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2e" data-name="C2 with a pale red line on the border" data-v="c2e">
+    <div class="v-head"><span class="v-id">C2e</span><h2>C2 with a pale red line on the border</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Tonal: the border itself lights up.</div>
+      <div class="note bad">Close to the border colour at the start.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2e2" data-name="C2e, starting at the top centre, clockwise" data-v="c2e2">
+    <div class="v-head"><span class="v-id">C2e2</span><h2>C2e, starting at the top centre, clockwise</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Starts where you look first, and reads like a timer.</div>
+      <div class="note bad">Lopsided halfway: the right side fills before the left.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2e2b" data-name="C2e2 with rounded ends" data-v="c2e2b">
+    <div class="v-head"><span class="v-id">C2e2b</span><h2>C2e2 with rounded ends</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Soft, finished-looking ends, like a progress ring.</div>
+      <div class="note good">The first frame is a small pill, so the start reads instantly.</div>
+      <div class="note bad">Caps add ~1px at each end, so it closes a hair early.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C2e3" data-name="C2e, splitting from the top centre both ways" data-v="c2e3">
+    <div class="v-head"><span class="v-id">C2e3</span><h2>C2e, splitting from the top centre both ways</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Symmetric at every moment; the two ends meet at the bottom centre.</div>
+      <div class="note bad">Each end moves half as fast, so the hold reads a little slower.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="Pressed in; red spreads from your finger" data-v="d">
+    <div class="v-head"><span class="v-id">D</span><h2>Pressed in; red spreads from your finger</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The button sinks and the red starts under your press: clearly caused by you.</div>
+      <div class="note bad">Keyboard holds spread from the centre instead.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from A2c2: the spinner rises a beat before the word.</div>
+      <div class="card"><b>Remix</b>Remix A2c2: overlap the two labels instead of a gap between them.</div>
+      <div class="card"><b>Settle</b>Settle on A2c2: the app's own label swap, on the darker red fill.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/7a2e-hold-on-metal.html';
+
+const P = {
+  xmark: '<path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>',
+  plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const NAME = 'Suntukan Offlane Picks';
+
+/* ---------- The button, per variation ---------- */
+const LABEL = '<span class="lbl"><span class="idle">Hold to delete</span><span class="busy"><span class="spin"></span>Deleting…</span></span>';
+const holdBtn = (v) => v === 'now'
+  ? `<button class="hb" data-hold><span class="red"></span>${LABEL}</button>`
+  : `<button class="hb" data-hold><span class="face"></span><span class="red"></span>${v === 'b' ? '<span class="bar"></span>' : ''}<span class="sheen"></span>` +
+    `${v === 'c' || v.startsWith('c2') ? '<svg class="ring" aria-hidden="true"><rect pathLength="1"></rect></svg>' : ''}${LABEL}</button>`;
+
+const sk = (x, y, w, tiles, bar) =>
+  `<div class="sk" style="left:${x}px;top:${y}px"><div class="h"><i style="width:${bar}px"></i></div><div class="t" style="width:${w}px">${'<i></i>'.repeat(tiles)}</div></div>`;
+
+const canvasHTML = (v) => `
+  <div class="stage">
+    <figure>${holdBtn(v)}<figcaption class="tag">1×</figcaption></figure>
+    <figure><div class="zoom">${holdBtn(v)}</div><figcaption class="tag">2×</figcaption></figure>
+  </div>
+  <div class="situ">
+    ${sk(16, 24, 360, 8, 90)}${sk(408, 24, 448, 6, 120)}
+    <div class="dwrap">
+      <div class="dock">
+        <div class="head"><h3 class="t"><span style="font-weight:400">Delete</span> “${NAME}”</h3><button class="x" data-reset aria-label="Close">${icon('xmark', 16)}</button></div>
+        <p class="sent">This permanently deletes its 4 categories and 37 heroes.</p>
+        <div class="brow"><span class="err">Couldn't delete. Try again.</span><button class="ghost" data-reset>Cancel</button>${holdBtn(v)}</div>
+      </div>
+      <div class="metal">${icon('plus')}<span>New category</span></div>
+    </div>
+  </div>`;
+
+/* ---------- One controller per canvas: every copy of the button shares --p ---------- */
+const HOLD_MS = 1200;
+const LABELS = ['Rest', 'Hover', 'Focus', 'Holding', 'Released', 'Deleting', 'Error'];
+const CHIP_FOR = { rest: 'Rest', holding: 'Holding', deleting: 'Deleting', error: 'Error' };
+const easeOut = (k) => 1 - Math.pow(1 - k, 3);
+
+class Hold {
+  constructor(cv, setChip) {
+    this.cv = cv; this.setChip = setChip; this.p = 0;
+    cv.dataset.s = 'rest';
+    cv.querySelectorAll('[data-hold]').forEach((b) => {
+      b.addEventListener('pointerdown', (e) => {
+        const r = b.getBoundingClientRect();
+        this.start(`${((e.clientX - r.left) / r.width) * 100}%`, `${((e.clientY - r.top) / r.height) * 100}%`);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel', 'blur'].forEach((t) => b.addEventListener(t, () => this.release()));
+      b.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!e.repeat) this.start('50%', '50%'); } });
+      b.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === ' ') this.release(); });
+      b.addEventListener('contextmenu', (e) => e.preventDefault());
+    });
+    cv.querySelectorAll('[data-reset]').forEach((b) => b.addEventListener('click', () => this.jump('Rest')));
+  }
+  setP(p) { this.p = p; this.cv.style.setProperty('--p', p.toFixed(4)); }
+  state(s) { this.cv.dataset.s = s; this.setChip(CHIP_FOR[s]); }
+  tween(to, ms, ease, done) {
+    cancelAnimationFrame(this.raf);
+    const from = this.p, t0 = performance.now();
+    const step = (t) => {
+      const k = ms ? Math.min(1, (t - t0) / ms) : 1;
+      this.setP(from + (to - from) * ease(k));
+      if (k < 1) this.raf = requestAnimationFrame(step); else if (done) done();
+    };
+    this.raf = requestAnimationFrame(step);
+  }
+  clear() { this.active = false; cancelAnimationFrame(this.raf); clearTimeout(this.t); this.cv.classList.remove('is-hover', 'is-focus'); }
+  start(x, y) {
+    // A frozen Holding (from the chip) can still be pressed; only a live hold or a delete blocks it.
+    if (this.active || this.cv.dataset.s === 'deleting') return;
+    this.clear();
+    this.active = true;
+    this.cv.style.setProperty('--x', x); this.cv.style.setProperty('--y', y);
+    this.state('holding');
+    // Picks up from wherever a drain left it, so the remaining time stays proportional.
+    this.tween(1, HOLD_MS * (1 - this.p), (k) => k, () => {
+      this.active = false;
+      this.state('deleting');
+      // The real app goes Home here; the demo resets.
+      this.t = setTimeout(() => { this.setP(0); this.state('rest'); }, 1500);
+    });
+  }
+  release() {
+    if (!this.active) return;
+    this.active = false;
+    this.state('rest');
+    this.tween(0, 250, easeOut);
+  }
+  jump(label) {
+    this.clear();
+    this.cv.style.setProperty('--x', '50%'); this.cv.style.setProperty('--y', '50%');
+    const at = (p, s) => { this.setP(p); this.state(s); };
+    if (label === 'Rest') at(0, 'rest');
+    if (label === 'Hover') { at(0, 'rest'); this.cv.classList.add('is-hover'); }
+    if (label === 'Focus') { at(0, 'rest'); this.cv.classList.add('is-focus'); }
+    if (label === 'Holding') at(0.55, 'holding');
+    if (label === 'Released') { at(0.7, 'rest'); this.t = setTimeout(() => this.tween(0, 250, easeOut), 450); }
+    if (label === 'Deleting') at(1, 'deleting');
+    if (label === 'Error') at(0, 'error');
+    this.setChip(label);
+  }
+}
+
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const v = sec.dataset.v;
+  const states = document.createElement('div'); states.className = 'states';
+  states.innerHTML = '<span>State</span>' + LABELS.map((l) => `<button data-l="${l}" aria-pressed="false">${l}</button>`).join('') +
+    '<span class="sp">Try it: press and hold either button</span>';
+  const frame = document.createElement('div'); frame.className = 'frame';
+  const cv = document.createElement('div'); cv.className = `cv v-${v}${v.startsWith('c2') && v !== 'c2' ? ' v-c2' : ''}`; cv.innerHTML = canvasHTML(v);
+  frame.appendChild(cv);
+  sec.querySelector('.notes').before(states, frame);
+  const setChip = (l) => states.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.l === l)));
+  const hold = new Hold(cv, setChip);
+  states.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) hold.jump(b.dataset.l); });
+  hold.jump('Holding');
+});
+
+/* A2d: split Deleting… into letters so each can rise on its own delay */
+document.querySelectorAll('.v-a2d .busy').forEach((b) => {
+  const text = b.lastChild; const word = text.textContent;
+  const w = document.createElement('span'); w.style.display = 'inline-flex'; // keeps the label's gap off the letters
+  w.append(...[...word].map((c, i) => Object.assign(document.createElement('span'), { className: 'ch', textContent: c, style: `--i:${i}` })));
+  text.replaceWith(w);
+});
+
+/* Where the top centre sits along each ring's rect, as a fraction of its length (pathLength = 1) */
+const RX = 7.5;
+document.querySelectorAll('.v-c2e2 [data-hold], .v-c2e2b [data-hold], .v-c2e3 [data-hold]').forEach((b) => {
+  const w = b.clientWidth, h = b.clientHeight; // the ring sits on the padding box
+  const len = 2 * (w - 2 * RX) + 2 * (h - 2 * RX) + 2 * Math.PI * RX;
+  b.querySelector('.ring').style.setProperty('--s', ((w / 2 - RX) / len).toFixed(4));
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
