@@ -3,7 +3,7 @@ import { cn } from 'cn'
 import { useNavigate } from 'react-router'
 import { AnimatePresence, motion, type Transition } from 'motion/react'
 import { Tooltip } from '@base-ui/react/tooltip'
-import { ExclamationCircleIcon, PencilIcon } from '@heroicons/react/20/solid'
+import { ExclamationCircleIcon, GlobeAltIcon, LinkIcon, PencilIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
 import { FavoriteIcon } from '~/src/components/favorite-icon/favorite-icon'
 import { useFavoriteBoardMutation } from '~/src/queries/boards/use-favorite-board-mutation'
@@ -13,13 +13,14 @@ import { BoardToolbarAddCategoryButton } from './board-toolbar-add-category-butt
 import { BoardToolbarDeletePanel } from './board-toolbar-delete-panel'
 import { BoardToolbarMoreMenu } from './board-toolbar-more-menu'
 import { BoardToolbarRenamePanel } from './board-toolbar-rename-panel'
+import { BoardToolbarSharePanel } from './board-toolbar-share-panel'
 import { BoardToolbarSwitcher } from './board-toolbar-switcher'
 import { BoardToolbarIconButton } from './board-toolbar-tooltip'
 import { useToolbarSaveStatus } from './use-toolbar-save-status'
 import { NEW_BOARD_DOCK, NEW_BOARD_SLIDE, useNewBoardHandoff } from './use-new-board-handoff'
 import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
 
-type Mode = 'idle' | 'rename' | 'delete'
+type Mode = 'idle' | 'rename' | 'delete' | 'share'
 
 // How long the name glints after a rename.
 const RENAMED_MS = 1300
@@ -31,8 +32,8 @@ const shrink: Transition = { height: { duration: 0.3, ease: EASE }, opacity: { d
 const rowBack: Transition = { height: { duration: 0.3, ease: EASE }, opacity: { duration: 0.18, delay: 0.12 } }
 
 /**
- * The board's floating toolbar: a glass dock (switch board, favorite, rename, more) and New category beside it.
- * Renaming and deleting grow the dock into a card in place; New category stays put, disabled, until it closes.
+ * The board's floating toolbar: a glass dock (switch board, favorite, rename, share, more) and New category beside it.
+ * Renaming, sharing and deleting grow the dock into a card in place; New category stays put, disabled, until it closes.
  */
 const BoardToolbar: React.FC = () => {
   const { board } = useBoard()
@@ -57,6 +58,8 @@ const BoardToolbar: React.FC = () => {
 
   const moreButtonRef = useRef<HTMLButtonElement>(null)
 
+  const shareButtonRef = useRef<HTMLButtonElement>(null)
+
   const previousModeRef = useRef<Mode>(mode)
 
   // Closing a card hands focus back to the button that opened it.
@@ -64,8 +67,8 @@ const BoardToolbar: React.FC = () => {
     const previous = previousModeRef.current
     previousModeRef.current = mode
     if (mode !== 'idle' || previous === 'idle') return
-    const trigger = previous === 'rename' ? renameButtonRef : moreButtonRef
-    trigger.current?.focus({ preventScroll: true })
+    const triggers = { rename: renameButtonRef, delete: moreButtonRef, share: shareButtonRef }
+    triggers[previous].current?.focus({ preventScroll: true })
   }, [mode])
 
   useEffect(() => {
@@ -121,11 +124,9 @@ const BoardToolbar: React.FC = () => {
                   animate={{ height: 'auto', opacity: 1, transition: grow }}
                   exit={{ height: 0, opacity: 0, transition: shrink }}
                   className="overflow-hidden contain-inline-size">
-                  {mode === 'rename' ? (
-                    <BoardToolbarRenamePanel onClose={close} onRenamed={handleRenamed} />
-                  ) : (
-                    <BoardToolbarDeletePanel onClose={close} />
-                  )}
+                  {mode === 'rename' && <BoardToolbarRenamePanel onClose={close} onRenamed={handleRenamed} />}
+                  {mode === 'delete' && <BoardToolbarDeletePanel onClose={close} />}
+                  {mode === 'share' && <BoardToolbarSharePanel onClose={close} />}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -159,6 +160,17 @@ const BoardToolbar: React.FC = () => {
 
                   <BoardToolbarIconButton ref={renameButtonRef} label="Rename board" onClick={() => setMode('rename')}>
                     <Icon icon={PencilIcon} />
+                  </BoardToolbarIconButton>
+
+                  {/* Indigo, with a globe, while the board is public. */}
+                  <BoardToolbarIconButton
+                    ref={shareButtonRef}
+                    label={board.is_public ? 'Share board (public)' : 'Share board'}
+                    onClick={() => setMode('share')}
+                    className={cn(
+                      board.is_public && 'text-primary-300 hover:bg-primary-500/20 hover:text-primary-200'
+                    )}>
+                    <Icon icon={board.is_public ? GlobeAltIcon : LinkIcon} />
                   </BoardToolbarIconButton>
 
                   <BoardToolbarMoreMenu
