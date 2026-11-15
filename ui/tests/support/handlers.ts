@@ -19,6 +19,11 @@ function ownedBoard(request: Request, id: string): DbBoard | null {
   return db.boards.find((b) => b.id === id && b.user_id === userId) ?? null
 }
 
+/** A board the request may view: its own, or anyone's public one. */
+function visibleBoard(request: Request, id: string): DbBoard | null {
+  return ownedBoard(request, id) ?? db.boards.find((b) => b.id === id && b.is_public) ?? null
+}
+
 function ownedCategory(request: Request, id: string): DbCategory | null {
   const category = db.categories.find((c) => c.id === id)
   return category && ownedBoard(request, category.board_id) ? category : null
@@ -76,6 +81,7 @@ export const handlers = [
       name: body.name,
       is_favorite: null,
       favorited_at: null,
+      is_public: false,
       created_at: NOW(),
       updated_at: NOW()
     }
@@ -101,8 +107,9 @@ export const handlers = [
     return HttpResponse.json({ board: boardJson(board) })
   }),
 
+  // Signed out too: the owner, or anyone when it's public. Like the API, a 404 for the rest.
   http.get(`${API}/boards/:id`, ({ request, params }) => {
-    const board = ownedBoard(request, params.id as string)
+    const board = visibleBoard(request, params.id as string)
     if (!board) return HttpResponse.json({}, { status: 404 })
     return HttpResponse.json({ board: boardJson(board) })
   }),
@@ -125,13 +132,28 @@ export const handlers = [
     return HttpResponse.json({ board })
   }),
 
+  http.put(`${API}/boards/:id/public`, async ({ request, params }) => {
+    const board = ownedBoard(request, params.id as string)
+    if (!board) return HttpResponse.json({}, { status: 404 })
+    const body = (await request.json()) as Json
+    board.is_public = Boolean(body.is_public)
+    return HttpResponse.json({ board })
+  }),
+
+  // The owner, or anyone signed in when it's public. The copy is the copier's, private and unstarred.
   http.post(`${API}/boards/:id/duplicate`, ({ request, params }) => {
-    const original = ownedBoard(request, params.id as string)
+    const userId = userIdFrom(request)
+    if (!userId) return unauthorized()
+    const original = visibleBoard(request, params.id as string)
     if (!original) return HttpResponse.json({}, { status: 404 })
     const board: DbBoard = {
       ...original,
       id: nextId('board'),
+      user_id: userId,
       name: original.name,
+      is_public: false,
+      is_favorite: false,
+      favorited_at: null,
       created_at: NOW(),
       updated_at: NOW()
     }

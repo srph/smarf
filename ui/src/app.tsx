@@ -44,9 +44,14 @@ const routes: RouteObject[] = [
           { path: '/account', element: <AccountRoute /> },
           { path: '/about', element: <AboutRoute /> },
           // A board that isn't saved yet: choosing a start creates it
-          { path: '/b/new', element: <BoardsNewRoute /> },
-          { path: '/b/:boardId', element: <BoardsIdRoute /> }
+          { path: '/b/new', element: <BoardsNewRoute /> }
         ]
+      },
+      {
+        // Not guarded: a public board opens for anyone with its link, signed out too. A board that isn't theirs (or
+        // that's private) sends a signed-out visitor to log in (BoardProvider).
+        element: <AppRoute />,
+        children: [{ path: '/b/:boardId', element: <BoardsIdRoute /> }]
       },
       {
         element: <AuthRoute />,

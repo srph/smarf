@@ -1,9 +1,13 @@
 import React, { createContext, useCallback, useContext, useState } from 'react'
 import { produce, type Draft } from 'immer'
+import { Link, Navigate, useLocation } from 'react-router'
 import { Container } from '~/src/components/container/container'
 import { ErrorState } from '~/src/components/error-state/error-state'
 import { PageSpinner } from '~/src/components/page-spinner/page-spinner'
+import { Spacer } from '~/src/components/spacer/spacer'
+import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
 import { useLatestValue } from '~/src/hooks/use-latest-value'
+import { HttpError } from '~/src/lib/http'
 import { type Board, type ID } from '~/src/types/api'
 import { useBoardQuery } from './queries/use-board-query'
 
@@ -27,7 +31,11 @@ const BoardProvider: React.FC<React.PropsWithChildren<Props>> = ({ boardId, chil
   // The query and the draft live in the same component on purpose. Clearing the draft right after mutate()
   // re-renders this component, which then reads the cache fresh, already holding the mutation's change. Passing
   // the board in as a prop instead would show the old position for a frame.
-  const { data: savedBoard, status, refetch, isFetching } = useBoardQuery(boardId)
+  const { data: savedBoard, status, error, refetch, isFetching } = useBoardQuery(boardId)
+
+  const { user } = useAuthUser()
+
+  const location = useLocation()
 
   const [draft, setDraft] = useState<Board | null>(null)
 
@@ -48,6 +56,28 @@ const BoardProvider: React.FC<React.PropsWithChildren<Props>> = ({ boardId, chil
 
   if (status === 'pending') {
     return <PageSpinner />
+  }
+
+  // The API says 404 for a board that doesn't exist and for one that's private and not theirs, alike.
+  if (status === 'error' && error instanceof HttpError && error.status === 404) {
+    // Signed out, it may be their own board: log in, then come back here.
+    if (!user) {
+      return <Navigate to="/login" state={{ from: location }} replace />
+    }
+
+    return (
+      <Container>
+        <div role="alert" className="mx-auto max-w-90 py-12 text-center">
+          <p>This board is private or doesn't exist.</p>
+          <Spacer size={2} />
+          <Link
+            to="/"
+            className="inline-flex h-10 items-center rounded-lg bg-primary-500 px-4 font-semibold focus-visible:ring-focus">
+            Go to your boards
+          </Link>
+        </div>
+      </Container>
+    )
   }
 
   if (status === 'error') {

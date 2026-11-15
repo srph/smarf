@@ -35,8 +35,19 @@ export interface Category {
   updated_at: string
 }
 
+/** Who made a board: all a visitor to a public board learns about them. */
+export interface BoardOwner {
+  id: ID
+  name: string
+  avatar: string | null
+}
+
 export interface Board {
   id: ID
+  user_id: ID
+  /** Anyone with the link can view it (signed out too); only the owner can edit. */
+  is_public: boolean
+  owner: BoardOwner
   name: string
   is_favorite: boolean
   // When the board was last favorited (ISO 8601); null when it isn't a favorite.
@@ -47,7 +58,7 @@ export interface Board {
 }
 
 /** A board as `GET /boards` lists it: no categories, but how many it has and how many heroes they hold. */
-export type BoardSummary = Omit<Board, 'categories'> & {
+export type BoardSummary = Omit<Board, 'categories' | 'owner'> & {
   categories_count: number
   heroes_count: number
 }

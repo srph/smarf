@@ -33,6 +33,7 @@ export interface DbBoard {
   name: string
   is_favorite: boolean | null
   favorited_at: string | null
+  is_public: boolean
   created_at: string
   updated_at: string
 }
@@ -114,14 +115,21 @@ export function findHero(name: string) {
 export function seedBoard(
   name: string,
   categories: Array<{ name: string; heroes?: string[]; x?: number; y?: number; width?: number }>,
-  opts: { is_favorite?: boolean; favorited_at?: string; updated_at?: string } = {}
+  opts: {
+    is_favorite?: boolean
+    favorited_at?: string
+    updated_at?: string
+    is_public?: boolean
+    user_id?: string
+  } = {}
 ): DbBoard {
   const board: DbBoard = {
     id: nextId('board'),
-    user_id: TEST_USER.id,
+    user_id: opts.user_id ?? TEST_USER.id,
     name,
     is_favorite: opts.is_favorite ?? null,
     favorited_at: opts.is_favorite ? (opts.favorited_at ?? NOW) : null,
+    is_public: opts.is_public ?? false,
     created_at: NOW,
     updated_at: opts.updated_at ?? NOW
   }
@@ -163,9 +171,12 @@ export function boardSummaryJson(board: DbBoard) {
   }
 }
 
+/** A board as `GET /boards/:id` returns it: with its categories and heroes, and the owner's id, name and avatar. */
 export function boardJson(board: DbBoard) {
+  const owner = db.users.find((u) => u.id === board.user_id)
   return {
     ...board,
+    owner: owner && { id: owner.id, name: owner.name, avatar: owner.avatar },
     categories: db.categories.filter((c) => c.board_id === board.id).map(categoryJson)
   }
 }
