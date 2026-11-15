@@ -6,7 +6,6 @@ import { RadioGroup } from '@base-ui/react/radio-group'
 import { CheckIcon, GlobeAltIcon, LockClosedIcon } from '@heroicons/react/20/solid'
 import { Icon, type IconComponent } from '~/src/components/icon/icon'
 import { useDelayedState } from '~/src/hooks/use-delayed-state'
-import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
 import { useBoard } from './board-context'
 import { BoardToolbarPanelClose } from './board-toolbar-panel'
 import { BoardToolbarShareLink } from './board-toolbar-share-link'
@@ -14,7 +13,7 @@ import { usePublishBoardMutation } from './mutations/use-publish-board-mutation'
 
 type Visibility = 'private' | 'public'
 
-// "Publishing…" holds this long at least, so a quick save shows the shimmer instead of a flicker.
+// Publishing shimmers this long at least, so a quick save shows the shimmer instead of a flicker.
 const PUBLISHING_MIN_MS = 700
 
 // The highlight slides between the rows; the link opens below Public, as the dock's cards grow (ease-morph).
@@ -29,7 +28,7 @@ interface Props {
 
 /**
  * The dock as a share card: Private or Public. Choosing Public saves right away (the highlight slides over first) and
- * shimmers "Publishing…" until it's saved; then the link opens below it, with a copy button inside the field.
+ * opens the link below it, with a copy button inside the field; until it's saved, a shimmering bar stands in for the link.
  */
 const BoardToolbarSharePanel: React.FC<Props> = ({ onClose }) => {
   const { board } = useBoard()
@@ -42,7 +41,7 @@ const BoardToolbarSharePanel: React.FC<Props> = ({ onClose }) => {
     setPublishing(isPending && variables?.is_public === true)
   }, [isPending, variables, setPublishing])
 
-  // Switched back to Private while "Publishing…" holds: it's private now, so nothing is publishing.
+  // Switched back to Private while the shimmer holds: it's private now, so nothing is publishing.
   const isPublishing = publishing && board.is_public
 
   const groupRef = useRef<HTMLDivElement>(null)
@@ -84,20 +83,7 @@ const BoardToolbarSharePanel: React.FC<Props> = ({ onClose }) => {
           checked={visibility === 'public'}
           busy={isPublishing}
           icon={GlobeAltIcon}
-          label={
-            <span className="grid">
-              <span className={cn('col-start-1 row-start-1', blurSwap, isPublishing && blurSwapHidden)}>Public</span>
-              <span
-                aria-hidden={!isPublishing}
-                className={cn(
-                  'col-start-1 row-start-1 animate-creating-glint bg-creating-glint bg-clip-text text-transparent motion-reduce:animate-none',
-                  blurSwap,
-                  !isPublishing && blurSwapHidden
-                )}>
-                Publishing…
-              </span>
-            </span>
-          }
+          label="Public"
           hint="Anyone with the link can view"
         />
       </RadioGroup>
@@ -124,7 +110,7 @@ interface ShareOptionProps {
   /** Saving: the check waits until it's done. */
   busy?: boolean
   icon: IconComponent
-  label: React.ReactNode
+  label: string
   hint: string
 }
 

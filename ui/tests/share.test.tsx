@@ -50,7 +50,7 @@ describe('sharing a board', () => {
     expect(await screen.findByRole('button', { name: 'Share board (public)' })).toBeInTheDocument()
   })
 
-  it('shimmers "Publishing…" until the save lands, with the copy button waiting', async () => {
+  it('holds the copy button until the save lands', async () => {
     // Holds the save until the test lets it through, then passes it on to the usual handler.
     let release: (() => void) | undefined
     const released = new Promise<void>((resolve) => {
@@ -69,13 +69,12 @@ describe('sharing a board', () => {
     await user.click(await screen.findByRole('button', { name: 'Share board' }))
     await user.click(screen.getByRole('radio', { name: /Public/ }))
 
-    expect(await screen.findByText('Publishing…')).not.toHaveAttribute('aria-hidden', 'true')
+    // The link's field is up, but its copy button waits for the save.
     expect(await screen.findByRole('button', { name: 'Copy link' })).toBeDisabled()
 
     release?.()
 
-    await waitFor(() => expect(screen.getByText('Publishing…')).toHaveAttribute('aria-hidden', 'true'))
-    expect(screen.getByRole('button', { name: 'Copy link' })).toBeEnabled()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Copy link' })).toBeEnabled())
   })
 
   it('makes a public board private again, and the link goes', async () => {
