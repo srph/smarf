@@ -86,7 +86,7 @@ const BoardWorkspaceHeroSelector: React.FC<Props> = ({ open, onOpenChange, onSel
                           onClick={() => onSelectHero(hero)}
                           title={`Select ${hero.name}`}
                           className={cn(
-                            'inline-block w-15 cursor-pointer rounded-sm border-2 border-transparent hover:border-sky-500 focus-visible:ring-focus',
+                            'inline-block w-15 cursor-pointer rounded-sm border-2 border-transparent hover:border-primary-500 focus-visible:ring-focus',
                             searchInput !== '' && !name.includes(searchInput) && 'opacity-30'
                           )}>
                           <ImageAspectRatio src={hero.thumbnail} value={CATEGORY_HERO_ASPECT_RATIO} alt={hero.name} />

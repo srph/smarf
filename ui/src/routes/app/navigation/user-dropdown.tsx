@@ -44,7 +44,7 @@ const UserDropdown: React.FC = () => {
                 key={link.to}
                 closeOnClick
                 render={<Link to={link.to} />}
-                className="flex cursor-pointer items-center border-zinc-700 p-4 transition-colors duration-200 outline-none not-last:border-b focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400 data-highlighted:bg-zinc-700">
+                className="flex cursor-pointer items-center border-zinc-700 p-4 transition-colors duration-200 outline-none not-last:border-b focus-visible:inset-ring-2 focus-visible:inset-ring-primary-400 data-highlighted:bg-zinc-700">
                 <div className="mr-4 text-zinc-400">
                   <Icon icon={link.icon} />
                 </div>

@@ -30,7 +30,7 @@ const BoardWorkspaceCategoryTitle: React.FC<Props> = ({ value, onChange }) => {
       // Fallback width for browsers without `field-sizing`.
       size={Math.max(input.length, 1)}
       aria-label="Category name"
-      // No rename button: the hover tint says it's editable, and focus shows the sky ring.
+      // No rename button: the hover tint says it's editable, and focus shows the focus ring.
       className="-mx-1.5 field-sizing-content min-w-[1ch] rounded-md px-1.5 py-0.5 font-semibold outline-none hover:bg-white/5 focus:bg-zinc-900 focus-visible:ring-focus"
     />
   )

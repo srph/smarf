@@ -13,7 +13,7 @@ interface Props {
 }
 
 const item =
-  'flex h-9 cursor-pointer items-center gap-2.5 rounded-lg pr-2 pl-2.5 text-zinc-200 outline-none data-disabled:cursor-progress data-disabled:opacity-60 data-highlighted:bg-white/7 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400'
+  'flex h-9 cursor-pointer items-center gap-2.5 rounded-lg pr-2 pl-2.5 text-zinc-200 outline-none data-disabled:cursor-progress data-disabled:opacity-60 data-highlighted:bg-white/7 focus-visible:inset-ring-2 focus-visible:inset-ring-primary-400'
 
 /** The board's less frequent actions: Duplicate, and Delete below a rule. */
 const BoardToolbarMoreMenu: React.FC<Props> = ({ onDuplicate, onDelete, isDuplicating, ref }) => (

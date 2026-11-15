@@ -243,7 +243,7 @@ const BoardRow: React.FC<BoardRowProps> = ({ board, current, onSelect }) => (
     className={cn(
       'flex h-9 w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left text-zinc-200 outline-none',
       // In a list, the ring sits inside the row.
-      'hover:bg-white/6 focus-visible:bg-white/6 focus-visible:inset-ring-2 focus-visible:inset-ring-sky-400',
+      'hover:bg-white/6 focus-visible:bg-white/6 focus-visible:inset-ring-2 focus-visible:inset-ring-primary-400',
       current && 'bg-primary-500/15 hover:bg-primary-500/20 focus-visible:bg-primary-500/20'
     )}>
     <span className="w-3.5 shrink-0 text-primary-300">{current && <Icon icon={CheckIcon} size={14} />}</span>
