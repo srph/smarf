@@ -131,7 +131,8 @@ const BoardToolbar: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* Folded away (not removed) while a card is open, so the dock keeps its width. */}
+            {/* Folded away (not removed) while a card is open, so the dock keeps its width. Relative, so its absolute
+                bits (the save status's sr-only text) fold with it: escaping, they'd make the dock scroll. */}
             <motion.div
               initial={false}
               animate={
@@ -140,7 +141,7 @@ const BoardToolbar: React.FC = () => {
                   : { height: 'auto', opacity: 1, transition: rowBack }
               }
               inert={isEditing}
-              className="overflow-hidden">
+              className="relative overflow-hidden">
               {/* Arriving from New Board, the row waits blurred out, a step low, while "Creating …" holds its place;
                   then it fades up into place. */}
               <div

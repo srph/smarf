@@ -29,14 +29,22 @@ const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
     return () => clearTimeout(timer)
   }, [copied])
 
-  const handleCopy = async () => {
+  const handleCopy = async (evt: React.MouseEvent<HTMLButtonElement>) => {
+    const button = evt.currentTarget
     try {
       await navigator.clipboard.writeText(url)
       setCopied(true)
     } catch {
-      // No clipboard (an insecure origin, or permission denied): select the link to copy by hand.
-      inputRef.current?.focus()
-      inputRef.current?.select()
+      // No Clipboard API off a secure origin (plain http over Tailscale, say), or permission denied: copy the selected
+      // link the old way, then hand focus back. If even that fails, the link stays selected to copy by hand.
+      const input = inputRef.current
+      if (!input) return
+      input.focus({ preventScroll: true })
+      input.select()
+      if (!document.execCommand('copy')) return
+      input.setSelectionRange(0, 0)
+      button.focus({ preventScroll: true })
+      setCopied(true)
     }
   }
 

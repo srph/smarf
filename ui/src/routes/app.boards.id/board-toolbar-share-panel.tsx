@@ -61,7 +61,7 @@ const BoardToolbarSharePanel: React.FC<Props> = ({ onClose }) => {
 
   return (
     <div className="p-4">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-1.5 flex items-center justify-between">
         <h2 className="font-bold">Share board</h2>
         <BoardToolbarPanelClose onClick={onClose} />
       </div>
