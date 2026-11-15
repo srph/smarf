@@ -52,8 +52,8 @@ const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
   return (
     <div
       className={cn(
-        'mt-2 flex h-10 items-center gap-2 rounded-lg border bg-black/25 pl-3 transition-colors duration-250',
-        pending ? 'border-white/8 text-zinc-500' : 'border-primary-400/35 text-primary-300'
+        'mt-2 flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-black/25 pl-3 transition-colors duration-250',
+        pending ? 'text-zinc-500' : 'text-primary-300'
       )}>
       <Icon icon={LinkIcon} size={14} />
 
