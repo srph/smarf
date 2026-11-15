@@ -22,12 +22,13 @@ import { mergeRefs } from '~/src/utils'
 import {
   CATEGORY_BODY_INITIAL_WIDTH,
   CATEGORY_HERO_HEIGHT,
+  CATEGORY_HERO_TOTAL_HEIGHT,
   CATEGORY_HERO_WIDTH,
   CATEGORY_HERO_CONTAINER_TOTAL_PADDING,
   CATEGORY_HERO_X_TOTAL_PADDING,
   CATEGORY_TRAY_BORDER
 } from '~/src/contexts/board-list/constants'
-import { Bars2Icon, PlusCircleIcon, TrashIcon } from '@heroicons/react/20/solid'
+import { Bars2Icon, PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
 
 // How long a deleted card takes to fade out. Matches the card's duration-240.
 const EXIT_MS = 240
@@ -243,18 +244,30 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
                   addHero(addHeroVariables(category, hero))
                 }}
                 trigger={
+                  // The next hero's cell: a faint plus that brightens with the card, and takes a hero's ring on hover.
+                  // It stays ringed while the selector is open (Base UI sets data-popup-open).
                   <button
-                    className="flex cursor-pointer items-center justify-center rounded-sm border-2 border-dashed border-zinc-500 bg-zinc-700 p-2 focus-visible:ring-focus"
+                    type="button"
+                    title="Add hero"
+                    aria-label="Add hero"
+                    className="grid cursor-pointer place-items-center rounded-sm bg-white/3 text-zinc-600 inset-ring inset-ring-white/6 transition group-hover:bg-white/5 group-hover:text-zinc-400 hover:bg-white/8 hover:text-zinc-50 hover:ring-2 hover:ring-primary-500 focus-visible:text-zinc-50 focus-visible:ring-focus data-popup-open:bg-primary-500/15 data-popup-open:text-primary-400 data-popup-open:ring-2 data-popup-open:ring-primary-500"
                     style={{ width: CATEGORY_HERO_WIDTH, height: CATEGORY_HERO_HEIGHT }}>
-                    <div className="mr-2 text-zinc-500">
-                      <Icon icon={PlusCircleIcon} size={16} />
-                    </div>
-                    <div className="text-xs font-bold tracking-wide">Add</div>
+                    <Icon icon={PlusIcon} size={20} />
                   </button>
                 }
                 anchor={containerElement}
               />
             </div>
+
+            {/* An empty tray says what the plus is for. The button's own label covers screen readers. */}
+            {category.heroes.length === 0 && (
+              <div
+                aria-hidden
+                className="flex items-center px-1 text-xs text-zinc-500"
+                style={{ height: CATEGORY_HERO_TOTAL_HEIGHT }}>
+                Add heroes
+              </div>
+            )}
           </div>
         </Resizable>
       </div>

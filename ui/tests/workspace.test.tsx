@@ -222,11 +222,25 @@ describe('board workspace', () => {
     const { user } = renderApp(`/b/${board.id}`)
 
     const supports = await findCategory('Supports')
-    await user.click(within(supports).getByRole('button', { name: 'Add' }))
+    await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
     await user.click(await screen.findByTitle('Select Lion'))
 
     expect(heroesShownIn(supports)).toEqual(['Crystal Maiden', 'Lion'])
     await waitFor(() => expect(heroNamesIn('Supports', board.id)).toEqual(['Crystal Maiden', 'Lion']))
+  })
+
+  it('says "Add heroes" beside the plus only while a category is empty', async () => {
+    const empty = seedBoard('Fresh', [{ name: 'Pocket picks', heroes: [] }])
+    const { user } = renderApp(`/b/${empty.id}`)
+
+    const pocket = await findCategory('Pocket picks')
+    expect(within(pocket).getByText('Add heroes')).toBeInTheDocument()
+
+    await user.click(within(pocket).getByRole('button', { name: 'Add hero' }))
+    await user.click(await screen.findByTitle('Select Lion'))
+
+    expect(heroesShownIn(pocket)).toEqual(['Lion'])
+    expect(within(pocket).queryByText('Add heroes')).not.toBeInTheDocument()
   })
 
   it('shows a change before the server answers, and undoes it if the save fails', async () => {
@@ -241,7 +255,7 @@ describe('board workspace', () => {
     const { user } = renderApp(`/b/${board.id}`)
 
     const supports = await findCategory('Supports')
-    await user.click(within(supports).getByRole('button', { name: 'Add' }))
+    await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
     await user.click(await screen.findByTitle('Select Lion'))
 
     // Shown right away, while the request is still pending.
@@ -368,7 +382,7 @@ describe('board workspace', () => {
     const { user } = renderApp(`/b/${board.id}`)
 
     const supports = await findCategory('Supports')
-    await user.click(within(supports).getByRole('button', { name: 'Add' }))
+    await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
     await user.click(await screen.findByTitle('Select Lion'))
     await user.click(screen.getByRole('button', { name: 'New category' }))
 
@@ -396,7 +410,7 @@ describe('board workspace', () => {
       const { user } = renderApp(`/b/${board.id}`)
 
       const supports = await findCategory('Supports')
-      await user.click(within(supports).getByRole('button', { name: 'Add' }))
+      await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
 
       await waitFor(() => expect(screen.getByPlaceholderText('Search...')).toHaveFocus())
       await user.keyboard('[Escape]')
