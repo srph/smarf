@@ -232,6 +232,52 @@
   .embed.off > :not(.lockover) { opacity: .25; filter: grayscale(1); }
   .lockover { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 6px; color: var(--z300); font-size: 13px; text-align: center; }
   .lockover svg { color: var(--z400); }
+
+  /* B2: the dock morphs into the share card; the highlight slides between rows; Copy sits inside the link field */
+  .app { --ease-morph: cubic-bezier(0.3, 0.7, 0.2, 1); }
+  .b2card .card-h { padding-left: 6px; }
+  .opts { position: relative; display: grid; gap: 2px; }
+  .ind { position: absolute; left: 0; right: 0; top: 0; height: 52px; border-radius: 8px; background: rgba(255,255,255,.08); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); transition: transform .38s var(--ease-morph); }
+  .is-pub .ind { transform: translateY(54px); }
+  .opt2 { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; height: 52px; padding: 0 10px; border-radius: 8px; text-align: left; color: var(--z400); transition: color .25s; }
+  .opt2:hover { color: var(--z200); }
+  .opt2 > svg { color: var(--z500); transition: color .25s, transform .38s var(--ease-morph); }
+  .opt2 b { display: grid; font-weight: 600; }
+  .opt2 small { display: block; font-size: 12px; color: var(--z500); line-height: 1.35; }
+  .b2card:not(.is-pub) .o-priv, .is-pub .o-pub { color: var(--z50); }
+  .b2card:not(.is-pub) .o-priv > svg, .is-pub .o-pub > svg { color: var(--p300); }
+  .is-pub .o-pub > svg { transform: rotate(-20deg) scale(1.08); }
+  .opt2 .ck { margin-left: auto; color: var(--p300); opacity: 0; transform: scale(.5); transition: opacity .2s, transform .3s cubic-bezier(.3,1.5,.5,1); }
+  .b2card:not(.is-pub) .o-priv .ck, .is-pub:not(.is-pending) .o-pub .ck { opacity: 1; transform: none; transition-delay: .12s; }
+
+  /* Label and button swaps: stacked, blurred in and out */
+  .swap { display: grid; }
+  .swap > span { grid-area: 1 / 1; display: flex; align-items: center; gap: 6px; transition: opacity .25s, filter .25s, translate .25s var(--ease-morph); }
+  .swap > .hide { opacity: 0; filter: blur(4px); translate: 0 3px; }
+
+  /* Publishing: the label shimmers, the link is a shimmering skeleton */
+  .shimmer { background: linear-gradient(100deg, var(--z400) 0%, var(--z400) 38%, #fff 50%, var(--z400) 62%, var(--z400) 100%); background-size: 250% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 1.3s linear infinite; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+
+  .reveal { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .38s var(--ease-morph), opacity .2s; }
+  .is-pub .reveal { grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows .38s var(--ease-morph), opacity .25s .1s; }
+  .reveal-in { min-height: 0; overflow: hidden; }
+  .ig { display: flex; align-items: center; gap: 8px; height: 38px; margin-top: 8px; padding-left: 10px; border-radius: 9px; background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.08); transition: border-color .25s; }
+  .is-pub:not(.is-pending) .ig { border-color: color-mix(in oklab, var(--p400) 35%, transparent); }
+  .ig > svg { color: var(--z500); }
+  .is-pub:not(.is-pending) .ig > svg { color: var(--p300); }
+  .ig-txt { position: relative; flex: 1; min-width: 0; height: 100%; display: flex; align-items: center; }
+  .url { font-size: 13px; color: var(--z200); white-space: nowrap; overflow: hidden; transition: opacity .3s, filter .3s; }
+  .skel { position: absolute; left: 0; top: 50%; width: 78%; height: 10px; margin-top: -5px; border-radius: 4px; opacity: 0; transition: opacity .3s;
+    background: linear-gradient(100deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.06) 35%, rgba(255,255,255,.2) 50%, rgba(255,255,255,.06) 65%, rgba(255,255,255,.06) 100%); background-size: 250% 100%; animation: shimmer 1.3s linear infinite; }
+  .is-pending .url { opacity: 0; filter: blur(4px); }
+  .is-pending .skel { opacity: 1; }
+  .ig-copy { height: 30px; margin: 3px; padding: 0 10px; border-radius: 6px; background: rgba(255,255,255,.08); font-weight: 600; font-size: 13px; transition: background-color .2s, color .2s, opacity .2s; }
+  .ig-copy:hover { background: rgba(255,255,255,.13); }
+  .is-pending .ig-copy { opacity: .4; pointer-events: none; }
+  .is-copied .ig-copy { color: #7bf1a8; background: rgba(0,201,80,.14); }
+  @media (prefers-reduced-motion: reduce) { .shimmer, .skel { animation: none; } }
 </style>
 </head>
 <body>
@@ -275,6 +321,16 @@
     </div>
   </section>
 
+  <section class="variation" data-id="B2" data-name="The dock morphs into Private or Public" data-v="b2">
+    <div class="v-head"><span class="v-id">B2</span><h2>The dock morphs into Private or Public</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The dock morphs, like Rename and Delete; nothing floats.</div>
+      <div class="note good">The highlight slides to Public; it shimmers while publishing.</div>
+      <div class="note good">Copy sits inside the link field.</div>
+      <div class="note bad">Still a fourth icon in the dock.</div>
+    </div>
+  </section>
+
   <section class="variation" data-id="C" data-name="One click shares and copies; Undo takes it back" data-v="c">
     <div class="v-head"><span class="v-id">C</span><h2>One click shares and copies; Undo takes it back</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="notes">
@@ -296,9 +352,9 @@
   <section class="further">
     <h2>Further Actions</h2>
     <div class="cards">
-      <div class="card"><b>Explore</b>Explore from B: a visitor view that keeps the dock.</div>
-      <div class="card"><b>Remix</b>Remix A: add D's Discord preview under the switch.</div>
-      <div class="card"><b>Settle</b>Settle on A; it adds the least new UI.</div>
+      <div class="card"><b>Explore</b>Explore from B2: a visitor view that keeps the dock.</div>
+      <div class="card"><b>Remix</b>Remix B2: ask before Private kills a live link.</div>
+      <div class="card"><b>Settle</b>Settle on B2.</div>
     </div>
   </section>
 </main>
@@ -407,17 +463,59 @@ function cardD(m) {
   </div>`;
 }
 
+// B2: built once when the card opens; later changes only toggle classes (syncB2), so they transition.
+function cardB2(m) {
+  return `<div class="scard b2card ${b2Classes(m)}">
+    <div class="card-h">Share board<button class="x" data-go="close" aria-label="Close">${icon('x', 16)}</button></div>
+    <div class="opts"><span class="ind"></span>
+      <button class="opt2 o-priv" data-go="priv">${icon('lock', 18)}<span><b>Private</b><small>Only you can see it</small></span><span class="ck">${icon('check', 16)}</span></button>
+      <button class="opt2 o-pub" data-go="pub">${icon('globe', 18)}<span><b class="swap"><span class="l-idle">Public</span><span class="l-pend shimmer">Publishing…</span></b><small>Anyone with the link can view</small></span><span class="ck">${icon('check', 16)}</span></button>
+    </div>
+    <div class="reveal"><div class="reveal-in">
+      <div class="ig">${icon('globe', 14)}<span class="ig-txt"><span class="url">${LINK}</span><span class="skel"></span></span>
+        <button class="ig-copy swap" data-go="copy"><span class="c-idle">${icon('link', 16)}Copy</span><span class="c-done">${icon('check', 16)}Copied</span></button></div>
+    </div></div>
+  </div>`;
+}
+const b2Classes = (m) => [m.pub && 'is-pub', m.pending && 'is-pending', m.copied && 'is-copied'].filter(Boolean).join(' ');
+
+function syncB2(app, m) {
+  if (app._m !== m) return;
+  const c = app.querySelector('.b2card');
+  if (!c) return;
+  c.classList.toggle('is-pub', !!m.pub);
+  c.classList.toggle('is-pending', !!m.pending);
+  c.classList.toggle('is-copied', !!m.copied);
+  const hide = (sel, on) => c.querySelector(sel).classList.toggle('hide', on);
+  hide('.l-idle', !!m.pending); hide('.l-pend', !m.pending);
+  hide('.c-idle', !!m.copied); hide('.c-done', !m.copied);
+}
+
+function stepB2(app, m, go) {
+  const t = m.seq = (m.seq || 0) + 1;
+  if (go === 'pub' && !m.pub) {
+    m.pub = 1; m.pending = 1; m.copied = 0;
+    setTimeout(() => { if (m.seq === t) { m.pending = 0; syncB2(app, m); } }, 1500);
+  } else if (go === 'priv') {
+    m.pub = 0; m.pending = 0; m.copied = 0;
+  } else if (go === 'copy' && m.pub && !m.pending) {
+    m.copied = 1;
+    setTimeout(() => { if (m.seq === t) { m.copied = 0; syncB2(app, m); } }, 1600);
+  }
+  syncB2(app, m);
+}
+
 /* ---------- Render a canvas from its state ---------- */
 function render(v, m) {
   if (m.visitor) {
-    if (v === 'b') return `<div class="banner"><span class="av">${OWNER[0]}</span><span class="who"><b>${BOARD_NAME}</b> by ${OWNER}</span><span class="vpill">${icon('eye', 12)}View only</span>${copyToMine(true)}</div>` + boardHTML(true, 40);
+    if (v === 'b' || v === 'b2') return `<div class="banner"><span class="av">${OWNER[0]}</span><span class="who"><b>${BOARD_NAME}</b> by ${OWNER}</span><span class="vpill">${icon('eye', 12)}View only</span>${copyToMine(true)}</div>` + boardHTML(true, 40);
     if (v === 'c') return boardHTML(true) + `<div class="dockwrap split"><div class="dock">${visitorRow()}</div>${copyToMine()}</div>`;
     return boardHTML(true) + `<div class="dockwrap"><div class="dockbox"><div class="dock">${visitorRow()}</div></div>${copyToMine()}</div>`;
   }
 
-  const card = (v === 'a' || v === 'd') && m.open === 'share';
+  const card = (v === 'a' || v === 'd' || v === 'b2') && m.open === 'share';
   let extra = '';
-  if (v === 'b') extra = ib(m.pub ? 'globe' : 'link', m.pub ? 'Public · Share board' : 'Share board', 'share', `${m.pub ? 'tint' : ''} ${m.open === 'share' ? 'on' : ''}`);
+  if (v === 'b' || v === 'b2') extra = ib(m.pub ? 'globe' : 'link', m.pub ? 'Public · Share board' : 'Share board', 'share', `${m.pub ? 'tint' : ''} ${m.open === 'share' ? 'on' : ''}`);
   if (v === 'd') extra = ib(m.pub ? 'globe' : 'shareUp', 'Share board', 'share', `${m.pub ? 'tint' : ''} ${m.open === 'share' ? 'on' : ''}`);
 
   let pill = '';
@@ -437,7 +535,7 @@ function render(v, m) {
     <div class="msep"></div><button class="mi" data-go="priv">${icon('lock', 16)}Make private</button></div>`;
   if (v === 'c' && m.copied && !m.open) over = `<div class="toast">${icon('globe', 16)}Public. Anyone with the link can view it.<button data-go="undo">Undo</button></div>`;
 
-  const inner = (card ? (v === 'a' ? cardA(m) : cardD(m)) : '') + row;
+  const inner = (card ? (v === 'a' ? cardA(m) : v === 'b2' ? cardB2(m) : cardD(m)) : '') + row;
   return boardHTML(false) + `<div class="dockwrap"><div class="dockbox"><div class="dock">${inner}</div>${over}</div>${newCat(card)}</div>`;
 }
 
@@ -447,6 +545,7 @@ const PRESETS = {
   a: [['Private', {}], ['More menu', { open: 'more' }], ['Card · off', { open: 'share' }], ['Card · on', { open: 'share', pub: 1 }], ['Copied', { open: 'share', pub: 1, copied: 1 }], ['Public at rest', { pub: 1 }], '|', ['Visitor', { pub: 1, visitor: 1 }]],
   b: [['Private', {}], ['Popover · private', { open: 'share' }], ['Popover · public', { open: 'share', pub: 1 }], ['Copied', { open: 'share', pub: 1, copied: 1 }], ['Public at rest', { pub: 1 }], '|', ['Visitor', { pub: 1, visitor: 1 }]],
   c: [['Private', {}], ['Just shared', { pub: 1, copied: 1 }], ['Public at rest', { pub: 1 }], ['Public menu', { pub: 1, open: 'pubmenu' }], '|', ['Visitor', { pub: 1, visitor: 1 }]],
+  b2: [['Private', {}], ['Card · private', { open: 'share' }], ['Publishing', { open: 'share', pub: 1, pending: 1 }], ['Card · public', { open: 'share', pub: 1 }], ['Copied', { open: 'share', pub: 1, copied: 1 }], ['Public at rest', { pub: 1 }], '|', ['Visitor', { pub: 1, visitor: 1 }]],
   d: [['Private', {}], ['Card · private', { open: 'share' }], ['Card · public', { open: 'share', pub: 1 }], ['Copied', { open: 'share', pub: 1, copied: 1 }], '|', ['Visitor', { pub: 1, visitor: 1 }]]
 };
 
@@ -478,7 +577,7 @@ sections.forEach((sec) => {
   const row = document.createElement('div'); row.className = 'states'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', 'State');
   const frame = document.createElement('div'); frame.className = 'frame';
   const app = document.createElement('div'); app.className = 'app'; frame.appendChild(app);
-  const draw = () => { app.innerHTML = render(v, m); };
+  const draw = () => { app._m = m; app.innerHTML = render(v, m); if (v === 'b2') syncB2(app, m); };
 
   const btns = [];
   PRESETS[v].forEach((p) => {
@@ -493,6 +592,11 @@ sections.forEach((sec) => {
 
   app.addEventListener('click', (e) => {
     const t = e.target.closest('[data-go]');
+    if (t && v === 'b2' && m.open === 'share' && ['pub', 'priv', 'copy'].includes(t.dataset.go)) {
+      btns.forEach((x) => x.setAttribute('aria-pressed', 'false'));
+      stepB2(app, m, t.dataset.go);
+      return;
+    }
     if (t) step(v, m, t.dataset.go);
     else if (!e.target.closest('.pop, .scard, .dock, .toast')) { m.open = null; if (v === 'c') m.copied = 0; }
     else return;
