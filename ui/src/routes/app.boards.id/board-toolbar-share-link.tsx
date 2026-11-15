@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { cn } from 'cn'
-import { CheckIcon, ClipboardIcon, LinkIcon } from '@heroicons/react/20/solid'
+import { ClipboardIcon, LinkIcon } from '@heroicons/react/20/solid'
+// Drawn for 16px, so the check keeps its weight at that size.
+import { CheckIcon } from '@heroicons/react/16/solid'
 import { Icon } from '~/src/components/icon/icon'
 import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
 import { type ID } from '~/src/types/api'
