@@ -29,7 +29,7 @@ interface Props {
 
 /**
  * The dock as a share card: Private or Public. Choosing Public saves right away (the highlight slides over first) and
- * shimmers "Publishing…" until it's saved; then the link opens below it, with Copy inside the field.
+ * shimmers "Publishing…" until it's saved; then the link opens below it, with a copy button inside the field.
  */
 const BoardToolbarSharePanel: React.FC<Props> = ({ onClose }) => {
   const { board } = useBoard()

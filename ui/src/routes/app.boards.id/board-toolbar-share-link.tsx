@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { cn } from 'cn'
-import { CheckIcon, GlobeAltIcon, LinkIcon } from '@heroicons/react/20/solid'
+import { CheckIcon, ClipboardIcon, LinkIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
 import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
 import { type ID } from '~/src/types/api'
+import { BoardToolbarTooltip } from './board-toolbar-tooltip'
 
 // How long Copy says "Copied".
 const COPIED_MS = 1600
@@ -14,7 +15,7 @@ interface Props {
   pending: boolean
 }
 
-/** A public board's link, read-only, with Copy inside the field. */
+/** A public board's link, read-only, with a copy button inside the field. */
 const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
   // The board's own URL: the owner gets the editor there, everyone else the read-only view.
   const url = `${window.location.origin}/b/${boardId}`
@@ -54,9 +55,10 @@ const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
         'mt-2 flex h-10 items-center gap-2 rounded-lg border bg-black/25 pl-3 transition-colors duration-250',
         pending ? 'border-white/8 text-zinc-500' : 'border-primary-400/35 text-primary-300'
       )}>
-      <Icon icon={GlobeAltIcon} size={14} />
+      <Icon icon={LinkIcon} size={14} />
 
       <div className="relative flex h-full min-w-0 flex-1 items-center">
+        {/* A long link fades out at the end, instead of an ellipsis */}
         <input
           ref={inputRef}
           readOnly
@@ -65,7 +67,8 @@ const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
           tabIndex={pending ? -1 : undefined}
           onFocus={(evt) => evt.currentTarget.select()}
           className={cn(
-            'w-full min-w-0 truncate bg-transparent text-sm text-zinc-200 outline-none selection:bg-sky-500/45',
+            'w-full min-w-0 bg-transparent text-sm text-zinc-200 outline-none selection:bg-sky-500/45',
+            '[mask-image:linear-gradient(to_right,black_calc(100%-32px),transparent)]',
             blurSwap,
             pending && blurSwapHidden
           )}
@@ -81,28 +84,25 @@ const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
         />
       </div>
 
-      <button
-        type="button"
-        onClick={handleCopy}
-        disabled={pending}
-        className={cn(
-          'mr-1.5 grid h-7 shrink-0 cursor-pointer items-center rounded-md px-2.5 text-sm font-semibold transition-[background-color,color,opacity] duration-200',
-          'focus-visible:ring-focus disabled:cursor-progress disabled:opacity-40',
-          copied ? 'bg-green-500/14 text-green-300' : 'bg-white/8 text-zinc-200 hover:bg-white/13'
-        )}>
-        <span
-          aria-hidden={copied}
-          className={cn('col-start-1 row-start-1 flex items-center gap-1.5', blurSwap, copied && blurSwapHidden)}>
-          <Icon icon={LinkIcon} size={14} />
-          Copy
-        </span>
-        <span
-          aria-hidden={!copied}
-          className={cn('col-start-1 row-start-1 flex items-center gap-1.5', blurSwap, !copied && blurSwapHidden)}>
-          <Icon icon={CheckIcon} size={14} />
-          Copied
-        </span>
-      </button>
+      <BoardToolbarTooltip label={copied ? 'Copied' : 'Copy link'}>
+        <button
+          type="button"
+          aria-label={copied ? 'Copied' : 'Copy link'}
+          onClick={handleCopy}
+          disabled={pending}
+          className={cn(
+            'mr-1 grid size-8 shrink-0 cursor-pointer place-items-center rounded-lg transition-[background-color,color,opacity] duration-200',
+            'focus-visible:ring-focus disabled:cursor-progress disabled:opacity-40',
+            copied ? 'bg-green-500/14 text-green-300' : 'bg-white/8 text-zinc-200 hover:bg-white/13'
+          )}>
+          <span className={cn('col-start-1 row-start-1', blurSwap, copied && blurSwapHidden)}>
+            <Icon icon={ClipboardIcon} size={16} />
+          </span>
+          <span className={cn('col-start-1 row-start-1', blurSwap, !copied && blurSwapHidden)}>
+            <Icon icon={CheckIcon} size={16} />
+          </span>
+        </button>
+      </BoardToolbarTooltip>
 
       <span className="sr-only" aria-live="polite">
         {copied ? 'Link copied' : ''}

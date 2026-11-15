@@ -39,7 +39,7 @@ describe('sharing a board', () => {
     const link = await screen.findByRole('textbox', { name: 'Board link' })
     expect(link).toHaveValue(linkTo(board))
 
-    const copy = screen.getByRole('button', { name: 'Copy' })
+    const copy = screen.getByRole('button', { name: 'Copy link' })
     await waitFor(() => expect(copy).toBeEnabled())
     await user.click(copy)
     expect(await screen.findByRole('button', { name: 'Copied' })).toBeInTheDocument()
@@ -50,7 +50,7 @@ describe('sharing a board', () => {
     expect(await screen.findByRole('button', { name: 'Share board (public)' })).toBeInTheDocument()
   })
 
-  it('shimmers "Publishing…" until the save lands, with Copy waiting', async () => {
+  it('shimmers "Publishing…" until the save lands, with the copy button waiting', async () => {
     // Holds the save until the test lets it through, then passes it on to the usual handler.
     let release: (() => void) | undefined
     const released = new Promise<void>((resolve) => {
@@ -70,12 +70,12 @@ describe('sharing a board', () => {
     await user.click(screen.getByRole('radio', { name: /Public/ }))
 
     expect(await screen.findByText('Publishing…')).not.toHaveAttribute('aria-hidden', 'true')
-    expect(await screen.findByRole('button', { name: 'Copy' })).toBeDisabled()
+    expect(await screen.findByRole('button', { name: 'Copy link' })).toBeDisabled()
 
     release?.()
 
     await waitFor(() => expect(screen.getByText('Publishing…')).toHaveAttribute('aria-hidden', 'true'))
-    expect(screen.getByRole('button', { name: 'Copy' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Copy link' })).toBeEnabled()
   })
 
   it('makes a public board private again, and the link goes', async () => {
