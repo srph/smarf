@@ -1,0 +1,1050 @@
+/* The app's own tokens: Tailwind's zinc, and the indigo `primary-*` range from ui/src/index.css. */
+:root {
+  --p100: oklch(93% 0.034 272.788);
+  --p200: oklch(87% 0.065 274.039);
+  --p300: oklch(78.5% 0.115 274.713);
+  --p400: oklch(67.3% 0.182 276.935);
+  --p500: oklch(58.5% 0.233 277.117);
+  --p600: oklch(51.1% 0.262 276.966);
+  --p950: oklch(25.7% 0.09 281.288);
+  --z50: #fafafa;
+  --z200: #e4e4e7;
+  --z300: #d4d4d8;
+  --z400: #9f9fa9;
+  --z500: #71717b;
+  --z600: #52525c;
+  --z700: #3f3f46;
+  --z800: #27272a;
+  --z900: #18181b;
+  --z950: #09090b;
+  --red: #fb2c36;
+  --green: #00c950;
+  --metal: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+  --metal-text: linear-gradient(180deg, var(--p100) 0%, var(--p300) 45%, var(--p400) 58%, var(--p200) 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--z950);
+}
+
+body {
+  font-family: 'interstate', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.43;
+  color: var(--z50);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+p,
+dl,
+dd {
+  margin: 0;
+}
+
+svg {
+  display: block;
+  flex: none;
+}
+
+#stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--z900);
+  transform: translate(-50%, -50%) scale(var(--s, 1));
+}
+
+#glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(1100px 620px at 50% 44%, oklch(58.5% 0.233 277.117 / 0.16), transparent 70%);
+}
+
+/* ---------- Intro and outro ---------- */
+
+#backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+#columns {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  transform: translate(-50%, -50%) rotate(-12deg);
+}
+
+#columns .col {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#columns img {
+  width: 208px;
+  height: 117px;
+  border-radius: 4px;
+  object-fit: cover;
+  opacity: 0.55;
+}
+
+#veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 820px 520px at 50% 50%,
+    rgb(9 9 11 / 0.96) 30%,
+    rgb(9 9 11 / 0.72) 70%,
+    rgb(9 9 11 / 0.4) 100%
+  );
+}
+
+.lockup {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.lockup-row {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.badge {
+  display: grid;
+  flex: none;
+  place-items: center;
+  border: 1px solid oklch(87% 0.065 274.039 / 0.4);
+  background: var(--metal);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 0.5);
+}
+
+.badge-md {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 12px oklch(58.5% 0.233 277.117 / 0.6));
+}
+
+.badge-md img {
+  width: 20px;
+}
+
+.badge-lg {
+  width: 84px;
+  height: 84px;
+  border-radius: 20px;
+  filter: drop-shadow(0 0 36px oklch(58.5% 0.233 277.117 / 0.7));
+}
+
+.badge-lg img {
+  width: 46px;
+}
+
+.badge-xl {
+  width: 124px;
+  height: 124px;
+  border-width: 2px;
+  border-radius: 30px;
+  box-shadow: inset 0 2px 2px rgb(255 255 255 / 0.5);
+  filter: drop-shadow(0 0 56px oklch(58.5% 0.233 277.117 / 0.75));
+}
+
+.badge-xl img {
+  width: 68px;
+}
+
+.wordmark {
+  display: flex;
+  padding-top: 0.08em;
+  font-size: 168px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Each letter carries the metal itself, so it survives the letters' own transforms. */
+.wordmark span,
+.wordmark-sm {
+  background: var(--metal-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.wordmark-sm {
+  display: block;
+  font-size: 112px;
+}
+
+.tagline {
+  margin-top: 44px;
+  font-size: 34px;
+  color: var(--z300);
+}
+
+.outro-url {
+  margin-top: 56px;
+  font-size: 44px;
+  font-weight: 700;
+}
+
+.outro-credit {
+  margin-top: 18px;
+  font-size: 26px;
+  color: var(--z400);
+}
+
+.outro-repo {
+  margin-top: 8px;
+  font-size: 22px;
+  color: var(--z500);
+}
+
+/* ---------- The window and the app inside it ---------- */
+
+#win {
+  position: absolute;
+  top: 52px;
+  left: 192px;
+  width: 1536px;
+  height: 864px;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--z900);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.09),
+    0 50px 120px rgb(0 0 0 / 0.65),
+    0 0 180px oklch(58.5% 0.233 277.117 / 0.2);
+}
+
+#cam {
+  width: 1280px;
+  height: 720px;
+  transform-origin: 0 0;
+}
+
+#app {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  background: var(--z900);
+}
+
+#nav {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 72px;
+  border-bottom: 1px solid var(--z800);
+}
+
+.nav-bar {
+  height: 4px;
+  background: linear-gradient(to right, var(--p600), var(--p400));
+}
+
+.nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 67px;
+  padding: 0 40px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo span {
+  padding-top: 4px;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--p400), var(--p600));
+  box-shadow: 0 0 0 2px var(--z900), 0 0 0 3px var(--z700);
+  font-weight: 700;
+}
+
+#ws {
+  position: absolute;
+  z-index: 0;
+  top: 80px;
+  left: 0;
+  width: 1280px;
+  height: 640px;
+}
+
+#cards,
+#heroes {
+  position: absolute;
+  inset: 0;
+}
+
+/* A category: a glass header over a hero tray. */
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 12px;
+  background: rgb(39 39 42 / 0.8);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    0 10px 15px -3px rgb(0 0 0 / 0.25),
+    0 4px 6px -4px rgb(0 0 0 / 0.2);
+}
+
+.card-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  box-shadow: 0 0 0 2px var(--p500);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 6px 0 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.card-head svg {
+  color: var(--z600);
+}
+
+.tray {
+  position: relative;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 8px 8px 12px 12px;
+  background: var(--z900);
+}
+
+.plus {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 45px;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 0.03);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  color: var(--z600);
+}
+
+.plus-on {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: oklch(58.5% 0.233 277.117 / 0.15);
+  box-shadow: 0 0 0 2px var(--p500);
+  color: var(--p400);
+  opacity: 0;
+}
+
+.pill {
+  position: absolute;
+  top: 50%;
+  right: -3px;
+  width: 4px;
+  height: 24px;
+  margin-top: -12px;
+  border-radius: 9999px;
+  background: var(--z500);
+  opacity: 0;
+}
+
+.hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 45px;
+  border-radius: 4px;
+}
+
+.hero-img {
+  width: 80px;
+  height: 45px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--z800);
+}
+
+.hero-img img,
+.tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dragged off every category: a red outline with a gap, and a trash badge on its top edge. */
+.hero-out {
+  position: absolute;
+  inset: -6px;
+  border: 3px solid var(--red);
+  border-radius: 8px;
+  opacity: 0;
+}
+
+.hero-trash {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: -12px;
+  border-radius: 9999px;
+  background: var(--red);
+  box-shadow: 0 0 0 2px var(--z900);
+  color: #fff;
+}
+
+.poof {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
+.poof i,
+.burst i {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--z400);
+  opacity: 0;
+}
+
+/* ---------- The dock ---------- */
+
+#dockwrap {
+  position: absolute;
+  z-index: 10;
+  right: 0;
+  bottom: 24px;
+  left: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+#dock {
+  position: relative;
+  width: 358px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 12px;
+  background: rgb(39 39 42 / 0.6);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.5),
+    inset 0 1px 1px rgb(255 255 255 / 0.05),
+    0 25px 50px -12px rgb(0 0 0 / 0.7);
+  backdrop-filter: blur(16px) saturate(1.5);
+}
+
+#dockrow {
+  position: relative;
+  height: 44px;
+  overflow: hidden;
+}
+
+.dockrow-in {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.switcher {
+  display: flex;
+  flex: none;
+  align-items: center;
+  width: 194px;
+  height: 36px;
+  padding: 0 6px 0 12px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.04);
+  font-weight: 700;
+}
+
+.switcher .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--green);
+}
+
+.switcher .name {
+  flex: 1;
+  margin-left: 8px;
+}
+
+.switcher svg {
+  color: var(--z500);
+}
+
+.dock-btns {
+  display: flex;
+  gap: 2px;
+  margin-left: 4px;
+}
+
+.ibtn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--z400);
+}
+
+.ibtn > * {
+  grid-area: 1 / 1;
+}
+
+.ibtn-hover {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.08);
+  opacity: 0;
+}
+
+.burst {
+  width: 0;
+  height: 0;
+  position: relative;
+}
+
+.burst i {
+  background: #f0b100;
+}
+
+.metal {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 20px 0 16px;
+  overflow: hidden;
+  border: 1px solid oklch(87% 0.065 274.039 / 0.4);
+  border-radius: 12px;
+  background: var(--metal);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 0.5),
+    0 10px 15px -3px oklch(58.5% 0.233 277.117 / 0.45),
+    0 4px 6px -4px oklch(58.5% 0.233 277.117 / 0.45);
+  font-weight: 700;
+  text-shadow: 0 1px 1px oklch(25.7% 0.09 281.288 / 0.5);
+  white-space: nowrap;
+}
+
+.sheen {
+  position: absolute;
+  top: -12px;
+  bottom: -12px;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(to right, transparent, rgb(255 255 255 / 0.4), transparent);
+  opacity: 0;
+}
+
+/* The dock as a share card */
+#share {
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.share-in {
+  padding: 16px;
+}
+
+.share-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.share-head span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--z400);
+}
+
+.opts {
+  position: relative;
+  display: grid;
+  gap: 2px;
+}
+
+.opt-hl {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 52px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 0.05);
+}
+
+.opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 12px;
+  color: var(--z400);
+}
+
+.opt b {
+  display: block;
+  font-weight: 700;
+}
+
+.opt i {
+  display: block;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.33;
+  color: var(--z500);
+}
+
+.opt-ic {
+  color: var(--z500);
+}
+
+.opt-ck {
+  margin-left: auto;
+  color: var(--p300);
+}
+
+#linkwrap {
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.linkf {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin-top: 8px;
+  padding-left: 12px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 8px;
+  background: rgb(0 0 0 / 0.25);
+  color: var(--z500);
+}
+
+.linkbody {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+}
+
+#linktext {
+  width: 100%;
+  overflow: hidden;
+  color: var(--z200);
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+}
+
+#shimmer {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 80%;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 6px;
+  background: linear-gradient(100deg, var(--z400) 35%, #fff 50%, var(--z400) 65%);
+  background-size: 300% 100%;
+  opacity: 0;
+}
+
+#copy {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-right: 4px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.08);
+  color: var(--z200);
+}
+
+#copy > * {
+  grid-area: 1 / 1;
+}
+
+#copy-on {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgb(0 201 80 / 0.14);
+  opacity: 0;
+}
+
+#tooltip {
+  position: absolute;
+  z-index: 30;
+  top: 0;
+  left: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--z950);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0;
+}
+
+/* ---------- The hero selector ---------- */
+
+#selector {
+  position: absolute;
+  z-index: 30;
+  top: 233px;
+  left: 312px;
+  width: 960px;
+  overflow: hidden;
+  border: 1px solid var(--z700);
+  border-radius: 12px;
+  background: var(--z900);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.8);
+  opacity: 0;
+}
+
+.sel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--z700);
+  font-weight: 700;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 240px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--p400);
+  border-radius: 8px;
+  background: var(--z900);
+  color: var(--z500);
+  font-weight: 500;
+}
+
+.search .typed {
+  color: var(--z50);
+}
+
+.search .typed span {
+  display: none;
+}
+
+.search .caret {
+  width: 1px;
+  height: 16px;
+  margin-left: -7px;
+  background: var(--z50);
+}
+
+.search .ph {
+  margin-left: 6px;
+}
+
+.sel-body {
+  position: relative;
+  height: 360px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.grp-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.grp-label span {
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.grp-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -4px 48px;
+}
+
+.tile {
+  position: relative;
+  padding: 4px;
+}
+
+.tile div {
+  width: 60px;
+  height: 35.5px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 4px;
+}
+
+/* ---------- Cursor ---------- */
+
+#cursor {
+  position: absolute;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+#cursor .arrow {
+  position: absolute;
+  top: -3px;
+  left: -5px;
+  transform-origin: 5px 3px;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.5));
+}
+
+#cursor .ripple {
+  position: absolute;
+  top: -18px;
+  left: -18px;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--p300);
+  border-radius: 9999px;
+  opacity: 0;
+}
+
+/* ---------- Captions ---------- */
+
+#captions {
+  position: absolute;
+  top: 946px;
+  right: 192px;
+  left: 192px;
+  height: 100px;
+}
+
+.caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 48px;
+  opacity: 0;
+}
+
+.caption h2 {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+
+.caption p {
+  font-size: 24px;
+  color: var(--z400);
+  text-align: right;
+}
+
+/* ---------- How it's built ---------- */
+
+#hood {
+  position: absolute;
+  inset: 0;
+}
+
+.hood-title {
+  position: absolute;
+  top: 236px;
+  left: 192px;
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--p300);
+}
+
+.hood-lines {
+  position: absolute;
+  top: 316px;
+  left: 192px;
+  width: 880px;
+}
+
+.hood-lines p {
+  margin-bottom: 52px;
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.stack {
+  position: absolute;
+  top: 316px;
+  left: 1250px;
+  display: flex;
+  gap: 88px;
+}
+
+.stack dt {
+  margin-bottom: 14px;
+  font-size: 22px;
+  color: var(--z500);
+}
+
+.stack dd {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.75;
+  white-space: nowrap;
+}
+
+/* ---------- Player ---------- */
+
+#loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  color: var(--z500);
+}
+
+#controls {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  background: linear-gradient(to top, rgb(9 9 11 / 0.9), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+#controls.on,
+#controls:focus-within {
+  opacity: 1;
+}
+
+.record #controls {
+  display: none;
+}
+
+#play {
+  width: 76px;
+  height: 36px;
+  border: 1px solid oklch(87% 0.065 274.039 / 0.4);
+  border-radius: 8px;
+  background: var(--metal);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#scrub {
+  flex: 1;
+  accent-color: var(--p400);
+}
+
+#time {
+  width: 92px;
+  color: var(--z300);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+#play:focus-visible,
+#scrub:focus-visible {
+  outline: 2px solid var(--p400);
+  outline-offset: 2px;
+}

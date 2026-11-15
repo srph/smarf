@@ -30,6 +30,7 @@ make start:web    # http://mbp.boga-parore.ts.net:13000 (all interfaces)
 ```
 api/          Laravel API
 ui/           React front-end
+showcase/     a one-minute film of the app: a hand-drawn copy of the UI on one seekable GSAP timeline (not built from ui/)
 compose.yaml  local MySQL (api/docker-compose.yml is the old Sail setup; not used)
 Makefile      entry points above
 ```
@@ -39,3 +40,4 @@ Makefile      entry points above
 - Run PHP through `valet php --site=smarf` / `valet composer --site=smarf` (pinned by `api/.valetrc`) and Node through nvm (`ui/.nvmrc`), not the system binaries.
 - Keep API and UI changes in step: response shapes live in `ui/src/types/api.ts`.
 - Never commit `.env` files.
+- The showcase film copies the app's look by hand. After a visible UI change, update `showcase/` to match, check it with `node showcase/render.mjs --stills 7.5,13,29` and re-render the video with `node showcase/render.mjs` (needs Chrome and ffmpeg; writes `showcase/smarf-showcase.mp4`, which isn't committed). To watch it in a browser, serve `showcase/` on `localhost`: the font kit doesn't serve other hosts.

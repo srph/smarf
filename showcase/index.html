@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smarf showcase</title>
+    <!-- Interstate, from the same Adobe Fonts kit as the app. The kit only serves the app's own hosts and localhost. -->
+    <link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css" />
+    <link rel="stylesheet" href="showcase.css" />
+  </head>
+  <body>
+    <!-- A 1920x1080 stage, scaled to fit the window. Everything on it is placed and animated by showcase.js. -->
+    <div id="stage" aria-label="Smarf showcase film">
+      <div id="glow"></div>
+
+      <!-- Intro and outro: the sign-in page's drifting hero columns -->
+      <div id="backdrop" aria-hidden="true">
+        <div id="columns"></div>
+        <div id="veil"></div>
+      </div>
+
+      <div id="lockup" class="lockup">
+        <div class="lockup-row">
+          <div class="badge badge-xl"><img src="logo-mark.svg" alt="" /></div>
+          <h1 class="wordmark" id="wordmark" aria-label="Smarf"></h1>
+        </div>
+        <p class="tagline" id="tagline">A Dota 2 hero organizer for the browser</p>
+      </div>
+
+      <!-- The app, redrawn at 1280x720 inside a window. #cam is the camera. -->
+      <div id="win">
+        <div id="cam">
+          <div id="app">
+            <header id="nav">
+              <div class="nav-bar"></div>
+              <div class="nav-row">
+                <div class="logo">
+                  <div class="badge badge-md"><img src="logo-mark.svg" alt="" /></div>
+                  <span>Smarf</span>
+                </div>
+                <div class="avatar">K</div>
+              </div>
+            </header>
+
+            <div id="ws">
+              <div id="cards"></div>
+              <div id="heroes"></div>
+            </div>
+
+            <div id="selector"></div>
+            <div id="dockwrap"></div>
+            <div id="tooltip">Copied</div>
+
+            <div id="cursor">
+              <span class="ripple"></span>
+              <svg class="arrow" width="26" height="26" viewBox="0 0 26 26">
+                <path
+                  d="M5 2.5v18l4.6-4.1 3.1 6.9 3-1.3-3.1-6.8h6.2z"
+                  fill="#0b0b0f"
+                  stroke="#fff"
+                  stroke-width="1.6"
+                  stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="captions"></div>
+
+      <section id="hood">
+        <h2 class="hood-title">How it's built</h2>
+        <div class="hood-lines">
+          <p>A drag is a draft. Nothing saves until you drop.</p>
+          <p>Saves are optimistic, and queue per board so they reach the API in order.</p>
+          <p>Integration tests render the whole app against a fake API.</p>
+        </div>
+        <dl class="stack">
+          <div>
+            <dt>Front end</dt>
+            <dd>React 19</dd>
+            <dd>TypeScript 7</dd>
+            <dd>Vite 8</dd>
+            <dd>Tailwind CSS 4</dd>
+            <dd>React Router 8</dd>
+            <dd>TanStack Query 5</dd>
+            <dd>Base UI</dd>
+            <dd>dnd-kit</dd>
+            <dd>Vitest</dd>
+          </div>
+          <div>
+            <dt>API</dt>
+            <dd>Laravel 9</dd>
+            <dd>PHP 8.1</dd>
+            <dd>MySQL 8</dd>
+            <dd>Sanctum</dd>
+            <dd>Discord sign-in</dd>
+          </div>
+        </dl>
+      </section>
+
+      <div id="outro" class="lockup">
+        <div class="lockup-row">
+          <div class="badge badge-lg"><img src="logo-mark.svg" alt="" /></div>
+          <span class="wordmark wordmark-sm">Smarf</span>
+        </div>
+        <p class="outro-url">smarf.kierb.com</p>
+        <p class="outro-credit">Designed and built by Kier Borromeo</p>
+        <p class="outro-repo">github.com/srph/smarf</p>
+      </div>
+
+      <div id="loading">Loading heroes…</div>
+    </div>
+
+    <div id="controls">
+      <button id="play" type="button" aria-label="Play or pause">Pause</button>
+      <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Scrub the film" />
+      <output id="time">0:00</output>
+    </div>
+
+    <script src="vendor/gsap.min.js"></script>
+    <script src="showcase.js"></script>
+  </body>
+</html>
