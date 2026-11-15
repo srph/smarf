@@ -28,15 +28,20 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Signed out too: the owner, or anyone when the board is public (BoardsController::show checks).
+Route::get('boards/{board}', [BoardsController::class, 'show']);
+
 Route::middleware('auth:api')->group(function () {
     Route::get('boards', [BoardsController::class, 'index']);
     Route::post('boards', [BoardsController::class, 'store']);
 
+    // The owner, or anyone signed in when the board is public (BoardsController::duplicate checks).
+    Route::post('boards/{board}/duplicate', [BoardsController::class, 'duplicate']);
+
     Route::middleware('board.own')->group(function () {
-        Route::get('boards/{board}', [BoardsController::class, 'show']);
         Route::put('boards/{board}', [BoardsController::class, 'update']);
         Route::put('boards/{board}/favorite', [BoardsController::class, 'favorite']);
-        Route::post('boards/{board}/duplicate', [BoardsController::class, 'duplicate']);
+        Route::put('boards/{board}/public', [BoardsController::class, 'publish']);
         Route::delete('boards/{board}', [BoardsController::class, 'destroy']);
         Route::post('boards/{board}/categories', [CategoriesController::class, 'store']);
     });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -9,6 +10,7 @@ use App\Models\Board;
 use App\Models\Category;
 use App\Http\Requests\CreateBoardRequest;
 use App\Http\Requests\FavoriteBoardRequest;
+use App\Http\Requests\PublishBoardRequest;
 use App\Http\Requests\UpdateBoardRequest;
 
 class BoardsController extends Controller
@@ -61,23 +63,38 @@ class BoardsController extends Controller
 
         return response()->json([
             // The same shape as show(), so the UI can open the board without fetching it. fresh() also reads back
-            // is_favorite and favorited_at, which create() leaves out.
-            'board' => $board->fresh(['categories', 'categories.heroes'])
+            // is_favorite, favorited_at and is_public, which create() leaves out.
+            'board' => $board->fresh(['categories', 'categories.heroes', 'owner:id,name,avatar'])
         ]);
     }
 
-    public function show(Board $board)
+    public function show(Request $request, Board $board)
     {
+        // The route has no auth middleware (a public board opens signed out), so read the token here. A missing or
+        // bad token is a guest.
+        $isOwner = $request->user('api')?->ownsBoard($board) ?? false;
+
+        // 404, not 403, so a private board's link doesn't confirm it exists.
+        abort_unless($isOwner || $board->is_public, 404);
+
         return response()->json([
-            'board' => $board->load('categories', 'categories.heroes')
+            'board' => $board->load('categories', 'categories.heroes', 'owner:id,name,avatar')
         ]);
     }
 
-    public function duplicate(Board $original)
+    public function duplicate(Request $request, Board $original)
     {
+        abort_unless($request->user()->ownsBoard($original) || $original->is_public, 404);
+
         $board = $original->replicate();
 
         $board->name = "Copy of {$original->name}";
+
+        // A copy of someone else's public board is the copier's. Every copy starts private and unstarred.
+        $board->user_id = $request->user()->id;
+        $board->is_public = false;
+        $board->is_favorite = false;
+        $board->favorited_at = null;
 
         $board->push();
 
@@ -112,6 +129,17 @@ class BoardsController extends Controller
         $board->update([
             'is_favorite' => $isFavorite,
             'favorited_at' => $isFavorite ? now() : null
+        ]);
+
+        return response()->json([
+            'board' => $board
+        ]);
+    }
+
+    public function publish(PublishBoardRequest $request, Board $board)
+    {
+        $board->update([
+            'is_public' => $request->boolean('is_public')
         ]);
 
         return response()->json([

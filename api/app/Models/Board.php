@@ -34,19 +34,29 @@ class Board extends Model
         'user_id',
         'name',
         'is_favorite',
-        'favorited_at'
+        'favorited_at',
+        'is_public'
     ];
 
     /**
-     * MySQL stores is_favorite as tinyint(1); the cast sends it as true/false (or null), matching `Board` in ui/src/types/api.ts.
-     * favorited_at goes out as an ISO 8601 string, like created_at.
+     * MySQL stores is_favorite and is_public as tinyint(1); the casts send them as true/false (or null), matching `Board`
+     * in ui/src/types/api.ts. favorited_at goes out as an ISO 8601 string, like created_at.
      *
      * @var array<string, string>
      */
     protected $casts = [
         'is_favorite' => 'boolean',
-        'favorited_at' => 'datetime'
+        'favorited_at' => 'datetime',
+        'is_public' => 'boolean'
     ];
+
+    /**
+     * The user who made the board. Load it as `owner:id,name,avatar`: a visitor to a public board sees only that.
+     */
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function user()
     {

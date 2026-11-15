@@ -28,7 +28,7 @@ routes/api.php          all endpoints
 
 ## Best practices
 
-- Put every board/category route behind `auth:api` and the matching ownership middleware.
+- Put every board/category route behind `auth:api` and the matching ownership middleware. Two exceptions, for public boards: `GET boards/{board}` has no auth middleware (the owner, or anyone when `is_public`; others get a 404), and `POST boards/{board}/duplicate` is `auth:api` only (the owner, or anyone signed in when it's public). Both check in `BoardsController`.
 - Change the hero list with a new migration (use `smarf:hero` to generate it). Don't edit old migrations.
 - Validate in the controller with `$request->validate()` and return models or resources, not hand-built arrays.
 - Write a feature test for any new or changed endpoint.
