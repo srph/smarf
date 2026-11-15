@@ -67,7 +67,7 @@ const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
           tabIndex={pending ? -1 : undefined}
           onFocus={(evt) => evt.currentTarget.select()}
           className={cn(
-            'w-full min-w-0 bg-transparent text-sm text-zinc-200 outline-none selection:bg-sky-500/45',
+            'w-full min-w-0 bg-transparent text-sm text-zinc-200 outline-none selection:bg-primary-500/45',
             '[mask-image:linear-gradient(to_right,black_calc(100%-32px),transparent)]',
             blurSwap,
             pending && blurSwapHidden

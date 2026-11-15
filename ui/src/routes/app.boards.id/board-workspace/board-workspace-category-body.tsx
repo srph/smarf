@@ -110,7 +110,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
   // Off every category it's being removed instead (its own red state), so no category claims it.
   const isHeroOver = draggingHeroId != null && draggingHeroId !== removingHeroId && heroIds.includes(draggingHeroId)
 
-  // Moving, resizing, or about to receive a hero: the card swaps its dark ring for a sky one.
+  // Moving, resizing, or about to receive a hero: the card swaps its dark ring for an indigo one.
   const isActive = isDragging || isResizing || isHeroOver
 
   // While resizing: show the new size as a draft (saved when the resize stops).
@@ -144,7 +144,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
         className={cn(
           'group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg inset-ring backdrop-blur-sm transition-shadow focus-visible:ring-focus',
           isActive
-            ? 'ring-2 ring-sky-500 inset-ring-white/15'
+            ? 'ring-2 ring-primary-500 inset-ring-white/15'
             : isConfirmingDelete
               ? 'ring-1 ring-black/50 inset-ring-red-500/30'
               : 'ring-1 ring-black/50 inset-ring-white/8 hover:inset-ring-white/15',
@@ -203,15 +203,15 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
           onResizeStop={handleResizeStop}
           handleClasses={{ right: 'group/handle' }}
           handleComponent={{
-            // A pill on the edge: grey while the card is hovered, sky on its own hover or while resizing. It stays
-            // 24px tall; the card's sky ring is what marks a resize.
+            // A pill on the edge: grey while the card is hovered, indigo on its own hover or while resizing. It stays
+            // 24px tall; the card's indigo ring is what marks a resize.
             right: (
               <span
                 className={cn(
                   'absolute inset-x-0 top-1/2 mx-auto h-6 w-1 -translate-y-1/2 rounded-full transition-colors',
                   isResizing
-                    ? 'bg-sky-500'
-                    : 'bg-zinc-500 opacity-0 group-hover:opacity-100 group-hover/handle:bg-sky-500'
+                    ? 'bg-primary-500'
+                    : 'bg-zinc-500 opacity-0 group-hover:opacity-100 group-hover/handle:bg-primary-500'
                 )}
               />
             )

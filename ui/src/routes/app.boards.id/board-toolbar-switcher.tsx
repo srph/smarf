@@ -22,7 +22,7 @@ interface Props {
 
 const STATUS_DOT: Record<ToolbarSaveStatus, string> = {
   saved: 'bg-green-500',
-  saving: 'bg-sky-500',
+  saving: 'bg-primary-400',
   error: 'bg-red-500'
 }
 
@@ -56,7 +56,7 @@ const BoardToolbarSwitcher: React.FC<Props> = ({ status, justRenamed, anchor }) 
         )}>
         <span className="relative size-2 shrink-0">
           <span className={cn('absolute inset-0 rounded-full transition-colors duration-250', STATUS_DOT[status])} />
-          {status === 'saving' && <span className="absolute inset-0 animate-ping rounded-full bg-sky-500" />}
+          {status === 'saving' && <span className="absolute inset-0 animate-ping rounded-full bg-primary-400" />}
         </span>
         <output className="sr-only">{STATUS_LABEL[status]}</output>
 

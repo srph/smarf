@@ -36,7 +36,7 @@ const BoardListItem: React.FC<Props> = ({ board }) => {
       onLayoutAnimationComplete={() => setIsMoving(false)}
       className={cn(
         // Focusing the link rings the whole row, star included; the star rings itself.
-        'relative flex items-center rounded-xl bg-zinc-700 ring-2 ring-transparent transition-shadow duration-200 not-last:mb-4 hover:ring-sky-500 has-[a:focus-visible]:ring-focus',
+        'relative flex items-center rounded-xl bg-zinc-700 ring-2 ring-transparent transition-shadow duration-200 not-last:mb-4 hover:ring-primary-500 has-[a:focus-visible]:ring-focus',
         isMoving && 'z-(--z-board-list-moving-item)'
       )}>
       <Link

@@ -48,7 +48,7 @@ const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
         onChange={(evt) => setName(evt.target.value)}
         aria-label="Board name"
         spellCheck={false}
-        className="block h-10 w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 font-semibold text-zinc-50 outline-none selection:bg-sky-500/45 focus-visible:border-primary-400 focus-visible:ring-focus-field"
+        className="block h-10 w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 font-semibold text-zinc-50 outline-none selection:bg-primary-500/45 focus-visible:border-primary-400 focus-visible:ring-focus-field"
       />
 
       <div className="mt-3 flex items-center gap-2">
