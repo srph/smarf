@@ -91,14 +91,15 @@ const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
           onClick={handleCopy}
           disabled={pending}
           className={cn(
-            'mr-1 grid size-8 shrink-0 cursor-pointer place-items-center rounded-lg transition-[background-color,color,opacity] duration-200',
+            'mr-1 grid size-8 shrink-0 cursor-pointer place-items-center rounded-lg transition-[background-color,color,opacity,scale] duration-200 active:scale-94',
             'focus-visible:ring-focus disabled:cursor-progress disabled:opacity-40',
             copied ? 'bg-green-500/14 text-green-300' : 'bg-white/8 text-zinc-200 hover:bg-white/13'
           )}>
-          <span className={cn('col-start-1 row-start-1', blurSwap, copied && blurSwapHidden)}>
+          {/* The clipboard and the check swap by shrinking out and growing in. */}
+          <span className={cn('col-start-1 row-start-1', blurSwap, copied && cn(blurSwapHidden, 'scale-50'))}>
             <Icon icon={ClipboardIcon} size={16} />
           </span>
-          <span className={cn('col-start-1 row-start-1', blurSwap, !copied && blurSwapHidden)}>
+          <span className={cn('col-start-1 row-start-1', blurSwap, !copied && cn(blurSwapHidden, 'scale-50'))}>
             <Icon icon={CheckIcon} size={16} />
           </span>
         </button>
