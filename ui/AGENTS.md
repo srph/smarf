@@ -47,6 +47,7 @@ public/           copied as-is
 ## Naming
 
 - Files and folders are kebab-case; exports are named after the file (`use-login.ts` → `useLogin`).
+- Named exports only, no `export default`. List them at the end of the file: `export { BoardsIdRoute }`, and `export { type Foo }` for types (Vite compiles each file on its own, so a bare type re-export breaks the build).
 - No barrel files. Import the file that defines the thing.
 - Keep components route-local until a second route needs them, then move them to `components/<name>/`.
 
