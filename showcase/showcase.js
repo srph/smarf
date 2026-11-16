@@ -1038,10 +1038,23 @@ const start = async () => {
 
   tl.eventCallback('onUpdate', sync)
 
+  // A music.mp3 beside this page plays along, to try a track against the film before rendering it in. Browsers
+  // only start sound after a click or a key, so it joins at the first one.
+  const music = RECORD ? null : new Audio('music.mp3')
+  const syncMusic = () => {
+    if (!music || music.error) return
+    const playing = !tl.paused() && tl.time() < duration
+    if (Math.abs(music.currentTime - tl.time()) > 0.15) music.currentTime = tl.time()
+    if (playing) music.play().catch(() => {})
+    else music.pause()
+  }
+  tl.eventCallback('onComplete', syncMusic)
+
   const toggle = () => {
     if (tl.time() >= duration) tl.restart()
     else tl.paused(!tl.paused())
     sync()
+    syncMusic()
   }
 
   playButton.addEventListener('click', toggle)
@@ -1049,6 +1062,7 @@ const start = async () => {
     tl.pause()
     tl.time((Number(scrub.value) / 1000) * duration)
     sync()
+    syncMusic()
   })
 
   addEventListener('keydown', (evt) => {
@@ -1061,6 +1075,7 @@ const start = async () => {
     if (evt.key === 'ArrowLeft') tl.time(Math.max(0, tl.time() - 2))
     if (evt.key.toLowerCase() === 'r') tl.restart()
     if (evt.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.()
+    syncMusic()
   })
 
   // The controls show while the pointer moves, then get out of the picture.
