@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Board OG Image</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #18181b; }
+  .ogbox { position: relative; width: 100%; aspect-ratio: 1200 / 630; overflow: hidden; }
+  .below { display: grid; grid-template-columns: 432px 1fr; gap: 10px; margin-top: 10px; align-items: start; }
+  @media (max-width: 800px) { .below { grid-template-columns: 1fr; } }
+  .notes { display: grid; gap: 8px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- In-situ: a generic dark chat unfurl (mockup) ---------- */
+  .feed { background: #232428; border-radius: 12px; padding: 14px; font-family: ui-sans-serif, system-ui, sans-serif; color: #dbdee1; }
+  .feed .msg { font-size: 13px; margin: 0 0 8px; }
+  .feed .msg a { color: #00a8fc; text-decoration: none; }
+  .embed { background: #2b2d31; border-left: 4px solid #6366f1; border-radius: 6px; padding: 10px 12px 12px; }
+  .embed .site { font-size: 11px; color: #b5bac1; }
+  .embed .t { font-size: 14px; font-weight: 600; color: #00a8fc; margin: 2px 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .embed .d { font-size: 12px; color: #dbdee1; margin-bottom: 10px; line-height: 1.4; }
+  .embed .ogbox { border-radius: 6px; }
+
+  /* ---------- OG mockups: Smarf's look (zinc, dot grid, glass category cards, indigo metal) ---------- */
+  .og {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --green: #00c950;
+    --p100: oklch(93% 0.034 272.788); --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p950: oklch(25.7% 0.09 281.288);
+    position: absolute; left: 0; top: 0; width: 1200px; height: 630px; overflow: hidden; transform-origin: 0 0; transform: scale(var(--s, 1));
+    background: var(--z900); color: var(--z50);
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.4;
+  }
+  .og * { box-sizing: border-box; }
+  .og img { display: block; }
+  .dots {
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+  }
+  /* The navigation's lockup: the metal badge and the white wordmark */
+  .wm { display: flex; align-items: center; gap: 14px; }
+  .wm img { width: 44px; height: 44px; filter: drop-shadow(0 0 12px color-mix(in oklab, var(--p500) 60%, transparent)); }
+  .wm span { padding-top: 4px; font-size: 26px; line-height: 1; font-weight: 900; letter-spacing: .025em; text-transform: uppercase; }
+  .by { display: flex; align-items: center; gap: 12px; min-width: 0; color: var(--z400); white-space: nowrap; }
+  .by img { flex: none; border-radius: 50%; }
+  .by span { overflow: hidden; text-overflow: ellipsis; }
+  .name { font-weight: 800; letter-spacing: -.02em; line-height: 1.08; }
+  .clamp { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; padding-bottom: .08em; }
+
+  /* The visitor's category card (board-visitor-category.tsx) */
+  .board { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .cat { position: absolute; display: inline-block; border-radius: 12px; background: rgba(39,39,42,.8);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 1px rgba(0,0,0,.5), 0 10px 15px -3px rgba(0,0,0,.3), 0 4px 6px -4px rgba(0,0,0,.3); }
+  .cat-h { display: flex; align-items: center; height: 36px; padding: 0 12px; font-weight: 600; white-space: nowrap; }
+  .tray { display: flex; flex-wrap: wrap; align-content: flex-start; padding: 3px; border-radius: 8px 8px 12px 12px; border: 1px solid rgba(255,255,255,.08); background: var(--z900); }
+  .hero { flex: none; width: 88px; padding: 4px; }
+  .hero img { width: 80px; height: 45px; border-radius: 4px; object-fit: cover; background: var(--z700); }
+
+  /* ===== Now ===== */
+  .og-now img { width: 1200px; height: 630px; }
+
+  /* ===== A: the whole board, fitted, over a name bar ===== */
+  .og-a .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 104px; display: flex; align-items: center; gap: 18px; padding: 0 48px;
+    background: rgba(9,9,11,.78); border-top: 1px solid var(--z800); }
+  .og-a .bar .name { font-size: 36px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; padding-top: 3px; }
+  .og-a .bar .by { font-size: 26px; flex: 0 1 auto; padding-top: 3px; }
+  .og-a .bar .by.av { flex: none; }
+  .og-a .bar .wm { margin-left: auto; flex: none; padding-left: 24px; }
+
+  /* ===== B: name on the left, the board bleeding off the right ===== */
+  .og-b { background: var(--z950); }
+  .og-b::before { content: ""; position: absolute; inset: 0; background: radial-gradient(700px 420px at 10% 15%, color-mix(in oklab, var(--p600) 30%, transparent), transparent 70%); }
+  .og-b .copy { position: absolute; left: 72px; top: 64px; bottom: 64px; width: 440px; display: flex; flex-direction: column; }
+  .og-b .name { margin-top: auto; -webkit-line-clamp: 3; }
+  .og-b .by { font-size: 26px; margin-top: 24px; margin-bottom: auto; }
+  .og-b .stat { font-size: 20px; color: var(--z500); font-weight: 600; }
+  .og-b .win { position: absolute; left: 568px; top: 64px; width: 800px; height: 640px; border-radius: 20px; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 40px 80px -20px rgba(0,0,0,.8); }
+
+  /* ===== C: every hero as a wall, the name on a glass plate ===== */
+  .og-c { background: var(--z950); }
+  .og-c .wall { position: absolute; left: -3px; top: -3px; display: grid; gap: 6px; }
+  .og-c .wall img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; }
+  .og-c .veil { position: absolute; inset: 0; background: radial-gradient(ellipse 620px 300px at 50% 50%, rgba(9,9,11,.85), rgba(9,9,11,.45) 100%), linear-gradient(0deg, rgba(9,9,11,.9), transparent 28%); }
+  .og-c .plate { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: max-content; max-width: 1000px; padding: 32px 48px 30px; border-radius: 28px; text-align: center;
+    background: rgba(39,39,42,.72); border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 40px 80px -16px rgba(0,0,0,.8), 0 0 0 1px rgba(0,0,0,.5), inset 0 1px 2px rgba(255,255,255,.08);
+    backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5); }
+  .og-c .name { -webkit-line-clamp: 2; }
+  .og-c .name i { display: inline-block; width: .26em; height: .26em; border-radius: 50%; background: var(--green); margin-right: .32em; vertical-align: .16em; }
+  .og-c .by { font-size: 24px; margin-top: 14px; justify-content: center; }
+  .og-c .wm { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); }
+
+  /* ===== D: categories as rows, heroes running off the edge ===== */
+  .og-d { background: var(--z950); }
+  .og-d::before { content: ""; position: absolute; inset: 0; background: radial-gradient(800px 380px at 85% 0%, color-mix(in oklab, var(--p600) 26%, transparent), transparent 70%); }
+  .og-d .top { position: absolute; left: 72px; right: 72px; top: 48px; display: flex; align-items: flex-start; gap: 32px; }
+  .og-d .top > div { min-width: 0; flex: 1; }
+  .og-d .name { font-size: 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-bottom: .08em; }
+  .og-d .by { font-size: 22px; margin-top: 8px; }
+  .og-d .wm { flex: none; padding-top: 8px; }
+  .og-d .rows { position: absolute; left: 72px; right: 0; top: 184px; bottom: 44px; display: flex; flex-direction: column; justify-content: center; gap: 12px;
+    -webkit-mask-image: linear-gradient(90deg, #000 82%, transparent 99%); mask-image: linear-gradient(90deg, #000 82%, transparent 99%); }
+  .og-d .row { position: relative; flex: none; height: 90px; display: flex; align-items: center; border-radius: 16px 0 0 16px; background: rgba(39,39,42,.8);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 0 1px rgba(0,0,0,.5); }
+  .og-d .row .lbl { flex: none; width: 250px; padding: 0 12px 0 24px; }
+  .og-d .row .lbl b { display: block; font-size: 25px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .og-d .row .lbl small { display: block; font-size: 16px; color: var(--z500); }
+  .og-d .strip { flex: 1; align-self: stretch; margin: 6px 0 6px 0; padding: 7px; display: flex; gap: 8px; overflow: hidden; border-radius: 10px 0 0 10px; border: 1px solid rgba(255,255,255,.08); border-right: 0; background: var(--z900); }
+  .og-d .strip img { flex: none; height: 62px; width: 110px; border-radius: 5px; object-fit: cover; background: var(--z700); }
+  .og-d .more { flex: none; height: 40px; display: flex; align-items: center; padding-left: 24px; font-size: 21px; font-weight: 600; color: var(--z500); }
+
+  /* ===== E: the board tilted into perspective ===== */
+  .og-e { background: radial-gradient(900px 520px at 78% 78%, color-mix(in oklab, var(--p600) 36%, transparent), transparent 65%), var(--z950); }
+  .og-e .plane-wrap { position: absolute; inset: 0; perspective: 1700px; -webkit-mask-image: linear-gradient(115deg, transparent 30%, #000 54%); mask-image: linear-gradient(115deg, transparent 30%, #000 54%); }
+  .og-e .plane-wrap::after { content: ""; position: absolute; inset: 0; background: radial-gradient(640px 360px at 12% 88%, var(--z950) 35%, transparent 75%); }
+  .og-e .plane { position: absolute; left: 470px; top: -40px; width: 1300px; height: 860px; border-radius: 24px; transform: rotateX(46deg) rotateZ(-24deg);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+  .og-e .copy { position: absolute; left: 72px; top: 64px; bottom: 64px; width: 520px; display: flex; flex-direction: column; }
+  .og-e .name { margin-top: auto; -webkit-line-clamp: 3; text-shadow: 0 2px 24px var(--z950); }
+  .og-e .by { font-size: 26px; margin-top: 20px; }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>A board link that previews the board itself</h1>
+    <div class="chips">
+      <div class="chip"><b>Size</b>1200×630, still readable at 400px in Discord.</div>
+      <div class="chip"><b>Data</b>Drawn from the board alone: name, owner, categories, heroes.</div>
+      <div class="chip"><b>Any board</b>One hero or seventy, a short name or a long one.</div>
+      <div class="chip"><b>Brand</b>Zinc, dot grid, glass cards, the metal badge.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="Every board shares the site's screenshot" data-v="now">
+    <div class="v-head"><span class="v-id">Now</span><h2>Every board shares the site's screenshot</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="now"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note bad">Says nothing about the board that was shared.</div>
+      <div class="note bad">Shows the old toolbar and flat categories.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="The whole board, fitted, over a name bar" data-v="a">
+    <div class="v-head"><span class="v-id">A</span><h2>The whole board, fitted, over a name bar</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="a"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">The preview is the page you land on.</div>
+      <div class="note good">Layout survives: you see how they arranged it.</div>
+      <div class="note bad">Big boards shrink until the heroes are specks.</div>
+      <div class="note bad">The name is small at feed size.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="Name on the left, board bleeding off the right" data-v="b">
+    <div class="v-head"><span class="v-id">B</span><h2>Name on the left, board bleeding off the right</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="b"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">The name reads at any size.</div>
+      <div class="note good">Heroes stay big; large boards just crop.</div>
+      <div class="note bad">Only the top-left corner of the board shows.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="Every hero as a wall, name on a glass plate" data-v="c">
+    <div class="v-head"><span class="v-id">C</span><h2>Every hero as a wall, name on a glass plate</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="c"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Always full, whatever the board's size.</div>
+      <div class="note good">The most colour in a feed.</div>
+      <div class="note bad">Categories are gone; it's a hero pool, not a board.</div>
+      <div class="note bad">Few heroes means upscaled, repeated art.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="Categories as rows, heroes running off the edge" data-v="d">
+    <div class="v-head"><span class="v-id">D</span><h2>Categories as rows, heroes running off the edge</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="d"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Category names read at 400px.</div>
+      <div class="note good">Same grid for every board; easy to render.</div>
+      <div class="note bad">Drops the owner's own layout.</div>
+      <div class="note bad">Shows three or four categories; the rest is a count.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="E" data-name="The board tilted into perspective" data-v="e">
+    <div class="v-head"><span class="v-id">E</span><h2>The board tilted into perspective</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="e"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Big name, and the frame is full at any board size.</div>
+      <div class="note good">Looks designed, not like a screenshot.</div>
+      <div class="note bad">Needs a browser to render; no 3D in an image library.</div>
+      <div class="note bad">Category names are hard to read at an angle.</div>
+    </div></div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from D: rows in two columns, so eight categories fit.</div>
+      <div class="card"><b>Remix</b>Remix B: fit the board when it's small, crop only when it's big.</div>
+      <div class="card"><b>Settle</b>Settle on B, then decide where the image gets rendered.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/3f9b-board-og-image.html';
+
+/* ---------- Board data: four boards to stress each layout ---------- */
+const thumb = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const POOL = ('antimage juggernaut phantom_assassin luna medusa faceless_void slark spectre terrorblade morphling ursa ' +
+  'invoker storm_spirit queenofpain puck ember_spirit void_spirit zuus lina tinker sniper ' +
+  'axe mars tidehunter centaur bristleback legion_commander primal_beast dark_seer ' +
+  'earthshaker tusk rubick hoodwink snapfire mirana pangolier marci bounty_hunter ' +
+  'crystal_maiden lion witch_doctor dazzle jakiro lich oracle warlock shadow_shaman disruptor ' +
+  'pudge ogre_magi sven skeleton_king viper dragon_knight ' +
+  'meepo techies broodmother ' +
+  'earth_spirit chen wisp arc_warden ' +
+  'huskar riki nyx_assassin doom_bringer silencer enigma batrider undying necrolyte').split(' ');
+let cursor = 0;
+const take = (n) => POOL.slice(cursor, (cursor += n));
+
+const TYPICAL = [
+  { name: 'Carries', x: 32, y: 32, w: 536, heroes: ['antimage', 'juggernaut', 'phantom_assassin', 'luna', 'medusa'] },
+  { name: 'Supports', x: 608, y: 32, w: 360, heroes: ['crystal_maiden', 'lion', 'witch_doctor'] },
+  { name: 'Offlane', x: 32, y: 176, w: 448, heroes: ['axe', 'mars', 'tidehunter', 'centaur'] },
+  { name: 'Mid', x: 520, y: 176, w: 448, heroes: ['invoker', 'storm_spirit', 'queenofpain'] }
+];
+const DATA = {
+  typical: { label: 'Typical', name: 'Ranked picks', owner: 'Kier', cats: TYPICAL },
+  big: { label: 'Big board', name: 'Every hero I can play', owner: 'Kier', cats: [
+    { name: 'Pos 1', x: 32, y: 32, w: 536, heroes: take(11) },
+    { name: 'Pos 2', x: 608, y: 32, w: 536, heroes: take(10) },
+    { name: 'Pos 3', x: 1184, y: 32, w: 360, heroes: take(8) },
+    { name: 'Pos 4', x: 32, y: 224, w: 448, heroes: take(9) },
+    { name: 'Pos 5', x: 520, y: 224, w: 448, heroes: take(10) },
+    { name: 'Turbo only', x: 1008, y: 224, w: 536, heroes: take(6) },
+    { name: 'Never again', x: 32, y: 416, w: 272, heroes: take(3) },
+    { name: 'Learning', x: 344, y: 416, w: 360, heroes: take(4) },
+    { name: 'Ban these', x: 744, y: 416, w: 800, heroes: take(9) }
+  ] },
+  one: { label: 'One hero', name: 'Meepo', owner: 'Kier', cats: [{ name: 'The only one', x: 32, y: 32, w: 360, heroes: ['meepo'] }] },
+  long: { label: 'Long names', name: 'Kaldag v7.31 turbo spam, do not judge me', owner: 'xXx_ShadowFiend_Enjoyer_xXx', cats: TYPICAL }
+};
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const heroCount = (b) => b.cats.reduce((n, c) => n + c.heroes.length, 0);
+const plural = (n, w) => `${n} ${n === 1 ? w : w.replace(/y$/, 'ie') + 's'}`;
+const stat = (b) => `${plural(b.cats.length, 'category')} · ${plural(heroCount(b), 'hero').replace('heros', 'heroes')}`;
+// Pick a font size by the name's length: [[maxChars, px], ...]
+const fs = (name, steps) => steps.find(([max]) => name.length <= max)[1];
+
+/* ---------- Pieces ---------- */
+const WM = `<span class="wm"><img src="logo-assets/smarf-badge.svg" alt=""><span>Smarf</span></span>`;
+const by = (b, av = 36, extra = '') => `<span class="by"><img src="og-assets/avatar.png" width="${av}" height="${av}" alt=""><span>by ${esc(b.owner)}${extra}</span></span>`;
+const img = (s) => `<img src="${thumb(s)}" alt="">`;
+
+// The board as the visitor sees it. Sizes follow contexts/board-list/constants.ts: 88×53 cells, 8px of tray padding, a 36px header.
+function bounds(b) {
+  let x0 = Infinity, y0 = Infinity, x1 = 0, y1 = 0;
+  b.cats.forEach((c) => {
+    const cols = Math.max(1, Math.floor((c.w - 8) / 88)), rows = Math.max(1, Math.ceil(c.heroes.length / cols));
+    x0 = Math.min(x0, c.x); y0 = Math.min(y0, c.y); x1 = Math.max(x1, c.x + c.w); y1 = Math.max(y1, c.y + 36 + rows * 53 + 8);
+  });
+  return { x0, y0, w: x1 - x0, h: y1 - y0 };
+}
+// Places the board inside a box: scaled to fit (up to max) and centred, or at a fixed scale from the box's top-left.
+function board(b, box, { max = 1.5, fixed } = {}) {
+  const bb = bounds(b);
+  const s = fixed || Math.min(box.w / bb.w, box.h / bb.h, max);
+  const tx = fixed ? box.x : box.x + (box.w - bb.w * s) / 2, ty = fixed ? box.y : box.y + (box.h - bb.h * s) / 2;
+  return `<div class="board" style="transform:translate(${tx - bb.x0 * s}px,${ty - bb.y0 * s}px) scale(${s})">` + b.cats.map((c) =>
+    `<div class="cat" style="left:${c.x}px;top:${c.y}px"><div class="cat-h">${esc(c.name)}</div><div class="tray" style="width:${c.w}px">${c.heroes.map((h) => `<div class="hero">${img(h)}</div>`).join('')}</div></div>`).join('') + '</div>';
+}
+
+/* ---------- One renderer per variation ---------- */
+const R = {
+  now: () => `<img src="og-assets/thumbnail.png" alt="">`,
+
+  a: (b) => `<div class="dots" style="position:absolute;inset:0"></div>
+    ${board(b, { x: 48, y: 40, w: 1104, h: 446 })}
+    <div class="bar">${by(b, 48).replace('class="by"', 'class="by av"').replace(/<span>by .*?<\/span>/, '')}<span class="name">${esc(b.name)}</span>
+      <span class="by"><span>by ${esc(b.owner)}</span></span>${WM}</div>`,
+
+  b: (b) => `<div class="copy">${WM}
+      <div class="name clamp" style="font-size:${fs(b.name, [[14, 72], [24, 58], [999, 46]])}px">${esc(b.name)}</div>
+      ${by(b)}<div class="stat">${stat(b)}</div></div>
+    <div class="win dots">${board(b, { x: 32, y: 32 }, { fixed: 1.3 })}</div>`,
+
+  c: (b) => {
+    const heroes = b.cats.flatMap((c) => c.heroes);
+    const cols = Math.max(2, Math.ceil(Math.sqrt(heroes.length * 1.07)));
+    const tileH = ((1206 - (cols - 1) * 6) / cols) * 9 / 16, rows = Math.ceil(636 / (tileH + 6));
+    const tiles = Array.from({ length: cols * rows }, (_, i) => img(heroes[i % heroes.length])).join('');
+    return `<div class="wall" style="width:1206px;grid-template-columns:repeat(${cols},1fr)">${tiles}</div><div class="veil"></div>
+      <div class="plate"><div class="name clamp" style="font-size:${fs(b.name, [[14, 68], [24, 56], [999, 44]])}px"><i></i>${esc(b.name)}</div>${by(b, 32, ` · ${stat(b)}`)}</div>${WM}`;
+  },
+
+  d: (b) => {
+    const shown = b.cats.length > 4 ? b.cats.slice(0, 3) : b.cats;
+    const rest = b.cats.length - shown.length;
+    return `<div class="top"><div><div class="name">${esc(b.name)}</div>${by(b, 30, ` · ${stat(b)}`)}</div>${WM}</div>
+      <div class="rows">${shown.map((c) => `<div class="row"><div class="lbl"><b>${esc(c.name)}</b><small>${plural(c.heroes.length, 'hero').replace('heros', 'heroes')}</small></div>
+        <div class="strip">${c.heroes.map(img).join('')}</div></div>`).join('')}
+        ${rest ? `<div class="more">+${rest} more categories</div>` : ''}</div>`;
+  },
+
+  e: (b) => `<div class="plane-wrap"><div class="plane dots">${board(b, { x: 70, y: 70, w: 1160, h: 720 }, { max: 1.7 })}</div></div>
+    <div class="copy">${WM}<div class="name clamp" style="font-size:${fs(b.name, [[14, 76], [24, 60], [999, 46]])}px">${esc(b.name)}</div>${by(b)}</div>`
+};
+
+/* ---------- Paint: the big canvas and the unfurl share one renderer and one board ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+let state = new URLSearchParams(location.search).get('s') || 'typical';
+if (!DATA[state]) state = 'typical';
+
+function fit(box) { box.firstElementChild.style.setProperty('--s', box.clientWidth / 1200); }
+const ro = new ResizeObserver((entries) => entries.forEach((e) => fit(e.target)));
+
+sections.forEach((sec) => {
+  const v = sec.dataset.v;
+  if (v !== 'now') {
+    const st = document.createElement('div'); st.className = 'states';
+    st.innerHTML = 'Board' + Object.entries(DATA).map(([k, d]) => `<button data-s="${k}">${d.label}</button>`).join('');
+    st.addEventListener('click', (e) => { const k = e.target.dataset.s; if (k) { state = k; paint(); } });
+    sec.querySelector('.frame').before(st);
+  }
+  sec.querySelector('.slot-feed').innerHTML = `<div class="feed"><p class="msg"></p><div class="embed"><div class="site">Smarf</div><div class="t"></div><div class="d"></div><div class="ogbox" data-v="${v}"></div></div></div>`;
+  sec.querySelectorAll('.ogbox').forEach((box) => { box.innerHTML = `<div class="og og-${v}"></div>`; ro.observe(box); });
+});
+
+function paint() {
+  const b = DATA[state];
+  sections.forEach((sec) => {
+    const v = sec.dataset.v;
+    sec.querySelectorAll('.og').forEach((og) => { og.innerHTML = R[v](b); });
+    sec.querySelectorAll('.states button').forEach((btn) => btn.setAttribute('aria-pressed', String(btn.dataset.s === state)));
+    sec.querySelector('.msg').innerHTML = `my board: <a>smarf.kierb.com/b/48213</a>`;
+    sec.querySelector('.embed .t').textContent = v === 'now' ? 'Smarf — Dota 2 Hero Organizer' : `${b.name} by ${b.owner}`;
+    sec.querySelector('.embed .d').textContent = v === 'now' ? 'Avid smurfer with multiple play styles? Say no more.' : stat(b);
+  });
+}
+paint();
+
+/* ---------- Pick: built from each canvas's identifier and the file path ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
