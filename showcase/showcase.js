@@ -63,19 +63,19 @@ const AGILITY = pairs(
   'Anti-Mage=antimage|Bloodseeker=bloodseeker|Bounty Hunter=bounty_hunter|Broodmother=broodmother|Clinkz=clinkz|Drow Ranger=drow_ranger|Ember Spirit=ember_spirit|Faceless Void=faceless_void|Gyrocopter=gyrocopter|Hoodwink=hoodwink|Juggernaut=juggernaut|Kez=kez|Lone Druid=lone_druid|Luna=luna|Medusa=medusa|Meepo=meepo|Mirana=mirana|Monkey King=monkey_king|Morphling=morphling|Naga Siren=naga_siren|Phantom Assassin=phantom_assassin|Phantom Lancer=phantom_lancer|Razor=razor|Riki=riki|Shadow Fiend=nevermore|Slark=slark'
 )
 
-// The board. x and y are workspace coordinates; cols is the tray's width in hero cells.
+// The board: a tier list, like the app's Tier List start. x and y are workspace coordinates; cols is how many heroes
+// fit a row. A tier that spans the board is 996 wide (S + the gap + F), a little more than its eleven cells.
 const CATEGORIES = [
-  { id: 'mid', name: 'Mid', x: 40, y: 24, cols: 4, heroes: ['nevermore', 'storm_spirit', 'puck', 'invoker', 'queenofpain'] },
-  { id: 'safe', name: 'Safe lane', x: 440, y: 24, cols: 5, heroes: ['juggernaut', 'phantom_assassin', 'morphling'] },
-  { id: 'off', name: 'Offlane', x: 928, y: 24, cols: 3, heroes: ['axe', 'mars', 'tidehunter', 'centaur'] },
-  { id: 'roam', name: 'Roaming', x: 40, y: 236, cols: 3, heroes: ['earth_spirit', 'tusk', 'mirana', 'bounty_hunter', 'spirit_breaker'] },
-  { id: 'sup', name: 'Hard support', x: 640, y: 196, cols: 4, heroes: ['crystal_maiden', 'lion', 'shadow_shaman', 'dazzle', 'witch_doctor', 'oracle', 'jakiro'] },
-  // The bottom middle stays clear: the dock sits there, and grows upward into its cards.
-  { id: 'comfort', name: 'Comfort picks', x: 40, y: 418, cols: 3, heroes: ['sniper', 'drow_ranger', 'lina', 'zuus', 'viper'] },
-  { id: 'ban', name: 'Ban these', x: 980, y: 410, cols: 3, heroes: ['techies', 'tinker', 'broodmother'] }
+  { id: 's', name: 'S Tier', x: 142, y: 24, cols: 6, heroes: ['bounty_hunter', 'obsidian_destroyer', 'enigma'] },
+  { id: 'f', name: 'F Tier', x: 690, y: 24, cols: 5, heroes: ['nevermore', 'abyssal_underlord', 'drow_ranger', 'bristleback'] },
+  { id: 'a', name: 'A Tier', x: 142, y: 133, cols: 11, width: 996, heroes: ['spirit_breaker', 'invoker', 'slark', 'nyx_assassin', 'phantom_lancer', 'winter_wyvern', 'pudge', 'dragon_knight'] },
+  { id: 'b', name: 'B Tier', x: 142, y: 242, cols: 11, width: 996, heroes: ['night_stalker', 'techies', 'luna', 'witch_doctor', 'rubick', 'earthshaker', 'oracle', 'earth_spirit', 'antimage'] },
+  { id: 'c', name: 'C Tier', x: 142, y: 351, cols: 6, heroes: ['ember_spirit', 'hoodwink', 'dark_willow', 'marci', 'legion_commander'] },
+  // Left out of line and too narrow, for the move and resize scene to tidy up.
+  { id: 'd', name: 'D Tier', x: 866, y: 351, cols: 3, heroes: ['troll_warlord', 'skywrath_mage', 'rattletrap', 'phantom_assassin'] }
 ]
 
-const EXTRA_BACKDROP = ['pangolier', 'void_spirit', 'windrunner', 'rubick', 'lich', 'grimstroke', 'snapfire', 'marci', 'enigma']
+const EXTRA_BACKDROP = ['pangolier', 'void_spirit', 'windrunner', 'lich', 'grimstroke', 'snapfire', 'lion', 'axe', 'keeper_of_the_light', 'storm_spirit', 'puck', 'queenofpain', 'crystal_maiden', 'juggernaut', 'mars', 'zuus']
 
 // A hero cell is 80x45 with 4px of padding all round; the tray adds 4px more. The header is 36px tall.
 const CELL_W = 88
@@ -156,7 +156,7 @@ const buildBoard = () => {
     cat.plus = $('.plus', cat.el)
     cat.ring = $('.card-ring', cat.el)
     cat.pill = $('.pill', cat.el)
-    gsap.set(cat.el, { x: cat.x, y: cat.y, width: cardWidth(cat.cols) })
+    gsap.set(cat.el, { x: cat.x, y: cat.y, width: cat.width ?? cardWidth(cat.cols) })
     gsap.set(cat.tray, { height: trayHeight(cat) })
     gsap.set(cat.plus, traySlot(cat, cat.heroes.length))
     cat.heroes.forEach((key, index) => gsap.set(makeHero(key), slot(cat, index)))
@@ -181,7 +181,7 @@ const buildDock = () => {
         </div></div>
       </div></div>
       <div id="dockrow"><div class="dockrow-in">
-        <div class="switcher"><span class="dot"></span><span class="name">Ranked pool</span>${icon('chevrons', 16)}</div>
+        <div class="switcher"><span class="dot"></span><span class="name">Meta tier list</span>${icon('chevrons', 16)}</div>
         <div class="dock-btns">
           <span class="ibtn" id="btn-star"><span class="ibtn-hover"></span><span class="star">${icon('star')}</span><span class="burst">${'<i></i>'.repeat(6)}</span></span>
           <span class="ibtn">${icon('pencil')}</span>
@@ -386,65 +386,67 @@ const build = () => {
   )
   tl.set('#newcat .sheen', { opacity: 0 }, 7.6)
 
-  caption(5.9, 10.1, 'Your hero pool, laid out like the in-game grid', 'React 19 and TypeScript, styled with Tailwind 4')
+  caption(5.9, 10.1, 'Your hero pool, laid out like the in-game grid', 'Laravel, React, Tailwind, TypeScript')
   tl.to(camera, { z: 1.035, duration: 4.4, ease: 'none', onUpdate: applyCamera }, 5.8)
 
   // ===== 3. Drag a hero between categories, then drag one off =====
 
   const D = 10.3
-  const { mid, safe, roam, ban } = cats
+  const { s, f, a, d } = cats
 
-  cam(D, 1.45, 460, 332)
+  cam(D, 1.4, 500, 250)
   caption(D + 0.3, D + 4.6, 'Drag heroes between categories', 'dnd-kit, with a draft that only saves on drop')
 
-  gsap.set(cursor, { x: 780, y: 500 })
+  gsap.set(cursor, { x: 780, y: 470 })
   tl.to(cursor, { opacity: 1, duration: 0.3 }, D + 0.5)
 
-  const mirana = heroEls.mirana
-  const miranaFrom = heroCenter(roam, 2)
-  const miranaTo = slot(safe, 2)
-  moveCursor(D + 0.7, miranaFrom)
+  // Invoker is promoted from A to S.
+  const invoker = heroEls.invoker
+  const invokerFrom = heroCenter(a, 1)
+  const invokerTo = slot(s, 3)
+  moveCursor(D + 0.7, invokerFrom)
   press(D + 1.6)
-  lift(mirana, D + 1.6)
+  lift(invoker, D + 1.6)
 
-  moveCursor(D + 1.8, { x: miranaTo.x + 40, y: miranaTo.y + 22.5 + WS_TOP }, 1.1)
-  tl.to(mirana, { x: miranaTo.x, y: miranaTo.y, duration: 1.1, ease: 'power2.inOut' }, D + 1.8)
+  moveCursor(D + 1.8, { x: invokerTo.x + 40, y: invokerTo.y + 22.5 + WS_TOP }, 1.1)
+  tl.to(invoker, { x: invokerTo.x, y: invokerTo.y, duration: 1.1, ease: 'power2.inOut' }, D + 1.8)
 
-  // Leaving Roaming closes its gap; arriving over Safe lane opens one, and its ring turns indigo.
-  roam.heroes.splice(2, 1)
-  reflow(roam, D + 2.1)
-  safe.heroes.splice(2, 0, 'mirana')
-  reflow(safe, D + 2.5, 0.22, 'mirana')
-  ringOn(safe, D + 2.5)
+  // Leaving A closes its gap; arriving over S moves its plus along, and its ring turns indigo.
+  a.heroes.splice(1, 1)
+  reflow(a, D + 2.1)
+  s.heroes.push('invoker')
+  reflow(s, D + 2.5, 0.22, 'invoker')
+  ringOn(s, D + 2.5)
 
   release(D + 3.1)
-  settle(mirana, D + 3.1, miranaTo)
-  ringOff(safe, D + 3.4)
+  settle(invoker, D + 3.1, invokerTo)
+  ringOff(s, D + 3.4)
 
   const R = D + 4.3
-  caption(R + 0.5, R + 3.9, 'Drag one off the board to remove it', 'One optimistic save, undone if it fails')
+  cam(R, 1.4, 900, 250, 1)
+  caption(R + 0.5, R + 3.9, 'Drag one off the board to remove it', 'Optimistic updates baked in; errors handled gracefully')
 
-  const qop = heroEls.queenofpain
-  const qopDrop = { x: 430, y: 168 }
-  moveCursor(R + 0.2, heroCenter(mid, 4))
+  const fiend = heroEls.nevermore
+  const fiendDrop = { x: 1168, y: 96 }
+  moveCursor(R + 0.2, heroCenter(f, 0))
   press(R + 1.1)
-  lift(qop, R + 1.1)
-  moveCursor(R + 1.3, { x: qopDrop.x + 40, y: qopDrop.y + 22.5 + WS_TOP }, 0.9)
-  tl.to(qop, { ...qopDrop, duration: 0.9, ease: 'power2.inOut' }, R + 1.3)
+  lift(fiend, R + 1.1)
+  moveCursor(R + 1.3, { x: fiendDrop.x + 40, y: fiendDrop.y + 22.5 + WS_TOP }, 0.9)
+  tl.to(fiend, { ...fiendDrop, duration: 0.9, ease: 'power2.inOut' }, R + 1.3)
 
   // Off every category: red outline, trash badge, greyed portrait.
-  mid.heroes.splice(4, 1)
-  reflow(mid, R + 1.7)
-  tl.to($('.hero-out', qop), { opacity: 1, duration: 0.15 }, R + 1.7)
-  tl.to($('.hero-trash', qop), { scale: 1, duration: 0.3, ease: 'back.out(2.5)' }, R + 1.7)
-  tl.to($('.hero-img img', qop), { filter: 'grayscale(1)', opacity: 0.75, duration: 0.15 }, R + 1.7)
+  f.heroes.splice(0, 1)
+  reflow(f, R + 1.7)
+  tl.to($('.hero-out', fiend), { opacity: 1, duration: 0.15 }, R + 1.9)
+  tl.to($('.hero-trash', fiend), { scale: 1, duration: 0.3, ease: 'back.out(2.5)' }, R + 1.9)
+  tl.to($('.hero-img img', fiend), { filter: 'grayscale(1)', opacity: 0.75, duration: 0.15 }, R + 1.9)
 
   // Dropped: it puffs out.
   release(R + 2.8)
-  tl.to(qop, { scale: 0.5, opacity: 0, filter: 'blur(6px)', duration: 0.3, ease: 'power2.in' }, R + 2.8)
+  tl.to(fiend, { scale: 0.5, opacity: 0, filter: 'blur(6px)', duration: 0.3, ease: 'power2.in' }, R + 2.8)
   const poof = make('div', 'poof', '<i></i>'.repeat(7))
   $('#heroes').append(poof)
-  gsap.set(poof, { x: qopDrop.x + 40, y: qopDrop.y + 22.5 })
+  gsap.set(poof, { x: fiendDrop.x + 40, y: fiendDrop.y + 22.5 })
   $$('i', poof).forEach((dot, index) => {
     const angle = (index / 7) * Math.PI * 2 + 0.4
     tl.fromTo(
@@ -455,59 +457,59 @@ const build = () => {
     )
   })
 
-  // ===== 4. Resize a category, then move one =====
+  // ===== 4. Move a category into line, then resize it =====
 
   const Z = R + 3.8
-  cam(Z, 1.4, 457, 456, 1.1)
-  caption(Z + 0.3, Z + 7.1, 'Resize and move categories', 'Heroes reflow to fit the new width')
+  const A = Z + 6.5
+  cam(Z, 1.5, 800, 470, 1.1)
+  caption(Z + 0.3, A + 0.2, 'Move and resize categories', 'Heroes reflow to fit the new width')
 
-  const edge = (cols) => ({ x: roam.x + cardWidth(cols), y: roam.y + HEADER + 57 + WS_TOP })
-  moveCursor(Z + 0.4, edge(3))
-  tl.to(roam.pill, { opacity: 1, duration: 0.15 }, Z + 1.05)
-  press(Z + 1.4)
-  tl.to(roam.pill, { backgroundColor: 'oklch(58.5% 0.233 277.117)', duration: 0.12 }, Z + 1.4)
-  ringOn(roam, Z + 1.4)
+  // D Tier slides in beside C.
+  moveCursor(Z + 0.4, { x: d.x + 18, y: d.y + 18 + WS_TOP })
+  press(Z + 1.3)
+  ringOn(d, Z + 1.3)
 
-  // Width follows the cursor; heroes wrap each time another cell fits.
-  moveCursor(Z + 1.6, edge(5), 1.3, 'sine.inOut')
-  tl.to(roam.el, { width: cardWidth(5), duration: 1.3, ease: 'sine.inOut' }, Z + 1.6)
-  roam.cols = 4
-  reflow(roam, Z + 2.2, 0.18)
-  roam.cols = 5
-  reflow(roam, Z + 2.82, 0.2)
+  const dTo = { x: 690, y: d.y }
+  const dMove = { duration: 1, ease: 'power2.inOut' }
+  moveCursor(Z + 1.5, { x: dTo.x + 18, y: dTo.y + 18 + WS_TOP }, 1)
+  d.x = dTo.x
+  tl.to(d.el, { ...dTo, ...dMove }, Z + 1.5)
+  d.heroes.forEach((key, index) => tl.to(heroEls[key], { ...slot(d, index), ...dMove }, Z + 1.5))
 
-  release(Z + 3.1)
-  ringOff(roam, Z + 3.1)
-  tl.to(roam.pill, { opacity: 0, duration: 0.25 }, Z + 3.3)
+  release(Z + 2.6)
+  ringOff(d, Z + 2.6)
 
-  cam(Z + 3.3, 1.3, 800, 440, 1)
-  moveCursor(Z + 3.6, { x: ban.x + 18, y: ban.y + 18 + WS_TOP })
-  press(Z + 4.5)
-  ringOn(ban, Z + 4.5)
+  // Then its right edge is pulled out to the board's: the width follows the cursor, and heroes wrap each time
+  // another cell fits, until they're on one row.
+  const edge = (cols, rows) => ({ x: d.x + cardWidth(cols), y: d.y + HEADER + (rows * CELL_H + 8) / 2 + WS_TOP })
+  moveCursor(Z + 2.9, edge(3, 2), 0.7)
+  tl.to(d.pill, { opacity: 1, duration: 0.15 }, Z + 3.5)
+  press(Z + 3.8)
+  tl.to(d.pill, { backgroundColor: 'oklch(58.5% 0.233 277.117)', duration: 0.12 }, Z + 3.8)
+  ringOn(d, Z + 3.8)
 
-  const banTo = { x: 752, y: 376 }
-  const banMove = { duration: 1.1, ease: 'power2.inOut' }
-  moveCursor(Z + 4.7, { x: banTo.x + 18, y: banTo.y + 18 + WS_TOP }, 1.1)
-  ban.x = banTo.x
-  ban.y = banTo.y
-  tl.to(ban.el, { ...banTo, ...banMove }, Z + 4.7)
-  ban.heroes.forEach((key, index) => tl.to(heroEls[key], { ...slot(ban, index), ...banMove }, Z + 4.7))
+  moveCursor(Z + 4, edge(5, 1), 1.3, 'sine.inOut')
+  tl.to(d.el, { width: cardWidth(5), duration: 1.3, ease: 'sine.inOut' }, Z + 4)
+  d.cols = 4
+  reflow(d, Z + 4.6, 0.18)
+  d.cols = 5
+  reflow(d, Z + 5.22, 0.2)
 
-  release(Z + 6)
-  ringOff(ban, Z + 6)
+  release(Z + 5.5)
+  ringOff(d, Z + 5.5)
+  tl.to(d.pill, { opacity: 0, duration: 0.25 }, Z + 5.7)
 
   // ===== 5. Add a hero from the selector =====
 
-  const A = Z + 6.9
-  cam(A, 1.15, 724, 393, 1.1)
+  cam(A, 1.15, 620, 400, 1.1)
   caption(A + 0.3, A + 6.3, 'Add heroes from the full roster', '127 heroes, grouped by attribute and searchable')
 
   const selector = $('#selector')
-  gsap.set(selector, { y: -6, scale: 0.985, transformOrigin: '55% 0' })
+  gsap.set(selector, { y: -6, scale: 0.985, transformOrigin: '42% 0' })
 
-  moveCursor(A + 0.4, heroCenter(safe, 4))
+  moveCursor(A + 0.4, heroCenter(s, 4))
   click(A + 1.3)
-  tl.to($('.plus-on', safe.plus), { opacity: 1, duration: 0.15 }, A + 1.3)
+  tl.to($('.plus-on', s.plus), { opacity: 1, duration: 0.15 }, A + 1.3)
   tl.to(selector, { opacity: 1, y: 0, scale: 1, duration: 0.25 }, A + 1.4)
 
   // Typing "sv" dims every hero whose name doesn't match.
@@ -529,21 +531,21 @@ const build = () => {
   tl.to($('div', sven), { borderColor: 'oklch(58.5% 0.233 277.117)', duration: 0.12 }, A + 3.4)
   click(A + 3.8)
 
-  // Sven lands in Safe lane; the plus wraps to a second row.
+  // Sven lands in S Tier, and the plus moves along.
   const svenHero = makeHero('sven')
-  gsap.set(svenHero, { ...slot(safe, 4), opacity: 0, scale: 0.6 })
-  safe.heroes.push('sven')
+  gsap.set(svenHero, { ...slot(s, 4), opacity: 0, scale: 0.6 })
+  s.heroes.push('sven')
   tl.to(svenHero, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, A + 3.9)
-  reflow(safe, A + 3.9, 0.22, 'sven')
+  reflow(s, A + 3.9, 0.22, 'sven')
 
   tl.to(selector, { opacity: 0, y: -4, duration: 0.2, ease: 'power2.in' }, A + 5)
-  tl.to($('.plus-on', safe.plus), { opacity: 0, duration: 0.2 }, A + 5)
+  tl.to($('.plus-on', s.plus), { opacity: 0, duration: 0.2 }, A + 5)
 
   // ===== 6. Favorite, then share =====
 
   const H = A + 6.5
   cam(H, 1.9, 640, 600)
-  caption(H + 0.3, H + 8.1, 'Share a board with a link', 'Anyone with the link can view. Only you can edit.')
+  caption(H + 0.3, H + 8.1, 'Share a board with a link', 'Share it to your friends or even your audience')
 
   const dock = box($('#dock'))
   const dockBottom = dock.y + dock.h - 1
@@ -552,7 +554,7 @@ const build = () => {
 
   gsap.set('.share-globe', { opacity: 0 })
   gsap.set('#opt-private', { color: '#fafafa' })
-  gsap.set('#opt-private .opt-ic', { color: 'oklch(78.5% 0.115 274.713)' })
+  gsap.set('#opt-private .opt-ic', { color: '#e4e4e7' })
   gsap.set(['#opt-public .opt-ck', '#copy-check'], { opacity: 0, scale: 0.5 })
 
   moveCursor(H + 0.5, center(star))
@@ -584,14 +586,14 @@ const build = () => {
   moveCursor(H + 3.2, { x: dock.x + 150, y: dockBottom - 16 - 26 }, 0.6)
   click(H + 4)
 
-  // Public: the highlight slides down, the globe turns, and the link opens with a shimmer until it's saved.
+  // Public: the highlight slides down, and the link opens with a shimmer until it's saved.
   const slide = { duration: 0.38, ease: 'power3.out' }
   tl.to('.opt-hl', { y: 54, ...slide }, H + 4)
   tl.to('#opt-private', { color: '#9f9fa9', duration: 0.25 }, H + 4)
   tl.to('#opt-private .opt-ic', { color: '#71717b', duration: 0.25 }, H + 4)
   tl.to('#opt-private .opt-ck', { opacity: 0, scale: 0.5, duration: 0.2 }, H + 4)
   tl.to('#opt-public', { color: '#fafafa', duration: 0.25 }, H + 4)
-  tl.to('#opt-public .opt-ic', { color: 'oklch(78.5% 0.115 274.713)', rotation: -20, scale: 1.1, duration: 0.4 }, H + 4)
+  tl.to('#opt-public .opt-ic', { color: '#e4e4e7', duration: 0.25 }, H + 4)
   tl.to('#share', { height: 220, ...slide }, H + 4.05)
   tl.to('#linkwrap', { height: 48, ...slide }, H + 4.05)
   tl.to('#linkwrap', { opacity: 1, duration: 0.25 }, H + 4.15)
@@ -602,7 +604,6 @@ const build = () => {
   tl.to('#shimmer', { backgroundPosition: '0% 0', duration: 1.1, ease: 'sine.inOut' }, H + 4.1)
   tl.to('#shimmer', { opacity: 0, duration: 0.25 }, H + 5.1)
   tl.to('#linktext', { opacity: 1, filter: 'blur(0px)', duration: 0.3 }, H + 5.15)
-  tl.to('.linkf', { color: 'oklch(78.5% 0.115 274.713)', duration: 0.25 }, H + 5.15)
   tl.to('#opt-public .opt-ck', { opacity: 1, scale: 1, duration: 0.3 }, H + 5.2)
 
   // Copy: the clipboard shrinks out, a green check grows in.
@@ -618,12 +619,12 @@ const build = () => {
   gsap.set(tooltip, { x: copyPoint.x, y: copyPoint.y - 30, xPercent: -50, yPercent: -100 })
   tl.fromTo(tooltip, { opacity: 0 }, { opacity: 1, duration: 0.15, immediateRender: false }, H + 6.3)
 
-  // Back to the whole board: the card folds away, and the share button is now an indigo globe.
+  // Back to the whole board: the card folds away, and the share button is now a globe.
   tl.to([tooltip, cursor], { opacity: 0, duration: 0.2 }, H + 7.4)
   tl.to('#share', { height: 0, opacity: 0, duration: 0.3, ease: 'power3.out' }, H + 7.5)
   tl.to('#dockrow', { height: 44, opacity: 1, duration: 0.3, ease: 'power3.out' }, H + 7.5)
   tl.set('.share-link', { opacity: 0 }, H + 7.5)
-  tl.set('.share-globe', { opacity: 1, color: 'oklch(78.5% 0.115 274.713)' }, H + 7.5)
+  tl.set('.share-globe', { opacity: 1 }, H + 7.5)
   tl.set($('.ibtn-hover', shareButton), { opacity: 0 }, H + 7.5)
   cam(H + 7.5, 1, 640, 360, 1.3)
 

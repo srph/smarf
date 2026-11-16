@@ -776,8 +776,8 @@ svg {
 #selector {
   position: absolute;
   z-index: 30;
-  top: 233px;
-  left: 312px;
+  top: 201px;
+  left: 140px;
   width: 960px;
   overflow: hidden;
   border: 1px solid var(--z700);
@@ -880,7 +880,8 @@ svg {
   opacity: 0;
 }
 
-#cursor .arrow {
+#cursor .arrow,
+.rc .arrow {
   position: absolute;
   top: -3px;
   left: -5px;
@@ -888,7 +889,8 @@ svg {
   filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.5));
 }
 
-#cursor .ripple {
+#cursor .ripple,
+.rc .ripple {
   position: absolute;
   top: -18px;
   left: -18px;
@@ -983,6 +985,607 @@ svg {
   font-weight: 700;
   line-height: 1.75;
   white-space: nowrap;
+}
+
+/* ---------- The reel: quick close-ups of the small interactions ---------- */
+
+#reel {
+  position: absolute;
+  inset: 0;
+}
+
+#reel-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(900px 520px at 50% 44%, oklch(78.5% 0.115 274.713 / 0.9), transparent 70%);
+  opacity: 0;
+}
+
+#reel-note {
+  position: absolute;
+  top: 966px;
+  right: 192px;
+  font-size: 24px;
+  color: var(--z400);
+  opacity: 0;
+}
+
+.shot {
+  position: absolute;
+  inset: 0;
+}
+
+/* The shot's verb, huge and outlined, drifting behind the close-up. */
+.shot-word {
+  position: absolute;
+  top: 240px;
+  left: 50%;
+  font-size: 400px;
+  font-weight: 800;
+  line-height: 460px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 2px rgb(255 255 255 / 0.07);
+}
+
+.shot-mid {
+  position: absolute;
+  top: 470px;
+  left: 960px;
+  width: 0;
+  height: 0;
+}
+
+.shot-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.shot-label {
+  position: absolute;
+  top: 946px;
+  left: 192px;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.rc {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The dock's glass, for the panels shown on their own. */
+.glass {
+  position: relative;
+  width: 358px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 12px;
+  background: rgb(39 39 42 / 0.9);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.5),
+    inset 0 1px 1px rgb(255 255 255 / 0.05),
+    0 25px 50px -12px rgb(0 0 0 / 0.7);
+}
+
+.panel {
+  padding: 16px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.panel-head h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.panel-head h3 .light {
+  font-weight: 500;
+  color: var(--z300);
+}
+
+.panel-head > span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--z400);
+}
+
+.panel-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-quiet {
+  display: grid;
+  place-items: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  color: var(--z300);
+}
+
+.metal-sm {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+}
+
+/* New board: the tray of starts, which folds into a "Creating …" bar */
+.nb {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 12px;
+  background: rgb(39 39 42 / 0.88);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.5),
+    inset 0 1px 1px rgb(255 255 255 / 0.05),
+    0 25px 50px -12px rgb(0 0 0 / 0.7);
+}
+
+.nb-in {
+  width: 838px;
+  padding: 12px;
+}
+
+.nb-head {
+  padding: 0 4px 10px;
+  font-weight: 700;
+  color: var(--z200);
+}
+
+.nb-starts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.start {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 6px 10px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.03);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.start b {
+  padding: 0 4px;
+  font-weight: 700;
+}
+
+.start small {
+  margin-top: 2px;
+  padding: 0 4px;
+  font-size: 12px;
+  color: var(--z400);
+}
+
+.pv {
+  position: relative;
+  height: 128px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--z900);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  mask-image: linear-gradient(to right, #000 78%, transparent), linear-gradient(to bottom, #000 72%, transparent);
+  mask-composite: intersect;
+}
+
+.pv-glow {
+  position: absolute;
+  top: -36px;
+  right: -24px;
+  width: 240px;
+  height: 136px;
+  object-fit: cover;
+  opacity: 0.3;
+  filter: blur(24px) saturate(1.5);
+}
+
+/* The board lying on a table, as the app's start previews tilt it. */
+.pv-board {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(14px, 30px) scale(0.42) perspective(1400px) rotateX(36deg) rotateZ(-10deg);
+  transform-origin: 0 0;
+}
+
+.mc {
+  position: absolute;
+  border-radius: 12px;
+  background: var(--z800);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.5),
+    inset 0 0 0 1px rgb(255 255 255 / 0.12),
+    0 25px 50px -12px rgb(0 0 0 / 0.75);
+}
+
+.mc-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 6px 0 8px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mc-h svg {
+  color: var(--z600);
+}
+
+.mc-t {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 3px;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 8px 8px 12px 12px;
+  background: var(--z900);
+}
+
+.mc-t img,
+.mc-t i {
+  width: 80px;
+  height: 45px;
+  margin: 4px;
+  border-radius: 4px;
+}
+
+.mc-t img {
+  object-fit: cover;
+  filter: grayscale(0.9) brightness(0.62);
+}
+
+.mc-t i {
+  display: grid;
+  place-items: center;
+  background: rgb(255 255 255 / 0.03);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  color: var(--z600);
+}
+
+.nb-creating {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(100deg, var(--z400) 35%, #fff 50%, var(--z400) 65%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+/* Switch boards: the switcher's menu over the dock */
+.sw {
+  width: 358px;
+}
+
+.pop {
+  width: 336px;
+  margin-bottom: 10px;
+  padding: 6px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 12px;
+  background: rgb(39 39 42 / 0.95);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+}
+
+.pop-top {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.pop-search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--p400);
+  border-radius: 8px;
+  background: var(--z900);
+  color: var(--z500);
+}
+
+.pop-new {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  color: var(--z300);
+}
+
+.pop-label {
+  padding: 8px 10px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--z500);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  margin-bottom: 2px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--z200);
+}
+
+.row.cur {
+  background: oklch(58.5% 0.233 277.117 / 0.15);
+}
+
+.row-ck {
+  width: 14px;
+  color: var(--p300);
+}
+
+.row-n {
+  flex: 1;
+}
+
+.row-c {
+  font-size: 12px;
+  color: var(--z500);
+}
+
+.row-s {
+  color: #f0b100;
+}
+
+.n2 {
+  display: none;
+}
+
+/* Rename: the dock as a form, then the new name glints */
+.rn-input {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--p400);
+  border-radius: 8px;
+  background: var(--z900);
+  box-shadow: 0 0 0 3px oklch(67.3% 0.182 276.935 / 0.2);
+  font-weight: 700;
+}
+
+.rn-sel,
+.nc-name {
+  background: oklch(58.5% 0.233 277.117 / 0.45);
+}
+
+.rn-typed span {
+  display: none;
+}
+
+.rn-caret {
+  width: 1px;
+  height: 18px;
+  background: var(--z50);
+}
+
+.rn-row {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+}
+
+.glint {
+  background: linear-gradient(100deg, var(--z50) 40%, #7bf1a8 50%, var(--z50) 60%);
+  background-position: 100% 0;
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* New category */
+.nc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.nc .card,
+.dc {
+  position: relative;
+}
+
+/* Delete a category: the confirmation over its header */
+.card-head .dc-trash {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  border-radius: 6px;
+  color: var(--z400);
+}
+
+.card-head .dc-trash svg {
+  color: inherit;
+}
+
+.dc-tray {
+  z-index: 1;
+  display: flex;
+  height: 61px;
+  padding: 3px;
+}
+
+.dc-tray img {
+  width: 80px;
+  height: 45px;
+  margin: 4px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.dc-confirm {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  left: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 47px;
+  padding: 0 6px 12px 12px;
+  overflow: hidden;
+  border-radius: 11px 11px 0 0;
+  background: var(--z800);
+}
+
+.dc-red {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgb(251 44 54 / 0.35), rgb(251 44 54 / 0.1) 45%, transparent 80%);
+}
+
+.dc-ic {
+  position: relative;
+  color: #ff6467;
+}
+
+.dc-confirm p {
+  position: relative;
+}
+
+.dc-confirm p span {
+  color: var(--z400);
+}
+
+.dc-btns {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.dc-btns span {
+  display: grid;
+  place-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dc-cancel {
+  background: var(--z700);
+  color: var(--z200);
+}
+
+.dc-del {
+  background: #e7000b;
+  color: #fff;
+}
+
+/* Hold to delete: graphite metal that fills with red metal while it's held */
+.hd .panel-head {
+  margin-bottom: 8px;
+}
+
+.hd p {
+  color: var(--z300);
+}
+
+.hd .panel-foot {
+  margin-top: 16px;
+}
+
+.hold {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 132px;
+  height: 36px;
+  padding: 0 14px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.17);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #64646d 0%, #48484f 44%, #36363c 56%, #4b4b53 100%);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.6);
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.55);
+}
+
+.hold-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f47b74 0%, #ca5551 42%, #9e2c2c 58%, #b94642 100%);
+  clip-path: inset(0% 100% 0% 0% round 7px);
+}
+
+.hold-hl {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 0.3);
+}
+
+.hold-l1,
+.hold-l2 {
+  position: relative;
+  display: flex;
+  grid-area: 1 / 1;
+  align-items: center;
+  gap: 8px;
+}
+
+.hold-l2 {
+  opacity: 0;
+}
+
+.spin {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgb(255 255 255 / 0.3);
+  border-top-color: #fff;
+  border-radius: 9999px;
 }
 
 /* ---------- Player ---------- */
