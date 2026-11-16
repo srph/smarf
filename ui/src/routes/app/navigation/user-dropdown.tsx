@@ -23,18 +23,18 @@ const UserDropdown: React.FC = () => {
 
   return (
     <Menu.Root>
-      {/* The avatar's ring lightens on hover and turns primary while the menu is open. */}
+      {/* Just the avatar: it brightens on hover and takes a primary ring, with a gap, while the menu is open. */}
       <Menu.Trigger
         render={
           <PlainButton
             title="Account menu"
-            className="rounded-full focus-visible:ring-focus [&>div]:transition-colors [&>div]:duration-200 hover:[&>div]:border-zinc-500 data-popup-open:[&>div]:border-primary-500"
+            className="block rounded-full transition-[filter,box-shadow] duration-200 hover:brightness-110 focus-visible:ring-focus data-popup-open:ring-2 data-popup-open:ring-primary-500 data-popup-open:ring-offset-2 data-popup-open:ring-offset-zinc-900"
           />
         }>
         <Avatar src={user.avatar || avatar} size="lg"></Avatar>
       </Menu.Trigger>
 
-      <Menu.Popup side="bottom" align="end" sideOffset={24} className="w-64">
+      <Menu.Popup side="bottom" align="end" sideOffset={12} className="w-64">
         <div className="flex items-center gap-3 p-3.5">
           <Avatar src={user.avatar || avatar} />
 

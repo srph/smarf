@@ -2,10 +2,11 @@ import React from 'react'
 import { cn } from 'cn'
 import logoMark from '~/src/assets/images/logo-mark.svg'
 
-type Size = 'md' | 'lg'
+type Size = 'sm' | 'md' | 'lg'
 
-// lg is the sign-in lockup's badge; md sits in the navigation, with a tighter glow. The mark is about half the badge.
+// lg is the sign-in lockup's badge; sm sits in the navigation, with a tighter glow. The mark is about half the badge.
 const sizes: Record<Size, { badge: string; mark: string }> = {
+  sm: { badge: 'size-8 rounded-lg drop-shadow-glow-sm', mark: 'size-4.5' },
   md: { badge: 'size-9 rounded-lg drop-shadow-glow-sm', mark: 'size-5' },
   lg: { badge: 'size-11 rounded-xl drop-shadow-glow', mark: 'size-6' }
 }

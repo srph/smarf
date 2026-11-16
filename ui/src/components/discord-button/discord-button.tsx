@@ -57,4 +57,4 @@ const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Disco
   )
 }
 
-export { DiscordButton }
+export { DiscordButton, DiscordLogo }
