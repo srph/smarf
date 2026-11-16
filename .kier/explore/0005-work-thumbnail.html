@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smarf Work Thumbnail</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;500;600;700;800;900&display=swap">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+  .frame { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1280 / 720; background: #18181b; box-shadow: 0 0 0 1px var(--line), 0 20px 40px -24px rgba(0,0,0,.35); }
+  .frame > img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .below { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; align-items: start; }
+  @media (max-width: 760px) { .below { grid-template-columns: 1fr; } }
+  .notes { display: grid; gap: 8px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+  /* In situ: the work page's grid at its own size, between two neighbours */
+  .situ { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .situ .cell { position: relative; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden; background: #e7e5e4; }
+  .situ .cell > img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .situ .cell.me { box-shadow: 0 0 0 2px var(--ink); }
+  .situ .cap { grid-column: 1 / -1; font-size: 11px; color: var(--mute); }
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Thumbnails: 1280×720, Smarf's look ---------- */
+  .th {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --raised: #1c1c20; --green: #00c950;
+    --p100: oklch(93% 0.034 272.788); --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p950: oklch(25.7% 0.09 281.288);
+    position: absolute; left: 0; top: 0; width: 1280px; height: 720px; overflow: hidden; transform-origin: 0 0; transform: scale(var(--s, 1));
+    background: var(--z950); color: var(--z50);
+    font-family: 'interstate', 'Overpass', ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 14px; line-height: 1.43; -webkit-font-smoothing: antialiased;
+  }
+  .th * { box-sizing: border-box; }
+  .th svg, .th img { display: block; }
+  .th .abs { position: absolute; }
+  .dots {
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z600) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+  }
+
+  /* The app at 1×, scaled by its parent */
+  .app { position: absolute; left: 0; top: 0; width: 1280px; height: 800px; overflow: hidden; transform-origin: 0 0; }
+  .nav { position: absolute; inset: 0 0 auto; height: 65px; border-bottom: 1px solid var(--z800); background: rgb(9 9 11 / .7); z-index: 2; }
+  .nav::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(to right, var(--p600), var(--p400)); }
+  .nav-row { display: flex; align-items: center; justify-content: space-between; height: 64px; padding: 0 40px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo .bd { width: 32px; height: 32px; filter: drop-shadow(0 0 10px oklch(58.5% 0.233 277.117 / .55)); }
+  .logo span { padding-top: 4px; font-size: 18px; font-weight: 800; line-height: 1; letter-spacing: .025em; text-transform: uppercase; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .new-board { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px 0 8px; border: 1px solid var(--z700); border-radius: 8px; font-weight: 700; }
+  .new-board svg { color: var(--p200); }
+  .avatar { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9999px; background: linear-gradient(135deg, var(--p400), var(--p600)); box-shadow: inset 0 0 0 1px rgb(0 0 0 / .3); font-weight: 700; }
+
+  /* Category card: a glass header over a hero tray; the colour fades across the header */
+  .cat { position: absolute; border-radius: 12px; background: rgb(39 39 42 / .8); isolation: isolate;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .08), 0 10px 15px -3px rgb(0 0 0 / .25), 0 4px 6px -4px rgb(0 0 0 / .2); }
+  .cat[data-cc]::before { content: ""; position: absolute; left: 1px; right: 1px; top: 1px; height: 47px; z-index: -1; border-radius: 11px 11px 0 0;
+    background-image: linear-gradient(to right, color-mix(in oklab, var(--cc) 35%, transparent), color-mix(in oklab, var(--cc) 10%, transparent) 45%, transparent 80%); }
+  .cat-h { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 6px 0 8px; font-weight: 700; white-space: nowrap; }
+  .cat-h svg { color: rgb(255 255 255 / .3); }
+  .tray { display: flex; flex-wrap: wrap; padding: 3px; border: 1px solid rgb(255 255 255 / .08); border-radius: 8px 8px 12px 12px; background: var(--z900); }
+  .hc { flex: none; width: 88px; padding: 4px; }
+  .hc img { width: 80px; height: 45px; border-radius: 4px; object-fit: cover; background: var(--z800); }
+  .hc.plus i { display: grid; place-items: center; width: 80px; height: 45px; border-radius: 4px; background: rgb(255 255 255 / .03); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); color: var(--z600); font-style: normal; }
+  .hc.drop i { display: block; width: 80px; height: 45px; border-radius: 4px; background: oklch(58.5% 0.233 277.117 / .15); box-shadow: 0 0 0 2px var(--p500); }
+  .hc.on i { background: oklch(58.5% 0.233 277.117 / .15); box-shadow: 0 0 0 2px var(--p500); color: var(--p400); }
+  .cat.ring { box-shadow: 0 0 0 2px var(--p500), inset 0 0 0 1px rgb(255 255 255 / .08), 0 10px 15px -3px rgb(0 0 0 / .25); }
+
+  /* A hero mid-drag, and the cursor holding it */
+  .lift { position: absolute; width: 80px; height: 45px; border-radius: 4px; overflow: visible; transform: rotate(-4deg) scale(1.12); z-index: 5;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / .15), 0 18px 30px -6px rgb(0 0 0 / .7), 0 0 28px -4px oklch(58.5% 0.233 277.117 / .55); }
+  .lift img { width: 80px; height: 45px; border-radius: 4px; object-fit: cover; }
+  .cursor { position: absolute; z-index: 6; filter: drop-shadow(0 2px 3px rgb(0 0 0 / .5)); }
+
+  /* Dock (board-toolbar.tsx) and New category (metal-button.tsx) */
+  .dockwrap { position: absolute; display: flex; align-items: flex-end; gap: 8px; z-index: 4; }
+  .glass { border-radius: 12px; border: 1px solid rgb(255 255 255 / .1); background: rgb(39 39 42 / .6);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7), 0 0 0 1px rgb(0 0 0 / .5), inset 0 1px 2px rgb(255 255 255 / .05);
+    backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); }
+  .dock-row { height: 44px; display: flex; align-items: center; padding: 0 4px; white-space: nowrap; }
+  .switcher { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px 0 12px; border-radius: 8px; font-weight: 700; }
+  .switcher .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .switcher svg { color: var(--z500); margin-left: 4px; }
+  .ibtns { display: flex; gap: 2px; margin-left: 2px; }
+  .ibtn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); }
+  .metal { display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px 0 16px; border-radius: 12px; font-weight: 700; color: #fff; white-space: nowrap;
+    border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent);
+    background-image: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+    box-shadow: 0 10px 15px -3px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 2px rgb(255 255 255 / .5);
+    text-shadow: 0 1px 1px color-mix(in oklab, var(--p950) 50%, transparent); }
+
+  /* Hero picker (components/popover: solid, raised) */
+  .picker { position: absolute; width: 404px; border-radius: 12px; background: var(--raised); z-index: 5; overflow: hidden;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / .1), 0 0 0 2px rgb(0 0 0 / .5), 0 30px 60px -12px rgb(0 0 0 / .8); }
+  .picker .search { display: flex; align-items: center; gap: 8px; height: 40px; margin: 10px; padding: 0 12px; border-radius: 8px; background: var(--z900); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .1), 0 0 0 2px var(--p500); color: var(--z500); }
+  .picker .search b { color: var(--z50); font-weight: 600; }
+  .picker .search .caret { width: 1.5px; height: 18px; background: var(--p400); margin-left: -6px; }
+  .grp { padding: 4px 10px 10px; }
+  .grp-h { display: flex; align-items: center; gap: 6px; height: 24px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--z400); }
+  .grp-h img { width: 16px; height: 16px; }
+  .grp-t { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .grp-t img { width: 100%; aspect-ratio: 16 / 9; border-radius: 4px; object-fit: cover; }
+  .grp-t .hl { box-shadow: 0 0 0 2px var(--p400); }
+  .grp-t .dim { opacity: .28; filter: grayscale(.6); }
+
+  /* ===== A: the board in a thick-rimmed window, over Windranger art ===== */
+  .th-a .bg { position: absolute; inset: -40px; background: url(0005-assets/register-bg.jpg) center 30% / cover; filter: blur(3px) brightness(.62) saturate(1.15); }
+  .th-a .tint { position: absolute; inset: 0; background: radial-gradient(900px 600px at 80% 70%, oklch(51.1% 0.262 276.966 / .35), transparent 70%), linear-gradient(90deg, rgb(9 9 11 / .35), transparent 40%); }
+  .rim { position: absolute; border-radius: 30px; padding: 10px; background: rgb(24 24 27 / .7);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / .14), 0 0 0 1px rgb(0 0 0 / .6), 0 60px 120px -20px rgb(0 0 0 / .8);
+    backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); }
+  .rim > .screen { position: relative; width: 100%; height: 100%; border-radius: 21px; overflow: hidden; background: var(--z900); box-shadow: 0 0 0 1px rgb(0 0 0 / .6); }
+  .th-a .rim { left: 136px; top: 92px; width: 1300px; height: 800px; }
+  .th-a .app { transform: scale(1.42); }
+
+  /* ===== B: one drag, in close-up ===== */
+  .th-b .glow { position: absolute; inset: 0; background: radial-gradient(760px 520px at 38% 46%, oklch(58.5% 0.233 277.117 / .28), transparent 70%); }
+  .th-b .board { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform: scale(2.05); transform-origin: 0 0; }
+  .th-b .vig { position: absolute; inset: 0; background: radial-gradient(120% 90% at 40% 45%, transparent 55%, rgb(9 9 11 / .75)); pointer-events: none; }
+
+  /* ===== C: the whole tier list, tilted into the frame ===== */
+  .th-c { background: radial-gradient(900px 560px at 60% 55%, oklch(51.1% 0.262 276.966 / .45), transparent 70%), var(--z950); }
+  .th-c .pw { position: absolute; inset: 0; perspective: 1800px; }
+  .th-c .plane { position: absolute; left: 50px; top: -190px; width: 1440px; height: 1000px; border-radius: 28px; transform: rotateX(48deg) rotateZ(-22deg) scale(1.08);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08), 0 80px 160px rgb(0 0 0 / .6); }
+  .th-c .fade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(9 9 11 / .9), transparent 26%, transparent 80%, rgb(9 9 11 / .7)); pointer-events: none; }
+
+  /* ===== D: Bounty Hunter breaking out of the window ===== */
+  .th-d .bg { position: absolute; inset: -60px; background: url(0005-assets/login-bg.png) 50% 40% / cover; filter: blur(14px) brightness(.55) saturate(1.2); }
+  .th-d .tint { position: absolute; inset: 0; background: linear-gradient(90deg, rgb(9 9 11 / .55), transparent 50%, rgb(9 9 11 / .2)); }
+  .th-d .rim { left: 72px; top: 110px; width: 880px; height: 700px; }
+  .th-d .app { transform: scale(1.25); }
+  .th-d .render { position: absolute; left: 640px; top: -90px; width: 860px; height: 860px; object-fit: contain; filter: drop-shadow(0 40px 50px rgb(0 0 0 / .65)) drop-shadow(-20px 0 60px oklch(51.1% 0.262 276.966 / .45)); }
+
+  /* ===== E: the hero picker open over the board ===== */
+  .th-e .bg { position: absolute; inset: -40px; background: url(0005-assets/register-bg.jpg) 30% 30% / cover; filter: blur(22px) brightness(.5) saturate(1.3); }
+  .th-e .rim { left: -60px; top: 70px; width: 1240px; height: 760px; }
+  .th-e .app { transform: scale(1.62); }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+<main class="wrap">
+  <section class="brief">
+    <h1>A Smarf thumbnail that holds its own on /work</h1>
+    <div class="chips">
+      <div class="chip"><b>Size</b>1280×720, shown about 360px wide in the grid.</div>
+      <div class="chip"><b>House style</b>Neighbours zoom into the app and let it bleed past the frame.</div>
+      <div class="chip"><b>No text</b>No other thumbnail has a headline; the UI carries it.</div>
+      <div class="chip"><b>Current app</b>Today's thumbnail shows the old v1 board.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="The live thumbnail (old v1 board)">
+    <div class="v-head"><span class="v-id">Now</span><h2>The live thumbnail (old v1 board)</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><img class="th-img" src="0005-assets/now.webp" alt="Current Smarf thumbnail"></div>
+    <div class="below"><div class="slot-situ"></div><div class="notes">
+      <div class="note good">Dota art backdrop ties it to the game.</div>
+      <div class="note bad">Shows the old board: no colours, old nav, old dock.</div>
+      <div class="note bad">Small heroes; reads as a grey grid at grid size.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="Board window over Windranger art">
+    <div class="v-head"><span class="v-id">A</span><h2>Board window over Windranger art</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="th th-a">
+      <div class="bg"></div><div class="tint"></div>
+      <div class="rim"><div class="screen"><div class="app dots" data-app="tiers" data-drag></div></div></div>
+    </div></div>
+    <div class="below"><div class="slot-situ"></div><div class="notes">
+      <div class="note good">Same recipe as Tenor and Pulse: art behind, app bleeding off.</div>
+      <div class="note good">The nav's badge and wordmark name it without a caption.</div>
+      <div class="note bad">The art is busy; most of it hides behind the window.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="One drag, in close-up">
+    <div class="v-head"><span class="v-id">B</span><h2>One drag, in close-up</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="th th-b dots">
+      <div class="glow"></div>
+      <div class="board" data-board="close"></div>
+      <div class="vig"></div>
+    </div></div>
+    <div class="below"><div class="slot-situ"></div><div class="notes">
+      <div class="note good">Portraits are huge; it reads at any size.</div>
+      <div class="note good">Shows the thing you do in Smarf, mid-motion.</div>
+      <div class="note bad">No logo; leans on the card's title.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="The whole tier list, tilted">
+    <div class="v-head"><span class="v-id">C</span><h2>The whole tier list, tilted</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="th th-c">
+      <div class="pw"><div class="plane dots" data-board="wall"></div></div>
+      <div class="fade"></div>
+    </div></div>
+    <div class="below"><div class="slot-situ"></div><div class="notes">
+      <div class="note good">The tier colours make a striking band of colour.</div>
+      <div class="note bad">Perspective is a different move from its neighbours.</div>
+      <div class="note bad">Far rows go small and soft.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="Bounty Hunter breaking out of the window">
+    <div class="v-head"><span class="v-id">D</span><h2>Bounty Hunter breaking out of the window</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="th th-d">
+      <div class="bg"></div><div class="tint"></div>
+      <div class="rim"><div class="screen"><div class="app dots" data-app="tiers"></div></div></div>
+      <img class="render" src="0005-assets/bounty_hunter-render.png" alt="">
+    </div></div>
+    <div class="below"><div class="slot-situ"></div><div class="notes">
+      <div class="note good">Most dramatic; the hero says "Dota" at a glance.</div>
+      <div class="note good">The S Tier's first portrait is the same hero.</div>
+      <div class="note bad">Half the frame is art, not product.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="E" data-name="Hero picker open over the board">
+    <div class="v-head"><span class="v-id">E</span><h2>Hero picker open over the board</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="th th-e">
+      <div class="bg"></div>
+      <div class="rim"><div class="screen"><div class="app dots" data-app="picker"></div></div></div>
+    </div></div>
+    <div class="below"><div class="slot-situ"></div><div class="notes">
+      <div class="note good">A wall of portraits; very "every hero, organised".</div>
+      <div class="note good">Shows a crafted detail: search narrowing as you type.</div>
+      <div class="note bad">The picker hides what a board is.</div>
+    </div></div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from A with other art: Invoker, Lina, or a plain indigo field.</div>
+      <div class="card"><b>Remix</b>Remix B with the window rim, so it matches the neighbours' framing.</div>
+      <div class="card"><b>Settle</b>Settle on one and render it to a 1280×720 WebP for the site.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/explore/0005-work-thumbnail.html';
+const CDN = (n) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${n}.png`;
+// The showcase's tier list (showcase.js), with the Tier List start's colours (lib/category-colors.ts, Tailwind's 500s).
+const TIER = {
+  S: ['bounty_hunter', 'obsidian_destroyer', 'enigma', 'sven', 'faceless_void'],
+  A: ['spirit_breaker', 'slark', 'nyx_assassin', 'phantom_lancer', 'winter_wyvern', 'pudge', 'dragon_knight', 'night_stalker'],
+  B: ['techies', 'luna', 'witch_doctor', 'rubick', 'earthshaker', 'oracle', 'earth_spirit', 'antimage', 'dawnbreaker', 'wisp'],
+  C: ['ember_spirit', 'hoodwink', 'dark_willow', 'marci', 'legion_commander', 'dazzle', 'lone_druid', 'lich'],
+  D: ['troll_warlord', 'skywrath_mage', 'rattletrap', 'phantom_assassin', 'morphling', 'silencer', 'elder_titan', 'treant'],
+  F: ['nevermore', 'abyssal_underlord', 'drow_ranger']
+};
+const COLOR = { S: '#fb2c36', A: '#ff6900', B: '#fe9a00', C: '#00bc7d', D: '#2b7fff', F: null };
+const SVG = (d, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor">${d}</svg>`;
+const ICON = {
+  grip: SVG('<path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"/>'),
+  plus: SVG('<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>', 18),
+  board: SVG('<path d="M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z"/>', 18),
+  chevrons: SVG('<path fill-rule="evenodd" d="M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z"/>', 16),
+  star: SVG('<path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z"/>', 16),
+  pencil: SVG('<path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z"/><path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z"/>', 16),
+  link: SVG('<path d="M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z"/><path d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z"/>', 16),
+  dots: SVG('<path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>', 16),
+  folder: SVG('<path fill-rule="evenodd" d="M3.75 3A1.75 1.75 0 0 0 2 4.75v10.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0 0 18 15.25v-8.5A1.75 1.75 0 0 0 16.25 5h-4.836a.25.25 0 0 1-.177-.073L9.823 3.513A1.75 1.75 0 0 0 8.586 3H3.75ZM10 8a.75.75 0 0 1 .75.75v1.5h1.5a.75.75 0 0 1 0 1.5h-1.5v1.5a.75.75 0 0 1-1.5 0v-1.5h-1.5a.75.75 0 0 1 0-1.5h1.5v-1.5A.75.75 0 0 1 10 8Z"/>'),
+  search: SVG('<path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z"/>', 18)
+};
+const CURSOR = `<svg class="cursor" width="30" height="30" viewBox="0 0 26 26"><path d="M5 2.5v18l4.6-4.1 3.1 6.9 3-1.3-3.1-6.8h6.2z" fill="#0b0b0f" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+
+/** A category card. heroes: keys, '+' for the add button, '+on' for it lit, '_drop' for a landing slot. */
+function cat({ t, name, x, y, cols, heroes, color = true, ring = false }) {
+  const cells = heroes.map((h) => h === '+' ? `<div class="hc plus"><i>${ICON.plus}</i></div>`
+    : h === '+on' ? `<div class="hc plus on"><i>${ICON.plus}</i></div>`
+    : h === '_drop' ? '<div class="hc drop"><i></i></div>'
+    : `<div class="hc"><img src="${CDN(h)}" alt=""></div>`).join('');
+  const cc = color && t && COLOR[t] ? ` data-cc style="--cc:${COLOR[t]};left:${x}px;top:${y}px"` : ` style="left:${x}px;top:${y}px"`;
+  return `<div class="cat${ring ? ' ring' : ''}"${cc}><div class="cat-h">${ICON.grip}<span>${name || `${t} Tier`}</span></div>
+    <div class="tray" style="width:${cols * 88 + 8}px">${cells}</div></div>`;
+}
+const NAV = `<header class="nav"><div class="nav-row">
+  <div class="logo"><img class="bd" src="0005-assets/badge.svg" alt=""><span>Smarf</span></div>
+  <div class="nav-right"><div class="new-board">${ICON.board}New Board</div><div class="avatar">K</div></div>
+</div></header>`;
+const DOCK = (x, y, name) => `<div class="dockwrap" style="left:${x}px;top:${y}px"><div class="glass"><div class="dock-row">
+  <div class="switcher"><span class="dot"></span><span>${name}</span>${ICON.chevrons}</div>
+  <div class="ibtns"><span class="ibtn">${ICON.star}</span><span class="ibtn">${ICON.pencil}</span><span class="ibtn">${ICON.link}</span><span class="ibtn">${ICON.dots}</span></div>
+</div></div><div class="metal">${ICON.folder}New category</div></div>`;
+const lift = (hero, x, y) => `<div class="lift" style="left:${x}px;top:${y}px"><img src="${CDN(hero)}" alt=""></div>${CURSOR.replace('class="cursor"', `class="cursor" style="left:${x + 46}px;top:${y + 22}px"`)}`;
+
+// The app's tier list board: rows 109px apart, as in the showcase.
+const tiersBoard = (drag) => [
+  cat({ t: 'S', x: 40, y: 96, cols: 6, heroes: [...TIER.S, '+'] }),
+  cat({ t: 'F', x: 600, y: 96, cols: 4, heroes: [...TIER.F, '+'] }),
+  cat({ t: 'A', x: 40, y: 205, cols: 11, heroes: drag ? [...TIER.A.slice(0, 2), '_drop', ...TIER.A.slice(2, 7)] : [...TIER.A, '+'] }),
+  cat({ t: 'B', x: 40, y: 314, cols: 11, heroes: [...TIER.B, '+'] }),
+  cat({ t: 'C', x: 40, y: 423, cols: 11, heroes: [...TIER.C, '+'] }),
+  cat({ t: 'D', x: 40, y: 532, cols: 11, heroes: [...TIER.D, '+'] })
+].join('') + (drag ? lift('invoker', 236, 178) : '');
+
+document.querySelectorAll('[data-app="tiers"]').forEach((el) => {
+  el.innerHTML = NAV + tiersBoard(el.hasAttribute('data-drag')) + DOCK(40, 690, 'Meta tier list');
+});
+
+// E: the S Tier's add button lit, and the picker open under it, searched for "s".
+const PICK = {
+  strength: ['sven', 'spirit_breaker', 'slardar', 'sand_king', 'pudge', 'earthshaker', 'tiny'],
+  agility: ['slark', 'sniper', 'spectre', 'phantom_lancer', 'luna', 'antimage', 'morphling'],
+  intelligence: ['skywrath_mage', 'shadow_shaman', 'silencer', 'storm_spirit', 'lich', 'lina', 'rubick'],
+  universal: ['snapfire', 'sand_king', 'windrunner', 'void_spirit', 'marci', 'dark_willow', 'pangolier']
+};
+const MATCH = new Set(['sven', 'spirit_breaker', 'slardar', 'sand_king', 'slark', 'sniper', 'spectre', 'skywrath_mage', 'shadow_shaman', 'silencer', 'storm_spirit', 'snapfire']);
+document.querySelectorAll('[data-app="picker"]').forEach((el) => {
+  const groups = Object.entries(PICK).map(([attr, list]) => `<div class="grp"><div class="grp-h"><img src="0005-assets/${attr}.png" alt="">${attr}</div>
+    <div class="grp-t">${list.map((h, i) => `<img class="${MATCH.has(h) ? (i === 0 && attr === 'strength' ? 'hl' : '') : 'dim'}" src="${CDN(h)}" alt="">`).join('')}</div></div>`).join('');
+  el.innerHTML = NAV
+    + cat({ t: 'S', x: 80, y: 96, cols: 6, heroes: [...TIER.S, '+on'] })
+    + cat({ t: 'F', x: 640, y: 96, cols: 4, heroes: [...TIER.F, '+'] })
+    + cat({ t: 'A', x: 80, y: 205, cols: 11, heroes: TIER.A })
+    + cat({ t: 'B', x: 80, y: 314, cols: 11, heroes: TIER.B })
+    + `<div class="picker" style="left:332px;top:160px"><div class="search">${ICON.search}<b>s</b><span class="caret"></span><span>Search heroes…</span></div>${groups}</div>`;
+});
+
+// B: two categories at 2×, Invoker lifted from S on his way into A.
+document.querySelectorAll('[data-board="close"]').forEach((el) => {
+  el.innerHTML = cat({ t: 'S', x: 36, y: 30, cols: 6, heroes: [...TIER.S, '+'] })
+    + cat({ t: 'A', x: 36, y: 139, cols: 11, heroes: [TIER.A[0], TIER.A[1], '_drop', ...TIER.A.slice(2)] })
+    + cat({ t: 'B', x: 36, y: 248, cols: 11, heroes: TIER.B })
+    + lift('invoker', 226, 112);
+});
+
+// C: the full board on a plane, with a second column so it fills the tilt.
+document.querySelectorAll('[data-board="wall"]').forEach((el) => {
+  el.innerHTML = cat({ t: 'S', x: 60, y: 60, cols: 6, heroes: [...TIER.S, '+'] })
+    + cat({ t: 'F', x: 620, y: 60, cols: 4, heroes: [...TIER.F, '+'] })
+    + cat({ t: 'A', x: 60, y: 169, cols: 11, heroes: [...TIER.A, '+'] })
+    + cat({ t: 'B', x: 60, y: 278, cols: 11, heroes: [...TIER.B, '+'] })
+    + cat({ t: 'C', x: 60, y: 387, cols: 11, heroes: [...TIER.C, '+'] })
+    + cat({ t: 'D', x: 60, y: 496, cols: 11, heroes: [...TIER.D, '+'] })
+    + cat({ name: 'Unsorted', x: 60, y: 605, cols: 11, heroes: ['lina', 'axe', 'juggernaut', 'mirana', 'zuus', 'tiny', 'lion', 'sniper', 'viper', 'tusk', '+'] })
+    + cat({ name: 'Comfort picks', x: 1068, y: 169, cols: 3, heroes: ['storm_spirit', 'puck', 'queenofpain', 'templar_assassin', 'void_spirit', 'pangolier', '+'] })
+    + cat({ name: 'Bans', x: 1068, y: 387, cols: 3, heroes: ['meepo', 'chen', 'arc_warden', 'broodmother', '+'] });
+});
+
+/* ---------- In situ: each thumbnail in the work grid between Tenor and Pulse ---------- */
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const src = sec.querySelector('.frame > .th, .frame > img');
+  const slot = sec.querySelector('.slot-situ');
+  slot.innerHTML = `<div class="situ"><div class="cell"><img src="0005-assets/tenor.webp" alt=""></div><div class="cell me"></div><div class="cell"><img src="0005-assets/pulse.webp" alt=""></div><div class="cap">On /work, next to Tenor and Pulse</div></div>`;
+  slot.querySelector('.me').appendChild(src.cloneNode(true));
+});
+
+/* ---------- Scale every 1280×720 thumbnail to its box ---------- */
+const ro = new ResizeObserver((entries) => entries.forEach((e) => {
+  const th = e.target.querySelector(':scope > .th');
+  if (th) th.style.setProperty('--s', e.contentRect.width / 1280);
+}));
+document.querySelectorAll('.frame, .situ .me').forEach((box) => ro.observe(box));
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the thumbnail', prompt: (id) => `Settle on ${id} in ${FILE}. Use it as target output and implementation reference. Build it in the codebase's conventions and tech stack.` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+
+/* ---------- ?render=A: that thumbnail alone at 1280×720, for headless Chrome to screenshot ---------- */
+const RENDER = new URLSearchParams(location.search).get('render');
+if (RENDER) {
+  const th = document.querySelector(`.variation[data-id="${RENDER}"] .frame > .th`);
+  if (th) {
+    ro.disconnect();
+    th.style.setProperty('--s', 1);
+    document.body.replaceChildren(th);
+    document.body.style.cssText = 'margin:0;width:1280px;height:720px;overflow:hidden;background:#09090b';
+  }
+}
+</script>
+</body>
+</html>
