@@ -70,6 +70,33 @@ class BoardsStoreTest extends TestCase
         ])->assertUnprocessable();
     }
 
+    public function test_a_category_can_start_with_a_color()
+    {
+        Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
+
+        $board = $this->postJson('/api/boards', [
+            'name' => 'Untitled',
+            'categories' => [
+                ['color' => 'red'] + $this->category('S Tier', []),
+                $this->category('F Tier', [])
+            ]
+        ])->assertOk()->json('board');
+
+        $categories = collect($board['categories'])->keyBy('name');
+        $this->assertSame('red', $categories['S Tier']['color']);
+        $this->assertNull($categories['F Tier']['color']);
+    }
+
+    public function test_rejects_an_unknown_color()
+    {
+        Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
+
+        $this->postJson('/api/boards', [
+            'name' => 'Untitled',
+            'categories' => [['color' => 'beige'] + $this->category('S Tier', [])]
+        ])->assertUnprocessable();
+    }
+
     public function test_requires_sign_in()
     {
         $this->postJson('/api/boards', ['name' => 'Untitled', 'categories' => []])->assertUnauthorized();

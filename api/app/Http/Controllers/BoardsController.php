@@ -45,6 +45,8 @@ class BoardsController extends Controller
                 'y_position' => $input['y_position'],
                 'width' => $input['width'],
                 'height' => $input['height'],
+                // A start can colour its categories (the tier list does).
+                'color' => $input['color'] ?? null,
             ]);
 
             // One insert per category, since a start like Default places every hero. Not attach(): it keys rows by

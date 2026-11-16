@@ -12,6 +12,14 @@ class Category extends Model
     use HasFactory, Uuid;
 
     /**
+     * The colours a category's card can take; a category without one is null. Keep in step with the UI's
+     * ui/src/lib/category-colors.ts.
+     *
+     * @var array<int, string>
+     */
+    public const COLORS = ['red', 'orange', 'amber', 'emerald', 'cyan', 'blue', 'violet', 'pink'];
+
+    /**
      * Indicates if the model's ID is auto-incrementing.
      *
      * @var bool
@@ -36,7 +44,8 @@ class Category extends Model
         'x_position',
         'y_position',
         'width',
-        'height'
+        'height',
+        'color'
     ];
 
     public function board()

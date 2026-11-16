@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
 use App\Models\Category;
 use App\Models\Board;
 use App\Http\Requests\MoveCategoryRequest;
@@ -55,15 +58,22 @@ class CategoriesController extends Controller
         ]);
     }
 
-    public function update(Category $category)
+    public function update(Request $request, Category $category)
     {
-        $inputs = request()->only([
+        // `sometimes`: a rename doesn't send a color.
+        $request->validate([
+            'color' => ['sometimes', 'nullable', Rule::in(Category::COLORS)],
+        ]);
+
+        // only() keeps a color sent as null, which clears it.
+        $inputs = $request->only([
             'board_id',
             'name',
             'x_position',
             'y_position',
             'width',
             'height',
+            'color',
         ]);
 
         return response()->json([

@@ -118,7 +118,7 @@ class BoardsShareTest extends TestCase
             'is_favorite' => true,
             'favorited_at' => now()
         ]);
-        Category::factory()->create(['board_id' => $board->id]);
+        Category::factory()->create(['board_id' => $board->id, 'color' => 'amber']);
         $copier = User::factory()->create();
         Sanctum::actingAs($copier, ['*'], 'api');
 
@@ -130,6 +130,7 @@ class BoardsShareTest extends TestCase
         $this->assertFalse($copy->is_favorite);
         $this->assertNull($copy->favorited_at);
         $this->assertSame(1, $copy->categories()->count());
+        $this->assertSame('amber', $copy->categories()->first()->color);
     }
 
     public function test_a_private_board_cant_be_copied_by_another_user()

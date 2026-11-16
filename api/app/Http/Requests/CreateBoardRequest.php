@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+use App\Models\Category;
 
 class CreateBoardRequest extends FormRequest
 {
@@ -30,6 +33,7 @@ class CreateBoardRequest extends FormRequest
             'categories.*.y_position' => 'required|numeric',
             'categories.*.width' => 'required|numeric',
             'categories.*.height' => 'required|numeric',
+            'categories.*.color' => ['nullable', Rule::in(Category::COLORS)],
             'categories.*.heroes.*.id' => 'required|exists:heroes',
             'categories.*.heroes.*.order' => 'required|numeric',
         ];
