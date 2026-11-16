@@ -38,7 +38,7 @@ src/
 ├── contexts/     current user, board layout constants, query provider
 ├── hooks/        generic hooks
 ├── lib/          fetch wrapper, auth token, small helpers
-├── queries/      hooks shared by routes, a folder per domain
+├── queries/      hooks shared by routes, flat
 ├── routes/       a folder per route; `.` marks nesting (app.boards.id = /b/:boardSlug)
 ├── types/        API and board types
 ├── config.ts     env vars (read them only here)
@@ -60,9 +60,9 @@ public/           copied as-is
 ## Data
 
 - One hook per request.
-- Shared hooks go in `src/queries/<domain>/`.
+- Shared hooks go in `src/queries/`, flat.
 - A route's own go in its `queries/` and `mutations/` folders.
-- Build query keys with the key factories (`boardKeys.list()`).
+- Build query keys with the key factories (`boardKeys.list()` in `queries/query-keys.ts`).
 - Cache plain data: unwrap responses in `queryFn`, derive views with `select`.
 - Destructure and rename: `const { data: boards } = useBoardsQuery()`.
 - Handle `pending`, `error` and success.
@@ -81,7 +81,7 @@ Every board save changes the cached board before the API answers.
 
 - **Where:**
   - Saves: `routes/app.boards.id/mutations/`, plus `use-favorite-board-mutation.ts`.
-  - Shared options: `useBoardCache(boardSlug)` in `queries/boards/use-board-cache.ts`.
+  - Shared options: `useBoardCache(boardSlug)` in `queries/use-board-cache.ts`.
 - **How:**
   - Each save spreads `optimisticSaveOptions`.
   - `onMutate` writes the change with `update()`, with no `await` before it.

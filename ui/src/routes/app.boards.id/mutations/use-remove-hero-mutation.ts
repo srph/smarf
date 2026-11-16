@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
-import { useBoardCache } from '~/src/queries/boards/use-board-cache'
+import { useBoardCache } from '~/src/queries/use-board-cache'
 import { type Board, type ID, type Slug } from '~/src/types/api'
 import { getCategoryHeight } from '~/src/contexts/board-list/utils'
 import { type HeroPosition } from './use-move-hero-mutation'

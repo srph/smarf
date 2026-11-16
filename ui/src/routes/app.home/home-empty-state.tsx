@@ -3,7 +3,7 @@ import { cn } from 'cn'
 import { useNavigate } from 'react-router'
 import { SquaresPlusIcon } from '@heroicons/react/20/solid'
 import { Button } from '~/src/components/button/button'
-import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
+import { useHeroesQuery } from '~/src/queries/use-heroes-query'
 import { type Hero } from '~/src/types/api'
 import { CATEGORY_HERO_HEIGHT, CATEGORY_HERO_WIDTH } from '~/src/contexts/board-list/constants'
 

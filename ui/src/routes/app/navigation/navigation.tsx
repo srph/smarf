@@ -7,7 +7,7 @@ import { Link, useLocation, useNavigate } from 'react-router'
 import { SquaresPlusIcon } from '@heroicons/react/20/solid'
 import { UserDropdown } from './user-dropdown'
 import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
-import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
+import { useHeroesQuery } from '~/src/queries/use-heroes-query'
 
 /**
  * One slim bar on every page, the same whether the board is yours or someone else's (a visitor's board details sit in

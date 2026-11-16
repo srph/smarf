@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { v4 as uuid } from 'uuid'
 import { http } from '~/src/lib/http'
-import { useBoardCache } from '~/src/queries/boards/use-board-cache'
+import { useBoardCache } from '~/src/queries/use-board-cache'
 import { type Board, type Category, type Slug } from '~/src/types/api'
 import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING } from '~/src/contexts/board-list/constants'
 import { getCategoryHeight, getLowestCategoryBottom } from '~/src/contexts/board-list/utils'

@@ -1,6 +1,6 @@
 import React from 'react'
-import { useBoardsQuery } from '~/src/queries/boards/use-boards-query'
-import { favoritesFirst } from '~/src/queries/boards/favorites-first'
+import { useBoardsQuery } from '~/src/queries/use-boards-query'
+import { favoritesFirst } from '~/src/queries/favorites-first'
 import { BoardList } from './board-list'
 import { BoardListSkeleton } from './board-list-skeleton'
 import { HomeEmptyState } from './home-empty-state'

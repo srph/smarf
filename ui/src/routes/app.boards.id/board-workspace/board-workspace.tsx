@@ -4,7 +4,7 @@ import { BoardDotGrid } from '~/src/components/board-dot-grid/board-dot-grid'
 import { Container } from '~/src/components/container/container'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { useQueryClient } from '@tanstack/react-query'
-import { boardKeys } from '~/src/queries/boards/board-keys'
+import { boardKeys } from '~/src/queries/query-keys'
 import { useBoard } from '~/src/routes/app.boards.id/board-context'
 import {
   useMoveHeroMutation,

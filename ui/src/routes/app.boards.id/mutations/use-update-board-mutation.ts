@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
-import { boardKeys } from '~/src/queries/boards/board-keys'
-import { useBoardCache } from '~/src/queries/boards/use-board-cache'
+import { boardKeys } from '~/src/queries/query-keys'
+import { useBoardCache } from '~/src/queries/use-board-cache'
 import { type Board, type Slug } from '~/src/types/api'
 
 interface UpdateBoardVariables {

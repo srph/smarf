@@ -1,5 +1,5 @@
 import React from 'react'
-import { useHeroesQuery } from '~/src/queries/heroes/use-heroes-query'
+import { useHeroesQuery } from '~/src/queries/use-heroes-query'
 import { type Hero } from '~/src/types/api'
 
 // Columns of hero portraits, tilted, scrolling up and down behind the sign-in page. Each column is one

@@ -1,5 +1,5 @@
 import { useMutationState } from '@tanstack/react-query'
-import { boardKeys } from '~/src/queries/boards/board-keys'
+import { boardKeys } from '~/src/queries/query-keys'
 import { type Slug } from '~/src/types/api'
 
 type BoardSaveStatus = 'saving' | 'saved' | 'error'

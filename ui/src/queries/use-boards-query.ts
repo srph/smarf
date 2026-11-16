@@ -1,7 +1,7 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
 import { type BoardSummary } from '~/src/types/api'
-import { boardKeys } from './board-keys'
+import { boardKeys } from './query-keys'
 
 /** The logged-in user's boards, newest first. */
 const boardsQueryOptions = () =>

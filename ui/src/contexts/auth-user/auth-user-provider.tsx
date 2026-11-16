@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect } from 'react'
-import { useMeQuery } from '~/src/queries/auth/use-me-query'
+import { useMeQuery } from '~/src/queries/use-me-query'
 import { User } from '~/src/types/api'
 import { HttpError, onUnauthorized } from '~/src/lib/http'
 import { useToken } from '~/src/lib/token'

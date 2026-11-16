@@ -1,7 +1,7 @@
 import { useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { produce, type Draft } from 'immer'
 import { type Board, type ID, type Slug } from '~/src/types/api'
-import { boardKeys } from './board-keys'
+import { boardKeys } from './query-keys'
 
 // Boards with a failed save, waiting for their other saves to finish before refetching. Per client, so tests don't share it.
 const needsRefetch = new WeakMap<QueryClient, Set<ID>>()
