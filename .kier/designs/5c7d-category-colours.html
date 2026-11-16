@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Category Colours</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root {
+    --bg: #f5f5f4; --card: #ffffff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4;
+    --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 960px) { .wrap { margin-left: max(200px, calc((100vw - 1080px) / 2)); margin-right: auto; padding-right: 24px; } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cap { margin: 14px 0 8px; font-size: 12px; color: var(--mute); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 960px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup: board-workspace-category-body.tsx (Tailwind 4 zinc, indigo rings, glass layer card) ---------- */
+  .app {
+    --z50: #fafafa; --z200: #e4e4e7; --z300: #d4d4d8; --z400: #9f9fa9; --z500: #71717b; --z600: #52525c; --z700: #3f3f46; --z800: #27272a; --z900: #18181b; --z950: #09090b;
+    --indigo: oklch(58.5% 0.233 277.117); --indigo4: oklch(67.3% 0.182 276.935); --red: #fb2c36; --red4: #ff6467; --red6: #e7000b;
+    --ease: cubic-bezier(.3, .7, .2, 1);
+    position: relative; width: 1000px; margin: 0 auto; color: var(--z50);
+    background-color: var(--z900);
+    background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: -32px 16px, -8px -8px;
+    font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.43;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+  }
+  .app.stage { height: 232px; }
+  .app.insitu { height: 520px; }
+  .app svg { display: block; flex: none; }
+  :where(.app button) { font-family: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; outline: none; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes tip { 0% { opacity: 0; transform: scale(.6) rotate(-16deg); } 60% { opacity: 1; transform: scale(1.08) rotate(8deg); } 100% { transform: none; } }
+
+  .cat { position: absolute; display: inline-block; border-radius: 12px; background: rgba(39,39,42,.8);
+    --shadow: 0 10px 15px -3px rgba(0,0,0,.25), 0 4px 6px -4px rgba(0,0,0,.25), 0 0 0 1px rgba(0,0,0,.5);
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.08);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: box-shadow .15s; }
+  .cat:is(:hover, .f-card) { box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.15); }
+  .cat.is-del { box-shadow: var(--shadow), inset 0 0 0 1px rgb(251 44 54 / .3); }
+  .head { position: relative; isolation: isolate; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 6px 0 8px; }
+  .grip { color: var(--z600); cursor: grab; transition: color .15s; }
+  .cat:is(:hover, .f-card) .grip { color: var(--z300); }
+  .title { font-weight: 600; margin: 0 -6px; padding: 2px 6px; border-radius: 6px; white-space: nowrap; }
+  .tools { margin-left: auto; display: flex; gap: 2px; }
+  .ibtn { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 6px; color: var(--z400); opacity: 0; transition: opacity .15s, color .15s, background-color .15s; }
+  .cat:is(:hover, .f-card) .ibtn, .ibtn.on { opacity: 1; }
+  .ibtn:hover, .ibtn.on { background: rgba(255,255,255,.08); color: var(--z50); }
+  .ibtn.trash:hover { color: var(--red4); }
+  .ibtn:focus-visible, .dot:focus-visible { opacity: 1; box-shadow: 0 0 0 2px var(--z800), 0 0 0 4px var(--indigo4); }
+  .tray { position: relative; display: flex; flex-wrap: wrap; align-content: flex-start; padding: 3px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px 8px 12px 12px; background: var(--z900); }
+  .cell { flex-shrink: 0; width: 88px; padding: 4px; }
+  .portrait { width: 80px; height: 45px; border-radius: 4px; overflow: hidden; background: var(--z700); }
+  .portrait img { width: 80px; height: 45px; object-fit: cover; display: block; pointer-events: none; transition: opacity .15s, filter .15s; }
+  .is-del .portrait img { opacity: .35; filter: grayscale(1); }
+  .hero { cursor: grab; }
+  .hero:hover .portrait { box-shadow: 0 0 0 2px var(--indigo); }
+  .add { width: 80px; height: 45px; display: grid; place-items: center; border-radius: 4px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); color: var(--z600); transition: color .15s, background-color .15s, box-shadow .15s; }
+  .cat:is(:hover, .f-card) .add { color: var(--z400); background: rgba(255,255,255,.05); }
+  .cat .add:hover { color: var(--z50); background: rgba(255,255,255,.08); box-shadow: 0 0 0 2px var(--indigo); }
+
+  /* The delete confirm (board-workspace-category-delete-confirm.tsx) */
+  .confirm { position: absolute; inset: 1px 1px -12px 1px; z-index: 2; isolation: isolate; display: flex; align-items: center; gap: 8px; padding: 0 6px 12px 12px; border-radius: 11px 11px 0 0; background: var(--z800); }
+  .confirm::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; animation: fade .3s ease both;
+    background: linear-gradient(to right, rgb(251 44 54 / .35), rgb(251 44 54 / .1) 45%, transparent 80%); }
+  .confirm .tip { color: var(--red4); animation: tip .42s var(--ease) both; }
+  .confirm p { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; animation: rise .32s var(--ease) 60ms both; }
+  .confirm p span { color: var(--z400); } .confirm p b { font-weight: 600; }
+  .cbtns { margin-left: auto; display: flex; gap: 6px; flex: none; animation: rise .32s var(--ease) 120ms both; }
+  .cbtn { height: 24px; padding: 0 8px; border-radius: 6px; background: var(--z700); color: var(--z200); font-size: 12px; font-weight: 700; }
+  .cbtn:hover { background: var(--z600); }
+  .cbtn.del { background: var(--red6); color: #fff; } .cbtn.del:hover { background: var(--red); }
+
+  /* Swatches: each predefined colour as a small piece of the app's metal */
+  .sw, .has-c .glyph { background: linear-gradient(180deg, color-mix(in oklab, var(--c), white 32%) 0%, var(--c) 44%, color-mix(in oklab, var(--c), black 24%) 58%, var(--c) 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); }
+  .glyph { display: block; width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px currentColor; }
+  .sws { display: flex; gap: 6px; }
+  .sw { position: relative; flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff; transition: box-shadow .12s; }
+  .sw svg { width: 14px; height: 14px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.55)); }
+  .sw.none { background: none; box-shadow: inset 0 0 0 1.5px var(--z500); }
+  .sw.none::after { content: ""; position: absolute; left: 50%; top: 3px; bottom: 3px; width: 1.5px; margin-left: -.75px; background: var(--z500); transform: rotate(45deg); }
+  .sw.none.sel { box-shadow: inset 0 0 0 1.5px var(--z200); } .sw.none.sel::after { background: var(--z200); }
+  .sw:is(:hover, .f-hover) { box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 0 0 2px var(--indigo); }
+  .sw.none:is(:hover, .f-hover) { box-shadow: inset 0 0 0 1.5px var(--z500), 0 0 0 2px var(--indigo); }
+  .sw:focus-visible { box-shadow: 0 0 0 2px var(--z900), 0 0 0 4px var(--indigo4); }
+
+  .pop { position: absolute; z-index: 20; padding: 8px; border-radius: 12px; border: 1px solid var(--z700); background: var(--z900); box-shadow: 0 20px 40px -12px rgba(0,0,0,.7); animation: rise .2s var(--ease) both; }
+
+  /* The fade the delete confirm uses, in the card's colour (A and C) */
+  :is(.v-a, .v-c) .has-c .head::before, .has-c .strip::before { content: ""; position: absolute; inset: 1px 1px -12px 1px; z-index: -1; border-radius: 11px 11px 0 0; pointer-events: none;
+    background: linear-gradient(to right, color-mix(in oklab, var(--c) 35%, transparent), color-mix(in oklab, var(--c) 10%, transparent) 45%, transparent 80%); }
+
+  /* B: the colour falls from the header into the tray; a dot by the name picks it */
+  .v-b .has-c .head::before { content: ""; position: absolute; inset: 1px 1px -12px 1px; z-index: -1; border-radius: 11px 11px 0 0; pointer-events: none;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--c) 40%, transparent), color-mix(in oklab, var(--c) 16%, transparent)); }
+  .v-b .has-c .tray { background: linear-gradient(180deg, color-mix(in oklab, var(--c) 16%, transparent), transparent 72%), var(--z900); border-color: color-mix(in oklab, var(--c) 24%, rgba(255,255,255,.08)); }
+  .dot { width: 20px; height: 28px; margin: 0 -2px; display: grid; place-items: center; border-radius: 6px; color: var(--z600); transition: color .15s, background-color .15s; }
+  .dot .glyph { width: 12px; height: 12px; }
+  .cat:is(:hover, .f-card) .dot { color: var(--z400); }
+  .dot:hover, .dot.on { background: rgba(255,255,255,.08); color: var(--z200); }
+
+  /* C: swatches take over the header, the way the delete confirm does */
+  .strip { position: absolute; inset: 1px 1px -12px 1px; z-index: 2; isolation: isolate; display: flex; align-items: center; gap: 10px; padding: 0 10px 12px 10px; border-radius: 11px 11px 0 0; background: var(--z800); }
+  .strip::before { inset: 0 !important; transition: background .15s; }
+  .strip .sws { animation: rise .32s var(--ease) both; }
+  .strip .sw { width: 20px; height: 20px; }
+  .strip .sw svg { width: 12px; height: 12px; }
+  .strip .sw:focus-visible { box-shadow: 0 0 0 2px var(--z800), 0 0 0 4px var(--indigo4); }
+  .sw-name { margin-left: auto; font-size: 12px; color: var(--z300); animation: rise .32s var(--ease) 60ms both; }
+
+  /* D: a gradient rim and a corner glow; colour lives in a menu with Delete */
+  .v-d .has-c::after { content: ""; position: absolute; inset: 0; border-radius: 12px; padding: 1.5px; pointer-events: none;
+    background: linear-gradient(135deg, var(--c) 0%, color-mix(in oklab, var(--c) 45%, transparent) 30%, transparent 68%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  .v-d .has-c .head::before { content: ""; position: absolute; inset: 1px 1px -12px 1px; z-index: -1; border-radius: 11px 11px 0 0; pointer-events: none;
+    background: radial-gradient(180px 64px at 0 0, color-mix(in oklab, var(--c) 34%, transparent), transparent 100%); }
+  .pop.more { padding: 4px; }
+  .pop.more .lbl { padding: 6px 8px 6px; font-size: 12px; color: var(--z400); }
+  .pop.more .sws { padding: 0 8px 10px; }
+  .pop.more hr { border: 0; border-top: 1px solid var(--z800); margin: 0 0 4px; }
+  .mrow { display: flex; align-items: center; gap: 8px; width: 100%; height: 32px; padding: 0 8px; border-radius: 8px; font-size: 13px; color: var(--red4); }
+  .mrow:hover { background: rgba(255,255,255,.06); }
+</style>
+</head>
+<body>
+<nav class="minimap" aria-label="Variations"><ul></ul></nav>
+
+<main class="wrap">
+  <section class="brief">
+    <h1>Let people colour-code category cards</h1>
+    <div class="chips">
+      <div class="chip"><b>Predefined</b>Eight colours and None. No custom picker.</div>
+      <div class="chip"><b>A gradient</b>Colour fades across the glass card, like the delete confirm's red.</div>
+      <div class="chip"><b>Heroes first</b>Portraits stay the brightest thing on the board.</div>
+      <div class="chip"><b>Not a warning</b>A coloured card never reads as deleting or as the indigo active ring.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="Now" data-name="Every card is the same grey glass" data-v="now" data-cap="In situ">
+    <div class="v-head"><span class="v-id">Now</span><h2>Every card is the same grey glass</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note bad">Tiers and roles look alike until you read the names.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="A" data-name="Delete's fade in the card's colour, swatch by the trash" data-v="a" data-cap="In situ: hover a card, click the swatch beside the trash">
+    <div class="v-head"><span class="v-id">A</span><h2>Delete's fade in the card's colour, swatch by the trash</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Reuses the confirm's fade; least to build.</div>
+      <div class="note good">A resting board gains colour and no new controls.</div>
+      <div class="note bad">A red card looks like a delete confirm.</div>
+      <div class="note bad">The popover covers the first row of heroes.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="B" data-name="Colour falls into the tray, a dot by the name" data-v="b" data-cap="In situ: click the dot before a name">
+    <div class="v-head"><span class="v-id">B</span><h2>Colour falls into the tray, a dot by the name</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The dot is always there for touch and keyboard.</div>
+      <div class="note good">Top-down, so red can't pass for delete's sideways fade.</div>
+      <div class="note bad">Portraits sit on a tint.</div>
+      <div class="note bad">One more always-on mark per card.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="Swatches take over the header and preview on hover" data-v="c" data-cap="In situ: click the swatch beside the trash, then hover the colours">
+    <div class="v-head"><span class="v-id">C</span><h2>Swatches take over the header and preview on hover</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Hovering a swatch shows it on the real card.</div>
+      <div class="note good">Same in-place pattern as delete; covers no heroes.</div>
+      <div class="note bad">Shares A's red clash.</div>
+      <div class="note bad">The name is hidden while picking.</div>
+    </div>
+  </section>
+
+  <section class="variation" data-id="D" data-name="A gradient rim and corner glow, colour in a menu" data-v="d" data-cap="In situ: hover a card, click the dots">
+    <div class="v-head"><span class="v-id">D</span><h2>A gradient rim and corner glow, colour in a menu</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">Quietest: the header and tray stay almost neutral.</div>
+      <div class="note good">One header button holds colour and delete.</div>
+      <div class="note bad">Delete is now two clicks.</div>
+      <div class="note bad">The rim gives way to the indigo ring while dragging.</div>
+    </div>
+  </section>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from A: fade strength and direction, or a solid metal band like Hold to delete.</div>
+      <div class="card"><b>Remix</b>Remix C: swap red for rose so no card can pass for a delete confirm.</div>
+      <div class="card"><b>Settle</b>Settle on C if the preview matters; on A for the smallest change.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/designs/5c7d-category-colours.html';
+
+/* ---------- Icons: heroicons v2, 20/solid (check is 16/solid) ---------- */
+const P = {
+  bars2: '<path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/>',
+  trash: '<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"/>',
+  plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>',
+  dots: '<path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>'
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const CHECK = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clip-rule="evenodd"/></svg>';
+
+/* ---------- The predefined colours: Tailwind's 500s ---------- */
+const COLORS = [
+  { key: '', name: 'None', hex: null },
+  { key: 'red', name: 'Red', hex: '#fb2c36' }, { key: 'orange', name: 'Orange', hex: '#ff6900' }, { key: 'amber', name: 'Amber', hex: '#fe9a00' },
+  { key: 'emerald', name: 'Emerald', hex: '#00bc7d' }, { key: 'cyan', name: 'Cyan', hex: '#00b8db' }, { key: 'blue', name: 'Blue', hex: '#2b7fff' },
+  { key: 'violet', name: 'Violet', hex: '#8e51ff' }, { key: 'pink', name: 'Pink', hex: '#f6339a' }
+];
+const colour = (key) => COLORS.find((c) => c.key === (key || ''));
+
+/* ---------- Board data: a tier list ---------- */
+const thumb = (slug) => `https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${slug}.png`;
+const STAGE = [
+  { id: 's', name: 'S Tier', color: 'red', x: 24, y: 24, w: 448, heroes: ['invoker', 'sven', 'juggernaut', 'lion'] },
+  { id: 'b', name: 'B Tier', color: 'emerald', x: 520, y: 24, w: 448, heroes: ['axe', 'luna', 'tidehunter'] }
+];
+const BOARD = [
+  { id: 's', name: 'S Tier', color: 'red', x: 32, y: 32, w: 536, heroes: ['invoker', 'sven', 'juggernaut', 'lion', 'mars'] },
+  { id: 'a', name: 'A Tier', color: 'orange', x: 608, y: 32, w: 360, heroes: ['crystal_maiden', 'phantom_assassin', 'medusa'] },
+  { id: 'b', name: 'B Tier', color: 'amber', x: 32, y: 168, w: 448, heroes: ['axe', 'luna', 'tidehunter', 'witch_doctor'] },
+  { id: 'c', name: 'C Tier', color: 'emerald', x: 520, y: 168, w: 448, heroes: ['antimage', 'centaur', 'shadow_shaman'] },
+  { id: 'd', name: 'D Tier', color: 'blue', x: 32, y: 304, w: 360, heroes: ['pudge', 'tiny'] },
+  { id: 'u', name: 'Untested', color: null, x: 432, y: 304, w: 360, heroes: ['kunkka', 'morphling'] }
+];
+
+/* ---------- Rendering: one card; each variation adds its colour and its picker ---------- */
+const swatches = (cur, hov) => COLORS.map((k) =>
+  `<button class="sw ${k.hex ? '' : 'none'} ${k.key === (cur || '') ? 'sel' : ''} ${hov != null && k.key === hov ? 'f-hover' : ''}" data-color="${k.key}" title="${k.name}" aria-label="${k.name}" ${k.hex ? `style="--c:${k.hex}"` : ''}>${k.hex && k.key === cur ? CHECK : ''}</button>`).join('');
+
+// st: card (hovered), open (picking), del (confirming), preview (C: a swatch being hovered)
+function cardHTML(v, c, st = {}) {
+  const shown = v === 'now' ? null : colour(st.preview != null ? st.preview : c.color);
+  const cls = ['cat', shown && shown.hex && 'has-c', st.card && 'f-card', st.del && 'is-del'].filter(Boolean).join(' ');
+  const on = st.open ? 'on' : '';
+  const glyph = '<span class="glyph"></span>';
+  const dot = v === 'b' ? `<button class="dot ${on}" data-pick="${c.id}" title="Colour">${glyph}</button>` : '';
+  const pick = v === 'a' || v === 'c' ? `<button class="ibtn ${on}" data-pick="${c.id}" title="Colour">${glyph}</button>`
+    : v === 'd' ? `<button class="ibtn ${on}" data-pick="${c.id}" title="More">${icon('dots')}</button>` : '';
+  const trash = v === 'd' ? '' : `<button class="ibtn trash" data-del="${c.id}" title="Delete category">${icon('trash', 16)}</button>`;
+  const strip = v === 'c' && st.open ? `<div class="strip"><div class="sws">${swatches(c.color, st.preview)}</div><span class="sw-name">${shown.name}</span></div>` : '';
+  const confirm = st.del ? `<div class="confirm"><span class="tip">${icon('trash', 16)}</span><p><span>Delete</span> <b>${c.name}</b>?</p>
+    <span class="cbtns"><button class="cbtn" data-cancel>Cancel</button><button class="cbtn del" data-confirm="${c.id}">Delete</button></span></div>` : '';
+  const cells = c.heroes.map((s) => `<div class="cell hero"><div class="portrait"><img src="${thumb(s)}" alt="" draggable="false"></div></div>`).join('')
+    + `<div class="cell"><button class="add" title="Add hero">${icon('plus')}</button></div>`;
+  return `<div class="${cls}" data-cat="${c.id}" style="left:${c.x}px;top:${c.y}px;${shown && shown.hex ? `--c:${shown.hex}` : ''}">
+    <div class="head"><span class="grip" title="Move category">${icon('bars2')}</span>${dot}<span class="title">${c.name}</span>
+      <span class="tools">${pick}${trash}</span>${strip}${confirm}</div>
+    <div class="tray" style="width:${c.w}px">${cells}</div>
+  </div>`;
+}
+
+// A, B and D open a popover under their trigger; D's is a menu that also holds Delete.
+function placePop(app, v, c) {
+  const t = app.querySelector(`[data-pick="${c.id}"]`);
+  if (!t || v === 'c' || v === 'now') return;
+  app.insertAdjacentHTML('beforeend', v === 'd'
+    ? `<div class="pop more"><div class="lbl">Colour</div><div class="sws">${swatches(c.color)}</div><hr><button class="mrow" data-del="${c.id}">${icon('trash', 16)}Delete category</button></div>`
+    : `<div class="pop"><div class="sws">${swatches(c.color)}</div></div>`);
+  const pop = app.lastElementChild, a = app.getBoundingClientRect(), r = t.getBoundingClientRect();
+  const left = v === 'b' ? r.left - a.left - 10 : r.right - a.left - pop.offsetWidth + 4;
+  pop.style.left = Math.max(8, Math.min(left, 1000 - pop.offsetWidth - 8)) + 'px';
+  pop.style.top = r.bottom - a.top + 6 + 'px';
+}
+
+/* ---------- Stage: two cards, the first forced into each state ---------- */
+const STATES = [
+  { key: 'No colour', nowKey: 'Rest', plain: true, st: {} },
+  { key: 'Coloured', st: {}, initial: true },
+  { key: 'Card hover', nowKey: 'Card hover', st: { card: true } },
+  { key: 'Picking', st: { card: true, open: true } },
+  { key: 'Deleting', nowKey: 'Deleting', st: { del: true } }
+];
+
+function renderStage(app, v, s) {
+  const cats = STAGE.map((c) => ({ ...c, color: s.plain ? null : c.color }));
+  // C previews the hovered swatch on the card: here Violet, over a card that is Red.
+  const st = v === 'c' && s.st.open ? { ...s.st, preview: 'violet' } : s.st;
+  app.innerHTML = cats.map((c, i) => cardHTML(v, c, i === 0 ? st : {})).join('');
+  if (s.st.open) placePop(app, v, cats[0]);
+}
+
+const sections = [...document.querySelectorAll('.variation')];
+sections.forEach((sec) => {
+  const v = sec.dataset.v;
+  const notes = sec.querySelector('.notes');
+  const states = STATES.filter((s) => v !== 'now' || s.nowKey);
+
+  const row = document.createElement('div'); row.className = 'states'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', 'State');
+  const stageFrame = document.createElement('div'); stageFrame.className = 'frame';
+  const stage = document.createElement('div'); stage.className = `app stage v-${v}`; stageFrame.appendChild(stage);
+  const btns = states.map((s) => {
+    const b = document.createElement('button'); b.textContent = v === 'now' ? s.nowKey : s.key; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => { btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderStage(stage, v, s); });
+    row.appendChild(b); return b;
+  });
+
+  const cap = document.createElement('p'); cap.className = 'cap'; cap.textContent = sec.dataset.cap;
+  const boardFrame = document.createElement('div'); boardFrame.className = 'frame';
+  const board = document.createElement('div'); board.className = `app insitu v-${v}`; boardFrame.appendChild(board);
+  sec.insertBefore(row, notes); sec.insertBefore(stageFrame, notes); sec.insertBefore(cap, notes); sec.insertBefore(boardFrame, notes);
+
+  /* In situ: a live board. Hover is real; the picker recolours, the trash confirms. */
+  let cats = BOARD.map((c) => ({ ...c }));
+  let open = null; // { id, kind: 'pick' | 'del' }
+  const find = (id) => cats.find((c) => c.id === id);
+  const draw = () => {
+    board.innerHTML = cats.map((c) => cardHTML(v, c, open && open.id === c.id ? { card: true, open: open.kind === 'pick', del: open.kind === 'del' } : {})).join('');
+    if (open && open.kind === 'pick') placePop(board, v, find(open.id));
+  };
+
+  // Layout needs the frames in the page before the popovers measure.
+  requestAnimationFrame(() => { const want = new URLSearchParams(location.search).get('state'); // ?state=Picking opens every stage in that state
+    (btns[states.findIndex((s) => (want ? s.key === want : s.initial))] || btns[0]).click(); draw(); });
+
+  board.addEventListener('click', (e) => {
+    const hit = (sel) => e.target.closest(sel);
+    const sw = hit('[data-color]');
+    if (sw && open) { find(open.id).color = sw.dataset.color || null; open = null; return draw(); }
+    if (hit('[data-del]')) { open = { id: hit('[data-del]').dataset.del, kind: 'del' }; return draw(); }
+    if (hit('[data-pick]')) { const id = hit('[data-pick]').dataset.pick; open = open && open.id === id && open.kind === 'pick' ? null : { id, kind: 'pick' }; return draw(); }
+    if (hit('[data-confirm]')) { cats = cats.filter((c) => c.id !== hit('[data-confirm]').dataset.confirm); open = null; return draw(); }
+    if (open && (hit('[data-cancel]') || !hit('.pop, .strip, .confirm'))) { open = null; draw(); }
+  });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && open) { open = null; draw(); } });
+
+  // C: hovering a swatch previews it on the card; leaving the strip puts the saved colour back.
+  const preview = (catEl, k) => {
+    catEl.classList.toggle('has-c', !!k.hex);
+    if (k.hex) catEl.style.setProperty('--c', k.hex);
+    catEl.querySelector('.sw-name').textContent = k.name;
+  };
+  board.addEventListener('mouseover', (e) => {
+    const sw = e.target.closest('.strip [data-color]');
+    if (sw) preview(sw.closest('.cat'), colour(sw.dataset.color));
+  });
+  board.addEventListener('mouseout', (e) => {
+    const strip = e.target.closest('.strip');
+    if (strip && !strip.contains(e.relatedTarget) && open) preview(strip.closest('.cat'), colour(find(open.id).color));
+  });
+});
+
+/* ---------- Pick menus (built from each canvas's id, name, and FILE) ---------- */
+const ACTIONS = [
+  { verb: 'Explore from this', hint: 'New variations in this direction', prompt: (id) => `Explore from ${id} in ${FILE}` },
+  { verb: 'Remix this', hint: 'Fork it and apply your changes', prompt: (id) => `Remix ${id} in ${FILE}:` },
+  { verb: 'Settle on this', hint: 'Make this the direction', prompt: (id) => `Settle on ${id} in ${FILE}` }
+];
+const menus = [];
+function closeMenus(except) { menus.forEach((m) => { if (m !== except) { m.menu.hidden = true; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+
+async function copy(text) {
+  try { if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; } } catch (e) {}
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+sections.forEach((sec) => {
+  const id = sec.dataset.id;
+  const head = sec.querySelector('.v-head');
+  const btn = head.querySelector('.pick');
+  btn.setAttribute('aria-haspopup', 'true');
+  btn.setAttribute('aria-label', `Pick ${id}: ${sec.dataset.name}`);
+  const menu = document.createElement('div'); menu.className = 'menu'; menu.hidden = true; menu.setAttribute('role', 'menu');
+  const out = document.createElement('div'); out.className = 'copied'; out.hidden = true;
+  ACTIONS.forEach((a) => {
+    const item = document.createElement('button'); item.setAttribute('role', 'menuitem');
+    item.innerHTML = `<b>${a.verb}</b><span>${a.hint}</span>`;
+    item.addEventListener('click', async () => {
+      const text = a.prompt(id);
+      const ok = await copy(text);
+      out.hidden = false; out.innerHTML = '';
+      if (ok) { const c = document.createElement('code'); c.textContent = text; const em = document.createElement('em'); em.textContent = 'Copied'; out.append(c, em); }
+      else { const inp = document.createElement('input'); inp.readOnly = true; inp.value = text; const em = document.createElement('em'); em.textContent = 'Copy this'; out.append(inp, em); inp.focus(); inp.select(); }
+      closeMenus();
+    });
+    menu.appendChild(item);
+  });
+  head.after(menu); menu.after(out);
+  const entry = { btn, menu };
+  menus.push(entry);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closeMenus(entry);
+    menu.hidden = !open; btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', (e) => e.stopPropagation());
+});
+document.addEventListener('click', () => closeMenus());
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = menus.find((m) => !m.menu.hidden);
+  closeMenus();
+  if (open) open.btn.focus();
+});
+
+/* ---------- Minimap ---------- */
+const ul = document.querySelector('.minimap ul');
+const items = sections.map((sec) => {
+  const li = document.createElement('li');
+  const b = document.createElement('button');
+  b.innerHTML = `<span class="line"></span><span class="lbl">${sec.dataset.id} · ${sec.dataset.name}</span>`;
+  b.setAttribute('aria-label', `${sec.dataset.id}: ${sec.dataset.name}`);
+  b.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  li.appendChild(b); ul.appendChild(li);
+  return li;
+});
+function syncMinimap() {
+  let best = 0, bestD = Infinity;
+  sections.forEach((s, i) => { const d = Math.abs(s.getBoundingClientRect().top - 24); if (d < bestD) { bestD = d; best = i; } });
+  items.forEach((li, i) => li.classList.toggle('active', i === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
