@@ -86,7 +86,7 @@ class CategoriesUpdateTest extends TestCase
         $category = $this->category($owner, ['color' => 'emerald']);
         Sanctum::actingAs($owner, ['*'], 'api');
 
-        $this->getJson("/api/boards/{$category->board_id}")
+        $this->getJson("/api/boards/{$category->board->slug}")
             ->assertOk()
             ->assertJsonPath('board.categories.0.color', 'emerald');
     }

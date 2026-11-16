@@ -41,7 +41,7 @@ class BoardsStoreTest extends TestCase
         $this->assertEquals(2048, $categories['S Tier']['heroes'][1]['pivot']['order']);
         $this->assertSame([], $categories['F Tier']['heroes']);
 
-        $this->assertEquals($board, $this->getJson("/api/boards/{$board['id']}")->json('board'));
+        $this->assertEquals($board, $this->getJson("/api/boards/{$board['slug']}")->json('board'));
     }
 
     public function test_a_category_can_start_with_the_same_hero_twice()

@@ -51,6 +51,43 @@ class Board extends Model
     ];
 
     /**
+     * What a slug is made of: mixed case and digits, without vowels (so a slug can't spell a word) or the characters
+     * that read alike (0/O, 1/l/I). 49 characters, so about 13.8 billion six-character slugs.
+     */
+    public const SLUG_ALPHABET = 'bcdfghjkmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ23456789';
+
+    protected static function booted()
+    {
+        static::creating(function (Board $board) {
+            // A copy comes from replicate(['slug']), so it gets its own.
+            $board->slug ??= static::newSlug();
+        });
+    }
+
+    /**
+     * A random slug no board has. The unique index on boards.slug backs this up if two boards draw the same one at
+     * once.
+     */
+    public static function newSlug(): string
+    {
+        do {
+            $slug = collect(range(1, 6))
+                ->map(fn () => self::SLUG_ALPHABET[random_int(0, strlen(self::SLUG_ALPHABET) - 1)])
+                ->implode('');
+        } while (static::where('slug', $slug)->exists());
+
+        return $slug;
+    }
+
+    /**
+     * Boards are found by slug in URLs (boards/{board}), not by id.
+     */
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    /**
      * The user who made the board. Load it as `owner:id,name,avatar`: a visitor to a public board sees only that.
      */
     public function owner()

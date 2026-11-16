@@ -88,7 +88,8 @@ class BoardsController extends Controller
     {
         abort_unless($request->user()->ownsBoard($original) || $original->is_public, 404);
 
-        $board = $original->replicate();
+        // Not the slug: the copy gets its own when it's saved.
+        $board = $original->replicate(['slug']);
 
         $board->name = "Copy of {$original->name}";
 

@@ -30,7 +30,7 @@ class BoardsShareTest extends TestCase
         $board = Board::factory()->create(['user_id' => $owner->id]);
         Sanctum::actingAs($owner, ['*'], 'api');
 
-        $this->getJson("/api/boards/{$board->id}")
+        $this->getJson("/api/boards/{$board->slug}")
             ->assertOk()
             ->assertJsonPath('board.is_public', false)
             ->assertJsonPath('board.user_id', $owner->id)
@@ -41,7 +41,7 @@ class BoardsShareTest extends TestCase
     {
         $board = Board::factory()->create(['user_id' => User::factory()->create()->id]);
 
-        $this->getJson("/api/boards/{$board->id}")->assertNotFound();
+        $this->getJson("/api/boards/{$board->slug}")->assertNotFound();
     }
 
     public function test_another_user_gets_a_404_for_a_private_board()
@@ -49,7 +49,7 @@ class BoardsShareTest extends TestCase
         $board = Board::factory()->create(['user_id' => User::factory()->create()->id]);
         Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
 
-        $this->getJson("/api/boards/{$board->id}")->assertNotFound();
+        $this->getJson("/api/boards/{$board->slug}")->assertNotFound();
     }
 
     public function test_a_guest_opens_a_public_board_with_its_heroes_and_owner()
@@ -60,7 +60,7 @@ class BoardsShareTest extends TestCase
         $hero = Hero::first();
         $category->heroes()->attach($hero->id, ['id' => Str::orderedUuid(), 'order' => 1]);
 
-        $response = $this->getJson("/api/boards/{$board->id}")
+        $response = $this->getJson("/api/boards/{$board->slug}")
             ->assertOk()
             ->assertJsonPath('board.categories.0.heroes.0.id', $hero->id);
 
@@ -74,7 +74,7 @@ class BoardsShareTest extends TestCase
         $board = Board::factory()->create(['user_id' => User::factory()->create()->id, 'is_public' => true]);
         Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
 
-        $this->getJson("/api/boards/{$board->id}")->assertOk()->assertJsonPath('board.id', $board->id);
+        $this->getJson("/api/boards/{$board->slug}")->assertOk()->assertJsonPath('board.id', $board->id);
     }
 
     public function test_the_owner_makes_a_board_public_and_private_again()
@@ -83,12 +83,12 @@ class BoardsShareTest extends TestCase
         $board = Board::factory()->create(['user_id' => $owner->id]);
         Sanctum::actingAs($owner, ['*'], 'api');
 
-        $this->putJson("/api/boards/{$board->id}/public", ['is_public' => true])
+        $this->putJson("/api/boards/{$board->slug}/public", ['is_public' => true])
             ->assertOk()
             ->assertJsonPath('board.is_public', true);
         $this->assertTrue($board->fresh()->is_public);
 
-        $this->putJson("/api/boards/{$board->id}/public", ['is_public' => false])->assertOk();
+        $this->putJson("/api/boards/{$board->slug}/public", ['is_public' => false])->assertOk();
         $this->assertFalse($board->fresh()->is_public);
     }
 
@@ -97,7 +97,7 @@ class BoardsShareTest extends TestCase
         $board = Board::factory()->create(['user_id' => User::factory()->create()->id]);
         Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
 
-        $this->putJson("/api/boards/{$board->id}/public", ['is_public' => true])->assertForbidden();
+        $this->putJson("/api/boards/{$board->slug}/public", ['is_public' => true])->assertForbidden();
         $this->assertFalse($board->fresh()->is_public);
     }
 
@@ -107,7 +107,7 @@ class BoardsShareTest extends TestCase
         $board = Board::factory()->create(['user_id' => $owner->id]);
         Sanctum::actingAs($owner, ['*'], 'api');
 
-        $this->putJson("/api/boards/{$board->id}/public", [])->assertUnprocessable();
+        $this->putJson("/api/boards/{$board->slug}/public", [])->assertUnprocessable();
     }
 
     public function test_a_copy_of_a_public_board_belongs_to_the_copier_and_starts_private()
@@ -122,7 +122,7 @@ class BoardsShareTest extends TestCase
         $copier = User::factory()->create();
         Sanctum::actingAs($copier, ['*'], 'api');
 
-        $id = $this->postJson("/api/boards/{$board->id}/duplicate")->assertOk()->json('board.id');
+        $id = $this->postJson("/api/boards/{$board->slug}/duplicate")->assertOk()->json('board.id');
 
         $copy = Board::find($id);
         $this->assertSame($copier->id, $copy->user_id);
@@ -138,13 +138,13 @@ class BoardsShareTest extends TestCase
         $board = Board::factory()->create(['user_id' => User::factory()->create()->id]);
         Sanctum::actingAs(User::factory()->create(), ['*'], 'api');
 
-        $this->postJson("/api/boards/{$board->id}/duplicate")->assertNotFound();
+        $this->postJson("/api/boards/{$board->slug}/duplicate")->assertNotFound();
     }
 
     public function test_a_guest_cant_copy_a_public_board()
     {
         $board = Board::factory()->create(['user_id' => User::factory()->create()->id, 'is_public' => true]);
 
-        $this->postJson("/api/boards/{$board->id}/duplicate")->assertUnauthorized();
+        $this->postJson("/api/boards/{$board->slug}/duplicate")->assertUnauthorized();
     }
 }
