@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router'
-import { AdjustmentsVerticalIcon, ArrowLeftStartOnRectangleIcon, BoltIcon, HomeIcon } from '@heroicons/react/20/solid'
+import { ArrowLeftStartOnRectangleIcon, HomeIcon } from '@heroicons/react/20/solid'
 import { Avatar } from '~/src/components/avatar/avatar'
+import { GitHubIcon, XIcon } from '~/src/components/icon/brand-icons'
 import { Icon } from '~/src/components/icon/icon'
 import { Menu } from '~/src/components/menu/menu'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
@@ -9,13 +10,13 @@ import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
 import { displayName } from '~/src/lib/user'
 import avatar from '~/src/assets/images/avatar.png'
 
-const LINKS = [
-  { to: '/', icon: HomeIcon, label: 'Home' },
-  { to: '/account', icon: AdjustmentsVerticalIcon, label: 'Account Settings' },
-  { to: '/about', icon: BoltIcon, label: 'About & Changelog' }
+// The brand marks fill their box, so they sit a step smaller than heroicons to look the same weight.
+const EXTERNAL_LINKS = [
+  { href: 'https://github.com/srph/smarf', icon: GitHubIcon, size: 16, label: 'GitHub' },
+  { href: 'https://x.com/_srph', icon: XIcon, size: 14, label: 'Twitter (X)' }
 ]
 
-/** Who's signed in, the pages about them and the app, and Log out on its own below a rule. */
+/** Who's signed in, Home and the app's GitHub and X (in a new tab), and Log out on its own below a rule. */
 const UserDropdown: React.FC = () => {
   const { user } = useAuthUser()
 
@@ -47,9 +48,19 @@ const UserDropdown: React.FC = () => {
         <Menu.Separator />
 
         <Menu.Group className="p-1.5">
-          {LINKS.map((link) => (
-            <Menu.LinkItem key={link.to} render={<Link to={link.to} />}>
-              <Icon icon={link.icon} />
+          <Menu.LinkItem render={<Link to="/" />}>
+            <Icon icon={HomeIcon} />
+            Home
+          </Menu.LinkItem>
+
+          {EXTERNAL_LINKS.map((link) => (
+            <Menu.LinkItem
+              key={link.href}
+              // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- Base UI renders the label below into this <a>.
+              render={<a href={link.href} target="_blank" rel="noreferrer" />}>
+              <span className="flex size-4.5 items-center justify-center">
+                <Icon icon={link.icon} size={link.size} />
+              </span>
               {link.label}
             </Menu.LinkItem>
           ))}

@@ -155,13 +155,25 @@ describe('board list', () => {
     expect(currentPath()).toBe('/')
   })
 
-  it('opens a page from the account menu', async () => {
+  it('goes Home from the account menu', async () => {
+    const { user } = renderApp('/account')
+
+    await user.click(await screen.findByTitle('Account menu'))
+    await user.click(await screen.findByRole('menuitem', { name: 'Home' }))
+
+    await waitFor(() => expect(currentPath()).toBe('/'))
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
+  })
+
+  it('links to GitHub and X from the account menu, in a new tab', async () => {
     const { user } = renderApp('/')
 
     await user.click(await screen.findByTitle('Account menu'))
-    await user.click(await screen.findByRole('menuitem', { name: 'Account Settings' }))
 
-    await waitFor(() => expect(currentPath()).toBe('/account'))
-    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
+    const github = await screen.findByRole('menuitem', { name: 'GitHub' })
+    expect(github).toHaveAttribute('href', 'https://github.com/srph/smarf')
+    expect(github).toHaveAttribute('target', '_blank')
+    expect(screen.getByRole('menuitem', { name: 'Twitter (X)' })).toHaveAttribute('href', 'https://x.com/_srph')
+    expect(screen.queryByRole('menuitem', { name: 'Account Settings' })).not.toBeInTheDocument()
   })
 })
