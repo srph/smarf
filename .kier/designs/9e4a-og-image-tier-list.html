@@ -385,6 +385,22 @@
     </div></div>
   </section>
 
+  <section class="variation" data-id="A2f" data-name="A2e without the dock">
+    <div class="v-head"><span class="v-id">A2f</span><h2>A2e without the dock</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-a nosub small colors dots">
+      <div class="copy">
+        <div class="lk sm"><img class="bd" src="og-assets/badge.svg" alt=""><span class="wd">Smarf</span></div>
+        <h1 class="lines"><span>Publish <span class="metal-text" style="display:inline">tier lists,</span></span><span>hero pools, ban/picks,</span><span>and more</span></h1>
+        <div class="url">smarf.kierb.com</div>
+      </div>
+      <div class="win dots" data-board="a2" data-nodock></div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">The C Tier row shows in full; nothing but the tier list.</div>
+      <div class="note bad">Loses the indigo New category, the one other brand accent.</div>
+    </div></div>
+  </section>
+
   <section class="variation" data-id="B2" data-name="Whole tier list tilted into perspective">
     <div class="v-head"><span class="v-id">B2</span><h2>Whole tier list tilted into perspective</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="frame"><div class="og og-b">
@@ -653,7 +669,7 @@ document.querySelectorAll('.og [data-board="a2"]').forEach((el) => {
     <div class="cat" style="left:36px;top:145px" data-t="A" data-c="11" data-w="996"></div>
     <div class="cat" style="left:36px;top:254px" data-t="B" data-c="11" data-w="996"></div>
     <div class="cat" style="left:36px;top:363px" data-t="C" data-c="11" data-w="996"></div>
-    <div class="dock-row-wrap" data-dock="Meta tier list"></div>`;
+    ${el.hasAttribute('data-nodock') ? '' : '<div class="dock-row-wrap" data-dock="Meta tier list"></div>'}`;
 });
 document.querySelectorAll('.og .cat').forEach((el) => {
   const cols = +el.dataset.c;
