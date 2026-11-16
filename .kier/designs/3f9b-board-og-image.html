@@ -277,7 +277,17 @@
     </div></div>
   </section>
 
-  <section class="variation" data-id="B2b"data-name="The board's first hero, blown up and blurred" data-v="b2b">
+  <section class="variation" data-id="B2a2b" data-name="B2a2 with the owner's name alone, no &quot;by&quot;" data-v="b2a" data-board="tierNoBy">
+    <div class="v-head"><span class="v-id">B2a2b</span><h2>B2a2 with the owner's name alone, no "by"</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="b2a"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Avatar plus name reads as a byline on its own.</div>
+      <div class="note good">A long handle still fits on one line.</div>
+      <div class="note bad">With the default avatar, a bare name is less clearly the owner.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="B2b" data-name="The board's first hero, blown up and blurred" data-v="b2b">
     <div class="v-head"><span class="v-id">B2b</span><h2>The board's first hero, blown up and blurred</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="frame"><div class="ogbox" data-v="b2b"></div></div>
     <div class="below"><div class="slot-feed"></div><div class="notes">
@@ -399,6 +409,7 @@ const FIXED = {
     { name: 'D Tier', x: 32, y: 480, w: 360, heroes: ['techies', 'meepo', 'broodmother'] }
   ] }
 };
+FIXED.tierNoBy = { ...FIXED.tier, owner: 'bananaslammajamma', noBy: true };
 const URL_TEXT = 'smarf.kierb.com/b/48213';
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const heroCount = (b) => b.cats.reduce((n, c) => n + c.heroes.length, 0);
@@ -409,7 +420,7 @@ const fs = (name, steps) => steps.find(([max]) => name.length <= max)[1];
 
 /* ---------- Pieces ---------- */
 const WM = `<span class="wm"><img src="logo-assets/smarf-badge.svg" alt=""><span>Smarf</span></span>`;
-const by = (b, av = 36, extra = '') => `<span class="by"><img src="og-assets/avatar.png" width="${av}" height="${av}" alt=""><span>by ${esc(b.owner)}${extra}</span></span>`;
+const by = (b, av = 36, extra = '') => `<span class="by"><img src="og-assets/avatar.png" width="${av}" height="${av}" alt=""><span>${b.noBy ? '' : 'by '}${esc(b.owner)}${extra}</span></span>`;
 const img = (s) => `<img src="${thumb(s)}" alt="">`;
 
 // The board as the visitor sees it. Sizes follow contexts/board-list/constants.ts: 88×53 cells, 8px of tray padding, a 36px header.
