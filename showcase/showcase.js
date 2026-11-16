@@ -185,7 +185,7 @@ const buildDock = () => {
         </div>
         <div id="linkwrap"><div class="linkf">
           ${icon('link', 14)}
-          <div class="linkbody"><span id="linktext">https://smarf.kierb.com/b/3f6b1c9e-8a2d-4e7f-b5c0-1d9a7e42f6b3</span><span id="shimmer"></span></div>
+          <div class="linkbody"><span id="linktext">https://smarf.kierb.com/b/Tz7qKm</span><span id="shimmer"></span></div>
           <span id="copy"><span id="copy-on"></span><span id="copy-clip">${icon('clipboard', 16)}</span><span id="copy-check">${icon('check16', 16)}</span></span>
         </div></div>
       </div></div>
