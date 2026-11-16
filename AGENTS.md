@@ -1,9 +1,11 @@
 # Smarf
 
-A Dota 2 hero organizer for the browser. It recreates the in-game hero grid: boards hold resizable, movable categories, and each category holds an ordered list of heroes.
+A Dota 2 hero organizer for the browser, recreating the in-game hero grid.
 
-- **API** (`api/`): Laravel 9 on PHP 8.1, with Discord-only sign-in (Socialite, issuing Sanctum tokens) and MySQL 8. See [api/AGENTS.md](api/AGENTS.md).
-- **UI** (`ui/`): React 19 + TypeScript 7, built with Vite 8 and tested with Vitest. See [ui/AGENTS.md](ui/AGENTS.md).
+Boards hold resizable categories; categories hold ordered heroes.
+
+- **API** (`api/`): Laravel 9, PHP 8.1, MySQL 8, Discord sign-in. See [api/AGENTS.md](api/AGENTS.md).
+- **UI** (`ui/`): React 19, TypeScript 7, Vite 8, Vitest. See [ui/AGENTS.md](ui/AGENTS.md).
 
 ## Tooling / Dependencies
 
@@ -30,14 +32,27 @@ make start:web    # http://mbp.boga-parore.ts.net:13000 (all interfaces)
 ```
 api/          Laravel API
 ui/           React front-end
-showcase/     a one-minute film of the app: a hand-drawn copy of the UI on one seekable GSAP timeline (not built from ui/)
-compose.yaml  local MySQL (api/docker-compose.yml is the old Sail setup; not used)
+showcase/     a one-minute film of the app, drawn by hand (not built from ui/)
+compose.yaml  local MySQL (api/docker-compose.yml is unused)
 Makefile      entry points above
 ```
 
 ## Best practices
 
-- Run PHP through `valet php --site=smarf` / `valet composer --site=smarf` (pinned by `api/.valetrc`) and Node through nvm (`ui/.nvmrc`), not the system binaries.
-- Keep API and UI changes in step: response shapes live in `ui/src/types/api.ts`.
+- Run PHP via `valet php --site=smarf` and `valet composer --site=smarf`.
+- Run Node via nvm (`ui/.nvmrc`), not the system binary.
+- Keep API and UI in step: response shapes live in `ui/src/types/api.ts`.
 - Never commit `.env` files.
-- The showcase film copies the app's look by hand and doesn't need to follow UI changes; update it only when asked. Check it with `node showcase/render.mjs --stills 7.5,13,29` and re-render the video with `node showcase/render.mjs` (needs Chrome and ffmpeg; writes `showcase/smarf-showcase.mp4`, which isn't committed). The login page plays a 720p copy, `ui/public/showcase.mp4`, which is committed: refresh it after a re-render with `ffmpeg -y -i showcase/smarf-showcase.mp4 -vf scale=1280:-2 -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p -c:a aac -b:a 96k -movflags +faststart ui/public/showcase.mp4` (about 5 MB). To watch it in a browser, serve `showcase/` on `localhost`: the font kit doesn't serve other hosts.
+
+## Showcase
+
+- Update it only when asked; it doesn't follow UI changes.
+- Check stills: `node showcase/render.mjs --stills 7.5,13,29`.
+- Render: `node showcase/render.mjs` (needs Chrome and ffmpeg; the output isn't committed).
+- Then refresh the login page's committed 720p copy, `ui/public/showcase.mp4` (about 5 MB):
+
+```bash
+ffmpeg -y -i showcase/smarf-showcase.mp4 -vf scale=1280:-2 -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p -c:a aac -b:a 96k -movflags +faststart ui/public/showcase.mp4
+```
+
+- To watch it, serve `showcase/` on `localhost`; the font kit rejects other hosts.

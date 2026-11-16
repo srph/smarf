@@ -25,6 +25,17 @@ make start:api
 make start:web
 ```
 
-The UI runs on port 13000 and the API on 13001, on all interfaces. The `.env` files point at `http://mbp.boga-parore.ts.net:13000` and `http://mbp.boga-parore.ts.net:13001` (a Tailscale MagicDNS name); change `APP_URL` in `api/.env` and `VITE_API_URL` in `ui/.env` if your machine has another name.
+- The UI runs on port 13000 and the API on 13001, on all interfaces.
+- The `.env` files use `mbp.boga-parore.ts.net`, a Tailscale MagicDNS name.
+- On another machine, change `APP_URL` in `api/.env` and `VITE_API_URL` in `ui/.env`.
 
-Sign-in is Discord-only. Create an app at https://discord.com/developers/applications, add `http://mbp.boga-parore.ts.net:13000/login/discord` to its OAuth2 redirects, then put its client id and secret in `api/.env` (`DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`) and its client id in `ui/.env` (`VITE_DISCORD_CLIENT_ID`). Your account is created the first time you sign in.
+## Discord sign-in
+
+Sign-in is Discord-only.
+
+1. Create an app at https://discord.com/developers/applications.
+2. Add `http://mbp.boga-parore.ts.net:13000/login/discord` to its OAuth2 redirects.
+3. In `api/.env`, set `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET`.
+4. In `ui/.env`, set `VITE_DISCORD_CLIENT_ID` (the same client id).
+
+Your account is created the first time you sign in.
