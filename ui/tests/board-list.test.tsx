@@ -132,8 +132,8 @@ describe('board list', () => {
   it('invites a user with no boards to create one', async () => {
     const { user } = renderApp('/')
 
-    expect(await screen.findByText('No boards yet')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Create your first board' }))
+    expect(await screen.findByText('Build your hero grid')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'New board' }))
 
     expect(await screen.findByRole('region', { name: 'Start this board with' })).toBeInTheDocument()
     expect(currentPath()).toBe('/b/new')

@@ -43,15 +43,15 @@ const HomeEmptyState: React.FC = () => {
         })}
       </div>
 
-      <h3 className="mb-3 text-lg font-medium">No boards yet</h3>
+      <h3 className="mb-3 text-lg font-medium">Build your hero grid</h3>
       <p className="mx-auto mb-8 max-w-90 text-zinc-400">
-        A board is your own hero grid: categories you size and arrange, each filled with heroes.
+        Make tier lists, hero pools, and draft plans, then share them with friends or your audience.
       </p>
 
       {/* inline-block so the full-width Button shrinks to its label */}
       <div className="inline-block">
         <Button icon={SquaresPlusIcon} onClick={() => navigate('/b/new')}>
-          Create your first board
+          New board
         </Button>
       </div>
     </div>
