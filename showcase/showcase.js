@@ -83,6 +83,15 @@ const CELL_H = 53
 const HEADER = 36
 const WS_TOP = 80
 
+// ---------- The beat ----------
+
+// The film is cut to its music (music.mp3: "Product Advertisement" by ViacheslavStarostin, from Pixabay): 150.35 BPM,
+// first beat at 0.23s, measured from the file. The beat comes in on beat 16 (6.6s), where the board assembles; the
+// track drops on beat 100 (40.1s), where the reel starts. Change the track and these two numbers change with it.
+const BEAT = 60 / 150.35
+const FIRST_BEAT = 0.23
+const beatAt = (count) => FIRST_BEAT + count * BEAT
+
 // ---------- Geometry ----------
 
 const cardWidth = (cols) => cols * CELL_W + 8
@@ -453,7 +462,7 @@ const reelScene = (tl, from) => {
   tl.to('#reel-note', { opacity: 1, duration: 0.3 }, from)
 
   // New board: hover Tier List, choose it, and the tray folds into "Creating Tier List".
-  cut('new', 2.1, ({ at, on, cur, find, all }) => {
+  cut('new', 6 * BEAT, ({ at, on, cur, find, all }) => {
     const tray = find('.nb')
     const tier = find('#start-tier')
     const height = tray.offsetHeight
@@ -464,17 +473,17 @@ const reelScene = (tl, from) => {
     tl.to(tier, { backgroundColor: 'rgb(255 255 255 / 0.07)', y: -2, duration: 0.15 }, at(0.45))
     tl.to(all('#start-tier .mc img'), { filter: 'grayscale(0) brightness(1)', duration: 0.25 }, at(0.45))
     tl.to(find('#start-tier .pv-glow'), { opacity: 0.6, duration: 0.25 }, at(0.45))
-    cur.click(0.85)
+    cur.click(2 * BEAT)
     cur.hide(0.95)
 
-    tl.to(find('.nb-in'), { opacity: 0, duration: 0.18 }, at(0.92))
-    tl.to(tray, { width: 320, height: 46, duration: 0.5, ease: 'power3.out' }, at(0.92))
+    tl.to(find('.nb-in'), { opacity: 0, duration: 0.18 }, at(0.88))
+    tl.to(tray, { width: 320, height: 46, duration: 0.5, ease: 'power3.out' }, at(0.88))
     tl.to(find('.nb-creating'), { opacity: 1, duration: 0.2 }, at(1.2))
     tl.fromTo(find('.nb-creating'), { backgroundPosition: '100% 0' }, { backgroundPosition: '0% 0', duration: 0.9, ease: 'sine.inOut', immediateRender: false }, at(1.15))
   })
 
   // Switch boards: down the list, pick one, and the dock takes its name.
-  cut('switch', 1.4, ({ at, on, cur, find, all }) => {
+  cut('switch', 4 * BEAT, ({ at, on, cur, find, all }) => {
     const rows = all('.row')
     const hover = 'rgb(255 255 255 / 0.07)'
     cur.show(0, on(rows[1], 0.45))
@@ -485,7 +494,7 @@ const reelScene = (tl, from) => {
       tl.set(rows[row - 1], { backgroundColor: 'transparent' }, at(when + 0.1))
       tl.set(rows[row], { backgroundColor: hover }, at(when + 0.1))
     })
-    cur.click(0.85)
+    cur.click(2 * BEAT)
     cur.hide(0.95)
     tl.to(find('.pop'), { opacity: 0, y: 6, duration: 0.15, ease: 'power2.in' }, at(0.92))
     tl.to(find('.sw'), { y: -170, duration: 0.35, ease: 'power3.out' }, at(0.95))
@@ -495,7 +504,7 @@ const reelScene = (tl, from) => {
   })
 
   // Rename: the name is selected, typed over, saved, and glints green in the dock.
-  cut('rename', 1.9, ({ at, on, cur, find, all }) => {
+  cut('rename', 5 * BEAT, ({ at, on, cur, find, all }) => {
     const panel = find('.rn')
     const save = find('.metal')
     gsap.set(panel, { height: panel.offsetHeight })
@@ -504,30 +513,30 @@ const reelScene = (tl, from) => {
     tl.set(find('.rn-sel'), { display: 'none' }, at(0.3))
     all('.rn-typed span').forEach((letter, index) => tl.set(letter, { display: 'inline' }, at(0.3 + index * 0.05)))
     cur.move(0.7, on(save), 0.28)
-    cur.click(1.05)
-    cur.hide(1.15)
+    cur.click(3 * BEAT)
+    cur.hide(1.3)
 
-    tl.to(find('.rn-form'), { opacity: 0, duration: 0.12 }, at(1.12))
-    tl.to(panel, { height: 46, duration: 0.3, ease: 'power3.out' }, at(1.12))
-    tl.to(find('.rn-row'), { opacity: 1, duration: 0.15 }, at(1.22))
-    tl.to(find('.glint'), { backgroundPosition: '0% 0', duration: 0.6, ease: 'sine.inOut' }, at(1.25))
+    tl.to(find('.rn-form'), { opacity: 0, duration: 0.12 }, at(1.27))
+    tl.to(panel, { height: 46, duration: 0.3, ease: 'power3.out' }, at(1.27))
+    tl.to(find('.rn-row'), { opacity: 1, duration: 0.15 }, at(1.37))
+    tl.to(find('.glint'), { backgroundPosition: '0% 0', duration: 0.55, ease: 'sine.inOut' }, at(1.4))
   })
 
   // New category: the button's sheen, and an untitled card springs in with its name ready to type over.
-  cut('add', 1.2, ({ at, on, cur, find }) => {
+  cut('add', 3 * BEAT, ({ at, on, cur, find }) => {
     const button = find('.metal')
     const card = find('.card')
     gsap.set(card, { opacity: 0, scale: 0.8, y: 24 })
 
     cur.show(0, on(button, 0.85, 1.4))
     cur.move(0.05, on(button, 0.6), 0.2)
-    cur.click(0.3)
-    tl.fromTo(find('.sheen'), { xPercent: -170, skewX: -20, opacity: 1 }, { xPercent: 360, duration: 0.6, ease: 'power1.out', immediateRender: false }, at(0.3))
-    tl.to(card, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(2.2)' }, at(0.38))
+    cur.click(BEAT)
+    tl.fromTo(find('.sheen'), { xPercent: -170, skewX: -20, opacity: 1 }, { xPercent: 360, duration: 0.6, ease: 'power1.out', immediateRender: false }, at(BEAT))
+    tl.to(card, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(2.2)' }, at(BEAT + 0.08))
   })
 
   // Delete a category: red fades in over its header, the trash tips, the question rises, then the card goes.
-  cut('remove', 1.6, ({ at, on, cur, find }) => {
+  cut('remove', 4 * BEAT, ({ at, on, cur, find }) => {
     const confirm = find('.dc-confirm')
     const bin = find('.dc-ic')
     const risers = [find('.dc-confirm p'), find('.dc-btns')]
@@ -538,38 +547,40 @@ const reelScene = (tl, from) => {
 
     cur.show(0, on(find('.dc-tray'), 0.8, 0.7))
     cur.move(0.05, on(find('.dc-trash')), 0.22)
-    cur.click(0.3)
+    cur.click(BEAT)
 
-    tl.set(confirm, { autoAlpha: 1 }, at(0.34))
-    tl.to(find('.dc-red'), { opacity: 1, duration: 0.3 }, at(0.34))
-    tl.to(bin, { opacity: 1, scale: 1.12, rotation: 5, duration: 0.25 }, at(0.34))
-    tl.to(bin, { scale: 1, rotation: 0, duration: 0.17 }, at(0.59))
-    tl.to(risers, { opacity: 1, y: 0, duration: 0.3, stagger: 0.06 }, at(0.4))
+    tl.set(confirm, { autoAlpha: 1 }, at(0.44))
+    tl.to(find('.dc-red'), { opacity: 1, duration: 0.3 }, at(0.44))
+    tl.to(bin, { opacity: 1, scale: 1.12, rotation: 5, duration: 0.25 }, at(0.44))
+    tl.to(bin, { scale: 1, rotation: 0, duration: 0.17 }, at(0.69))
+    tl.to(risers, { opacity: 1, y: 0, duration: 0.3, stagger: 0.06 }, at(0.5))
 
-    cur.move(0.62, on(find('.dc-del')), 0.26)
-    cur.click(1)
-    cur.hide(1.1)
-    tl.to(find('.dc'), { scale: 0.92, opacity: 0, filter: 'blur(8px)', duration: 0.32, ease: 'power2.in' }, at(1.06))
+    cur.move(0.78, on(find('.dc-del')), 0.26)
+    cur.click(3 * BEAT)
+    cur.hide(1.3)
+    tl.to(find('.dc'), { scale: 0.92, opacity: 0, filter: 'blur(8px)', duration: 0.3, ease: 'power2.in' }, at(1.27))
   })
 
   // Hold to delete: the graphite button fills with red metal while it's held, then the board goes.
-  cut('hold', 2.1, ({ at, on, cur, find }) => {
+  cut('hold', 6 * BEAT, ({ at, on, cur, find }) => {
     const panel = find('.hd')
     const hold = find('.hold')
 
     cur.show(0, on(hold, 0.2, 1.6))
     cur.move(0.02, on(hold, 0.6, 0.6), 0.22)
-    cur.press(0.3)
-    tl.to(find('.hold-fill'), { clipPath: 'inset(0% 0% 0% 0% round 7px)', duration: 1, ease: 'none' }, at(0.3))
-    tl.to(hold, { borderColor: 'rgb(255 162 162 / 0.55)', duration: 1, ease: 'none' }, at(0.3))
-    tl.to(panel, { scale: 1.07, duration: 1, ease: 'power1.in' }, at(0.3))
+    // Held from the second beat to the fifth: 1.2s, the app's own hold.
+    const held = 3 * BEAT
+    cur.press(BEAT)
+    tl.to(find('.hold-fill'), { clipPath: 'inset(0% 0% 0% 0% round 7px)', duration: held, ease: 'none' }, at(BEAT))
+    tl.to(hold, { borderColor: 'rgb(255 162 162 / 0.55)', duration: held, ease: 'none' }, at(BEAT))
+    tl.to(panel, { scale: 1.07, duration: held, ease: 'power1.in' }, at(BEAT))
 
-    cur.release(1.3)
-    tl.to(find('.hold-l1'), { opacity: 0, duration: 0.12 }, at(1.3))
-    tl.to(find('.hold-l2'), { opacity: 1, duration: 0.12 }, at(1.34))
-    tl.to(find('.spin'), { rotation: 720, duration: 0.8, ease: 'none' }, at(1.3))
-    cur.hide(1.5)
-    tl.to(panel, { scale: 0.8, opacity: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power3.in' }, at(1.75))
+    cur.release(4 * BEAT)
+    tl.to(find('.hold-l1'), { opacity: 0, duration: 0.12 }, at(4 * BEAT))
+    tl.to(find('.hold-l2'), { opacity: 1, duration: 0.12 }, at(4 * BEAT + 0.04))
+    tl.to(find('.spin'), { rotation: 720, duration: 0.8, ease: 'none' }, at(4 * BEAT))
+    cur.hide(1.8)
+    tl.to(panel, { scale: 0.8, opacity: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power3.in' }, at(2.05))
   })
 
   tl.to('#reel-note', { opacity: 0, duration: 0.2 }, t - 0.25)
@@ -668,32 +679,32 @@ const build = () => {
     // Starts low and drifts up, with enough column above and below to cover the stage through both scenes.
     const start = index % 2 ? 130 : 200
     gsap.set(col, { y: start })
-    tl.to(col, { y: start - 150 - 24 * (index % 3), duration: 6, ease: 'none' }, 0)
+    tl.to(col, { y: start - 150 - 24 * (index % 3), duration: 7.2, ease: 'none' }, 0)
   })
 
   tl.to('#backdrop', { opacity: 1, duration: 1.4, ease: 'power1.out' }, 0.1)
 
   const badge = $('#lockup .badge')
   gsap.set(badge, { scale: 0.3, opacity: 0 })
-  tl.to(badge, { scale: 1, opacity: 1, duration: 0.8, ease: 'back.out(1.7)' }, 0.5)
+  tl.to(badge, { scale: 1, opacity: 1, duration: 0.8, ease: 'back.out(1.7)' }, beatAt(0))
 
   const letters = 'Smarf'.split('').map((letter) => make('span', '', letter))
   $('#wordmark').append(...letters)
   gsap.set(letters, { opacity: 0, yPercent: 45, filter: 'blur(14px)' })
-  tl.to(letters, { opacity: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.75, stagger: 0.07, ease: 'power3.out' }, 0.8)
+  tl.to(letters, { opacity: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.75, stagger: 0.07, ease: 'power3.out' }, beatAt(1))
 
   gsap.set('#tagline', { y: 14, filter: 'blur(8px)' })
-  tl.to('#tagline', { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.7 }, 1.8)
+  tl.to('#tagline', { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.7 }, beatAt(4))
 
-  tl.to('#lockup', { opacity: 0, scale: 0.94, filter: 'blur(10px)', duration: 0.55, ease: 'power2.in' }, 4.3)
-  tl.to('#backdrop', { opacity: 0, duration: 0.8, ease: 'power1.inOut' }, 4.4)
+  tl.to('#lockup', { opacity: 0, scale: 0.94, filter: 'blur(10px)', duration: 0.55, ease: 'power2.in' }, beatAt(13))
+  tl.to('#backdrop', { opacity: 0, duration: 0.8, ease: 'power1.inOut' }, beatAt(13) + 0.1)
 
-  // ===== 2. The board assembles =====
+  // ===== 2. The board assembles, as the beat comes in =====
 
-  tl.to('#win', { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out' }, 4.8)
+  tl.to('#win', { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out' }, 6)
 
   Object.values(cats).forEach((cat, index) => {
-    const at = 5.2 + index * 0.1
+    const at = beatAt(16) + index * 0.1
     gsap.set(cat.el, { opacity: 0, scale: 0.94 })
     tl.to(cat.el, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(1.4)' }, at)
     cat.heroes.forEach((key, heroIndex) => {
@@ -703,25 +714,25 @@ const build = () => {
   })
 
   gsap.set(['#dock', '#newcat'], { y: 16, opacity: 0 })
-  tl.to(['#dock', '#newcat'], { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }, 5.7)
+  tl.to(['#dock', '#newcat'], { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }, 7.1)
   tl.fromTo(
     '#newcat .sheen',
     { xPercent: -170, skewX: -20, opacity: 1 },
     { xPercent: 360, duration: 0.85, ease: 'power1.out', immediateRender: false },
-    6.7
+    8.1
   )
-  tl.set('#newcat .sheen', { opacity: 0 }, 7.6)
+  tl.set('#newcat .sheen', { opacity: 0 }, 9)
 
-  caption(5.9, 10.1, 'Your heroes, laid out like the in-game grid', 'Tier lists, hero pools, ban lists: a board for each')
-  tl.to(camera, { z: 1.035, duration: 4.4, ease: 'none', onUpdate: applyCamera }, 5.8)
+  caption(6.9, beatAt(26) - 0.2, 'Your heroes, laid out like the in-game grid', 'Tier lists, hero pools, ban lists: a board for each')
+  tl.to(camera, { z: 1.035, duration: 3.3, ease: 'none', onUpdate: applyCamera }, 7.2)
 
   // ===== 3. Drag a hero between categories, then drag one off =====
 
-  const D = 10.3
+  const D = beatAt(26)
   const { s, f, a, d } = cats
 
   cam(D, 1.4, 500, 250)
-  caption(D + 0.3, D + 4.6, 'Drag heroes between categories', 'The rest shuffle out of the way')
+  caption(D + 0.3, D + 10 * BEAT + 0.3, 'Drag heroes between categories', 'The rest shuffle out of the way')
 
   gsap.set(cursor, { x: 780, y: 470 })
   tl.to(cursor, { opacity: 1, duration: 0.3 }, D + 0.5)
@@ -744,19 +755,19 @@ const build = () => {
   reflow(s, D + 2.5, 0.22, 'invoker')
   ringOn(s, D + 2.5)
 
-  release(D + 3.1)
-  settle(invoker, D + 3.1, invokerTo)
-  ringOff(s, D + 3.4)
+  release(D + 8 * BEAT)
+  settle(invoker, D + 8 * BEAT, invokerTo)
+  ringOff(s, D + 8 * BEAT + 0.3)
 
-  const R = D + 4.3
+  const R = D + 10 * BEAT
   cam(R, 1.4, 900, 250, 1)
   caption(R + 0.5, R + 3.9, 'Drag one off the board to remove it', 'Saved the moment you let go')
 
   const fiend = heroEls.nevermore
   const fiendDrop = { x: 1168, y: 96 }
   moveCursor(R + 0.2, heroCenter(f, 0))
-  press(R + 1.1)
-  lift(fiend, R + 1.1)
+  press(R + 3 * BEAT)
+  lift(fiend, R + 3 * BEAT)
   moveCursor(R + 1.3, { x: fiendDrop.x + 40, y: fiendDrop.y + 22.5 + WS_TOP }, 0.9)
   tl.to(fiend, { ...fiendDrop, duration: 0.9, ease: 'power2.inOut' }, R + 1.3)
 
@@ -768,8 +779,8 @@ const build = () => {
   tl.to($('.hero-img img', fiend), { filter: 'grayscale(1)', opacity: 0.75, duration: 0.15 }, R + 1.9)
 
   // Dropped: it puffs out.
-  release(R + 2.8)
-  tl.to(fiend, { scale: 0.5, opacity: 0, filter: 'blur(6px)', duration: 0.3, ease: 'power2.in' }, R + 2.8)
+  release(R + 7 * BEAT)
+  tl.to(fiend, { scale: 0.5, opacity: 0, filter: 'blur(6px)', duration: 0.3, ease: 'power2.in' }, R + 7 * BEAT)
   const poof = make('div', 'poof', '<i></i>'.repeat(7))
   $('#heroes').append(poof)
   gsap.set(poof, { x: fiendDrop.x + 40, y: fiendDrop.y + 22.5 })
@@ -779,21 +790,21 @@ const build = () => {
       dot,
       { x: Math.cos(angle) * 14, y: Math.sin(angle) * 10, scale: 1, opacity: 0.9 },
       { x: Math.cos(angle) * 58, y: Math.sin(angle) * 40, scale: 0.3, opacity: 0, duration: 0.6, immediateRender: false },
-      R + 2.85
+      R + 7 * BEAT + 0.05
     )
   })
 
   // ===== 4. Move a category into line, then resize it =====
 
-  const Z = R + 3.8
-  const A = Z + 6.5
+  const Z = R + 10 * BEAT
+  const A = Z + 16 * BEAT
   cam(Z, 1.5, 800, 470, 1.1)
   caption(Z + 0.3, A + 0.2, 'Move and resize categories', 'Heroes reflow to fit the new width')
 
   // D Tier slides in beside C.
   moveCursor(Z + 0.4, { x: d.x + 18, y: d.y + 18 + WS_TOP })
-  press(Z + 1.3)
-  ringOn(d, Z + 1.3)
+  press(Z + 3 * BEAT)
+  ringOn(d, Z + 3 * BEAT)
 
   const dTo = { x: 690, y: d.y }
   const dMove = { duration: 1, ease: 'power2.inOut' }
@@ -828,15 +839,15 @@ const build = () => {
   // ===== 5. Add a hero from the selector =====
 
   cam(A, 1.15, 620, 400, 1.1)
-  caption(A + 0.3, A + 6.3, 'Add heroes from the full roster', 'Every hero, grouped by attribute and searchable')
+  caption(A + 0.3, A + 16 * BEAT - 0.2, 'Add heroes from the full roster', 'Every hero, grouped by attribute and searchable')
 
   const selector = $('#selector')
   gsap.set(selector, { y: -6, scale: 0.985, transformOrigin: '42% 0' })
 
   moveCursor(A + 0.4, heroCenter(s, 4))
-  click(A + 1.3)
-  tl.to($('.plus-on', s.plus), { opacity: 1, duration: 0.15 }, A + 1.3)
-  tl.to(selector, { opacity: 1, y: 0, scale: 1, duration: 0.25 }, A + 1.4)
+  click(A + 3 * BEAT)
+  tl.to($('.plus-on', s.plus), { opacity: 1, duration: 0.15 }, A + 3 * BEAT)
+  tl.to(selector, { opacity: 1, y: 0, scale: 1, duration: 0.25 }, A + 3 * BEAT + 0.1)
 
   // Typing "sv" dims every hero whose name doesn't match.
   const typed = $$('#selector .typed span')
@@ -854,24 +865,24 @@ const build = () => {
 
   const sven = tiles.sven
   moveCursor(A + 2.8, center(sven), 0.7)
-  tl.to($('div', sven), { borderColor: 'oklch(58.5% 0.233 277.117)', duration: 0.12 }, A + 3.4)
-  click(A + 3.8)
+  tl.to($('div', sven), { borderColor: 'oklch(58.5% 0.233 277.117)', duration: 0.12 }, A + 3.5)
+  click(A + 10 * BEAT)
 
   // Sven lands in S Tier, and the plus moves along.
   const svenHero = makeHero('sven')
   gsap.set(svenHero, { ...slot(s, 4), opacity: 0, scale: 0.6 })
   s.heroes.push('sven')
-  tl.to(svenHero, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, A + 3.9)
-  reflow(s, A + 3.9, 0.22, 'sven')
+  tl.to(svenHero, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, A + 10 * BEAT + 0.1)
+  reflow(s, A + 10 * BEAT + 0.1, 0.22, 'sven')
 
-  tl.to(selector, { opacity: 0, y: -4, duration: 0.2, ease: 'power2.in' }, A + 5)
-  tl.to($('.plus-on', s.plus), { opacity: 0, duration: 0.2 }, A + 5)
+  tl.to(selector, { opacity: 0, y: -4, duration: 0.2, ease: 'power2.in' }, A + 5.2)
+  tl.to($('.plus-on', s.plus), { opacity: 0, duration: 0.2 }, A + 5.2)
 
   // ===== 6. Favorite, then share =====
 
-  const H = A + 6.5
+  const H = A + 16 * BEAT
   cam(H, 1.9, 640, 600)
-  caption(H + 0.3, H + 8.1, 'Share a board with a link', 'Share it to your friends or even your audience')
+  caption(H + 0.3, H + 7.6, 'Share a board with a link', 'Share it to your friends or even your audience')
 
   const dock = box($('#dock'))
   const dockBottom = dock.y + dock.h - 1
@@ -885,23 +896,23 @@ const build = () => {
 
   moveCursor(H + 0.5, center(star))
   tl.to($('.ibtn-hover', star), { opacity: 1, duration: 0.12 }, H + 1.2)
-  click(H + 1.5)
-  tl.set($('.star', star), { color: '#f0b100' }, H + 1.5)
-  tl.fromTo($('.star', star), { scale: 0.55 }, { scale: 1, duration: 0.5, ease: 'back.out(3.2)', immediateRender: false }, H + 1.5)
+  click(H + 4 * BEAT)
+  tl.set($('.star', star), { color: '#f0b100' }, H + 4 * BEAT)
+  tl.fromTo($('.star', star), { scale: 0.55 }, { scale: 1, duration: 0.5, ease: 'back.out(3.2)', immediateRender: false }, H + 4 * BEAT)
   $$('.burst i', star).forEach((dot, index) => {
     const angle = (index / 6) * Math.PI * 2
     tl.fromTo(
       dot,
       { x: Math.sin(angle) * 6, y: -Math.cos(angle) * 6, scale: 1, opacity: 1 },
       { x: Math.sin(angle) * 22, y: -Math.cos(angle) * 22, scale: 0.3, opacity: 0, duration: 0.6, immediateRender: false },
-      H + 1.56
+      H + 4 * BEAT + 0.06
     )
   })
 
   moveCursor(H + 2.1, center(shareButton), 0.5)
   tl.to($('.ibtn-hover', star), { opacity: 0, duration: 0.12 }, H + 2.2)
   tl.to($('.ibtn-hover', shareButton), { opacity: 1, duration: 0.12 }, H + 2.5)
-  click(H + 2.8)
+  click(H + 7 * BEAT)
 
   // The dock grows into the share card from its top edge.
   const grow = { duration: 0.34, ease: 'power3.out' }
@@ -910,16 +921,16 @@ const build = () => {
   tl.to('#share', { opacity: 1, duration: 0.2 }, H + 2.95)
 
   moveCursor(H + 3.2, { x: dock.x + 150, y: dockBottom - 16 - 26 }, 0.6)
-  click(H + 4)
+  click(H + 10 * BEAT)
 
   // Public: the highlight slides down, and the link opens with a shimmer until it's saved.
   const slide = { duration: 0.38, ease: 'power3.out' }
-  tl.to('.opt-hl', { y: 54, ...slide }, H + 4)
-  tl.to('#opt-private', { color: '#9f9fa9', duration: 0.25 }, H + 4)
-  tl.to('#opt-private .opt-ic', { color: '#71717b', duration: 0.25 }, H + 4)
-  tl.to('#opt-private .opt-ck', { opacity: 0, scale: 0.5, duration: 0.2 }, H + 4)
-  tl.to('#opt-public', { color: '#fafafa', duration: 0.25 }, H + 4)
-  tl.to('#opt-public .opt-ic', { color: '#e4e4e7', duration: 0.25 }, H + 4)
+  tl.to('.opt-hl', { y: 54, ...slide }, H + 10 * BEAT)
+  tl.to('#opt-private', { color: '#9f9fa9', duration: 0.25 }, H + 10 * BEAT)
+  tl.to('#opt-private .opt-ic', { color: '#71717b', duration: 0.25 }, H + 10 * BEAT)
+  tl.to('#opt-private .opt-ck', { opacity: 0, scale: 0.5, duration: 0.2 }, H + 10 * BEAT)
+  tl.to('#opt-public', { color: '#fafafa', duration: 0.25 }, H + 10 * BEAT)
+  tl.to('#opt-public .opt-ic', { color: '#e4e4e7', duration: 0.25 }, H + 10 * BEAT)
   tl.to('#share', { height: 220, ...slide }, H + 4.05)
   tl.to('#linkwrap', { height: 48, ...slide }, H + 4.05)
   tl.to('#linkwrap', { opacity: 1, duration: 0.25 }, H + 4.15)
@@ -935,28 +946,29 @@ const build = () => {
   // Copy: the clipboard shrinks out, a green check grows in.
   const copyPoint = { x: dock.x + dock.w - 37, y: dockBottom - 16 - 20 }
   moveCursor(H + 5.5, copyPoint, 0.5)
-  click(H + 6.2)
-  tl.to('#copy-clip', { opacity: 0, scale: 0.5, duration: 0.2 }, H + 6.2)
-  tl.to('#copy-check', { opacity: 1, scale: 1, duration: 0.2 }, H + 6.25)
-  tl.to('#copy', { color: '#7bf1a8', duration: 0.2 }, H + 6.2)
-  tl.to('#copy-on', { opacity: 1, duration: 0.2 }, H + 6.2)
+  click(H + 16 * BEAT)
+  tl.to('#copy-clip', { opacity: 0, scale: 0.5, duration: 0.2 }, H + 16 * BEAT)
+  tl.to('#copy-check', { opacity: 1, scale: 1, duration: 0.2 }, H + 16 * BEAT + 0.05)
+  tl.to('#copy', { color: '#7bf1a8', duration: 0.2 }, H + 16 * BEAT)
+  tl.to('#copy-on', { opacity: 1, duration: 0.2 }, H + 16 * BEAT)
 
   const tooltip = $('#tooltip')
   gsap.set(tooltip, { x: copyPoint.x, y: copyPoint.y - 30, xPercent: -50, yPercent: -100 })
-  tl.fromTo(tooltip, { opacity: 0 }, { opacity: 1, duration: 0.15, immediateRender: false }, H + 6.3)
+  tl.fromTo(tooltip, { opacity: 0 }, { opacity: 1, duration: 0.15, immediateRender: false }, H + 16 * BEAT + 0.1)
 
   // Back to the whole board: the card folds away, and the share button is now a globe.
-  tl.to([tooltip, cursor], { opacity: 0, duration: 0.2 }, H + 7.4)
-  tl.to('#share', { height: 0, opacity: 0, duration: 0.3, ease: 'power3.out' }, H + 7.5)
-  tl.to('#dockrow', { height: 44, opacity: 1, duration: 0.3, ease: 'power3.out' }, H + 7.5)
-  tl.set('.share-link', { opacity: 0 }, H + 7.5)
-  tl.set('.share-globe', { opacity: 1 }, H + 7.5)
-  tl.set($('.ibtn-hover', shareButton), { opacity: 0 }, H + 7.5)
-  cam(H + 7.5, 1, 640, 360, 1.3)
+  tl.to([tooltip, cursor], { opacity: 0, duration: 0.2 }, H + 7.1)
+  tl.to('#share', { height: 0, opacity: 0, duration: 0.3, ease: 'power3.out' }, H + 7.2)
+  tl.to('#dockrow', { height: 44, opacity: 1, duration: 0.3, ease: 'power3.out' }, H + 7.2)
+  tl.set('.share-link', { opacity: 0 }, H + 7.2)
+  tl.set('.share-globe', { opacity: 1 }, H + 7.2)
+  tl.set($('.ibtn-hover', shareButton), { opacity: 0 }, H + 7.2)
+  cam(H + 7.2, 1, 640, 360, 1.3)
 
   // ===== 7. The small interactions, in quick close-ups =====
 
-  const M = H + 9
+  // The window is gone by the drop, 22 beats after the share scene began.
+  const M = H + 22 * BEAT - 0.6
   tl.to('#win', { opacity: 0, scale: 0.93, filter: 'blur(10px)', duration: 0.6, ease: 'power2.in' }, M)
 
   // ===== 8. How it's built =====
@@ -969,18 +981,18 @@ const build = () => {
   gsap.set(['.hood-title', ...lines], { opacity: 0, y: 16, filter: 'blur(8px)' })
   gsap.set(stackItems, { opacity: 0, x: 14 })
 
-  tl.to('.hood-title', { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5 }, U + 0.6)
+  tl.to('.hood-title', { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.5 }, U + 0.5)
   lines.forEach((line, index) => {
-    const at = U + 0.9 + index * 2.7
+    const at = U + 0.5 + index * 8 * BEAT
     tl.to(line, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.6 }, at)
     if (index > 0) tl.to(lines[index - 1], { color: '#71717b', duration: 0.5 }, at)
   })
   tl.to(stackItems, { opacity: 1, x: 0, duration: 0.45, stagger: 0.07 }, U + 1.3)
-  tl.to('#hood', { opacity: 0, duration: 0.6, ease: 'power2.in' }, U + 6.9)
+  tl.to('#hood', { opacity: 0, duration: 0.6, ease: 'power2.in' }, U + 0.5 + 16 * BEAT - 0.6)
 
   // ===== 9. Outro =====
 
-  const O = U + 7.4
+  const O = U + 0.5 + 16 * BEAT
   columns.forEach((col) => tl.to(col, { y: '-=150', duration: 6.6, ease: 'none' }, O))
   tl.to('#backdrop', { opacity: 1, duration: 1.3, ease: 'power1.out' }, O)
   tl.set('#outro', { opacity: 1 }, O)
@@ -989,8 +1001,8 @@ const build = () => {
   const outroText = ['#outro .wordmark-sm', '.outro-url', '.outro-credit', '.outro-repo']
   gsap.set(outroBadge, { scale: 0.3, opacity: 0 })
   gsap.set(outroText, { opacity: 0, y: 16, filter: 'blur(8px)' })
-  tl.to(outroBadge, { scale: 1, opacity: 1, duration: 0.8, ease: 'back.out(1.7)' }, O + 0.4)
-  tl.to(outroText, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.7, stagger: 0.3 }, O + 0.6)
+  tl.to(outroBadge, { scale: 1, opacity: 1, duration: 0.8, ease: 'back.out(1.7)' }, O + BEAT)
+  tl.to(outroText, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.7, stagger: 0.3 }, O + BEAT + 0.2)
 
   // Hold the last frame.
   tl.to({}, { duration: 0.01 }, O + 6.5)
