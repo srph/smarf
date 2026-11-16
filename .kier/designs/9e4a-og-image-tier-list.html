@@ -899,6 +899,18 @@ function syncMinimap() {
 }
 addEventListener('scroll', syncMinimap, { passive: true });
 syncMinimap();
+
+/* ---------- ?render=A2k: that canvas alone at 1200×630, for headless Chrome to screenshot into ui/public/og-image.png ---------- */
+const RENDER = new URLSearchParams(location.search).get('render');
+if (RENDER) {
+  const og = document.querySelector(`.variation[data-id="${RENDER}"] .frame .og`);
+  if (og) {
+    ro.disconnect();
+    og.style.setProperty('--s', 1);
+    document.body.replaceChildren(og);
+    document.body.style.cssText = 'margin:0;width:1200px;height:630px;overflow:hidden;background:#09090b';
+  }
+}
 </script>
 </body>
 </html>

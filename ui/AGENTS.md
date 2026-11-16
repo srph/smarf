@@ -26,7 +26,7 @@ Sign-in is Discord-only. The login page links to Discord (`lib/discord.ts` build
 
 ```
 index.html        Vite entry
-public/           copied as-is: favicons, _redirects (Netlify), showcase.mp4 (the login page's film)
+public/           copied as-is: favicons, _redirects (Netlify), showcase.mp4 (the login page's film), og-image.png (the link preview; re-render it from .kier/designs/9e4a-og-image-tier-list.html?render=A2k)
 src/
 ├── app.tsx       route table + providers; index.tsx only mounts it
 ├── assets/       images imported by components
