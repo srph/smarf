@@ -73,3 +73,27 @@ Unconfirmed: Deadlock's card size and the community API's field names. The API w
 ### Order
 
 Schema and API, then the import and images, then the query, then the hero sizes.
+
+## Per-board OG image
+
+A link preview image for each shared board, in place of the site-wide one.
+
+Designs: [3f9b-board-og-image.html](.kier/designs/3f9b-board-og-image.html). B2a2b is the latest; none is settled.
+
+Now:
+
+- Every page shares the OG tags in `ui/index.html`, which point to an old screenshot.
+
+Direction (B2a2b):
+
+- 1200×630, the app's dot grid edge to edge.
+- Left: the Smarf badge, the board name, the owner's avatar and name (no "by"), the board URL.
+- Right: the board itself at a fixed scale, bleeding off the edge.
+- The name's font size steps down as it gets longer.
+
+Not scoped yet:
+
+- Settle on a variation.
+- Where the image is rendered, and when it's refreshed after a board changes.
+- How crawlers get per-board tags: they don't run the UI's JavaScript.
+- Hero art in the image: Steam's CDN, or our own copies.
