@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Showcase on Sign-in</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css" />
+<style>
+/* ───────── Page chrome (neutral) ───────── */
+:root {
+  --ink: #1c1c1e; --ink-2: #5b5b60; --ink-3: #8e8e93; --line: #e2e2e0; --paper: #f6f6f3; --card: #fff;
+  --good: #1f8a4c; --bad: #c2410c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+main { max-width: 1240px; margin: 0 auto; padding: 56px 32px 96px 72px; }
+.brief h1 { font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; max-width: 900px; }
+.goals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 56px; }
+.goal { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink-2); }
+.goal b { display: block; color: var(--ink); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.variation { margin-bottom: 64px; scroll-margin-top: 24px; }
+.vhead { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: relative; }
+.vid { font-weight: 800; font-size: 13px; background: var(--ink); color: #fff; border-radius: 6px; padding: 2px 8px; }
+.vname { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.vhead .spacer { flex: 1; }
+.pick { border: 1px solid var(--line); background: var(--card); border-radius: 8px; font: inherit; font-size: 12px; font-weight: 600; padding: 5px 12px; cursor: pointer; color: var(--ink); }
+.pick:hover { background: #efefec; }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; width: 300px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,.12); padding: 6px; }
+.menu[hidden] { display: none; }
+.menu button { display: block; width: 100%; text-align: left; border: 0; background: none; font: inherit; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+.menu button:hover, .menu button:focus-visible { background: #f1f1ee; }
+.menu button b { display: block; font-size: 13px; }
+.menu button span { font-size: 12px; color: var(--ink-3); }
+.copied { margin: -4px 0 12px; font-size: 12px; color: var(--ink-2); display: flex; gap: 8px; align-items: center; }
+.copied[hidden] { display: none; }
+.copied code, .copied input { font: 12px ui-monospace, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; flex: 1; min-width: 0; }
+.copied em { font-style: normal; font-weight: 700; color: var(--good); }
+.pick:focus-visible, .menu button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.canvas { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #09090b; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.notes { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.note { flex: 1 1 220px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+.note.good { border-left-color: var(--good); }
+.note.bad { border-left-color: var(--bad); }
+.note i { font-style: normal; font-weight: 700; margin-right: 6px; }
+.note.good i { color: var(--good); } .note.bad i { color: var(--bad); }
+.further h2 { font-size: 22px; margin: 0 0 12px; }
+.further .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.further .cards div { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink-2); }
+.further .cards b { display: block; color: var(--ink); margin-bottom: 2px; }
+.minimap { position: fixed; left: 18px; top: 50%; transform: translateY(-50%); z-index: 30; display: flex; flex-direction: column; gap: 2px; padding: 8px; border-radius: 10px; }
+.minimap button { display: flex; align-items: center; gap: 10px; border: 0; background: none; padding: 5px 4px; cursor: pointer; font: inherit; font-size: 12px; color: var(--ink-2); text-align: left; }
+.minimap .ln { width: 14px; height: 2px; border-radius: 2px; background: #c9c9c5; transition: width .2s, background .2s; flex: none; }
+.minimap button.on .ln { width: 24px; background: var(--ink); }
+.minimap .lb { display: none; white-space: nowrap; }
+.minimap:hover { background: var(--card); box-shadow: 0 8px 24px rgba(0,0,0,.1); border: 1px solid var(--line); }
+.minimap:hover .lb { display: inline; }
+.minimap button.on .lb { color: var(--ink); font-weight: 600; }
+@media (max-width: 900px) { .goals, .further .cards { grid-template-columns: 1fr 1fr; } main { padding-left: 32px; } .minimap { display: none; } }
+
+/* ───────── Mockup: Smarf's sign-in page ───────── */
+.app {
+  --z50:#fafafa; --z200:#e4e4e7; --z300:#d4d4d8; --z400:#a1a1aa; --z500:#71717a; --z600:#52525b; --z700:#3f3f46; --z800:#27272a; --z900:#18181b; --z950:#09090b;
+  --p100: oklch(93% 0.034 272.788); --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117);
+  font-family: 'Interstate', ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: var(--z50); background: var(--z950);
+  position: relative; height: 700px; overflow: hidden; isolation: isolate;
+}
+.app * { box-sizing: border-box; }
+:where(.app) :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
+:where(.app) a { color: inherit; text-decoration: none; cursor: pointer; }
+.app svg { display: block; }
+.app :is(a, button):focus-visible { outline: none; box-shadow: 0 0 0 2px var(--z950), 0 0 0 4px var(--p400); }
+
+/* Backdrop: tilted hero columns drifting, under a radial veil */
+.bd { position: absolute; inset: 0; overflow: hidden; }
+.cols { position: absolute; left: 50%; top: 50%; display: flex; gap: 12px; transform: translate(-50%, -50%) rotate(-12deg); }
+.col { display: flex; flex-direction: column; animation: drift linear infinite; }
+.col img { width: 128px; height: 72px; margin-bottom: 12px; border-radius: 4px; object-fit: cover; opacity: .55; background: var(--z800); }
+@keyframes drift { to { transform: translateY(calc(-1 * var(--set))); } }
+.veil { position: absolute; inset: 0; background: radial-gradient(ellipse 420px 300px at 50% 50%, rgb(9 9 11 / .96) 30%, rgb(9 9 11 / .7) 70%, rgb(9 9 11 / .35) 100%); }
+.v-c .veil, .v-b .veil { background: radial-gradient(ellipse 460px 400px at 50% 50%, rgb(9 9 11 / .96) 34%, rgb(9 9 11 / .7) 70%, rgb(9 9 11 / .35) 100%); }
+
+.stage { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0 16px; }
+.colm { width: 100%; max-width: 420px; text-align: center; }
+.lockup { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.badge { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex: none; border: 1px solid color-mix(in oklch, var(--p200) 40%, transparent);
+  background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / .5); filter: drop-shadow(0 0 24px oklch(58.5% 0.233 277.117 / .7)); }
+.badge img { width: 24px; height: 24px; }
+.word { margin: 0; padding-top: 4px; font-size: 48px; line-height: 1; font-weight: 900; letter-spacing: .025em; text-transform: uppercase;
+  background: linear-gradient(180deg, var(--p100) 0%, var(--p300) 45%, var(--p400) 58%, var(--p200) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tag { margin: 16px 0 28px; font-size: 12px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--p200); }
+.discord { display: flex; width: 100%; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; background: var(--p500); padding: 12px 16px; font-size: 16px; font-weight: 700; color: var(--z50); transition: box-shadow .2s; }
+.discord:hover { box-shadow: 0 0 0 2px var(--p300); }
+.priv { margin: 16px 0 0; font-size: 12px; line-height: 1.5; color: var(--z500); }
+.priv .lk { display: inline-block; vertical-align: text-bottom; margin-right: 4px; }
+.priv b { font-weight: 500; color: var(--z300); }
+
+/* A: text link */
+.watch-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 22px; padding: 4px 8px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--p300); transition: color .2s, background .2s; }
+.watch-link .pl { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 9999px; background: color-mix(in oklch, var(--p500) 30%, transparent); color: var(--p200); }
+.watch-link:hover { color: var(--p200); background: rgb(255 255 255 / .05); }
+.watch-link small { font-size: 12px; font-weight: 500; color: var(--z500); }
+.rule { display: flex; align-items: center; gap: 12px; margin-top: 22px; color: var(--z600); font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+.rule::before, .rule::after { content: ''; flex: 1; height: 1px; background: var(--z800); }
+.rule + .watch-link { margin-top: 10px; }
+
+/* B: poster card */
+.poster { position: relative; display: block; margin-top: 20px; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; border: 1px solid rgb(255 255 255 / .1); background: var(--z900); box-shadow: 0 10px 30px rgb(0 0 0 / .5); transition: box-shadow .2s; }
+.poster img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s cubic-bezier(.2,.7,.2,1), filter .3s; filter: brightness(.7); }
+.poster:hover { box-shadow: 0 0 0 2px var(--p300), 0 10px 30px rgb(0 0 0 / .5); }
+.poster:hover img { transform: scale(1.04); filter: brightness(.85); }
+.poster .shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgb(9 9 11 / .85)); }
+.poster .play { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); width: 56px; height: 56px; border-radius: 9999px; display: grid; place-items: center;
+  border: 1px solid color-mix(in oklch, var(--p200) 40%, transparent); background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / .5); filter: drop-shadow(0 0 18px oklch(58.5% 0.233 277.117 / .7)); transition: transform .2s; }
+.poster:hover .play { transform: translate(-50%, -50%) scale(1.08); }
+.poster .cap { position: absolute; left: 14px; right: 14px; bottom: 11px; display: flex; justify-content: space-between; align-items: baseline; text-align: left; }
+.poster .cap b { font-size: 14px; font-weight: 700; }
+.poster .cap span { font-size: 12px; color: var(--z400); font-variant-numeric: tabular-nums; }
+
+/* C: live preview window */
+.live { position: relative; display: block; margin: -6px 0 22px; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; border: 1px solid rgb(255 255 255 / .1); background: var(--z900); box-shadow: 0 0 0 1px rgb(0 0 0 / .5), 0 20px 40px rgb(0 0 0 / .55); transition: box-shadow .2s; }
+.live::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; z-index: 2; background: linear-gradient(90deg, transparent, var(--p400), transparent); }
+.live video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.live:hover { box-shadow: 0 0 0 2px var(--p300), 0 20px 40px rgb(0 0 0 / .55); }
+.live .chip { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px 5px 8px; border-radius: 8px; font-size: 12px; font-weight: 700;
+  background: rgb(24 24 27 / .82); backdrop-filter: blur(8px); border: 1px solid rgb(255 255 255 / .1); color: var(--z50); transition: background .2s; }
+.live .chip .sp { color: var(--p300); }
+.live:hover .chip { background: var(--p500); border-color: transparent; }
+.live:hover .chip .sp { color: var(--p100); }
+
+/* D: corner pill */
+.pill { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 12px; padding: 6px 16px 6px 6px; border-radius: 12px;
+  background: rgb(24 24 27 / .8); backdrop-filter: blur(10px); border: 1px solid rgb(255 255 255 / .1); box-shadow: 0 10px 30px rgb(0 0 0 / .5); transition: box-shadow .2s; white-space: nowrap; }
+.pill:hover { box-shadow: 0 0 0 2px var(--p300), 0 10px 30px rgb(0 0 0 / .5); }
+/* D2: no ring on hover, just a small lift */
+.pill.calm { padding-right: 18px; transition: transform .2s cubic-bezier(.2,.8,.2,1); }
+.pill.calm:hover { box-shadow: 0 10px 30px rgb(0 0 0 / .5); transform: translate(-50%, -3px); }
+@media (prefers-reduced-motion: reduce) { .pill.calm:hover { transform: translateX(-50%); } }
+.pill .th { position: relative; width: 72px; height: 40px; border-radius: 8px; overflow: hidden; flex: none; }
+.pill .th img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.75); }
+.pill .th span { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; }
+.pill .tx { text-align: left; }
+.pill .tx b { display: block; font-size: 13px; font-weight: 700; }
+.pill .tx span { font-size: 12px; color: var(--z400); }
+
+/* Player, shared: opens from the trigger's box */
+.film { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 40px; background: rgb(9 9 11 / .86); backdrop-filter: blur(6px); opacity: 0; transition: opacity .25s; }
+.film.open { opacity: 1; }
+.film[hidden] { display: none; }
+.player { position: relative; width: min(880px, 100%); }
+.frame { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; border: 1px solid rgb(255 255 255 / .1); box-shadow: 0 0 0 1px rgb(0 0 0 / .5), 0 30px 60px rgb(0 0 0 / .6); background: #000; transform-origin: top left; }
+.frame video { width: 100%; height: 100%; display: block; }
+.phd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.phd b { font-size: 16px; font-weight: 700; }
+.phd b span { margin-left: 8px; font-size: 13px; font-weight: 500; color: var(--z500); }
+.x { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; color: var(--z400); transition: background .2s, color .2s; }
+.x:hover { background: rgb(255 255 255 / .08); color: var(--z50); }
+.end { position: absolute; inset: 0; display: grid; place-content: center; gap: 14px; justify-items: center; background: rgb(9 9 11 / .78); backdrop-filter: blur(4px); text-align: center; }
+.end[hidden] { display: none; }
+.end p { margin: 0; font-size: 20px; font-weight: 700; }
+.end .discord { width: 300px; }
+.end .again { font-size: 13px; font-weight: 600; color: var(--z400); padding: 4px 8px; border-radius: 8px; }
+.end .again:hover { color: var(--z50); background: rgb(255 255 255 / .06); }
+.pfoot { margin-top: 12px; display: flex; justify-content: space-between; font-size: 12px; color: var(--z500); }
+.pfoot a { color: var(--p300); font-weight: 600; }
+.pfoot a:hover { color: var(--p200); }
+@media (prefers-reduced-motion: reduce) { .col { animation: none; } }
+</style>
+</head>
+<body>
+<nav class="minimap" id="minimap" aria-label="Variations"></nav>
+<main>
+  <section class="brief">
+    <h1>Let people watch the showcase film before signing in</h1>
+    <div class="goals">
+      <div class="goal"><b>Sign-in first</b>Continue with Discord stays the one primary action.</div>
+      <div class="goal"><b>Look</b>Uses the page’s existing pieces: metal badge, indigo, zinc glass.</div>
+      <div class="goal"><b>Stays on the page</b>The film plays over the page, so sign-in is one click away after.</div>
+      <div class="goal"><b>Cheap</b>The film is 1:04 and ~28 MB; nothing loads until asked (except C).</div>
+    </div>
+  </section>
+
+  <div id="variations"></div>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div><b>Explore</b>From B: try the poster card beside the column on wide screens instead of under it.</div>
+      <div><b>Remix</b>A: move the link into the tagline row, “Dota 2 hero organizer · Watch the film”.</div>
+      <div><b>Settle</b>D2: it leaves the sign-in column alone and reads as an aside.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+const FILE = '.kier/explore/0003-showcase-link-on-login.html';
+const ASSETS = '0003-assets/';
+
+const VARIATIONS = [
+  { id: 'Now', kind: 'now', name: 'Sign-in only, no film',
+    notes: [['good', 'One thing to do, nothing to skim past.'],
+            ['bad', 'A first-time visitor has to sign in to see what Smarf is.']] },
+  { id: 'A', kind: 'link', name: 'Quiet link under the privacy note',
+    notes: [['good', 'Smallest change; the column barely grows.'],
+            ['good', 'Returning players don’t notice it.'],
+            ['bad', 'Easy to miss for exactly the people it’s for.']] },
+  { id: 'B', kind: 'poster', name: 'Poster card under the button',
+    notes: [['good', 'A real frame of the board sells it at a glance.'],
+            ['good', 'Sits below sign-in, so the order of actions is clear.'],
+            ['bad', 'Column grows ~250px; the veil has to widen to keep it readable.']] },
+  { id: 'C', kind: 'live', name: 'Muted live preview above the button',
+    notes: [['good', 'Shows the app moving before anyone clicks.'],
+            ['bad', 'Loads video on every sign-in, returning players included.'],
+            ['bad', 'Competes with the drifting backdrop: two things moving.']] },
+  { id: 'D', kind: 'pill', name: 'Pill at the foot of the page',
+    notes: [['good', 'Column untouched; reads like a “what is this?” aside.'],
+            ['good', 'Thumbnail hints at content without taking space.'],
+            ['bad', 'Far from the lockup; on short windows it sits on the backdrop.']] },
+  { id: 'D2', kind: 'pill2', name: 'D, shorter copy and a gentle lift',
+    notes: [['good', 'Two short lines: a question, then the answer.'],
+            ['good', 'Hover lifts it 3px; no ring competing with the Discord button.'],
+            ['bad', 'No length shown; people don’t know it’s only a minute.']] }
+];
+
+const HEROES = ['axe','juggernaut','crystal_maiden','pudge','invoker','lina','sven','tidehunter','mirana','drow_ranger','earthshaker','lion','phantom_assassin','antimage','slardar','sniper','venomancer','zuus','windrunner','bristleback','bounty_hunter','faceless_void','storm_spirit','queenofpain','legion_commander','spectre','ursa','viper','witch_doctor','shadow_shaman','razor','luna','medusa','terrorblade','rubick','dazzle','earth_spirit','mars','pangolier','void_spirit','snapfire','dawnbreaker','marci','muerta','primal_beast','hoodwink','enigma','slark','tusk'];
+const CDN = 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/';
+
+const I = {
+  discord: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52c-.21.38-.45.87-.61 1.25a18.3 18.3 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25 19.7 19.7 0 0 0-4.88 1.52C.53 9.05-.32 13.58.1 18.06a19.9 19.9 0 0 0 6 3.03c.49-.66.92-1.36 1.3-2.1-.71-.27-1.39-.6-2.04-.98.17-.13.34-.26.5-.4a14.2 14.2 0 0 0 12.28 0c.17.14.34.27.5.4-.65.38-1.33.71-2.04.98.38.74.81 1.44 1.3 2.1a19.9 19.9 0 0 0 6-3.03c.5-5.18-.84-9.67-3.58-13.69ZM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42s.96-2.42 2.16-2.42 2.18 1.1 2.16 2.42c0 1.33-.96 2.42-2.16 2.42Zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42s.95-2.42 2.15-2.42 2.18 1.1 2.16 2.42c0 1.33-.95 2.42-2.16 2.42Z"/></svg>',
+  lock: '<svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>',
+  play: (s) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true"><path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.34-5.89a1.5 1.5 0 0 0 0-2.54L6.3 2.84Z"/></svg>`,
+  speaker: '<svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M10.5 3.75a.75.75 0 0 0-1.26-.55L5.6 6.5H4a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1.6l3.64 3.3a.75.75 0 0 0 1.26-.55V3.75ZM15.95 5.05a.75.75 0 0 0-1.06 1.06 5.5 5.5 0 0 1 0 7.78.75.75 0 0 0 1.06 1.06 7 7 0 0 0 0-9.9ZM13.83 7.17a.75.75 0 0 0-1.06 1.06 2.5 2.5 0 0 1 0 3.54.75.75 0 1 0 1.06 1.06 4 4 0 0 0 0-5.66Z"/></svg>',
+  x: '<svg viewBox="0 0 20 20" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/></svg>'
+};
+
+const backdrop = () => {
+  const cols = Array.from({ length: 14 }, (_, c) => {
+    const set = Array.from({ length: 7 }, (_, i) => HEROES[(c * 7 + i * 3) % HEROES.length]);
+    const imgs = [0, 1, 2, 3].map(() => set.map((k) => `<img src="${CDN}${k}.png" alt="">`).join('')).join('');
+    return `<div class="col" style="--set:${7 * 84}px;animation-duration:${36 + (c % 3) * 6}s;animation-delay:${-c * 5}s;animation-direction:${c % 2 ? 'reverse' : 'normal'}">${imgs}</div>`;
+  }).join('');
+  return `<div class="bd" aria-hidden="true"><div class="cols">${cols}</div><div class="veil"></div></div>`;
+};
+
+const lockup = `
+  <div class="lockup"><div class="badge"><img src="${ASSETS}logo-mark.svg" alt=""></div><h1 class="word">Smarf</h1></div>
+  <p class="tag">Dota 2 hero organizer</p>`;
+const discordBtn = `<a href="#" class="discord">${I.discord}<span>Continue with Discord</span></a>`;
+const priv = `<p class="priv"><span class="lk">${I.lock}</span>Smarf gets your Discord <b>name, avatar and email</b>, never your password. First time? This makes your account.</p>`;
+
+const mockup = (v) => {
+  let col = '', outside = '';
+  if (v.kind === 'now') col = lockup + discordBtn + priv;
+  if (v.kind === 'link') col = lockup + discordBtn + priv +
+    `<div class="rule">New here?</div><a href="#" class="watch-link" data-film><span class="pl">${I.play(10)}</span>Watch Smarf in a minute <small>1:04</small></a>`;
+  if (v.kind === 'poster') col = lockup + discordBtn + priv +
+    `<a href="#" class="poster" data-film aria-label="Watch the Smarf film, 1 minute 4 seconds"><img src="${ASSETS}poster.jpg" alt=""><span class="shade"></span><span class="play">${I.play(22)}</span><span class="cap"><b>See it in a minute</b><span>1:04</span></span></a>`;
+  if (v.kind === 'live') col = lockup +
+    `<a href="#" class="live" data-film aria-label="Watch the Smarf film with sound, 1 minute 4 seconds"><video src="${ASSETS}loop.mp4" poster="${ASSETS}poster.jpg" autoplay muted loop playsinline></video><span class="chip"><span class="sp">${I.speaker}</span>Watch with sound · 1:04</span></a>` +
+    discordBtn + priv;
+  if (v.kind === 'pill') {
+    col = lockup + discordBtn + priv;
+    outside = `<a href="#" class="pill" data-film><span class="th"><img src="${ASSETS}poster.jpg" alt=""><span>${I.play(16)}</span></span><span class="tx"><b>What’s Smarf? Watch the tour</b><span>One minute, no sign-in · 1:04</span></span></a>`;
+  }
+  if (v.kind === 'pill2') {
+    col = lockup + discordBtn + priv;
+    outside = `<a href="#" class="pill calm" data-film><span class="th"><img src="${ASSETS}poster.jpg" alt=""><span>${I.play(16)}</span></span><span class="tx"><b>What’s Smarf?</b><span>Watch the tour</span></span></a>`;
+  }
+  return `${backdrop()}<div class="stage"><div class="colm">${col}</div></div>${outside}
+    <div class="film" hidden role="dialog" aria-modal="true" aria-label="Smarf film">
+      <div class="player">
+        <div class="phd"><b>Smarf in a minute<span>1:04</span></b><button class="x" title="Close">${I.x}</button></div>
+        <div class="frame"><video src="${ASSETS}film.mp4" poster="${ASSETS}poster.jpg" controls playsinline preload="none"></video>
+          <div class="end" hidden><p>Make your first board</p>${discordBtn}<button class="again">Watch again</button></div></div>
+        <div class="pfoot"><span>Esc to close</span><a href="#" class="skip">Skip to sign-in</a></div>
+      </div>
+    </div>`;
+};
+
+// Opens the player from the trigger's box (FLIP), so the film grows out of what was clicked.
+function wirePlayer(app) {
+  const lb = app.querySelector('.film');
+  const frame = lb.querySelector('.frame');
+  const video = frame.querySelector('video');
+  const end = frame.querySelector('.end');
+  let trigger = null;
+  const open = (t) => {
+    trigger = t;
+    lb.hidden = false; end.hidden = true;
+    const from = t.getBoundingClientRect(), to = frame.getBoundingClientRect();
+    frame.style.transition = 'none';
+    frame.style.transform = `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width}, ${from.height / to.height})`;
+    frame.getBoundingClientRect();
+    requestAnimationFrame(() => {
+      lb.classList.add('open');
+      frame.style.transition = 'transform .45s cubic-bezier(.2,.8,.2,1)';
+      frame.style.transform = 'none';
+    });
+    video.currentTime = 0; video.play().catch(() => {});
+    lb.querySelector('.x').focus({ preventScroll: true });
+  };
+  const close = () => {
+    video.pause(); lb.classList.remove('open');
+    setTimeout(() => { lb.hidden = true; }, 250);
+    trigger?.focus({ preventScroll: true });
+  };
+  app.querySelectorAll('[data-film]').forEach((t) => t.addEventListener('click', (e) => { e.preventDefault(); open(t); }));
+  lb.querySelector('.x').addEventListener('click', close);
+  lb.querySelector('.skip').addEventListener('click', (e) => { e.preventDefault(); close(); });
+  lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+  video.addEventListener('ended', () => { end.hidden = false; });
+  end.querySelector('.again').addEventListener('click', () => { end.hidden = true; video.currentTime = 0; video.play(); });
+  app.closeFilm = () => { if (!lb.hidden) { close(); return true; } return false; };
+}
+
+const promptFor = (verb, v) => {
+  const tail = `${v.id} in ${FILE}`;
+  if (verb === 'explore') return `Explore from ${tail}`;
+  if (verb === 'remix') return `Remix ${tail}:`;
+  return `Settle on ${tail}. Use it as target output and implementation reference. Build it in the codebase's conventions and tech stack.`;
+};
+const ACTIONS = [
+  ['explore', 'Explore from this', 'New variations in this direction'],
+  ['remix', 'Remix this', 'Fork it and apply your changes'],
+  ['settle', 'Settle on this', 'Build it in the codebase']
+];
+
+const root = document.getElementById('variations');
+const minimap = document.getElementById('minimap');
+const apps = [];
+
+VARIATIONS.forEach((v) => {
+  const sec = document.createElement('section');
+  sec.className = 'variation';
+  sec.id = `v-${v.id}`;
+  sec.innerHTML = `
+    <div class="vhead">
+      <span class="vid">${v.id}</span><span class="vname">${v.name}</span><span class="spacer"></span>
+      <button type="button" class="pick" aria-haspopup="menu" aria-expanded="false">Pick ▾</button>
+      <div class="menu" role="menu" hidden>
+        ${ACTIONS.map(([k, label, hint]) => `<button type="button" role="menuitem" data-verb="${k}"><b>${label}</b><span>${hint}</span></button>`).join('')}
+      </div>
+    </div>
+    <div class="copied" hidden></div>
+    <div class="canvas"><div class="app v-${v.kind === 'poster' ? 'b' : v.kind === 'live' ? 'c' : v.kind}">${mockup(v)}</div></div>
+    <div class="notes">${v.notes.map(([k, t]) => `<div class="note ${k}"><i>${k === 'good' ? 'Good' : 'Bad'}</i>${t}</div>`).join('')}</div>`;
+  root.appendChild(sec);
+
+  const app = sec.querySelector('.app');
+  apps.push(app);
+  app.addEventListener('click', (e) => { const a = e.target.closest('a'); if (a && !a.hasAttribute('data-film')) e.preventDefault(); });
+  wirePlayer(app);
+
+  const pick = sec.querySelector('.pick');
+  const menu = sec.querySelector('.menu');
+  const copied = sec.querySelector('.copied');
+  pick.addEventListener('click', (e) => { e.stopPropagation(); menu.hidden ? openMenu(pick, menu) : closeMenus(); });
+  menu.querySelectorAll('button').forEach((b) => b.addEventListener('click', async () => {
+    const text = promptFor(b.dataset.verb, v);
+    closeMenus(); pick.focus();
+    try {
+      await navigator.clipboard.writeText(text);
+      copied.innerHTML = '<em>Copied</em><code></code>';
+      copied.querySelector('code').textContent = text;
+    } catch {
+      copied.innerHTML = '<em style="color:var(--ink-2)">Copy this</em><input readonly />';
+      const input = copied.querySelector('input'); input.value = text; input.focus(); input.select();
+    }
+    copied.hidden = false;
+  }));
+
+  const mm = document.createElement('button');
+  mm.type = 'button';
+  mm.innerHTML = `<span class="ln"></span><span class="lb">${v.id} · ${v.name}</span>`;
+  mm.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
+  minimap.appendChild(mm);
+});
+
+function closeMenus() {
+  document.querySelectorAll('.menu').forEach((m) => { m.hidden = true; });
+  document.querySelectorAll('.pick').forEach((p) => p.setAttribute('aria-expanded', 'false'));
+}
+function openMenu(pick, menu) {
+  closeMenus(); menu.hidden = false; pick.setAttribute('aria-expanded', 'true'); menu.querySelector('button').focus();
+}
+document.addEventListener('click', (e) => { if (!e.target.closest('.menu')) closeMenus(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = document.querySelector('.menu:not([hidden])');
+  if (open) { closeMenus(); open.previousElementSibling.focus(); return; }
+  apps.some((a) => a.closeFilm());
+});
+
+const sections = [...document.querySelectorAll('.variation')];
+const lines = [...minimap.children];
+const updateMinimap = () => {
+  let idx = 0;
+  sections.forEach((s, i) => { if (s.getBoundingClientRect().top <= window.innerHeight * 0.35) idx = i; });
+  lines.forEach((l, i) => l.classList.toggle('on', i === idx));
+};
+window.addEventListener('scroll', updateMinimap, { passive: true });
+updateMinimap();
+</script>
+</body>
+</html>
