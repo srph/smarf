@@ -250,6 +250,332 @@ const preload = () =>
     })
   )
 
+// ---------- The reel ----------
+
+const ARROW =
+  '<svg class="arrow" width="26" height="26" viewBox="0 0 26 26"><path d="M5 2.5v18l4.6-4.1 3.1 6.9 3-1.3-3.1-6.8h6.2z" fill="#0b0b0f" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+
+const portraits = (keys) => keys.map((key) => `<img src="${CDN}${key}.png" alt="">`).join('')
+
+/** A category as a start's preview draws it: static, at (x, y), `width` wide. */
+const miniCard = (name, x, y, width, keys) =>
+  `<div class="mc" style="left:${x}px;top:${y}px"><div class="mc-h">${icon('bars')}<span>${name}</span></div><div class="mc-t" style="width:${width}px">${portraits(keys)}<i>${icon('plus')}</i></div></div>`
+
+const dockRow = (name) =>
+  `<div class="dockrow-in"><div class="switcher"><span class="dot"></span><span class="name">${name}</span>${icon('chevrons', 16)}</div><div class="dock-btns"><span class="ibtn">${icon('star')}</span><span class="ibtn">${icon('pencil')}</span><span class="ibtn">${icon('link')}</span><span class="ibtn">${icon('dots')}</span></div></div>`
+
+const boardRow = (name, count, { current = false, favorite = false } = {}) =>
+  `<div class="row${current ? ' cur' : ''}"><span class="row-ck">${current ? icon('check16', 14) : ''}</span><span class="row-n">${name}</span><span class="row-c">${count} heroes</span>${favorite ? `<span class="row-s">${icon('star', 14)}</span>` : ''}</div>`
+
+/** One close-up: its verb behind, the piece of UI (drawn at the app's size, then scaled up) and its label. */
+const makeShot = (id, word, label, scale, html) => {
+  const shot = make(
+    'div',
+    'shot',
+    `<div class="shot-word">${word}</div>
+     <div class="shot-mid"><div class="shot-ui">${html}<div class="rc"><span class="ripple"></span>${ARROW}</div></div></div>
+     <h2 class="shot-label">${label}</h2>`
+  )
+  shot.id = `shot-${id}`
+  shot.dataset.scale = scale
+  $('#reel').append(shot)
+}
+
+const buildReel = () => {
+  const keysOf = (list, count) => list.slice(0, count).map(([, key]) => key)
+  const tiers = Object.fromEntries(CATEGORIES.map((cat) => [cat.id, cat.heroes]))
+
+  // The app's three starts, with their own names and descriptions.
+  const starts = [
+    ['default', 'Default', 'The in-game grid: every hero, by attribute.', 'axe', miniCard('Strength', 0, 0, 448, keysOf(STRENGTH, 14)) + miniCard('Agility', 480, 0, 448, keysOf(AGILITY, 14))],
+    [
+      'tier',
+      'Tier List',
+      'Ranked by this patch’s 7000+ MMR meta, S to F.',
+      'bounty_hunter',
+      miniCard('S Tier', 0, 0, 536, Array(5).fill('bounty_hunter')) +
+        miniCard('F Tier', 548, 0, 448, tiers.f) +
+        miniCard('A Tier', 0, 109, 996, [...tiers.a, 'enigma']) +
+        miniCard('B Tier', 0, 218, 996, [...tiers.b, 'dawnbreaker', 'sven'])
+    ],
+    ['blank', 'Blank Slate', 'Two small categories to rename, fill or delete.', 'lion', miniCard('Pubstomp', 0, 0, 272, ['lion', 'bounty_hunter']) + miniCard('Grief Squad', 304, 0, 272, ['keeper_of_the_light', 'techies'])]
+  ]
+
+  makeShot(
+    'new',
+    'New board',
+    'Start a board from a template',
+    1.9,
+    `<div class="nb">
+      <div class="nb-in">
+        <div class="nb-head">Start this board with</div>
+        <div class="nb-starts">${starts
+          .map(
+            ([id, name, note, glow, cards]) =>
+              `<div class="start" id="start-${id}"><div class="pv"><img class="pv-glow" src="${CDN}${glow}.png" alt=""><div class="pv-board">${cards}</div></div><b>${name}</b><small>${note}</small></div>`
+          )
+          .join('')}</div>
+      </div>
+      <p class="nb-creating">Creating Tier List</p>
+    </div>`
+  )
+
+  makeShot(
+    'switch',
+    'Switch',
+    'Jump between boards',
+    2.2,
+    `<div class="sw">
+      <div class="pop">
+        <div class="pop-top"><div class="pop-search">${icon('search', 16)}<span>Find a board…</span></div><span class="pop-new">${icon('plus')}</span></div>
+        <div class="pop-label">Favorites</div>
+        ${boardRow('Meta tier list', 33, { current: true, favorite: true })}
+        ${boardRow('Captains Mode bans', 21, { favorite: true })}
+        <div class="pop-label">All boards</div>
+        ${boardRow('Offlane pool', 14)}
+        ${boardRow('Turbo picks', 9)}
+        ${boardRow('Party queue', 18)}
+      </div>
+      <div class="glass">${dockRow('<span class="n1">Meta tier list</span><span class="n2">Turbo picks</span>')}</div>
+    </div>`
+  )
+
+  makeShot(
+    'rename',
+    'Rename',
+    'Rename in place',
+    2.9,
+    `<div class="glass rn">
+      <div class="panel rn-form">
+        <div class="panel-head"><h3>Rename board</h3><span>${icon('x')}</span></div>
+        <div class="rn-input"><span class="rn-sel">Meta tier list</span><span class="rn-typed">${'7.41 meta'
+          .split('')
+          .map((letter) => `<span>${letter === ' ' ? '&nbsp;' : letter}</span>`)
+          .join('')}</span><span class="rn-caret"></span></div>
+        <div class="panel-foot"><span class="btn-quiet">Cancel</span><span class="metal metal-sm">Save</span></div>
+      </div>
+      <div class="rn-row">${dockRow('<span class="glint">7.41 meta</span>')}</div>
+    </div>`
+  )
+
+  makeShot(
+    'add',
+    'Add',
+    'Add a category',
+    2.8,
+    `<div class="nc">
+      <div class="card" style="width:272px"><div class="card-head">${icon('bars')}<span class="nc-name">Untitled</span></div><div class="tray" style="height:61px"><div class="plus" style="top:7px;left:7px">${icon('plus')}</div></div></div>
+      <div class="metal"><span class="sheen"></span>${icon('plus')}<span>New category</span></div>
+    </div>`
+  )
+
+  makeShot(
+    'remove',
+    'Delete',
+    'Delete a category',
+    2.4,
+    `<div class="card dc" style="width:536px">
+      <div class="card-head">${icon('bars')}<span>C Tier</span><span class="dc-trash">${icon('trash', 16)}</span></div>
+      <div class="tray dc-tray">${portraits(tiers.c)}</div>
+      <div class="dc-confirm"><span class="dc-red"></span><span class="dc-ic">${icon('trash', 16)}</span><p><span>Delete</span> <b>C Tier</b>?</p><div class="dc-btns"><span class="dc-cancel">Cancel</span><span class="dc-del">Delete</span></div></div>
+    </div>`
+  )
+
+  makeShot(
+    'hold',
+    'Hold',
+    'Hold to delete a board',
+    2.9,
+    `<div class="glass hd"><div class="panel">
+      <div class="panel-head"><h3><span class="light">Delete</span> 7.41 meta</h3><span>${icon('x')}</span></div>
+      <p>This permanently deletes its 6 categories and 33 heroes.</p>
+      <div class="panel-foot"><span class="btn-quiet">Cancel</span><span class="hold"><span class="hold-fill"></span><span class="hold-hl"></span><span class="hold-l1">Hold to delete</span><span class="hold-l2"><i class="spin"></i>Deleting…</span></span></div>
+    </div></div>`
+  )
+}
+
+/** Plays the reel on `tl` from `from`: hard cuts, each shot punching in. Returns when it ends. */
+const reelScene = (tl, from) => {
+  let t = from
+  let count = 0
+
+  const cut = (id, length, play) => {
+    const shot = $(`#shot-${id}`)
+    const ui = $('.shot-ui', shot)
+    const pointer = $('.rc', shot)
+    const scale = Number(shot.dataset.scale)
+    const side = count++ % 2 ? 1 : -1
+    const start = t
+
+    gsap.set(shot, { autoAlpha: 0 })
+    gsap.set(ui, { xPercent: -50, yPercent: -50, scale })
+    gsap.set($('.shot-word', shot), { xPercent: -50 })
+    // The pointer is drawn inside the scaled UI, so it's scaled back down to a steady size.
+    gsap.set(pointer, { scale: 1.7 / scale, opacity: 0 })
+
+    tl.set(shot, { autoAlpha: 1 }, start)
+    tl.set(shot, { autoAlpha: 0 }, start + length)
+    tl.fromTo(ui, { scale: scale * 1.24, rotation: side * 1.5 }, { scale, rotation: 0, duration: 0.45, ease: 'expo.out', immediateRender: false }, start)
+    tl.to(ui, { scale: scale * 1.05, duration: length - 0.45, ease: 'none' }, start + 0.45)
+    tl.fromTo($('.shot-word', shot), { x: side * -150 }, { x: side * 150, duration: length, ease: 'none', immediateRender: false }, start)
+    tl.fromTo($('.shot-label', shot), { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'expo.out', immediateRender: false }, start)
+    tl.fromTo('#reel-flash', { opacity: 0.3 }, { opacity: 0, duration: 0.3, immediateRender: false }, start)
+
+    /** A point on `target`, in the shot's own (unscaled) pixels. */
+    const on = (target, fx = 0.5, fy = 0.5) => {
+      let x = 0
+      let y = 0
+      for (let node = target; node && node !== ui; node = node.offsetParent) {
+        x += node.offsetLeft
+        y += node.offsetTop
+      }
+      return { x: x + target.offsetWidth * fx, y: y + target.offsetHeight * fy }
+    }
+
+    const cur = {
+      show: (at, point) => tl.set(pointer, { ...point, opacity: 1 }, start + at),
+      move: (at, point, duration = 0.3) => tl.to(pointer, { ...point, duration, ease: 'power2.inOut' }, start + at),
+      press: (at) => tl.to($('.arrow', pointer), { scale: 0.82, duration: 0.09 }, start + at),
+      release: (at) => tl.to($('.arrow', pointer), { scale: 1, duration: 0.18 }, start + at),
+      click: (at) => {
+        cur.press(at)
+        cur.release(at + 0.11)
+        tl.fromTo($('.ripple', pointer), { scale: 0.3, opacity: 0.7 }, { scale: 1.5, opacity: 0, duration: 0.45, immediateRender: false }, start + at)
+      },
+      hide: (at) => tl.to(pointer, { opacity: 0, duration: 0.12 }, start + at)
+    }
+
+    play({ at: (seconds) => start + seconds, on, cur, find: (selector) => $(selector, shot), all: (selector) => $$(selector, shot) })
+    t += length
+  }
+
+  gsap.set('#reel-note', { opacity: 0 })
+  tl.to('#reel-note', { opacity: 1, duration: 0.3 }, from)
+
+  // New board: hover Tier List, choose it, and the tray folds into "Creating Tier List".
+  cut('new', 2.1, ({ at, on, cur, find, all }) => {
+    const tray = find('.nb')
+    const tier = find('#start-tier')
+    const height = tray.offsetHeight
+    gsap.set(tray, { width: 840, height })
+
+    cur.show(0, { x: 640, y: height + 14 })
+    cur.move(0.12, on(tier, 0.55, 0.62), 0.4)
+    tl.to(tier, { backgroundColor: 'rgb(255 255 255 / 0.07)', y: -2, duration: 0.15 }, at(0.45))
+    tl.to(all('#start-tier .mc img'), { filter: 'grayscale(0) brightness(1)', duration: 0.25 }, at(0.45))
+    tl.to(find('#start-tier .pv-glow'), { opacity: 0.6, duration: 0.25 }, at(0.45))
+    cur.click(0.85)
+    cur.hide(0.95)
+
+    tl.to(find('.nb-in'), { opacity: 0, duration: 0.18 }, at(0.92))
+    tl.to(tray, { width: 320, height: 46, duration: 0.5, ease: 'power3.out' }, at(0.92))
+    tl.to(find('.nb-creating'), { opacity: 1, duration: 0.2 }, at(1.2))
+    tl.fromTo(find('.nb-creating'), { backgroundPosition: '100% 0' }, { backgroundPosition: '0% 0', duration: 0.9, ease: 'sine.inOut', immediateRender: false }, at(1.15))
+  })
+
+  // Switch boards: down the list, pick one, and the dock takes its name.
+  cut('switch', 1.4, ({ at, on, cur, find, all }) => {
+    const rows = all('.row')
+    const hover = 'rgb(255 255 255 / 0.07)'
+    cur.show(0, on(rows[1], 0.45))
+    tl.set(rows[1], { backgroundColor: hover }, at(0))
+    ;[2, 3].forEach((row, step) => {
+      const when = 0.25 + step * 0.26
+      cur.move(when, on(rows[row], 0.45), 0.18)
+      tl.set(rows[row - 1], { backgroundColor: 'transparent' }, at(when + 0.1))
+      tl.set(rows[row], { backgroundColor: hover }, at(when + 0.1))
+    })
+    cur.click(0.85)
+    cur.hide(0.95)
+    tl.to(find('.pop'), { opacity: 0, y: 6, duration: 0.15, ease: 'power2.in' }, at(0.92))
+    tl.to(find('.sw'), { y: -170, duration: 0.35, ease: 'power3.out' }, at(0.95))
+    tl.set(find('.n1'), { display: 'none' }, at(0.98))
+    tl.set(find('.n2'), { display: 'inline' }, at(0.98))
+    tl.fromTo(find('.glass'), { scale: 1 }, { scale: 1.06, duration: 0.12, yoyo: true, repeat: 1, immediateRender: false }, at(0.98))
+  })
+
+  // Rename: the name is selected, typed over, saved, and glints green in the dock.
+  cut('rename', 1.9, ({ at, on, cur, find, all }) => {
+    const panel = find('.rn')
+    const save = find('.metal')
+    gsap.set(panel, { height: panel.offsetHeight })
+
+    cur.show(0, on(find('.rn-input'), 0.8, 1.5))
+    tl.set(find('.rn-sel'), { display: 'none' }, at(0.3))
+    all('.rn-typed span').forEach((letter, index) => tl.set(letter, { display: 'inline' }, at(0.3 + index * 0.05)))
+    cur.move(0.7, on(save), 0.28)
+    cur.click(1.05)
+    cur.hide(1.15)
+
+    tl.to(find('.rn-form'), { opacity: 0, duration: 0.12 }, at(1.12))
+    tl.to(panel, { height: 46, duration: 0.3, ease: 'power3.out' }, at(1.12))
+    tl.to(find('.rn-row'), { opacity: 1, duration: 0.15 }, at(1.22))
+    tl.to(find('.glint'), { backgroundPosition: '0% 0', duration: 0.6, ease: 'sine.inOut' }, at(1.25))
+  })
+
+  // New category: the button's sheen, and an untitled card springs in with its name ready to type over.
+  cut('add', 1.2, ({ at, on, cur, find }) => {
+    const button = find('.metal')
+    const card = find('.card')
+    gsap.set(card, { opacity: 0, scale: 0.8, y: 24 })
+
+    cur.show(0, on(button, 0.85, 1.4))
+    cur.move(0.05, on(button, 0.6), 0.2)
+    cur.click(0.3)
+    tl.fromTo(find('.sheen'), { xPercent: -170, skewX: -20, opacity: 1 }, { xPercent: 360, duration: 0.6, ease: 'power1.out', immediateRender: false }, at(0.3))
+    tl.to(card, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(2.2)' }, at(0.38))
+  })
+
+  // Delete a category: red fades in over its header, the trash tips, the question rises, then the card goes.
+  cut('remove', 1.6, ({ at, on, cur, find }) => {
+    const confirm = find('.dc-confirm')
+    const bin = find('.dc-ic')
+    const risers = [find('.dc-confirm p'), find('.dc-btns')]
+    gsap.set(confirm, { autoAlpha: 0 })
+    gsap.set(find('.dc-red'), { opacity: 0 })
+    gsap.set(bin, { opacity: 0, scale: 0.6, rotation: -16 })
+    gsap.set(risers, { opacity: 0, y: 6 })
+
+    cur.show(0, on(find('.dc-tray'), 0.8, 0.7))
+    cur.move(0.05, on(find('.dc-trash')), 0.22)
+    cur.click(0.3)
+
+    tl.set(confirm, { autoAlpha: 1 }, at(0.34))
+    tl.to(find('.dc-red'), { opacity: 1, duration: 0.3 }, at(0.34))
+    tl.to(bin, { opacity: 1, scale: 1.12, rotation: 5, duration: 0.25 }, at(0.34))
+    tl.to(bin, { scale: 1, rotation: 0, duration: 0.17 }, at(0.59))
+    tl.to(risers, { opacity: 1, y: 0, duration: 0.3, stagger: 0.06 }, at(0.4))
+
+    cur.move(0.62, on(find('.dc-del')), 0.26)
+    cur.click(1)
+    cur.hide(1.1)
+    tl.to(find('.dc'), { scale: 0.92, opacity: 0, filter: 'blur(8px)', duration: 0.32, ease: 'power2.in' }, at(1.06))
+  })
+
+  // Hold to delete: the graphite button fills with red metal while it's held, then the board goes.
+  cut('hold', 2.1, ({ at, on, cur, find }) => {
+    const panel = find('.hd')
+    const hold = find('.hold')
+
+    cur.show(0, on(hold, 0.2, 1.6))
+    cur.move(0.02, on(hold, 0.6, 0.6), 0.22)
+    cur.press(0.3)
+    tl.to(find('.hold-fill'), { clipPath: 'inset(0% 0% 0% 0% round 7px)', duration: 1, ease: 'none' }, at(0.3))
+    tl.to(hold, { borderColor: 'rgb(255 162 162 / 0.55)', duration: 1, ease: 'none' }, at(0.3))
+    tl.to(panel, { scale: 1.07, duration: 1, ease: 'power1.in' }, at(0.3))
+
+    cur.release(1.3)
+    tl.to(find('.hold-l1'), { opacity: 0, duration: 0.12 }, at(1.3))
+    tl.to(find('.hold-l2'), { opacity: 1, duration: 0.12 }, at(1.34))
+    tl.to(find('.spin'), { rotation: 720, duration: 0.8, ease: 'none' }, at(1.3))
+    cur.hide(1.5)
+    tl.to(panel, { scale: 0.8, opacity: 0, filter: 'blur(10px)', duration: 0.3, ease: 'power3.in' }, at(1.75))
+  })
+
+  tl.to('#reel-note', { opacity: 0, duration: 0.2 }, t - 0.25)
+  return t
+}
+
 // ---------- The timeline ----------
 
 const camera = { z: 1, cx: 640, cy: 360 }
@@ -628,10 +954,14 @@ const build = () => {
   tl.set($('.ibtn-hover', shareButton), { opacity: 0 }, H + 7.5)
   cam(H + 7.5, 1, 640, 360, 1.3)
 
-  // ===== 7. How it's built =====
+  // ===== 7. The small interactions, in quick close-ups =====
 
-  const U = H + 9
-  tl.to('#win', { opacity: 0, scale: 0.93, filter: 'blur(10px)', duration: 0.7, ease: 'power2.in' }, U)
+  const M = H + 9
+  tl.to('#win', { opacity: 0, scale: 0.93, filter: 'blur(10px)', duration: 0.6, ease: 'power2.in' }, M)
+
+  // ===== 8. How it's built =====
+
+  const U = reelScene(tl, M + 0.6) - 0.5
   tl.set('#hood', { visibility: 'visible', opacity: 1 }, U + 0.5)
 
   const lines = $$('.hood-lines p')
@@ -646,11 +976,11 @@ const build = () => {
     if (index > 0) tl.to(lines[index - 1], { color: '#71717b', duration: 0.5 }, at)
   })
   tl.to(stackItems, { opacity: 1, x: 0, duration: 0.45, stagger: 0.07 }, U + 1.3)
-  tl.to('#hood', { opacity: 0, duration: 0.6, ease: 'power2.in' }, U + 9.6)
+  tl.to('#hood', { opacity: 0, duration: 0.6, ease: 'power2.in' }, U + 6.9)
 
-  // ===== 8. Outro =====
+  // ===== 9. Outro =====
 
-  const O = U + 10.1
+  const O = U + 7.4
   columns.forEach((col) => tl.to(col, { y: '-=150', duration: 6.6, ease: 'none' }, O))
   tl.to('#backdrop', { opacity: 1, duration: 1.3, ease: 'power1.out' }, O)
   tl.set('#outro', { opacity: 1 }, O)
@@ -685,6 +1015,7 @@ const start = async () => {
   buildBoard()
   buildDock()
   buildSelector()
+  buildReel()
   buildBackdrop()
 
   // Widths are measured while building, so the fonts and portraits have to be in first.

@@ -1027,7 +1027,7 @@ svg {
   text-transform: uppercase;
   white-space: nowrap;
   color: transparent;
-  -webkit-text-stroke: 2px rgb(255 255 255 / 0.07);
+  -webkit-text-stroke: 2px rgb(255 255 255 / 0.09);
 }
 
 .shot-mid {
