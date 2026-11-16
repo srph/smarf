@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { cn } from 'cn'
 import { useNavigate } from 'react-router'
-import { Popover } from '@base-ui/react/popover'
+import { GlassPopover } from '~/src/components/glass-popover/glass-popover'
 import { ScrollArea } from '@base-ui/react/scroll-area'
 import { CheckIcon, ChevronUpDownIcon, MagnifyingGlassIcon, PlusIcon, StarIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
@@ -45,8 +45,8 @@ const BoardToolbarSwitcher: React.FC<Props> = ({ status, justRenamed, anchor }) 
   const searchRef = useRef<HTMLInputElement>(null)
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger
+    <GlassPopover.Root open={open} onOpenChange={setOpen}>
+      <GlassPopover.Trigger
         aria-label={`Switch board (current: ${board.name})`}
         className={cn(
           // A fixed width, so the dock doesn't resize with the name: a long one fades out at the edge instead. It's
@@ -76,29 +76,20 @@ const BoardToolbarSwitcher: React.FC<Props> = ({ status, justRenamed, anchor }) 
         <span className="ml-3 text-zinc-500">
           <Icon icon={ChevronUpDownIcon} size={16} />
         </span>
-      </Popover.Trigger>
+      </GlassPopover.Trigger>
 
-      <Popover.Portal>
-        <Popover.Positioner
-          side="top"
-          align="start"
-          sideOffset={10}
-          anchor={anchor}
-          positionMethod="fixed"
-          className="z-(--z-popover)">
-          <Popover.Popup
-            initialFocus={searchRef}
-            onKeyDown={moveBetweenRows}
-            className={cn(
-              'w-84 rounded-xl border border-white/10 bg-zinc-800/95 p-1.5 shadow-2xl shadow-black/70 backdrop-blur-md outline-none focus-gap-zinc-800',
-              'transition-[opacity,translate] duration-200 data-ending-style:translate-y-1 data-ending-style:opacity-0 data-ending-style:duration-150',
-              'data-starting-style:translate-y-1 data-starting-style:opacity-0'
-            )}>
-            <BoardSwitcherList searchRef={searchRef} onDone={() => setOpen(false)} />
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Portal>
-    </Popover.Root>
+      <GlassPopover.Popup
+        side="top"
+        align="start"
+        sideOffset={10}
+        anchor={anchor}
+        positionMethod="fixed"
+        initialFocus={searchRef}
+        onKeyDown={moveBetweenRows}
+        className="w-84">
+        <BoardSwitcherList searchRef={searchRef} onDone={() => setOpen(false)} />
+      </GlassPopover.Popup>
+    </GlassPopover.Root>
   )
 }
 
