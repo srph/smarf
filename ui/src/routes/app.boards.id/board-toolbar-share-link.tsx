@@ -4,7 +4,7 @@ import { ClipboardIcon, LinkIcon } from '@heroicons/react/20/solid'
 // Drawn for 16px, so the check keeps its weight at that size.
 import { CheckIcon } from '@heroicons/react/16/solid'
 import { Icon } from '~/src/components/icon/icon'
-import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
+import { blurSwap, blurSwapHidden } from '~/src/lib/ui/blur-swap'
 import { type Slug } from '~/src/types/api'
 import { BoardToolbarTooltip } from './board-toolbar-tooltip'
 

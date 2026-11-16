@@ -7,7 +7,7 @@ import { ArrowUpOnSquareIcon, DocumentDuplicateIcon, EyeIcon } from '@heroicons/
 import { CheckIcon } from '@heroicons/react/16/solid'
 import { Icon } from '~/src/components/icon/icon'
 import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
-import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
+import { blurSwap, blurSwapHidden } from '~/src/lib/ui/blur-swap'
 import { useBoard } from './board-context'
 import { BoardToolbarIconButton, BoardToolbarTooltip } from './board-toolbar-tooltip'
 import { MetalButton } from './metal-button'

@@ -18,7 +18,7 @@ import { BoardToolbarSwitcher } from './board-toolbar-switcher'
 import { BoardToolbarIconButton } from './board-toolbar-tooltip'
 import { useToolbarSaveStatus } from './use-toolbar-save-status'
 import { NEW_BOARD_DOCK, NEW_BOARD_SLIDE, useNewBoardHandoff } from './use-new-board-handoff'
-import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
+import { blurSwap, blurSwapHidden } from '~/src/lib/ui/blur-swap'
 
 type Mode = 'idle' | 'rename' | 'delete' | 'share'
 

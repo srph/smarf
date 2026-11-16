@@ -2,7 +2,7 @@ import React, { createContext, use, useState } from 'react'
 import { cn } from 'cn'
 import { Button, type ButtonProps } from '~/src/components/button/button'
 import { Spinner } from '~/src/components/spinner/spinner'
-import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
+import { blurSwap, blurSwapHidden } from '~/src/lib/ui/blur-swap'
 import { useWidthTransition } from '~/src/hooks/use-width-transition'
 
 const BusyContext = createContext(false)
