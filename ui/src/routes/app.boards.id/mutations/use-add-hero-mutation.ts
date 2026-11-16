@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid'
 import { http } from '~/src/lib/http'
 import { useBoardCache } from '~/src/queries/boards/use-board-cache'
 import { last } from '~/src/utils'
-import { type Category, type Hero, type HeroCategoryPivot, type ID } from '~/src/types/api'
+import { type Category, type Hero, type HeroCategoryPivot, type ID, type Slug } from '~/src/types/api'
 import { ORDER_FIRST_BUFFER, ORDER_LAST_BUFFER } from '~/src/contexts/board-list/constants'
 import { getCategoryHeight } from '~/src/contexts/board-list/utils'
 
@@ -28,8 +28,8 @@ const addHeroVariables = (category: Category, hero: Hero): AddHeroVariables => (
 })
 
 /** Add a hero to a category (variables from `addHeroVariables`). It shows right away. */
-const useAddHeroMutation = (boardId: ID) => {
-  const { optimisticSaveOptions, update } = useBoardCache(boardId)
+const useAddHeroMutation = (boardSlug: Slug) => {
+  const { optimisticSaveOptions, update } = useBoardCache(boardSlug)
 
   return useMutation({
     ...optimisticSaveOptions,

@@ -38,7 +38,7 @@ const recordWrites = () => {
 
 describe('drag and drop', () => {
   it('reorders a hero within its category', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
     const carries = await findCategory('Carries')
 
     heroTile(carries, 'Anti-Mage').focus()
@@ -51,7 +51,7 @@ describe('drag and drop', () => {
   })
 
   it('shows a reorder in one step on drop, without the old order in between', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
     const carries = await findCategory('Carries')
 
     heroTile(carries, 'Anti-Mage').focus()
@@ -70,7 +70,7 @@ describe('drag and drop', () => {
   })
 
   it('moves a hero to another category', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
     const carries = await findCategory('Carries')
     const supports = await findCategory('Supports')
 
@@ -86,7 +86,7 @@ describe('drag and drop', () => {
   })
 
   it('puts a hero back where it was when a drag into another category is cancelled', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
     const carries = await findCategory('Carries')
     const supports = await findCategory('Supports')
 
@@ -104,7 +104,7 @@ describe('drag and drop', () => {
 
   it('saves a move into another category once, on drop', async () => {
     const writes = recordWrites()
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
     const carries = await findCategory('Carries')
     const supports = await findCategory('Supports')
 
@@ -127,7 +127,7 @@ describe('drag and drop', () => {
 
   it('saves nothing when a drag into another category is cancelled', async () => {
     const writes = recordWrites()
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
     const carries = await findCategory('Carries')
     const supports = await findCategory('Supports')
 
@@ -146,7 +146,7 @@ describe('drag and drop', () => {
   // React 18+ renders after each pointer event rather than during it, and dnd-kit applies moves after
   // that render. user-event leaves time between steps, like a real drag spread over frames.
   it('moves a category by dragging its handle', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
     const supports = await findCategory('Supports')
     const handle = supports.querySelector('svg')!.parentElement!
 
@@ -166,7 +166,7 @@ describe('drag and drop', () => {
   it("stops a dragged category at the workspace's right edge", async () => {
     // A 1000px workspace: Supports is 300px wide, so its left edge can go no further than 700px.
     installFakeLayout({ workspaceWidth: 1000 })
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
     const supports = await findCategory('Supports')
     const handle = supports.querySelector('svg')!.parentElement!
 
@@ -188,7 +188,7 @@ describe('drag and drop', () => {
   describe('removing a hero by dragging it off every category', () => {
     it('removes it and saves the smaller category once', async () => {
       const writes = recordWrites()
-      const { user } = renderApp(`/b/${board.id}`)
+      const { user } = renderApp(`/b/${board.slug}`)
       const carries = await findCategory('Carries')
 
       await user.pointer([
@@ -208,7 +208,7 @@ describe('drag and drop', () => {
     })
 
     it('poofs where it was dropped, then clears the poof', async () => {
-      const { user } = renderApp(`/b/${board.id}`)
+      const { user } = renderApp(`/b/${board.slug}`)
       const carries = await findCategory('Carries')
 
       await user.pointer([
@@ -227,7 +227,7 @@ describe('drag and drop', () => {
 
     it("keeps it when it's dropped on a category's heading", async () => {
       const writes = recordWrites()
-      const { user } = renderApp(`/b/${board.id}`)
+      const { user } = renderApp(`/b/${board.slug}`)
       const carries = await findCategory('Carries')
 
       await user.pointer([
@@ -245,7 +245,7 @@ describe('drag and drop', () => {
 
     it('keeps it when it comes back onto a category before the drop', async () => {
       const writes = recordWrites()
-      const { user } = renderApp(`/b/${board.id}`)
+      const { user } = renderApp(`/b/${board.slug}`)
       const carries = await findCategory('Carries')
 
       await user.pointer([
@@ -262,7 +262,7 @@ describe('drag and drop', () => {
 
     it('keeps it when the drag is cancelled off every category', async () => {
       const writes = recordWrites()
-      const { user } = renderApp(`/b/${board.id}`)
+      const { user } = renderApp(`/b/${board.slug}`)
       const carries = await findCategory('Carries')
 
       await user.pointer([

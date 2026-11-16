@@ -35,7 +35,7 @@ interface Props {
 const BoardToolbarSharePanel: React.FC<Props> = ({ onClose }) => {
   const { board } = useBoard()
 
-  const { mutate: publishBoard, isPending, variables } = usePublishBoardMutation(board.id)
+  const { mutate: publishBoard, isPending, variables } = usePublishBoardMutation(board.slug)
 
   const [publishing, setPublishing] = useDelayedState(false, (previous) => previous, PUBLISHING_MIN_MS)
 
@@ -98,7 +98,7 @@ const BoardToolbarSharePanel: React.FC<Props> = ({ onClose }) => {
             animate={{ height: 'auto', opacity: 1, transition: open }}
             exit={{ height: 0, opacity: 0, transition: close }}
             className="overflow-hidden">
-            <BoardToolbarShareLink boardId={board.id} pending={isPublishing} />
+            <BoardToolbarShareLink boardSlug={board.slug} pending={isPublishing} />
           </motion.div>
         )}
       </AnimatePresence>

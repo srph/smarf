@@ -16,7 +16,7 @@ interface Props {
 }
 
 const BoardListItem: React.FC<Props> = ({ board }) => {
-  const { mutate: favoriteBoard } = useFavoriteBoardMutation(board.id)
+  const { mutate: favoriteBoard } = useFavoriteBoardMutation(board.slug)
 
   // The row whose star was just toggled slides past the others; keep it on top of them until it lands.
   const [isMoving, setIsMoving] = useState(false)
@@ -40,7 +40,7 @@ const BoardListItem: React.FC<Props> = ({ board }) => {
         isMoving && 'z-(--z-board-list-moving-item)'
       )}>
       <Link
-        to={`/b/${board.id}`}
+        to={`/b/${board.slug}`}
         className="flex w-full items-center justify-between p-4 pr-0 focus-visible:outline-none">
         <h3 className="my-4.5 text-lg font-medium">{board.name}</h3>
         <span className="text-xs text-zinc-400">

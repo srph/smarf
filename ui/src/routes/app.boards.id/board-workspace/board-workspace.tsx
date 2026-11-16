@@ -44,14 +44,14 @@ const BoardWorkspace: React.FC = () => {
 
   const queryClient = useQueryClient()
 
-  const { mutate: moveHero } = useMoveHeroMutation(board.id)
+  const { mutate: moveHero } = useMoveHeroMutation(board.slug)
 
-  const { mutate: moveCategory } = useMoveCategoryMutation(board.id)
+  const { mutate: moveCategory } = useMoveCategoryMutation(board.slug)
 
-  const { mutate: removeHero } = useRemoveHeroMutation(board.id)
+  const { mutate: removeHero } = useRemoveHeroMutation(board.slug)
 
   // The cached board, read when called: a drag can fire several moves before React re-renders with the last one.
-  const getSavedBoard = () => queryClient.getQueryData<Board>(boardKeys.detail(board.id))
+  const getSavedBoard = () => queryClient.getQueryData<Board>(boardKeys.detail(board.slug))
 
   // While dragging a hero into another category: show it there (saved on drop).
   const handleHeroMove = (from: HeroPosition, to: HeroPosition) =>

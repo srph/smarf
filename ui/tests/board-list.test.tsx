@@ -60,7 +60,7 @@ describe('board list', () => {
     let release!: () => void
     const answered = new Promise<void>((resolve) => (release = resolve))
     server.use(
-      http.put(`${API}/boards/:id/favorite`, async () => {
+      http.put(`${API}/boards/:slug/favorite`, async () => {
         await answered
         return HttpResponse.json({ message: 'Server Error' }, { status: 500 })
       })

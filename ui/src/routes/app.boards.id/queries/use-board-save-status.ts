@@ -1,13 +1,13 @@
 import { useMutationState } from '@tanstack/react-query'
 import { boardKeys } from '~/src/queries/boards/board-keys'
-import { type ID } from '~/src/types/api'
+import { type Slug } from '~/src/types/api'
 
 type BoardSaveStatus = 'saving' | 'saved' | 'error'
 
 /** Whether any save for this board is in flight, and otherwise whether the latest one failed. */
-const useBoardSaveStatus = (boardId: ID): BoardSaveStatus => {
+const useBoardSaveStatus = (boardSlug: Slug): BoardSaveStatus => {
   const statuses = useMutationState({
-    filters: { mutationKey: boardKeys.detail(boardId) },
+    filters: { mutationKey: boardKeys.detail(boardSlug) },
     select: (mutation) => mutation.state.status
   })
 

@@ -48,7 +48,7 @@ const BoardVisitorDock: React.FC = () => {
 
   const location = useLocation()
 
-  const { mutate: duplicateBoard, isPending: isCopying, isError: isCopyError } = useDuplicateBoardMutation(board.id)
+  const { mutate: duplicateBoard, isPending: isCopying, isError: isCopyError } = useDuplicateBoardMutation(board.slug)
 
   const [linkCopied, setLinkCopied] = useState(false)
 
@@ -60,7 +60,7 @@ const BoardVisitorDock: React.FC = () => {
 
   const handleShare = async (evt: React.MouseEvent<HTMLButtonElement>) => {
     const button = evt.currentTarget
-    const copied = await copyText(`${window.location.origin}/b/${board.id}`)
+    const copied = await copyText(`${window.location.origin}/b/${board.slug}`)
     // The fallback's field takes focus to select its text; hand it back.
     button.focus({ preventScroll: true })
     if (copied) setLinkCopied(true)
@@ -69,7 +69,7 @@ const BoardVisitorDock: React.FC = () => {
   const handleCopy = () => {
     // Signing in comes back here, to copy then.
     if (!user) return navigate('/login', { state: { from: location } })
-    duplicateBoard(undefined, { onSuccess: (copy) => navigate(`/b/${copy.id}`) })
+    duplicateBoard(undefined, { onSuccess: (copy) => navigate(`/b/${copy.slug}`) })
   }
 
   return (

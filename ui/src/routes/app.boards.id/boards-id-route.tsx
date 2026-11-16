@@ -7,12 +7,12 @@ import { BoardToolbar } from './board-toolbar'
 import { BoardVisitorView } from './board-visitor-view'
 
 const BoardsIdRoute = () => {
-  // The route is /b/:boardId, so it's always set.
-  const boardId = useParams().boardId!
+  // The route is /b/:boardSlug, so it's always set.
+  const boardSlug = useParams().boardSlug!
 
   return (
     // Keyed so switching boards starts with a fresh draft and drag state.
-    <BoardProvider key={boardId} boardId={boardId}>
+    <BoardProvider key={boardSlug} boardSlug={boardSlug}>
       <BoardView />
     </BoardProvider>
   )

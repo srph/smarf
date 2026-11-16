@@ -8,7 +8,7 @@ import { Spacer } from '~/src/components/spacer/spacer'
 import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
 import { useLatestValue } from '~/src/hooks/use-latest-value'
 import { HttpError } from '~/src/lib/http'
-import { type Board, type ID } from '~/src/types/api'
+import { type Board, type Slug } from '~/src/types/api'
 import { useBoardQuery } from './queries/use-board-query'
 
 interface BoardContextType {
@@ -23,15 +23,15 @@ interface BoardContextType {
 const BoardContext = createContext<BoardContextType | null>(null)
 
 interface Props {
-  boardId: ID
+  boardSlug: Slug
 }
 
 /** Loads the board (with pending and error states) and holds the drag/resize draft shown in its place. */
-const BoardProvider: React.FC<React.PropsWithChildren<Props>> = ({ boardId, children }) => {
+const BoardProvider: React.FC<React.PropsWithChildren<Props>> = ({ boardSlug, children }) => {
   // The query and the draft live in the same component on purpose. Clearing the draft right after mutate()
   // re-renders this component, which then reads the cache fresh, already holding the mutation's change. Passing
   // the board in as a prop instead would show the old position for a frame.
-  const { data: savedBoard, status, error, refetch, isFetching } = useBoardQuery(boardId)
+  const { data: savedBoard, status, error, refetch, isFetching } = useBoardQuery(boardSlug)
 
   const { user } = useAuthUser()
 

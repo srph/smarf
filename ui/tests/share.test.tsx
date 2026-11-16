@@ -17,7 +17,7 @@ const OTHER_USER: DbUser = {
 
 const findBoard = (board: DbBoard) => db.boards.find((b) => b.id === board.id)
 
-const linkTo = (board: DbBoard) => `${window.location.origin}/b/${board.id}`
+const linkTo = (board: DbBoard) => `${window.location.origin}/b/${board.slug}`
 
 beforeEach(() => {
   db.users.push({ ...OTHER_USER })
@@ -26,7 +26,7 @@ beforeEach(() => {
 describe('sharing a board', () => {
   it('makes the board public from the dock, and copies its link', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries', heroes: ['Axe'] }])
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Share board' }))
     expect(screen.getByRole('radio', { name: /Private/ })).toBeChecked()
@@ -57,14 +57,14 @@ describe('sharing a board', () => {
       release = resolve
     })
     server.use(
-      http.put(`${API}/boards/:id/public`, async () => {
+      http.put(`${API}/boards/:slug/public`, async () => {
         await released
         await delay(0)
         return undefined
       })
     )
     const board = seedBoard('Ranked', [{ name: 'Carries' }])
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Share board' }))
     await user.click(screen.getByRole('radio', { name: /Public/ }))
@@ -79,7 +79,7 @@ describe('sharing a board', () => {
 
   it('makes a public board private again, and the link goes', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries' }], { is_public: true })
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Share board (public)' }))
     expect(screen.getByRole('textbox', { name: 'Board link' })).toHaveValue(linkTo(board))
@@ -94,7 +94,7 @@ describe('sharing a board', () => {
 describe('visiting a public board', () => {
   it('opens signed out, read-only, with whose it is', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries', heroes: ['Axe', 'Lion'] }], { is_public: true })
-    renderApp(`/b/${board.id}`, { loggedIn: false })
+    renderApp(`/b/${board.slug}`, { loggedIn: false })
 
     expect(await screen.findByRole('region', { name: 'Carries' })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'Axe' })).toBeInTheDocument()
@@ -106,12 +106,12 @@ describe('visiting a public board', () => {
     expect(screen.queryByRole('button', { name: /Switch board/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'New Board' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument()
-    expect(currentPath()).toBe(`/b/${board.id}`)
+    expect(currentPath()).toBe(`/b/${board.slug}`)
   })
 
   it('copies its link from the dock', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries' }], { is_public: true })
-    const { user } = renderApp(`/b/${board.id}`, { loggedIn: false })
+    const { user } = renderApp(`/b/${board.slug}`, { loggedIn: false })
 
     await user.click(await screen.findByRole('button', { name: 'Copy link' }))
 
@@ -121,7 +121,7 @@ describe('visiting a public board', () => {
 
   it('signs in from the navigation and comes back to the board', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries' }], { is_public: true })
-    const { user } = renderApp(`/b/${board.id}`, { loggedIn: false })
+    const { user } = renderApp(`/b/${board.slug}`, { loggedIn: false })
 
     await user.click(await screen.findByRole('button', { name: 'Sign in' }))
 
@@ -131,7 +131,7 @@ describe('visiting a public board', () => {
 
   it("shows each category's colour", async () => {
     const board = seedBoard('Ranked', [{ name: 'S Tier', color: 'red' }, { name: 'Untested' }], { is_public: true })
-    renderApp(`/b/${board.id}`, { loggedIn: false })
+    renderApp(`/b/${board.slug}`, { loggedIn: false })
 
     expect(await screen.findByRole('region', { name: 'S Tier' })).toHaveAttribute('data-color', 'red')
     expect(screen.getByRole('region', { name: 'Untested' })).not.toHaveAttribute('data-color')
@@ -139,7 +139,7 @@ describe('visiting a public board', () => {
 
   it('asks a signed-out visitor to log in to copy it', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries' }], { is_public: true })
-    const { user } = renderApp(`/b/${board.id}`, { loggedIn: false })
+    const { user } = renderApp(`/b/${board.slug}`, { loggedIn: false })
 
     await user.click(await screen.findByRole('button', { name: 'Copy to my boards' }))
 
@@ -152,7 +152,7 @@ describe('visiting a public board', () => {
       is_public: true,
       user_id: OTHER_USER.id
     })
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     expect(await screen.findByText(/You're viewing/)).toHaveTextContent('by Rylai. Only Rylai can edit it.')
     expect(screen.queryByRole('button', { name: /Switch board/ })).not.toBeInTheDocument()
@@ -162,7 +162,7 @@ describe('visiting a public board', () => {
     // The copy opens in the editor, and it's the visitor's.
     expect(await screen.findByRole('button', { name: /Switch board/ })).toBeInTheDocument()
     const copy = db.boards.at(-1)!
-    expect(currentPath()).toBe(`/b/${copy.id}`)
+    expect(currentPath()).toBe(`/b/${copy.slug}`)
     expect(copy.user_id).toBe(TEST_USER.id)
     expect(copy.is_public).toBe(false)
     expect(findBoard(board)!.user_id).toBe(OTHER_USER.id)
@@ -172,7 +172,7 @@ describe('visiting a public board', () => {
 describe('a private board', () => {
   it('sends a signed-out visitor to log in', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries' }])
-    renderApp(`/b/${board.id}`, { loggedIn: false })
+    renderApp(`/b/${board.slug}`, { loggedIn: false })
 
     expect(await screen.findByRole('link', { name: 'Continue with Discord' })).toBeInTheDocument()
     expect(currentPath()).toBe('/login')
@@ -180,7 +180,7 @@ describe('a private board', () => {
 
   it("tells a signed-in visitor it's private or doesn't exist", async () => {
     const board = seedBoard('Rylai picks', [{ name: 'Supports' }], { user_id: OTHER_USER.id })
-    renderApp(`/b/${board.id}`)
+    renderApp(`/b/${board.slug}`)
 
     expect(await screen.findByRole('alert')).toHaveTextContent("This board is private or doesn't exist.")
     expect(screen.getByRole('link', { name: 'Go to your boards' })).toHaveAttribute('href', '/')

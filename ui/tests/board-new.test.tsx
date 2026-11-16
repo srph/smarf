@@ -38,7 +38,7 @@ describe('new board', () => {
     ])
     // The tiers arrive coloured, warm to cool; F has none.
     expect(db.categories.map((category) => category.color)).toEqual(['red', null, 'orange', 'amber', 'emerald', 'blue'])
-    expect(currentPath()).toBe(`/b/${db.boards[0].id}`)
+    expect(currentPath()).toBe(`/b/${db.boards[0].slug}`)
 
     // Back skips /b/new: it goes where New Board was clicked.
     window.history.back()

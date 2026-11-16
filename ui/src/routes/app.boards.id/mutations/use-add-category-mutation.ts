@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { v4 as uuid } from 'uuid'
 import { http } from '~/src/lib/http'
 import { useBoardCache } from '~/src/queries/boards/use-board-cache'
-import { type Board, type Category, type ID } from '~/src/types/api'
+import { type Board, type Category, type Slug } from '~/src/types/api'
 import { CATEGORY_BODY_INITIAL_WIDTH, CATEGORY_SPACING } from '~/src/contexts/board-list/constants'
 import { getCategoryHeight, getLowestCategoryBottom } from '~/src/contexts/board-list/utils'
 
@@ -28,13 +28,13 @@ const newCategory = (board: Board): Category => {
 }
 
 /** Add a category (from `newCategory`). It shows right away; the saved category replaces it once the server answers. */
-const useAddCategoryMutation = (boardId: ID) => {
-  const { optimisticSaveOptions, update } = useBoardCache(boardId)
+const useAddCategoryMutation = (boardSlug: Slug) => {
+  const { optimisticSaveOptions, update } = useBoardCache(boardSlug)
 
   return useMutation({
     ...optimisticSaveOptions,
     mutationFn: (category: Category) =>
-      http<{ category: Category }>(`boards/${boardId}/categories`, {
+      http<{ category: Category }>(`boards/${boardSlug}/categories`, {
         method: 'POST',
         body: { ...category, category_buffer_id: category.id }
       }),

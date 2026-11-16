@@ -53,13 +53,13 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({
 }) => {
   const { board, updateDraft, clearDraft } = useBoard()
 
-  const { mutate: addHero } = useAddHeroMutation(board.id)
+  const { mutate: addHero } = useAddHeroMutation(board.slug)
 
-  const { mutate: updateCategory } = useUpdateCategoryMutation(board.id)
+  const { mutate: updateCategory } = useUpdateCategoryMutation(board.slug)
 
-  const { mutate: resizeCategory } = useResizeCategoryMutation(board.id)
+  const { mutate: resizeCategory } = useResizeCategoryMutation(board.slug)
 
-  const { mutate: deleteCategory } = useDeleteCategoryMutation(board.id)
+  const { mutate: deleteCategory } = useDeleteCategoryMutation(board.slug)
 
   const [isHeroSelectorOpen, setIsHeroSelectorOpen] = useState(false)
 

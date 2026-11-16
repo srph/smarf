@@ -5,22 +5,22 @@ import { ClipboardIcon, LinkIcon } from '@heroicons/react/20/solid'
 import { CheckIcon } from '@heroicons/react/16/solid'
 import { Icon } from '~/src/components/icon/icon'
 import { blurSwap, blurSwapHidden } from '~/src/lib/blur-swap'
-import { type ID } from '~/src/types/api'
+import { type Slug } from '~/src/types/api'
 import { BoardToolbarTooltip } from './board-toolbar-tooltip'
 
 // How long Copy says "Copied".
 const COPIED_MS = 1600
 
 interface Props {
-  boardId: ID
+  boardSlug: Slug
   /** Publishing: a shimmering bar stands in for the link, and Copy waits. */
   pending: boolean
 }
 
 /** A public board's link, read-only, with a copy button inside the field. */
-const BoardToolbarShareLink: React.FC<Props> = ({ boardId, pending }) => {
+const BoardToolbarShareLink: React.FC<Props> = ({ boardSlug, pending }) => {
   // The board's own URL: the owner gets the editor there, everyone else the read-only view.
-  const url = `${window.location.origin}/b/${boardId}`
+  const url = `${window.location.origin}/b/${boardSlug}`
 
   const [copied, setCopied] = useState(false)
 

@@ -40,13 +40,13 @@ const BoardToolbar: React.FC = () => {
 
   const navigate = useNavigate()
 
-  const status = useToolbarSaveStatus(board.id)
+  const status = useToolbarSaveStatus(board.slug)
 
   const handoff = useNewBoardHandoff()
 
-  const { mutate: favoriteBoard } = useFavoriteBoardMutation(board.id)
+  const { mutate: favoriteBoard } = useFavoriteBoardMutation(board.slug)
 
-  const { mutate: duplicateBoard, isPending: isDuplicating } = useDuplicateBoardMutation(board.id)
+  const { mutate: duplicateBoard, isPending: isDuplicating } = useDuplicateBoardMutation(board.slug)
 
   const [mode, setMode] = useState<Mode>('idle')
 
@@ -177,7 +177,7 @@ const BoardToolbar: React.FC = () => {
                   <BoardToolbarMoreMenu
                     ref={moreButtonRef}
                     isDuplicating={isDuplicating}
-                    onDuplicate={() => duplicateBoard(undefined, { onSuccess: (copy) => navigate(`/b/${copy.id}`) })}
+                    onDuplicate={() => duplicateBoard(undefined, { onSuccess: (copy) => navigate(`/b/${copy.slug}`) })}
                     onDelete={() => setMode('delete')}
                   />
                 </div>

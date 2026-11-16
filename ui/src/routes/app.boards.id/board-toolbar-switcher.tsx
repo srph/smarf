@@ -119,9 +119,9 @@ const BoardSwitcherList: React.FC<ListProps> = ({ searchRef, onDone }) => {
 
   const { data: boards, status: boardsStatus } = useBoardsQuery(favoritesFirst)
 
-  const open = (id: string) => {
+  const open = (slug: string) => {
     onDone()
-    if (id !== board.id) navigate(`/b/${id}`)
+    if (slug !== board.slug) navigate(`/b/${slug}`)
   }
 
   // Nothing is saved until a start is chosen on /b/new.
@@ -222,7 +222,7 @@ const SectionLabel: React.FC<React.PropsWithChildren> = ({ children }) => (
 interface BoardRowProps {
   board: BoardSummary
   current: boolean
-  onSelect: (id: string) => void
+  onSelect: (slug: string) => void
 }
 
 const BoardRow: React.FC<BoardRowProps> = ({ board, current, onSelect }) => (
@@ -230,7 +230,7 @@ const BoardRow: React.FC<BoardRowProps> = ({ board, current, onSelect }) => (
     data-row
     type="button"
     aria-current={current || undefined}
-    onClick={() => onSelect(board.id)}
+    onClick={() => onSelect(board.slug)}
     className={cn(
       'flex h-9 w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-left text-zinc-200 outline-none',
       // In a list, the ring sits inside the row.

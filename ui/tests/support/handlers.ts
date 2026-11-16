@@ -1,6 +1,16 @@
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
-import { HEROES, boardJson, boardSummaryJson, categoryJson, db, nextId, type DbBoard, type DbCategory } from './db'
+import {
+  HEROES,
+  boardJson,
+  boardSummaryJson,
+  categoryJson,
+  db,
+  nextId,
+  nextSlug,
+  type DbBoard,
+  type DbCategory
+} from './db'
 
 export const API = 'http://smarf.test/api'
 
@@ -14,19 +24,21 @@ function userIdFrom(request: Request) {
   return (token && db.tokens.get(token)) || null
 }
 
-function ownedBoard(request: Request, id: string): DbBoard | null {
+/** Like the API, a board's routes find it by slug (case-sensitive), not its id. */
+function ownedBoard(request: Request, slug: string): DbBoard | null {
   const userId = userIdFrom(request)
-  return db.boards.find((b) => b.id === id && b.user_id === userId) ?? null
+  return db.boards.find((b) => b.slug === slug && b.user_id === userId) ?? null
 }
 
 /** A board the request may view: its own, or anyone's public one. */
-function visibleBoard(request: Request, id: string): DbBoard | null {
-  return ownedBoard(request, id) ?? db.boards.find((b) => b.id === id && b.is_public) ?? null
+function visibleBoard(request: Request, slug: string): DbBoard | null {
+  return ownedBoard(request, slug) ?? db.boards.find((b) => b.slug === slug && b.is_public) ?? null
 }
 
 function ownedCategory(request: Request, id: string): DbCategory | null {
   const category = db.categories.find((c) => c.id === id)
-  return category && ownedBoard(request, category.board_id) ? category : null
+  const board = category && db.boards.find((b) => b.id === category.board_id)
+  return board && board.user_id === userIdFrom(request) ? category : null
 }
 
 type Json = Record<string, any>
@@ -77,6 +89,7 @@ export const handlers = [
     const body = (await request.json()) as Json
     const board: DbBoard = {
       id: nextId('board'),
+      slug: nextSlug(),
       user_id: userId,
       name: body.name,
       is_favorite: null,
@@ -104,19 +117,19 @@ export const handlers = [
         db.pivots.push({ id: nextId('pivot'), category_id: category.id, hero_id: h.id, order: h.order })
       }
     }
-    // Like the real API, the created board comes back whole, as GET /boards/:id returns it.
+    // Like the real API, the created board comes back whole, as GET /boards/:slug returns it.
     return HttpResponse.json({ board: boardJson(board) })
   }),
 
   // Signed out too: the owner, or anyone when it's public. Like the API, a 404 for the rest.
-  http.get(`${API}/boards/:id`, ({ request, params }) => {
-    const board = visibleBoard(request, params.id as string)
+  http.get(`${API}/boards/:slug`, ({ request, params }) => {
+    const board = visibleBoard(request, params.slug as string)
     if (!board) return HttpResponse.json({}, { status: 404 })
     return HttpResponse.json({ board: boardJson(board) })
   }),
 
-  http.put(`${API}/boards/:id`, async ({ request, params }) => {
-    const board = ownedBoard(request, params.id as string)
+  http.put(`${API}/boards/:slug`, async ({ request, params }) => {
+    const board = ownedBoard(request, params.slug as string)
     if (!board) return HttpResponse.json({}, { status: 404 })
     const body = (await request.json()) as Json
     board.name = body.name
@@ -124,8 +137,8 @@ export const handlers = [
     return HttpResponse.json({ board })
   }),
 
-  http.put(`${API}/boards/:id/favorite`, async ({ request, params }) => {
-    const board = ownedBoard(request, params.id as string)
+  http.put(`${API}/boards/:slug/favorite`, async ({ request, params }) => {
+    const board = ownedBoard(request, params.slug as string)
     if (!board) return HttpResponse.json({}, { status: 404 })
     const body = (await request.json()) as Json
     board.is_favorite = Boolean(body.is_favorite)
@@ -133,8 +146,8 @@ export const handlers = [
     return HttpResponse.json({ board })
   }),
 
-  http.put(`${API}/boards/:id/public`, async ({ request, params }) => {
-    const board = ownedBoard(request, params.id as string)
+  http.put(`${API}/boards/:slug/public`, async ({ request, params }) => {
+    const board = ownedBoard(request, params.slug as string)
     if (!board) return HttpResponse.json({}, { status: 404 })
     const body = (await request.json()) as Json
     board.is_public = Boolean(body.is_public)
@@ -142,14 +155,15 @@ export const handlers = [
   }),
 
   // The owner, or anyone signed in when it's public. The copy is the copier's, private and unstarred.
-  http.post(`${API}/boards/:id/duplicate`, ({ request, params }) => {
+  http.post(`${API}/boards/:slug/duplicate`, ({ request, params }) => {
     const userId = userIdFrom(request)
     if (!userId) return unauthorized()
-    const original = visibleBoard(request, params.id as string)
+    const original = visibleBoard(request, params.slug as string)
     if (!original) return HttpResponse.json({}, { status: 404 })
     const board: DbBoard = {
       ...original,
       id: nextId('board'),
+      slug: nextSlug(),
       user_id: userId,
       name: original.name,
       is_public: false,
@@ -169,8 +183,8 @@ export const handlers = [
     return HttpResponse.json({ board })
   }),
 
-  http.delete(`${API}/boards/:id`, ({ request, params }) => {
-    const board = ownedBoard(request, params.id as string)
+  http.delete(`${API}/boards/:slug`, ({ request, params }) => {
+    const board = ownedBoard(request, params.slug as string)
     if (!board) return HttpResponse.json({}, { status: 404 })
     const categoryIds = db.categories.filter((c) => c.board_id === board.id).map((c) => c.id)
     db.pivots = db.pivots.filter((p) => !categoryIds.includes(p.category_id))
@@ -179,8 +193,8 @@ export const handlers = [
     return HttpResponse.json({ success: true })
   }),
 
-  http.post(`${API}/boards/:id/categories`, async ({ request, params }) => {
-    const board = ownedBoard(request, params.id as string)
+  http.post(`${API}/boards/:slug/categories`, async ({ request, params }) => {
+    const board = ownedBoard(request, params.slug as string)
     if (!board) return HttpResponse.json({}, { status: 404 })
     const body = (await request.json()) as Json
     const category: DbCategory = {

@@ -18,7 +18,7 @@ interface Props {
 const BoardToolbarAddCategoryButton: React.FC<Props> = ({ locked }) => {
   const { board } = useBoard()
 
-  const { mutate: addCategory } = useAddCategoryMutation(board.id)
+  const { mutate: addCategory } = useAddCategoryMutation(board.slug)
 
   return (
     <BoardToolbarTooltip label="Finish editing the board first" disabled={!locked}>

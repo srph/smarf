@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
 import { useBoardCache } from '~/src/queries/boards/use-board-cache'
-import { type ID } from '~/src/types/api'
+import { type ID, type Slug } from '~/src/types/api'
 
 interface MoveCategoryVariables {
   category_id: ID
@@ -10,8 +10,8 @@ interface MoveCategoryVariables {
 }
 
 /** Save where a category was dropped. */
-const useMoveCategoryMutation = (boardId: ID) => {
-  const { optimisticSaveOptions, update } = useBoardCache(boardId)
+const useMoveCategoryMutation = (boardSlug: Slug) => {
+  const { optimisticSaveOptions, update } = useBoardCache(boardSlug)
 
   return useMutation({
     ...optimisticSaveOptions,

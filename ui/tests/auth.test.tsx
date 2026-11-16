@@ -60,11 +60,11 @@ describe('auth', () => {
 
   it('returns to the page that asked for login', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries', heroes: ['Axe'] }])
-    const state = await startDiscordLogin(`/b/${board.id}`)
+    const state = await startDiscordLogin(`/b/${board.slug}`)
     returnFromDiscord({ code: DISCORD_CODE, state })
 
     expect(await screen.findByDisplayValue('Carries')).toBeInTheDocument()
-    expect(currentPath()).toBe(`/b/${board.id}`)
+    expect(currentPath()).toBe(`/b/${board.slug}`)
   })
 
   it('says so when the visitor cancels on Discord, and links straight back to Discord', async () => {
@@ -80,7 +80,7 @@ describe('auth', () => {
 
   it('signs in from the retry link, and still returns to the page that asked for login', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries', heroes: ['Axe'] }])
-    await startDiscordLogin(`/b/${board.id}`)
+    await startDiscordLogin(`/b/${board.slug}`)
     const { unmount } = returnFromDiscord({ error: 'access_denied', state: 'whatever' })
     const state = stateOf(await retryLink())
     unmount()
@@ -88,7 +88,7 @@ describe('auth', () => {
     returnFromDiscord({ code: DISCORD_CODE, state })
 
     expect(await screen.findByDisplayValue('Carries')).toBeInTheDocument()
-    expect(currentPath()).toBe(`/b/${board.id}`)
+    expect(currentPath()).toBe(`/b/${board.slug}`)
   })
 
   it("doesn't sign in when the state doesn't match the one it sent", async () => {

@@ -1,5 +1,8 @@
 export type ID = string
 
+/** A board's six-character, case-sensitive slug: its link is /b/<slug>, and the API finds boards by it. */
+export type Slug = string
+
 export type HeroAttribute = 'strength' | 'agility' | 'intelligence' | 'universal'
 
 export interface Hero {
@@ -43,6 +46,7 @@ export interface BoardOwner {
 
 export interface Board {
   id: ID
+  slug: Slug
   user_id: ID
   /** Anyone with the link can view it (signed out too); only the owner can edit. */
   is_public: boolean

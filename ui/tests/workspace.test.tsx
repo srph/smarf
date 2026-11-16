@@ -28,7 +28,7 @@ const setColor = (name: string, color: CategoryColor) => {
 
 describe('board workspace', () => {
   it('shows the board, its categories, and their heroes', async () => {
-    renderApp(`/b/${board.id}`)
+    renderApp(`/b/${board.slug}`)
 
     const carries = await findCategory('Carries')
     expect(heroesShownIn(carries)).toEqual(['Anti-Mage', 'Juggernaut'])
@@ -38,7 +38,7 @@ describe('board workspace', () => {
 
   it('switches boards from the toolbar, listing each with its hero count', async () => {
     const turbo = seedBoard('Turbo', [{ name: 'Mid', heroes: ['Juggernaut'] }])
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Switch board (current: Ranked)' }))
     const ranked = await screen.findByRole('button', { name: /^Ranked/ })
@@ -49,12 +49,12 @@ describe('board workspace', () => {
     expect(within(turboRow).getByText('1 hero')).toBeInTheDocument()
     await user.click(turboRow)
 
-    await waitFor(() => expect(currentPath()).toBe(`/b/${turbo.id}`))
+    await waitFor(() => expect(currentPath()).toBe(`/b/${turbo.slug}`))
     expect(await findCategory('Mid')).toBeInTheDocument()
   })
 
   it('starts a new board from the button beside the switcher search', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Switch board (current: Ranked)' }))
     await screen.findByRole('textbox', { name: 'Find a board' })
@@ -68,7 +68,7 @@ describe('board workspace', () => {
   })
 
   it('renames the board', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Rename board' }))
     const input = await screen.findByRole('textbox', { name: 'Board name' })
@@ -81,7 +81,7 @@ describe('board workspace', () => {
   })
 
   it('disables New category while the board is being renamed', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Rename board' }))
     const newCategory = screen.getByRole('button', { name: 'New category' })
@@ -96,7 +96,7 @@ describe('board workspace', () => {
   })
 
   it('favorites the board from the toolbar', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Favorite board' }))
 
@@ -108,12 +108,12 @@ describe('board workspace', () => {
     let release!: () => void
     const answered = new Promise<void>((resolve) => (release = resolve))
     server.use(
-      http.put(`${API}/boards/:id/favorite`, async () => {
+      http.put(`${API}/boards/:slug/favorite`, async () => {
         await answered
         return undefined
       })
     )
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Favorite board' }))
     await user.click(screen.getByRole('button', { name: 'Unfavorite board' }))
@@ -126,19 +126,19 @@ describe('board workspace', () => {
   })
 
   it('duplicates the board and opens the copy', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'More board actions' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Duplicate board' }))
 
     await waitFor(() => expect(db.boards).toHaveLength(2))
     const copy = db.boards[1]
-    await waitFor(() => expect(currentPath()).toBe(`/b/${copy.id}`))
+    await waitFor(() => expect(currentPath()).toBe(`/b/${copy.slug}`))
     expect(heroesShownIn(await findCategory('Carries'))).toEqual(['Anti-Mage', 'Juggernaut'])
   })
 
   it('deletes the board once Hold to delete is held', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'More board actions' }))
     await user.click(await screen.findByRole('menuitem', { name: 'Delete board…' }))
@@ -160,7 +160,7 @@ describe('board workspace', () => {
   })
 
   it('adds a category', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'New category' }))
 
@@ -170,7 +170,7 @@ describe('board workspace', () => {
 
   it('adds the first category to an empty board, at the top', async () => {
     const empty = seedBoard('Empty', [])
-    const { user } = renderApp(`/b/${empty.id}`)
+    const { user } = renderApp(`/b/${empty.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'New category' }))
 
@@ -179,7 +179,7 @@ describe('board workspace', () => {
   })
 
   it('renames a category', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const title = await screen.findByDisplayValue('Supports')
     await user.clear(title)
@@ -190,7 +190,7 @@ describe('board workspace', () => {
   })
 
   it('deletes a category after confirming', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const supports = await findCategory('Supports')
     await user.click(within(supports).getByTitle('Delete category'))
@@ -204,7 +204,7 @@ describe('board workspace', () => {
   })
 
   it('backs out of deleting a category on Escape and hands focus back to the trash', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const supports = await findCategory('Supports')
     const trash = within(supports).getByTitle('Delete category')
@@ -218,7 +218,7 @@ describe('board workspace', () => {
   })
 
   it('colours a category from the swatches in its header, previewing each on the way', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const supports = await findCategory('Supports')
     expect(supports).not.toHaveAttribute('data-color')
@@ -245,7 +245,7 @@ describe('board workspace', () => {
 
   it('backs out of colouring on Escape or the X, with nothing saved', async () => {
     setColor('Supports', 'red')
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const supports = await findCategory('Supports')
     expect(supports).toHaveAttribute('data-color', 'red')
@@ -267,7 +267,7 @@ describe('board workspace', () => {
 
   it('clears a category colour with None', async () => {
     setColor('Supports', 'red')
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const supports = await findCategory('Supports')
     await user.click(within(supports).getByRole('button', { name: 'Colour' }))
@@ -279,7 +279,7 @@ describe('board workspace', () => {
   })
 
   it('adds a hero from the hero selector', async () => {
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const supports = await findCategory('Supports')
     await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
@@ -291,7 +291,7 @@ describe('board workspace', () => {
 
   it('says "Add heroes" beside the plus only while a category is empty', async () => {
     const empty = seedBoard('Fresh', [{ name: 'Pocket picks', heroes: [] }])
-    const { user } = renderApp(`/b/${empty.id}`)
+    const { user } = renderApp(`/b/${empty.slug}`)
 
     const pocket = await findCategory('Pocket picks')
     expect(within(pocket).getByText('Add heroes')).toBeInTheDocument()
@@ -312,7 +312,7 @@ describe('board workspace', () => {
         return HttpResponse.json({ message: 'Server Error' }, { status: 500 })
       })
     )
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const supports = await findCategory('Supports')
     await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
@@ -334,7 +334,7 @@ describe('board workspace', () => {
         return undefined // fall through to the regular handler
       })
     )
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const title = await screen.findByDisplayValue('Supports')
     await user.clear(title)
@@ -351,7 +351,7 @@ describe('board workspace', () => {
     server.events.on('request:start', ({ request }) => {
       if (request.method !== 'GET') writes.push(`${request.method} ${new URL(request.url).pathname}`)
     })
-    renderApp(`/b/${board.id}`)
+    renderApp(`/b/${board.slug}`)
 
     await findCategory('Supports')
     await new Promise((resolve) => setTimeout(resolve, 400)) // past the title's save debounce
@@ -364,12 +364,12 @@ describe('board workspace', () => {
     let release!: () => void
     const answered = new Promise<void>((resolve) => (release = resolve))
     server.use(
-      http.post(`${API}/boards/:id/categories`, async () => {
+      http.post(`${API}/boards/:slug/categories`, async () => {
         await answered
         return undefined
       })
     )
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     expect(await screen.findByText('Saved')).toBeInTheDocument()
     await user.click(await screen.findByRole('button', { name: 'New category' }))
@@ -384,9 +384,9 @@ describe('board workspace', () => {
 
   it("offers a retry when the board can't be loaded", async () => {
     let fail = true
-    server.use(http.get(`${API}/boards/:id`, () => (fail ? HttpResponse.json({}, { status: 500 }) : undefined)))
+    server.use(http.get(`${API}/boards/:slug`, () => (fail ? HttpResponse.json({}, { status: 500 }) : undefined)))
     vi.useFakeTimers({ shouldAdvanceTime: true })
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     // Skip past React Query's retries (3, with backoff) before it gives up.
     for (let i = 0; i < 20 && !screen.queryByRole('alert'); i++) await vi.advanceTimersByTimeAsync(500)
@@ -403,7 +403,7 @@ describe('board workspace', () => {
     let release!: () => void
     const answered = new Promise<void>((resolve) => (release = resolve))
     server.use(
-      http.put(`${API}/boards/:id/favorite`, async () => {
+      http.put(`${API}/boards/:slug/favorite`, async () => {
         await answered
         return undefined
       })
@@ -412,7 +412,7 @@ describe('board workspace', () => {
     server.events.on('request:start', ({ request }) => {
       if (request.method !== 'GET') writes.push(`${request.method} ${new URL(request.url).pathname}`)
     })
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'Favorite board' }))
     await user.click(screen.getByRole('button', { name: 'New category' }))
@@ -420,12 +420,12 @@ describe('board workspace', () => {
     // The new category shows right away, but its save waits for the favorite's.
     expect(await findCategory('Untitled')).toBeInTheDocument()
     await new Promise((resolve) => setTimeout(resolve, 100))
-    expect(writes).toEqual([`PUT /api/boards/${board.id}/favorite`])
+    expect(writes).toEqual([`PUT /api/boards/${board.slug}/favorite`])
 
     release()
 
     await waitFor(() =>
-      expect(writes).toEqual([`PUT /api/boards/${board.id}/favorite`, `POST /api/boards/${board.id}/categories`])
+      expect(writes).toEqual([`PUT /api/boards/${board.slug}/favorite`, `POST /api/boards/${board.slug}/categories`])
     )
     server.events.removeAllListeners()
   })
@@ -439,7 +439,7 @@ describe('board workspace', () => {
         return HttpResponse.json({ message: 'Server Error' }, { status: 500 })
       })
     )
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     const supports = await findCategory('Supports')
     await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
@@ -456,9 +456,9 @@ describe('board workspace', () => {
 
   it("shows Couldn't save when a save fails", async () => {
     server.use(
-      http.post(`${API}/boards/:id/categories`, () => HttpResponse.json({ message: 'Server Error' }, { status: 500 }))
+      http.post(`${API}/boards/:slug/categories`, () => HttpResponse.json({ message: 'Server Error' }, { status: 500 }))
     )
-    const { user } = renderApp(`/b/${board.id}`)
+    const { user } = renderApp(`/b/${board.slug}`)
 
     await user.click(await screen.findByRole('button', { name: 'New category' }))
 
@@ -467,7 +467,7 @@ describe('board workspace', () => {
 
   describe('popovers', () => {
     it('focuses the hero search when the selector opens, and closes it on Escape', async () => {
-      const { user } = renderApp(`/b/${board.id}`)
+      const { user } = renderApp(`/b/${board.slug}`)
 
       const supports = await findCategory('Supports')
       await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
@@ -478,7 +478,7 @@ describe('board workspace', () => {
     })
 
     it('closes the delete confirmation on an outside click without deleting', async () => {
-      const { user } = renderApp(`/b/${board.id}`)
+      const { user } = renderApp(`/b/${board.slug}`)
 
       const supports = await findCategory('Supports')
       await user.click(within(supports).getByTitle('Delete category'))
@@ -491,7 +491,7 @@ describe('board workspace', () => {
     })
 
     it('closes the board name editor with its close button, and returns focus to Rename', async () => {
-      const { user } = renderApp(`/b/${board.id}`)
+      const { user } = renderApp(`/b/${board.slug}`)
 
       const rename = await screen.findByRole('button', { name: 'Rename board' })
       await user.click(rename)

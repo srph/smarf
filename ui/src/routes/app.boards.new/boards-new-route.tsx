@@ -76,7 +76,7 @@ const BoardsNewRoute: React.FC = () => {
       flushSync(() => setFolded(true))
       const state: NewBoardHandoffState = { newBoard: { start: start.name } }
       // replace: Back from the new board goes where New Board was clicked, not to /b/new
-      navigate(`/b/${board.id}`, { replace: true, state })
+      navigate(`/b/${board.slug}`, { replace: true, state })
     } catch {
       // The tray shows the failure (phase 'failed'), and every start can be chosen again.
     }

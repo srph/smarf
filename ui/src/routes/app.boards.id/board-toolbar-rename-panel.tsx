@@ -16,7 +16,7 @@ const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
 
   const [name, setName] = useState(board.name)
 
-  const { mutate: updateBoard, isPending, isError } = useUpdateBoardMutation(board.id)
+  const { mutate: updateBoard, isPending, isError } = useUpdateBoardMutation(board.slug)
 
   const inputRef = useRef<HTMLInputElement>(null)
 

@@ -32,6 +32,7 @@ export interface DbCategory {
 
 export interface DbBoard {
   id: string
+  slug: string
   user_id: string
   name: string
   is_favorite: boolean | null
@@ -87,6 +88,19 @@ export const DISCORD_CODE = 'discord-code'
 let seq = 0
 export const nextId = (prefix: string) => `${prefix}-${++seq}`
 
+const SLUG_ALPHABET = 'bcdfghjkmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ23456789'
+
+/** Six characters from the API's alphabet, mixed case like real slugs, and a new one each call. */
+export const nextSlug = () => {
+  let n = ++seq * 7919
+  let slug = ''
+  for (let i = 0; i < 6; i++) {
+    slug = SLUG_ALPHABET[n % SLUG_ALPHABET.length] + slug
+    n = Math.floor(n / SLUG_ALPHABET.length)
+  }
+  return slug
+}
+
 export const db = {
   users: [] as DbUser[],
   boards: [] as DbBoard[],
@@ -135,6 +149,7 @@ export function seedBoard(
 ): DbBoard {
   const board: DbBoard = {
     id: nextId('board'),
+    slug: nextSlug(),
     user_id: opts.user_id ?? TEST_USER.id,
     name,
     is_favorite: opts.is_favorite ?? null,
@@ -182,7 +197,7 @@ export function boardSummaryJson(board: DbBoard) {
   }
 }
 
-/** A board as `GET /boards/:id` returns it: with its categories and heroes, and the owner's id, name and avatar. */
+/** A board as `GET /boards/:slug` returns it: with its categories and heroes, and the owner's id, name and avatar. */
 export function boardJson(board: DbBoard) {
   const owner = db.users.find((u) => u.id === board.user_id)
   return {

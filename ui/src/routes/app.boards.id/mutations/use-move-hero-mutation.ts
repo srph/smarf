@@ -3,7 +3,7 @@ import { type Draft } from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
 import { http } from '~/src/lib/http'
 import { useBoardCache } from '~/src/queries/boards/use-board-cache'
-import { type Board, type ID } from '~/src/types/api'
+import { type Board, type ID, type Slug } from '~/src/types/api'
 import { getCategoryHeight, getHeroOrder } from '~/src/contexts/board-list/utils'
 
 /** A hero's place: which category, at which index. */
@@ -67,8 +67,8 @@ const applyMoveHero = (board: Draft<Board>, variables: MoveHeroVariables) => {
 }
 
 /** Reorder a hero or move it to another category (variables from `moveHeroVariables`). */
-const useMoveHeroMutation = (boardId: ID) => {
-  const { optimisticSaveOptions, update } = useBoardCache(boardId)
+const useMoveHeroMutation = (boardSlug: Slug) => {
+  const { optimisticSaveOptions, update } = useBoardCache(boardSlug)
 
   return useMutation({
     ...optimisticSaveOptions,

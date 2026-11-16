@@ -15,7 +15,7 @@ const BoardToolbarDeletePanel: React.FC<Props> = ({ onClose }) => {
 
   const navigate = useNavigate()
 
-  const { mutate: deleteBoard, isPending: isDeleting, isError } = useDeleteBoardMutation(board.id)
+  const { mutate: deleteBoard, isPending: isDeleting, isError } = useDeleteBoardMutation(board.slug)
 
   const cancelRef = useRef<HTMLButtonElement>(null)
 

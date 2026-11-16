@@ -51,7 +51,7 @@ const routes: RouteObject[] = [
         // Not guarded: a public board opens for anyone with its link, signed out too. A board that isn't theirs (or
         // that's private) sends a signed-out visitor to log in (BoardProvider).
         element: <AppRoute />,
-        children: [{ path: '/b/:boardId', element: <BoardsIdRoute /> }]
+        children: [{ path: '/b/:boardSlug', element: <BoardsIdRoute /> }]
       },
       {
         element: <AuthRoute />,

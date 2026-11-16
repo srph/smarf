@@ -36,7 +36,7 @@ const useCreateBoardMutation = () => {
       return response.board
     },
     onSuccess: (board) => {
-      queryClient.setQueryData(boardKeys.detail(board.id), board)
+      queryClient.setQueryData(boardKeys.detail(board.slug), board)
       return queryClient.invalidateQueries({ queryKey: boardKeys.list() })
     }
   })

@@ -2,17 +2,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
 import { boardKeys } from '~/src/queries/boards/board-keys'
 import { useBoardCache } from '~/src/queries/boards/use-board-cache'
-import { type Board, type ID } from '~/src/types/api'
+import { type Board, type Slug } from '~/src/types/api'
 
 /** Copy a board. Resolves to the copy. */
-const useDuplicateBoardMutation = (boardId: ID) => {
+const useDuplicateBoardMutation = (boardSlug: Slug) => {
   const queryClient = useQueryClient()
 
-  const { saveOptions } = useBoardCache(boardId)
+  const { saveOptions } = useBoardCache(boardSlug)
 
   return useMutation({
     ...saveOptions,
-    mutationFn: async () => (await http<{ board: Board }>(`boards/${boardId}/duplicate`, { method: 'POST' })).board,
+    mutationFn: async () => (await http<{ board: Board }>(`boards/${boardSlug}/duplicate`, { method: 'POST' })).board,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: boardKeys.list() })
     }

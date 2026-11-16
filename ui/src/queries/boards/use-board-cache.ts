@@ -1,6 +1,6 @@
 import { useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { produce, type Draft } from 'immer'
-import { type Board, type ID } from '~/src/types/api'
+import { type Board, type ID, type Slug } from '~/src/types/api'
 import { boardKeys } from './board-keys'
 
 // Boards with a failed save, waiting for their other saves to finish before refetching. Per client, so tests don't share it.
@@ -10,29 +10,29 @@ const needsRefetch = new WeakMap<QueryClient, Set<ID>>()
  * What every mutation that saves a board shares. The cached board (`boardKeys.detail`) is the source of truth:
  * mutations change it in `onMutate`, before the request.
  */
-const useBoardCache = (boardId: ID) => {
+const useBoardCache = (boardSlug: Slug) => {
   const queryClient = useQueryClient()
 
-  const queryKey = boardKeys.detail(boardId)
+  const queryKey = boardKeys.detail(boardSlug)
 
   const saveOptions = {
     // Shared by every save for this board, so the toolbar can show the latest one's status.
     mutationKey: queryKey,
     // One board's saves run one at a time, so they reach the API in the order they were made.
-    scope: { id: `board:${boardId}` }
+    scope: { id: `board:${boardSlug}` }
   }
 
   const optimisticSaveOptions = {
     ...saveOptions,
     onError: () => {
       const boards = needsRefetch.get(queryClient) ?? new Set<ID>()
-      needsRefetch.set(queryClient, boards.add(boardId))
+      needsRefetch.set(queryClient, boards.add(boardSlug))
     },
     // After a failed save, refetch so the board matches the server again. Wait for the last queued save:
     // refetching earlier would drop the changes of saves that haven't reached the server yet.
     onSettled: () => {
       if (queryClient.isMutating({ mutationKey: queryKey }) > 1) return
-      if (!needsRefetch.get(queryClient)?.delete(boardId)) return
+      if (!needsRefetch.get(queryClient)?.delete(boardSlug)) return
       void queryClient.invalidateQueries({ queryKey })
     }
   }
