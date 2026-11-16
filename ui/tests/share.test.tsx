@@ -99,12 +99,34 @@ describe('visiting a public board', () => {
     expect(await screen.findByRole('region', { name: 'Carries' })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'Axe' })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'Lion' })).toBeInTheDocument()
-    expect(screen.getByText(`by ${TEST_USER.name}`)).toBeInTheDocument()
-    expect(screen.getByText('View only')).toBeInTheDocument()
-    // No editing: no dock, no navigation
+    expect(screen.getByText(/You're viewing/)).toHaveTextContent(
+      `You're viewing Ranked by ${TEST_USER.name}. Only ${TEST_USER.name} can edit it.`
+    )
+    // No editing: no toolbar, and the navigation offers Sign in instead of New Board
     expect(screen.queryByRole('button', { name: /Switch board/ })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'New Board' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument()
     expect(currentPath()).toBe(`/b/${board.id}`)
+  })
+
+  it('copies its link from the dock', async () => {
+    const board = seedBoard('Ranked', [{ name: 'Carries' }], { is_public: true })
+    const { user } = renderApp(`/b/${board.id}`, { loggedIn: false })
+
+    await user.click(await screen.findByRole('button', { name: 'Copy link' }))
+
+    expect(await navigator.clipboard.readText()).toBe(linkTo(board))
+    expect(screen.getByRole('button', { name: 'Link copied' })).toBeInTheDocument()
+  })
+
+  it('signs in from the navigation and comes back to the board', async () => {
+    const board = seedBoard('Ranked', [{ name: 'Carries' }], { is_public: true })
+    const { user } = renderApp(`/b/${board.id}`, { loggedIn: false })
+
+    await user.click(await screen.findByRole('button', { name: 'Sign in' }))
+
+    expect(await screen.findByRole('link', { name: 'Continue with Discord' })).toBeInTheDocument()
+    expect(currentPath()).toBe('/login')
   })
 
   it("shows each category's colour", async () => {
@@ -132,7 +154,7 @@ describe('visiting a public board', () => {
     })
     const { user } = renderApp(`/b/${board.id}`)
 
-    expect(await screen.findByText('by Rylai')).toBeInTheDocument()
+    expect(await screen.findByText(/You're viewing/)).toHaveTextContent('by Rylai. Only Rylai can edit it.')
     expect(screen.queryByRole('button', { name: /Switch board/ })).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Copy to my boards' }))
