@@ -267,7 +267,17 @@
     </div></div>
   </section>
 
-  <section class="variation" data-id="B2b" data-name="The board's first hero, blown up and blurred" data-v="b2b">
+  <section class="variation" data-id="B2a2" data-name="B2a showing a tier list, with a longer title" data-v="b2a" data-board="tier">
+    <div class="v-head"><span class="v-id">B2a2</span><h2>B2a showing a tier list, with a longer title</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="b2a"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Stacked tiers read top to bottom, like the list itself.</div>
+      <div class="note good">The title wraps to two lines and still leads.</div>
+      <div class="note bad">Lower tiers fall off the bottom edge.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="B2b"data-name="The board's first hero, blown up and blurred" data-v="b2b">
     <div class="v-head"><span class="v-id">B2b</span><h2>The board's first hero, blown up and blurred</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="frame"><div class="ogbox" data-v="b2b"></div></div>
     <div class="below"><div class="slot-feed"></div><div class="notes">
@@ -379,6 +389,16 @@ const DATA = {
   one: { label: 'One hero', name: 'Meepo', owner: 'Kier', cats: [{ name: 'The only one', x: 32, y: 32, w: 360, heroes: ['meepo'] }] },
   long: { label: 'Long names', name: 'Kaldag v7.31 turbo spam, do not judge me', owner: 'xXx_ShadowFiend_Enjoyer_xXx', cats: TYPICAL }
 };
+// Boards a canvas is pinned to (data-board), outside the Board toggle
+const FIXED = {
+  tier: { name: "BSJ's Tier List v7.41f", owner: 'BSJ', cats: [
+    { name: 'S Tier', x: 32, y: 32, w: 448, heroes: ['invoker', 'sven', 'primal_beast', 'hoodwink'] },
+    { name: 'A Tier', x: 32, y: 144, w: 536, heroes: ['juggernaut', 'storm_spirit', 'mars', 'tusk', 'lion', 'medusa'] },
+    { name: 'B Tier', x: 32, y: 256, w: 536, heroes: ['luna', 'queenofpain', 'axe', 'rubick', 'crystal_maiden', 'slark'] },
+    { name: 'C Tier', x: 32, y: 368, w: 448, heroes: ['sniper', 'bristleback', 'pudge', 'witch_doctor', 'viper'] },
+    { name: 'D Tier', x: 32, y: 480, w: 360, heroes: ['techies', 'meepo', 'broodmother'] }
+  ] }
+};
 const URL_TEXT = 'smarf.kierb.com/b/48213';
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const heroCount = (b) => b.cats.reduce((n, c) => n + c.heroes.length, 0);
@@ -469,7 +489,7 @@ const ro = new ResizeObserver((entries) => entries.forEach((e) => fit(e.target))
 
 sections.forEach((sec) => {
   const v = sec.dataset.v;
-  if (v !== 'now') {
+  if (v !== 'now' && !sec.dataset.board) {
     const st = document.createElement('div'); st.className = 'states';
     st.innerHTML = 'Board' + Object.entries(DATA).map(([k, d]) => `<button data-s="${k}">${d.label}</button>`).join('');
     st.addEventListener('click', (e) => { const k = e.target.dataset.s; if (k) { state = k; paint(); } });
@@ -480,9 +500,8 @@ sections.forEach((sec) => {
 });
 
 function paint() {
-  const b = DATA[state];
   sections.forEach((sec) => {
-    const v = sec.dataset.v;
+    const v = sec.dataset.v, b = FIXED[sec.dataset.board] || DATA[state];
     sec.querySelectorAll('.og').forEach((og) => { og.innerHTML = R[v](b); });
     sec.querySelectorAll('.states button').forEach((btn) => btn.setAttribute('aria-pressed', String(btn.dataset.s === state)));
     sec.querySelector('.msg').innerHTML = `my board: <a>smarf.kierb.com/b/48213</a>`;
