@@ -80,7 +80,7 @@ const ShowcaseFilm: React.FC<Props> = ({ videoUrl, discordState, returnTo }) => 
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger
         ref={triggerRef}
-        className="absolute bottom-7 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-white/10 bg-zinc-900/80 py-1.5 pr-5 pl-1.5 whitespace-nowrap shadow-xl shadow-black/50 backdrop-blur-md transition-transform duration-200 ease-out hover:-translate-y-1 focus-visible:ring-focus motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+        className="absolute bottom-7 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-zinc-900/80 py-1.5 pr-5 pl-1.5 whitespace-nowrap shadow-xl shadow-black/50 backdrop-blur-md transition-transform duration-200 ease-out hover:-translate-y-1 focus-visible:ring-focus motion-reduce:transition-none motion-reduce:hover:translate-y-0">
         <span className="relative h-10 w-18 shrink-0 overflow-hidden rounded-lg">
           <img src={poster} alt="" className="size-full object-cover brightness-75" />
           <span className="absolute inset-0 grid place-items-center text-white">
@@ -106,7 +106,7 @@ const ShowcaseFilm: React.FC<Props> = ({ videoUrl, discordState, returnTo }) => 
             </Dialog.Title>
             <Dialog.Close
               aria-label="Close"
-              className="grid size-9 place-items-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-white/8 hover:text-zinc-50 focus-visible:ring-focus">
+              className="grid size-9 cursor-pointer place-items-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-white/8 hover:text-zinc-50 focus-visible:ring-focus">
               <Icon icon={XMarkIcon} size={20} />
             </Dialog.Close>
           </div>
@@ -134,7 +134,7 @@ const ShowcaseFilm: React.FC<Props> = ({ videoUrl, discordState, returnTo }) => 
                 <button
                   type="button"
                   onClick={watchAgain}
-                  className="rounded-lg px-2 py-1 text-sm font-semibold text-zinc-400 transition-colors duration-200 hover:bg-white/5 hover:text-zinc-50 focus-visible:ring-focus">
+                  className="cursor-pointer rounded-lg px-2 py-1 text-sm font-semibold text-zinc-400 transition-colors duration-200 hover:bg-white/5 hover:text-zinc-50 focus-visible:ring-focus">
                   Watch again
                 </button>
               </div>
@@ -143,7 +143,7 @@ const ShowcaseFilm: React.FC<Props> = ({ videoUrl, discordState, returnTo }) => 
 
           <div className="mt-3 flex justify-between text-xs text-zinc-500">
             <span>Esc to close</span>
-            <Dialog.Close className="font-semibold text-primary-300 transition-colors duration-200 hover:text-primary-200 focus-visible:ring-focus">
+            <Dialog.Close className="cursor-pointer font-semibold text-primary-300 transition-colors duration-200 hover:text-primary-200 focus-visible:ring-focus">
               Skip to sign-in
             </Dialog.Close>
           </div>
