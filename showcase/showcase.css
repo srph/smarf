@@ -143,6 +143,17 @@ svg {
   box-shadow: inset 0 1px 1px rgb(255 255 255 / 0.5);
 }
 
+.badge-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  filter: drop-shadow(0 0 10px oklch(58.5% 0.233 277.117 / 0.55));
+}
+
+.badge-sm img {
+  width: 18px;
+}
+
 .badge-md {
   width: 36px;
   height: 36px;
@@ -257,15 +268,19 @@ svg {
   background: var(--z900);
 }
 
+/* One slim bar: a 2px stripe over its top edge, the small badge, New Board and the bare avatar. */
 #nav {
   position: absolute;
   inset: 0 0 auto;
-  height: 72px;
+  height: 65px;
   border-bottom: 1px solid var(--z800);
+  background: rgb(9 9 11 / 0.7);
 }
 
 .nav-bar {
-  height: 4px;
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
   background: linear-gradient(to right, var(--p600), var(--p400));
 }
 
@@ -273,19 +288,41 @@ svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 67px;
+  height: 64px;
   padding: 0 40px;
 }
 
-.logo {
+.nav-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
+.new-board {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--z700);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.new-board svg {
+  color: var(--p200);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .logo span {
   padding-top: 4px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.025em;
@@ -299,7 +336,8 @@ svg {
   height: 36px;
   border-radius: 9999px;
   background: linear-gradient(135deg, var(--p400), var(--p600));
-  box-shadow: 0 0 0 2px var(--z900), 0 0 0 3px var(--z700);
+  /* The app's avatar: no ring, just a faint dark edge inside it. */
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.3);
   font-weight: 700;
 }
 
