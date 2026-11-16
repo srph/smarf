@@ -13,6 +13,7 @@ Known issues, flagged for later. Remove an entry when it's fixed.
 
 - **Categories come back unsorted.** `Board::categories()` has no `orderBy` and ids are uuids, so the order differs from creation order and can change between loads.
 - **Hero order can collide (edge case).** `order` is a double. Dropping heroes into the same gap over and over halves it each time, until two heroes share a value and their sort order becomes arbitrary.
+- **Copying a board drops repeated heroes.** `BoardsController::duplicate` keys each category's heroes by hero id, so a hero that appears twice in one category comes out once. The UI allows adding the same hero twice; decide which is intended.
 
 ## Backlog
 
@@ -23,3 +24,4 @@ Not bugs. Improvements to pick up later.
 | Fractional ordering for heroes | Replace the `double` `order` with fractional index keys (strings that always sort between their neighbours), so orders never collide and never need renumbering. Fixes the hero order collision above. |
 | Refetch the board after saves settle | Once the last pending save finishes, refetch `GET /boards/:id` to resync with the server. Dropped for now: it can visibly reorder categories until they're sorted server-side. |
 | Move to `@dnd-kit/react` | dnd-kit's rewrite (0.x as of 2026-11; we're on the classic `core` 6 / `sortable` 10). Built-in multi-list sorting and collision detectors could replace `use-board-workspace-grid-collision-detection.ts`, and its own drag-time sorting could drop the hero drag draft. Wait for 1.0, or sooner if the grid hook keeps causing drop bugs. |
+| Code-split the bundle | One chunk of about 660 kB (216 kB gzipped). Lazy-load the board workspace, for a start. |

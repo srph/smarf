@@ -45,7 +45,7 @@ npm run typecheck
 npm run build       # production build to dist/
 ```
 
-See [ui/AGENTS.md](ui/AGENTS.md) for how the UI is put together and [ui/UPGRADE.md](ui/UPGRADE.md) for the 2026 upgrade.
+See [ui/AGENTS.md](ui/AGENTS.md) for how the UI is put together.
 
 ## Why?
 
