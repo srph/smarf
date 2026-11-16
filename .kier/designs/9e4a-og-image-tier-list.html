@@ -151,6 +151,10 @@
   .og-a h1 { font-size: 64px; margin-top: auto; }
   .og-a p { font-size: 22px; color: var(--z400); margin-top: 22px; margin-bottom: auto; }
   .og-a.nosub h1 { margin-bottom: auto; }
+  .og-a .lines span { display: block; white-space: nowrap; }
+  .og-a.small .copy { width: 560px; }
+  .og-a.small h1 { font-size: 50px; line-height: 1.08; }
+  .og-a.small .win { left: 664px; }
   .og-a .url { font-size: 16px; color: var(--z500); font-weight: 600; letter-spacing: .02em; }
   .og-a .win { position: absolute; left: 600px; top: 64px; width: 760px; height: 502px; border-radius: 18px; overflow: hidden;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 0 0 1px rgba(0,0,0,.6), 0 40px 80px -20px rgba(0,0,0,.8), 0 0 120px -20px color-mix(in oklab, var(--p500) 40%, transparent); }
@@ -318,6 +322,38 @@
     <div class="below"><div class="slot-feed"></div><div class="notes">
       <div class="note good">Heading names all three uses, and says they’re shareable.</div>
       <div class="note good">One message; nothing competes with it.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="A2c" data-name="A2b with one list item per line">
+    <div class="v-head"><span class="v-id">A2c</span><h2>A2b with one list item per line</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-a nosub dots">
+      <div class="copy">
+        <div class="lk sm"><img class="bd" src="og-assets/badge.svg" alt=""><span class="wd">Smarf</span></div>
+        <h1 class="lines"><span>Publish</span><span class="metal-text">tier lists,</span><span>hero pools,</span><span>and ban lists.</span></h1>
+        <div class="url">smarf.kierb.com</div>
+      </div>
+      <div class="win dots" data-board="a2"></div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">“And” leads into the last item instead of trailing.</div>
+      <div class="note good">Reads as a list, top to bottom.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="A2d" data-name="A2b smaller, three lines ending “and more”">
+    <div class="v-head"><span class="v-id">A2d</span><h2>A2b smaller, three lines ending “and more”</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-a nosub small dots">
+      <div class="copy">
+        <div class="lk sm"><img class="bd" src="og-assets/badge.svg" alt=""><span class="wd">Smarf</span></div>
+        <h1 class="lines"><span>Publish <span class="metal-text" style="display:inline">tier lists,</span></span><span>hero pools, ban/picks,</span><span>and more</span></h1>
+        <div class="url">smarf.kierb.com</div>
+      </div>
+      <div class="win dots" data-board="a2"></div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">“And more” leaves room for other boards.</div>
+      <div class="note bad">Smaller type, and the board shifts right to make room.</div>
     </div></div>
   </section>
 
@@ -534,6 +570,15 @@ const tl = (t) => `<span class="tl" style="--c:var(--t${t})">${t}</span>`;
 const tile = (n) => `<span class="tile"><img src="${CDN(n)}" alt=""></span>`;
 
 /* ---------- Mockup builders ---------- */
+// A2's board, shared by its remixes.
+document.querySelectorAll('.og [data-board="a2"]').forEach((el) => {
+  el.innerHTML = `<div class="cat" style="left:36px;top:36px" data-t="S" data-c="4" data-k="4"></div>
+    <div class="cat" style="left:408px;top:36px" data-t="F" data-c="4"></div>
+    <div class="cat" style="left:36px;top:145px" data-t="A" data-c="11" data-w="996"></div>
+    <div class="cat" style="left:36px;top:254px" data-t="B" data-c="11" data-w="996"></div>
+    <div class="cat" style="left:36px;top:363px" data-t="C" data-c="11" data-w="996"></div>
+    <div class="dock-row-wrap" data-dock="Meta tier list"></div>`;
+});
 document.querySelectorAll('.og .cat').forEach((el) => {
   const cols = +el.dataset.c;
   const t = el.dataset.t;
