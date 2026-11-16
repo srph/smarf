@@ -138,6 +138,27 @@
   .og-b .win { position: absolute; left: 568px; top: 64px; width: 800px; height: 640px; border-radius: 20px; overflow: hidden;
     box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 40px 80px -20px rgba(0,0,0,.8); }
 
+  /* ===== B2a to B2d: B2 on other backgrounds ===== */
+  .og .bg { position: absolute; inset: 0; }
+  .og-b2a::before, .og-b2b::before, .og-b2c::before, .og-b2d::before { display: none; }
+  /* B2a: the dot grid edge to edge; the cards sit straight on it */
+  .og-b2a .veil { background: linear-gradient(90deg, var(--z950) 0%, rgba(9,9,11,.92) 36%, transparent 62%); }
+  .og-b2a .win { background: none; box-shadow: none; border-radius: 0; }
+  /* B2b: the board's first hero, blown up and blurred */
+  .og-b2b .art { width: 1200px; height: 630px; object-fit: cover; transform: scale(1.3); filter: blur(36px) saturate(1.5) brightness(.62); }
+  .og-b2b .veil, .og-b2c .veil { background: radial-gradient(1000px 640px at 0% 100%, rgba(9,9,11,.82), rgba(9,9,11,.25)); }
+  .og-b2b .stat, .og-b2c .stat { color: var(--z300); }
+  .og-b2b .by, .og-b2c .by { color: var(--z200); }
+  .og-b2b .win, .og-b2c .win { box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 40px 80px -20px rgba(0,0,0,.8); }
+  /* B2c: every hero on the board, as a blurred wall */
+  .og-b2c .wallbg { display: grid; width: 1200px; transform: scale(1.2) rotate(-6deg); filter: blur(30px) saturate(1.6) brightness(.62); }
+  .og-b2c .wallbg img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  /* B2d: indigo dusk, with the dot grid fading out of it */
+  .og-b2d { background: linear-gradient(155deg, var(--p950) 0%, var(--z950) 58%); }
+  .og-b2d .glow { background: radial-gradient(760px 520px at 0% 100%, color-mix(in oklab, var(--p500) 42%, transparent), transparent 70%); }
+  .og-b2d .fdots { background-color: transparent; background-image: radial-gradient(circle, color-mix(in oklab, var(--p300) 55%, transparent) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--p300) 16%, transparent) 1px, transparent 1px); -webkit-mask-image: radial-gradient(700px 460px at 22% 50%, #000, transparent); mask-image: radial-gradient(700px 460px at 22% 50%, #000, transparent); opacity: .7; }
+  .og-b2d .win { box-shadow: 0 0 0 1px color-mix(in oklab, var(--p200) 30%, transparent), 0 0 140px -10px color-mix(in oklab, var(--p500) 55%, transparent), 0 40px 80px -20px rgba(0,0,0,.8); }
+
   /* ===== C: every hero as a wall, the name on a glass plate ===== */
   .og-c { background: var(--z950); }
   .og-c .wall { position: absolute; left: -3px; top: -3px; display: grid; gap: 6px; }
@@ -236,7 +257,47 @@
     </div></div>
   </section>
 
-  <section class="variation" data-id="C"data-name="Every hero as a wall, name on a glass plate" data-v="c">
+  <section class="variation" data-id="B2a" data-name="The dot grid, edge to edge" data-v="b2a">
+    <div class="v-head"><span class="v-id">B2a</span><h2>The dot grid, edge to edge</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="b2a"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">It's the board's own surface; nothing invented.</div>
+      <div class="note good">No window frame, so the cards feel closer.</div>
+      <div class="note bad">The quietest of the set in a feed.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="B2b" data-name="The board's first hero, blown up and blurred" data-v="b2b">
+    <div class="v-head"><span class="v-id">B2b</span><h2>The board's first hero, blown up and blurred</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="b2b"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Every board gets its own colour.</div>
+      <div class="note good">Echoes the sign-in page's hero backdrop.</div>
+      <div class="note bad">Less indigo; the brand is only the badge.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="B2c" data-name="Every hero on the board, as a blurred wall" data-v="b2c">
+    <div class="v-head"><span class="v-id">B2c</span><h2>Every hero on the board, as a blurred wall</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="b2c"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Colour from the whole board, not one hero.</div>
+      <div class="note bad">Big boards average out to a muddy brown.</div>
+      <div class="note bad">The most work to render.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="B2d" data-name="Indigo dusk, dots fading out, a glow behind the board" data-v="b2d">
+    <div class="v-head"><span class="v-id">B2d</span><h2>Indigo dusk, dots fading out, a glow behind the board</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="ogbox" data-v="b2d"></div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">The most Smarf: indigo, dots, a lit edge.</div>
+      <div class="note good">Same for every board; trivial to render.</div>
+      <div class="note bad">Every board's preview has the same mood.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="C" data-name="Every hero as a wall, name on a glass plate" data-v="c">
     <div class="v-head"><span class="v-id">C</span><h2>Every hero as a wall, name on a glass plate</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="frame"><div class="ogbox" data-v="c"></div></div>
     <div class="below"><div class="slot-feed"></div><div class="notes">
@@ -366,6 +427,16 @@ const R = {
   // B, with the board's URL where the counts were
   b2: (b) => R.b(b).replace(/<div class="stat">.*?<\/div>/, `<div class="stat">${URL_TEXT}</div>`),
 
+  // B2 on other backgrounds: layers that go under its copy and window
+  b2a: (b) => `<div class="bg dots"></div><div class="bg veil"></div>` + R.b2(b),
+  b2b: (b) => `<img class="bg art" src="${thumb(b.cats[0].heroes[0])}" alt=""><div class="bg veil"></div>` + R.b2(b),
+  b2c: (b) => {
+    const heroes = b.cats.flatMap((c) => c.heroes);
+    const cols = Math.max(2, Math.ceil(Math.sqrt(heroes.length * 1.07))), rows = Math.ceil(630 / (1200 / cols * 9 / 16));
+    return `<div class="bg"><div class="wallbg" style="grid-template-columns:repeat(${cols},1fr)">${Array.from({ length: cols * rows }, (_, i) => img(heroes[i % heroes.length])).join('')}</div></div><div class="bg veil"></div>` + R.b2(b);
+  },
+  b2d: (b) => `<div class="bg glow"></div><div class="bg dots fdots"></div>` + R.b2(b),
+
   c: (b) => {
     const heroes = b.cats.flatMap((c) => c.heroes);
     const cols = Math.max(2, Math.ceil(Math.sqrt(heroes.length * 1.07)));
@@ -405,7 +476,7 @@ sections.forEach((sec) => {
     sec.querySelector('.frame').before(st);
   }
   sec.querySelector('.slot-feed').innerHTML = `<div class="feed"><p class="msg"></p><div class="embed"><div class="site">Smarf</div><div class="t"></div><div class="d"></div><div class="ogbox" data-v="${v}"></div></div></div>`;
-  sec.querySelectorAll('.ogbox').forEach((box) => { box.innerHTML = `<div class="og og-${v.replace(/\d+$/, '')}"></div>`; /* a fork (b2) wears its parent's styles */ ro.observe(box); });
+  sec.querySelectorAll('.ogbox').forEach((box) => { box.innerHTML = `<div class="og og-${v.replace(/\d+[a-z]?$/, '')} og-${v}"></div>`; /* a fork (b2) wears its parent's styles */ ro.observe(box); });
 });
 
 function paint() {
