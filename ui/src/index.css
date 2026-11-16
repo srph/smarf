@@ -19,6 +19,9 @@
   --color-primary-900: oklch(35.9% 0.144 278.697);
   --color-primary-950: oklch(25.7% 0.09 281.288);
 
+  /* The navigation bar, and the page behind every screen but a board's (those keep zinc-900 under the dot grid). */
+  --color-nav: color-mix(in oklab, var(--color-zinc-950) 70%, var(--color-zinc-900));
+
   /* Menu and Popover's solid popups: a step lighter than the page (zinc-900), so they lift off the board. */
   --color-raised: #1c1c20;
 

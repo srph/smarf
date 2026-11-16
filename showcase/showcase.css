@@ -268,20 +268,13 @@ svg {
   background: var(--z900);
 }
 
-/* One slim bar: a 2px stripe over its top edge, the small badge, New Board and the bare avatar. */
+/* One slim bar: the small badge, New Board and the bare avatar. */
 #nav {
   position: absolute;
   inset: 0 0 auto;
   height: 65px;
   border-bottom: 1px solid var(--z800);
   background: rgb(9 9 11 / 0.7);
-}
-
-.nav-bar {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  background: linear-gradient(to right, var(--p600), var(--p400));
 }
 
 .nav-row {

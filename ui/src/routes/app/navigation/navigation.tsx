@@ -24,9 +24,7 @@ const Navigation: React.FC = () => {
   useHeroesQuery()
 
   return (
-    <div className="relative mb-12 border-b border-zinc-800 bg-zinc-950/70">
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-primary-600 to-primary-400" />
-
+    <div className="mb-12 border-b border-zinc-800 bg-nav focus-gap-nav">
       <Container>
         <div className="flex h-16 items-center justify-between">
           {/* Padded (and pulled back by as much) so the focus ring clears the wordmark. */}

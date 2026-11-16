@@ -29,7 +29,7 @@ const UserDropdown: React.FC = () => {
         render={
           <PlainButton
             title="Account menu"
-            className="block rounded-full transition-[filter,box-shadow] duration-200 hover:brightness-110 focus-visible:ring-focus data-popup-open:ring-2 data-popup-open:ring-primary-500 data-popup-open:ring-offset-2 data-popup-open:ring-offset-zinc-900"
+            className="block rounded-full transition-[filter,box-shadow] duration-200 hover:brightness-110 focus-visible:ring-focus data-popup-open:ring-2 data-popup-open:ring-primary-500 data-popup-open:ring-offset-2 data-popup-open:ring-offset-nav"
           />
         }>
         <Avatar src={user.avatar || avatar} size="lg"></Avatar>
