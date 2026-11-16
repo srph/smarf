@@ -36,21 +36,25 @@ const Navigation: React.FC = () => {
 
           {user ? (
             <div className="flex items-center gap-3">
-              {/* Nothing is saved until a start is chosen on /b/new. */}
-              <Button variant="clear" icon={SquaresPlusIcon} onClick={() => navigate('/b/new')}>
-                New Board
-              </Button>
+              {/* Wrapped, like Sign in: Button fills its parent. Nothing is saved until a start is chosen on /b/new. */}
+              <div>
+                <Button variant="clear" icon={SquaresPlusIcon} onClick={() => navigate('/b/new')}>
+                  New Board
+                </Button>
+              </div>
 
               <UserDropdown />
             </div>
           ) : (
             // Signing in comes back to this page.
-            <Button
-              variant="clear"
-              icon={DiscordLogo}
-              onClick={() => navigate('/login', { state: { from: location } })}>
-              Sign in
-            </Button>
+            <div>
+              <Button
+                variant="clear"
+                icon={DiscordLogo}
+                onClick={() => navigate('/login', { state: { from: location } })}>
+                Sign in
+              </Button>
+            </div>
           )}
         </div>
       </Container>
