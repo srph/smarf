@@ -167,6 +167,16 @@
   .og-b .copy { position: absolute; left: 72px; top: 72px; }
   .og-b h1 { font-size: 80px; margin-top: 64px; }
   .og-b p { font-size: 22px; color: var(--z400); margin-top: 22px; max-width: 420px; }
+  .og-b h1.lines { font-size: 72px; margin-top: 56px; line-height: 1.04; }
+  .og-b h1.lines span { display: block; white-space: nowrap; }
+  .og-b.colors .plane-wrap { -webkit-mask-image: linear-gradient(115deg, transparent 34%, #000 58%); mask-image: linear-gradient(115deg, transparent 34%, #000 58%); }
+  .og-b.colors .plane { left: 470px; }
+
+  /* Category colours (lib/category-colors.ts): the colour fades across the header, under its content; the grip is white/30 */
+  .colors .cat-h .grip { color: rgba(255,255,255,.3); }
+  .cat[data-color] { isolation: isolate; }
+  .cat[data-color]::before { content: ""; position: absolute; left: 1px; right: 1px; top: 1px; height: 47px; z-index: -1; pointer-events: none; border-radius: 11px 11px 0 0;
+    background-image: linear-gradient(to right, color-mix(in oklab, var(--cc) 35%, transparent), color-mix(in oklab, var(--cc) 10%, transparent) 45%, transparent 80%); }
 
   /* ===== C2 ===== */
   .og-c { background: radial-gradient(520px 460px at 76% 46%, color-mix(in oklab, var(--p600) 55%, transparent), transparent 70%), linear-gradient(180deg, var(--z950), #0d0c1d); }
@@ -380,6 +390,29 @@
     </div></div>
   </section>
 
+  <section class="variation" data-id="B2b" data-name="B2 with A2c’s heading and the tier colours">
+    <div class="v-head"><span class="v-id">B2b</span><h2>B2 with A2c’s heading and the tier colours</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-b colors">
+      <div class="plane-wrap"><div class="plane dots">
+        <div class="cat" style="left:80px;top:60px" data-t="S" data-c="6"></div>
+        <div class="cat" style="left:628px;top:60px" data-t="F" data-c="5"></div>
+        <div class="cat" style="left:80px;top:169px" data-t="A" data-c="11" data-w="996"></div>
+        <div class="cat" style="left:80px;top:278px" data-t="B" data-c="11" data-w="996"></div>
+        <div class="cat" style="left:80px;top:387px" data-t="C" data-c="11" data-w="996"></div>
+        <div class="cat" style="left:80px;top:496px" data-t="D" data-c="11" data-w="996"></div>
+      </div></div>
+      <div class="copy">
+        <div class="lk sm"><img class="bd" src="og-assets/badge.svg" alt=""><span class="wd">Smarf</span></div>
+        <h1 class="lines"><span>Publish</span><span class="metal-text">tier lists,</span><span>hero pools,</span><span>and ban lists.</span></h1>
+      </div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Colours run down the ladder; tiers read even when tilted.</div>
+      <div class="note good">Same colours the Tier List start arrives with.</div>
+      <div class="note bad">F stays grey, as in the app; the ladder ends quietly.</div>
+    </div></div>
+  </section>
+
   <section class="variation" data-id="C2" data-name="S-tier hero render with the S Tier card">
     <div class="v-head"><span class="v-id">C2</span><h2>S-tier hero render with the S Tier card</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="frame"><div class="og og-c">
@@ -555,6 +588,8 @@ const TIER = {
   D: ['troll_warlord', 'skywrath_mage', 'rattletrap', 'phantom_assassin', 'morphling', 'silencer', 'elder_titan', 'treant'],
   F: ['nevermore', 'abyssal_underlord', 'drow_ranger', 'bristleback']
 };
+// Tailwind's 500s, as in lib/category-colors.ts.
+const TIER_COLOR = { S: '#fb2c36', A: '#ff6900', B: '#fe9a00', C: '#00bc7d', D: '#2b7fff', F: null };
 const SVG = (d, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor">${d}</svg>`;
 const ICON = {
   grip: SVG('<path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"/>'),
@@ -588,6 +623,9 @@ document.querySelectorAll('.og .cat').forEach((el) => {
     ? '<div class="hero slot"><div class="ph"></div></div>'
     : `<div class="hero"><img src="${CDN(n)}" alt=""></div>`).join('');
   const width = el.dataset.w ? +el.dataset.w : cols * 88 + 8;
+  // The Tier List start's colours (S red, A orange, B amber, C emerald, D blue, F none), on canvases that opt in.
+  const color = el.closest('.colors') && t ? TIER_COLOR[t] : null;
+  if (color) { el.dataset.color = ''; el.style.setProperty('--cc', color); }
   el.innerHTML = `<div class="cat-h"><span class="grip">${ICON.grip}</span><span class="nm">${name}</span></div>
     <div class="tray" style="width:${width}px">${tiles}</div>`;
 });
