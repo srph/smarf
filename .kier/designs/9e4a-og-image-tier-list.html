@@ -438,6 +438,23 @@
     </div></div>
   </section>
 
+  <section class="variation" data-id="A2i" data-name="A2h with a D Tier row">
+    <div class="v-head"><span class="v-id">A2i</span><h2>A2h with a D Tier row</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-a nosub small colors flat dots">
+      <div class="copy">
+        <div class="lk sm"><img class="bd" src="og-assets/badge.svg" alt=""><span class="wd">Smarf</span></div>
+        <h1 class="lines"><span>Publish <span class="metal-text" style="display:inline">tier lists,</span></span><span>hero pools, ban/picks,</span><span>and more</span></h1>
+        <div class="url">smarf.kierb.com</div>
+      </div>
+      <div class="win bare" style="top:20px" data-board="a2" data-nodock data-d></div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Blue finishes the ladder: red, orange, amber, emerald, blue.</div>
+      <div class="note good">The board fills the height, top aligned with the logo.</div>
+      <div class="note bad">Five rows get busy at feed size.</div>
+    </div></div>
+  </section>
+
   <section class="variation" data-id="B2" data-name="Whole tier list tilted into perspective">
     <div class="v-head"><span class="v-id">B2</span><h2>Whole tier list tilted into perspective</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="frame"><div class="og og-b">
@@ -706,6 +723,7 @@ document.querySelectorAll('.og [data-board="a2"]').forEach((el) => {
     <div class="cat" style="left:36px;top:145px" data-t="A" data-c="11" data-w="996"></div>
     <div class="cat" style="left:36px;top:254px" data-t="B" data-c="11" data-w="996"></div>
     <div class="cat" style="left:36px;top:363px" data-t="C" data-c="11" data-w="996"></div>
+    ${el.hasAttribute('data-d') ? '<div class="cat" style="left:36px;top:472px" data-t="D" data-c="11" data-w="996"></div>' : ''}
     ${el.hasAttribute('data-nodock') ? '' : '<div class="dock-row-wrap" data-dock="Meta tier list"></div>'}`;
 });
 document.querySelectorAll('.og .cat').forEach((el) => {
