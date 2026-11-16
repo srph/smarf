@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { fireEvent, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { DISCORD_CODE, db, seedBoard, TEST_USER } from './support/db'
 import { API, server } from './support/handlers'
@@ -6,6 +7,7 @@ import { currentPath, getToken, renderApp, screen, setToken } from './support/re
 
 const discordLink = () => screen.findByRole('link', { name: 'Continue with Discord' })
 const retryLink = () => screen.findByRole('link', { name: 'Try again with Discord' })
+const tourButton = () => screen.findByRole('button', { name: /What’s Smarf\? Watch the tour/ })
 
 /** The `state` a Discord link sends, which Discord would send back. */
 const stateOf = (link: HTMLElement) => new URL(link.getAttribute('href') ?? '').searchParams.get('state') ?? ''
@@ -199,5 +201,35 @@ describe('auth', () => {
     await user.click(await screen.findByTitle('Account menu'))
 
     expect(await screen.findByText(shown)).toBeInTheDocument()
+  })
+
+  describe('showcase film', () => {
+    it('plays the film over the login page, and closes', async () => {
+      const { user } = renderApp('/login', { loggedIn: false })
+
+      await user.click(await tourButton())
+      const film = await screen.findByRole('dialog', { name: /Smarf in a minute/ })
+      expect(film.querySelector('video')).toHaveAttribute('src', 'http://smarf.test/showcase.mp4')
+
+      await user.click(within(film).getByRole('button', { name: 'Close' }))
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+      expect(currentPath()).toBe('/login')
+    })
+
+    it("offers the Discord sign-in when the film ends, with the page's state", async () => {
+      const { user } = renderApp('/login', { loggedIn: false })
+      const pageState = stateOf(await discordLink())
+
+      await user.click(await tourButton())
+      const film = await screen.findByRole('dialog')
+      const video = film.querySelector('video')
+      if (!video) throw new Error('no video in the film dialog')
+      fireEvent.ended(video)
+
+      const filmLink = await within(film).findByRole('link', { name: 'Continue with Discord' })
+      expect(stateOf(filmLink)).toBe(pageState)
+      // Mounting the film's button didn't replace the page's pending sign-in.
+      expect(JSON.parse(localStorage.getItem('smarf-discord-login') ?? '{}').state).toBe(pageState)
+    })
   })
 })

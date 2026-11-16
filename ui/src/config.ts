@@ -14,6 +14,11 @@ const config = {
 
   discord: {
     clientId: import.meta.env.VITE_DISCORD_CLIENT_ID
+  },
+
+  showcase: {
+    /** The showcase film (showcase/smarf-showcase.mp4, hosted elsewhere). Unset hides the login page's link to it. */
+    videoUrl: import.meta.env.VITE_SHOWCASE_URL || null
   }
 }
 

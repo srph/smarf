@@ -10,6 +10,11 @@ interface Props {
   /** Signing in with the code Discord sent back: shows a spinner, and isn't a link. */
   pending?: boolean
   label?: string
+  /**
+   * The sign-in's `state`. Defaults to a new one. Two buttons on one page must share one: each saves its
+   * own as the pending sign-in, so with two, whichever mounted last would break the other.
+   */
+  state?: string
 }
 
 /** Discord's logo mark (Simple Icons). */
@@ -23,8 +28,9 @@ const DiscordLogo = () => (
  * A link to Discord's sign-in page; Discord then sends the visitor to /login/discord, which shows it again
  * as `pending` and, if signing in fails, as a retry. When its content changes, the labels swap (LabelSwap).
  */
-const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Discord' }: Props) => {
-  const [state] = useState(randomState)
+const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Discord', state: sharedState }: Props) => {
+  const [ownState] = useState(randomState)
+  const state = sharedState ?? ownState
 
   // Saved on mount rather than on click, so any way of following the link (new tab included) works.
   // Not while pending: /login/discord is still using the saved sign-in.
