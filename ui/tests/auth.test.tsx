@@ -208,7 +208,7 @@ describe('auth', () => {
       const { user } = renderApp('/login', { loggedIn: false })
 
       await user.click(await tourButton())
-      const film = await screen.findByRole('dialog', { name: /Smarf in a minute/ })
+      const film = await screen.findByRole('dialog', { name: /Welcome to Smarf/ })
       expect(film.querySelector('video')).toHaveAttribute('src', 'http://smarf.test/showcase.mp4')
 
       await user.click(within(film).getByRole('button', { name: 'Close' }))

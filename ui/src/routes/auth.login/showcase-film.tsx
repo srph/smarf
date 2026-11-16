@@ -25,9 +25,6 @@ function transformFrom(frame: HTMLElement, from: HTMLElement) {
   return `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${a.width / b.width}, ${a.height / b.height})`
 }
 
-const formatDuration = (seconds: number) =>
-  `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`
-
 /**
  * "What's Smarf? Watch the tour": a pill at the foot of the login page that plays the showcase film over the
  * page. When the film ends, it offers the Discord sign-in.
@@ -35,7 +32,6 @@ const formatDuration = (seconds: number) =>
 const ShowcaseFilm: React.FC<Props> = ({ videoUrl, discordState, returnTo }) => {
   const [open, setOpen] = useState(false)
   const [ended, setEnded] = useState(false)
-  const [duration, setDuration] = useState<number | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -98,12 +94,7 @@ const ShowcaseFilm: React.FC<Props> = ({ videoUrl, discordState, returnTo }) => 
         <Dialog.Backdrop className="fixed inset-0 z-(--z-popover) bg-zinc-950/85 backdrop-blur-sm transition-opacity duration-300 data-ending-style:opacity-0 data-starting-style:opacity-0" />
         <Dialog.Popup className="fixed top-1/2 left-1/2 z-(--z-popover) w-full max-w-240 -translate-1/2 px-10 text-zinc-50 transition-opacity duration-300 outline-none focus-gap-zinc-950 data-ending-style:opacity-0 data-starting-style:opacity-0">
           <div className="mb-3 flex items-center justify-between">
-            <Dialog.Title className="text-base font-bold">
-              Smarf in a minute
-              {duration !== null && (
-                <span className="ml-2 text-sm font-medium text-zinc-500 tabular-nums">{formatDuration(duration)}</span>
-              )}
-            </Dialog.Title>
+            <Dialog.Title className="text-base font-bold">Welcome to Smarf</Dialog.Title>
             <Dialog.Close
               aria-label="Close"
               className="grid size-9 cursor-pointer place-items-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-white/8 hover:text-zinc-50 focus-visible:ring-focus">
@@ -122,7 +113,6 @@ const ShowcaseFilm: React.FC<Props> = ({ videoUrl, discordState, returnTo }) => 
               autoPlay
               playsInline
               className="size-full"
-              onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
               onEnded={() => setEnded(true)}
             />
             {ended && (
@@ -141,8 +131,7 @@ const ShowcaseFilm: React.FC<Props> = ({ videoUrl, discordState, returnTo }) => 
             )}
           </div>
 
-          <div className="mt-3 flex justify-between text-xs text-zinc-500">
-            <span>Esc to close</span>
+          <div className="mt-3 flex justify-end text-xs">
             <Dialog.Close className="cursor-pointer font-semibold text-primary-300 transition-colors duration-200 hover:text-primary-200 focus-visible:ring-focus">
               Skip to sign-in
             </Dialog.Close>
