@@ -155,6 +155,9 @@
   .og-a.small .copy { width: 560px; }
   .og-a.small h1 { font-size: 50px; line-height: 1.08; }
   .og-a.small .win { left: 664px; }
+  /* Flat: no indigo glow behind the heading or around the window */
+  .og-a.flat::before { display: none; }
+  .og-a.flat .win { box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 0 0 1px rgba(0,0,0,.6), 0 40px 80px -20px rgba(0,0,0,.8); }
   .og-a .url { font-size: 16px; color: var(--z500); font-weight: 600; letter-spacing: .02em; }
   .og-a .win { position: absolute; left: 600px; top: 64px; width: 760px; height: 502px; border-radius: 18px; overflow: hidden;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 0 0 1px rgba(0,0,0,.6), 0 40px 80px -20px rgba(0,0,0,.8), 0 0 120px -20px color-mix(in oklab, var(--p500) 40%, transparent); }
@@ -398,6 +401,22 @@
     <div class="below"><div class="slot-feed"></div><div class="notes">
       <div class="note good">The C Tier row shows in full; nothing but the tier list.</div>
       <div class="note bad">Loses the indigo New category, the one other brand accent.</div>
+    </div></div>
+  </section>
+
+  <section class="variation" data-id="A2g" data-name="A2f without the indigo glows">
+    <div class="v-head"><span class="v-id">A2g</span><h2>A2f without the indigo glows</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="frame"><div class="og og-a nosub small colors flat dots">
+      <div class="copy">
+        <div class="lk sm"><img class="bd" src="og-assets/badge.svg" alt=""><span class="wd">Smarf</span></div>
+        <h1 class="lines"><span>Publish <span class="metal-text" style="display:inline">tier lists,</span></span><span>hero pools, ban/picks,</span><span>and more</span></h1>
+        <div class="url">smarf.kierb.com</div>
+      </div>
+      <div class="win dots" data-board="a2" data-nodock></div>
+    </div></div>
+    <div class="below"><div class="slot-feed"></div><div class="notes">
+      <div class="note good">Flat zinc and dots, like the board itself.</div>
+      <div class="note good">The tier colours become the only colour.</div>
     </div></div>
   </section>
 
