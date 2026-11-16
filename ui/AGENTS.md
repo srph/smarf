@@ -33,7 +33,7 @@ src/
 ├── components/   shared UI primitives (button/, input/, popover/, page-title/, ...)
 ├── contexts/     auth-user (current user, logout), board-list (layout constants and math), query (QueryProvider)
 ├── hooks/        generic hooks (use-debounced-effect.ts, use-delayed-state.ts, ...)
-├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie), discord.ts (Discord sign-in link and state), blur-swap.ts (classes for two states swapping in place)
+├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie), discord.ts (Discord sign-in link and state), blur-swap.ts (classes for two states swapping in place), category-colors.ts (the colours a category can take, and the classes that fade one across a card's header)
 ├── queries/      React Query hooks (queries and mutations) used by more than one route, a folder per domain (auth/, boards/, heroes/)
 ├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardId); a route's own hooks go in its queries/ and mutations/
 ├── types/        API and board-operation types
@@ -69,6 +69,7 @@ tests/
 - Keep `onMutate` synchronous up to the cache write (no `await` before `update()`): it then runs inside `mutate()`, so a drag or resize can clear its draft right after `mutate()` without the board flickering. Don't add a MutationCache-level `onMutate`, which would put an `await` first.
 - A drag or resize in progress is a draft: `BoardProvider`'s `updateDraft` copies the cached board and changes the copy, which is shown instead until `clearDraft()`. Nothing saves mid-drag. On drop, call the mutation once (from where the drag started on the cached board to where it ended), then `clearDraft()`; on cancel, just `clearDraft()`. Hero drags share `applyMoveHero` between the preview and the mutation. `BoardProvider` calls `useBoardQuery` itself, next to the draft, so that re-render reads the cache fresh; reading the board from a parent's prop would show the old position for a frame.
 - Build popovers and menus on Base UI (`@base-ui/react`); `components/popover` covers the usual popover. Style its parts with `className` and Tailwind's `data-*` variants (`data-popup-open:`, `data-highlighted:`).
+- A category's colour is a key (`red`, or null for none), the same list as the API's `Category::COLORS`. To show one, put its `categoryColorClass` on the card and `CATEGORY_HEADER_FADE` on the header: the class only sets `--category-color`, which `bg-category-fade` and `bg-category-metal` read. Add a colour in both lists and in `CategoryColor`.
 - Keep components route-local until a second route needs them, then move them to `components/`.
 - Import icons from `@heroicons/react/20/solid` and pass the component: `<Icon icon={TrashIcon} />`. An icon shown at 16px or smaller whose lines look thin can come from `@heroicons/react/16/solid` instead, which is drawn for that size (the share card's checks do).
 - Style with Tailwind classes on the element, not wrapper components named after a style. Join conditional classes with `cn` (`import { cn } from 'cn'`). Prettier sorts the classes.

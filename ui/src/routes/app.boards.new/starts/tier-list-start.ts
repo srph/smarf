@@ -1,3 +1,4 @@
+import { type CategoryColor } from '~/src/types/api'
 import { START_GAP, type Start, byName, startCategory, startCategoryBottom } from './start'
 
 // Dota2ProTracker's tiers for patch 7.41f, 7000+ MMR, all roles. Update by hand each patch. C and D keep their
@@ -60,6 +61,14 @@ const TIERS = [
   ]
 ] as const
 
+// Warm at the top, cooling on the way down. S is red; F has none.
+const TIER_COLORS: Record<(typeof TIERS)[number][0], CategoryColor> = {
+  'A Tier': 'orange',
+  'B Tier': 'amber',
+  'C Tier': 'emerald',
+  'D Tier': 'blue'
+}
+
 // S (six a row) and F (five a row) share the top row, and S + gap + F is the width of the tiers below them.
 const S_WIDTH = 536
 const F_WIDTH = 448
@@ -73,12 +82,18 @@ const tierListStart: Start = {
   glow: 'Bounty Hunter',
   layout: (heroes) => {
     // Bounty Hunter fills S on his own: five times over.
-    const s = startCategory('S Tier', byName(heroes, Array(5).fill(S_TIER[0])), { width: S_WIDTH, x: 0, y: 0 })
+    const s = startCategory('S Tier', byName(heroes, Array(5).fill(S_TIER[0])), {
+      width: S_WIDTH,
+      x: 0,
+      y: 0,
+      color: 'red'
+    })
+    // F stays grey: the bottom of the list.
     const f = startCategory('F Tier', byName(heroes, F_TIER), { width: F_WIDTH, x: S_WIDTH + START_GAP, y: 0 })
 
     let y = Math.max(startCategoryBottom(s), startCategoryBottom(f)) + START_GAP
     const tiers = TIERS.map(([name, names]) => {
-      const tier = startCategory(name, byName(heroes, names), { width: ROW_WIDTH, x: 0, y })
+      const tier = startCategory(name, byName(heroes, names), { width: ROW_WIDTH, x: 0, y, color: TIER_COLORS[name] })
       y = startCategoryBottom(tier) + START_GAP
       return tier
     })
