@@ -1,3 +1,6 @@
 # Rendered by render.mjs
 stills/
 *.mp4
+
+# Music for the render: licensed per track, so it stays out of the repo
+music.*

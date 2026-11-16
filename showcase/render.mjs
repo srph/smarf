@@ -6,12 +6,16 @@
     node render.mjs                      smarf-showcase.mp4 at 60fps
     node render.mjs --fps 30 --out a.mp4
     node render.mjs --stills 2,12.5,40   PNGs of those seconds, into stills/
+    node render.mjs --audio track.mp3    with music: trimmed to the film, faded in and out
+
+  A music.mp3 in this folder is used when --audio isn't given (it isn't committed; mind its licence).
 
   Set CHROME to use a browser other than macOS's Google Chrome.
 */
 
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:http'
+import { existsSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { extname, join, normalize } from 'node:path'
@@ -24,6 +28,7 @@ const option = (name, fallback) => (args.includes(name) ? args[args.indexOf(name
 const fps = Number(option('--fps', 60))
 const out = option('--out', join(here, 'smarf-showcase.mp4'))
 const stills = option('--stills', null)
+const audio = option('--audio', existsSync(join(here, 'music.mp3')) ? join(here, 'music.mp3') : null)
 const chrome = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const debugPort = 9333
 
@@ -132,6 +137,9 @@ try {
     const ffmpeg = spawn(
       'ffmpeg',
       ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'png', '-i', '-'].concat(
+        // The music fades in over half a second, and out over the last two and a half.
+        audio ? ['-i', audio, '-af', `afade=t=in:d=0.5,afade=t=out:st=${(duration - 2.5).toFixed(2)}:d=2.5`] : [],
+        audio ? ['-c:a', 'aac', '-b:a', '256k', '-t', duration.toFixed(3)] : [],
         ['-c:v', 'libx264', '-preset', 'slow', '-crf', '16', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out]
       ),
       { stdio: ['pipe', 'inherit', 'inherit'] }
@@ -143,7 +151,7 @@ try {
     }
     ffmpeg.stdin.end()
     await once(ffmpeg, 'close')
-    console.log(`Wrote ${out}`)
+    console.log(`Wrote ${out}${audio ? ` with ${audio}` : ' (no music)'}`)
   }
 } finally {
   await close()

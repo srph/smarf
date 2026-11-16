@@ -712,7 +712,7 @@ const build = () => {
   )
   tl.set('#newcat .sheen', { opacity: 0 }, 7.6)
 
-  caption(5.9, 10.1, 'Your hero pool, laid out like the in-game grid', 'Laravel, React, Tailwind, TypeScript')
+  caption(5.9, 10.1, 'Your heroes, laid out like the in-game grid', 'Tier lists, hero pools, ban lists: a board for each')
   tl.to(camera, { z: 1.035, duration: 4.4, ease: 'none', onUpdate: applyCamera }, 5.8)
 
   // ===== 3. Drag a hero between categories, then drag one off =====
@@ -721,7 +721,7 @@ const build = () => {
   const { s, f, a, d } = cats
 
   cam(D, 1.4, 500, 250)
-  caption(D + 0.3, D + 4.6, 'Drag heroes between categories', 'dnd-kit, with a draft that only saves on drop')
+  caption(D + 0.3, D + 4.6, 'Drag heroes between categories', 'The rest shuffle out of the way')
 
   gsap.set(cursor, { x: 780, y: 470 })
   tl.to(cursor, { opacity: 1, duration: 0.3 }, D + 0.5)
@@ -750,7 +750,7 @@ const build = () => {
 
   const R = D + 4.3
   cam(R, 1.4, 900, 250, 1)
-  caption(R + 0.5, R + 3.9, 'Drag one off the board to remove it', 'Optimistic updates baked in; errors handled gracefully')
+  caption(R + 0.5, R + 3.9, 'Drag one off the board to remove it', 'Saved the moment you let go')
 
   const fiend = heroEls.nevermore
   const fiendDrop = { x: 1168, y: 96 }
@@ -828,7 +828,7 @@ const build = () => {
   // ===== 5. Add a hero from the selector =====
 
   cam(A, 1.15, 620, 400, 1.1)
-  caption(A + 0.3, A + 6.3, 'Add heroes from the full roster', '127 heroes, grouped by attribute and searchable')
+  caption(A + 0.3, A + 6.3, 'Add heroes from the full roster', 'Every hero, grouped by attribute and searchable')
 
   const selector = $('#selector')
   gsap.set(selector, { y: -6, scale: 0.985, transformOrigin: '42% 0' })
