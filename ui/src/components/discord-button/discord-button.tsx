@@ -43,8 +43,8 @@ const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Disco
       href={pending ? undefined : discordAuthorizeUrl(state)}
       aria-disabled={pending || undefined}
       className={cn(
-        'flex w-full items-center justify-center overflow-hidden rounded-xl bg-primary-500 px-4 py-3 text-base font-bold text-zinc-50 ring-primary-300 transition-shadow duration-200',
-        pending ? 'cursor-progress' : 'hover:ring-2 focus-visible:ring-focus'
+        'flex w-full items-center justify-center overflow-hidden rounded-xl bg-primary-500 px-4 py-3 text-base font-bold text-zinc-50 transition-[background-color,box-shadow] duration-200',
+        pending ? 'cursor-progress' : 'hover:bg-primary-600 focus-visible:ring-focus'
       )}>
       <LabelSwap swapKey={pending ? 'pending' : label}>
         {/* While pending, the spinner gets more room: its rings sit inside its box. */}
