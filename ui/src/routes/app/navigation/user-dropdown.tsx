@@ -60,7 +60,7 @@ const UserDropdown: React.FC = () => {
         <Menu.Group className="p-1.5">
           <Menu.LinkItem
             render={<Link to="/logout" />}
-            className="data-highlighted:bg-red-500/12! data-highlighted:text-red-300! data-highlighted:[&_svg]:text-red-400!">
+            className="data-highlighted:bg-red-500/12 data-highlighted:text-red-300 data-highlighted:[&_svg]:text-red-400">
             <Icon icon={ArrowLeftStartOnRectangleIcon} />
             Log out
           </Menu.LinkItem>

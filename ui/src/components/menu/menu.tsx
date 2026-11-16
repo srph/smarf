@@ -56,8 +56,8 @@ const item =
 type ItemProps = Omit<React.ComponentProps<typeof BaseMenu.Item>, 'className'> & { className?: string }
 
 /**
- * A row: put its icon first, as a child. The icon brightens to primary with the row. A red row (Log out) overrides
- * the highlight colours with `!`, since `cn` joins classes without resolving conflicts.
+ * A row: put its icon first, as a child. The icon brightens to primary with the row. A red row (Log out) passes its
+ * own highlight colours in `className`, which `cn` puts in place of these.
  */
 const Item: React.FC<ItemProps> = ({ className, ...props }) => (
   <BaseMenu.Item {...props} className={cn(item, className)} />
