@@ -37,7 +37,7 @@ src/
 ├── components/   shared UI primitives, a folder each
 ├── contexts/     current user, board layout constants, query provider
 ├── hooks/        generic hooks
-├── lib/          fetch wrapper, auth token, small helpers
+├── lib/          helpers by domain: api/, auth/, board/
 ├── queries/      hooks shared by routes, flat
 ├── routes/       a folder per route; `.` marks nesting (app.boards.id = /b/:boardSlug)
 ├── types/        API and board types

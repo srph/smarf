@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { v4 as uuid } from 'uuid'
-import { http } from '~/src/lib/http'
+import { http } from '~/src/lib/api/http'
 import { useBoardCache } from '~/src/queries/use-board-cache'
 import { last } from '~/src/utils'
 import { type Category, type Hero, type HeroCategoryPivot, type ID, type Slug } from '~/src/types/api'

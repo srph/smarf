@@ -4,7 +4,7 @@ import { config } from '~/src/config'
 import { getReturnPath } from '~/src/components/guarded-route/guarded-route'
 import { PageTitle } from '~/src/components/page-title/page-title'
 import { DiscordButton } from '~/src/components/discord-button/discord-button'
-import { randomState } from '~/src/lib/discord'
+import { randomState } from '~/src/lib/auth/discord'
 import { ShowcaseFilm } from './showcase-film'
 
 const LoginRoute = () => {

@@ -1,5 +1,5 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import { http, HttpError } from '~/src/lib/http'
+import { http, HttpError } from '~/src/lib/api/http'
 import { boardKeys } from '~/src/queries/query-keys'
 import { type Board, type Slug } from '~/src/types/api'
 

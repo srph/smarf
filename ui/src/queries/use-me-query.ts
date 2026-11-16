@@ -1,5 +1,5 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import { http } from '~/src/lib/http'
+import { http } from '~/src/lib/api/http'
 import { type User } from '~/src/types/api'
 
 /** The logged-in user. */

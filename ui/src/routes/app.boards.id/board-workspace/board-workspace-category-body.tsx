@@ -19,7 +19,7 @@ import { BoardWorkspaceCategoryColorPicker } from './board-workspace-category-co
 
 import { Resizable, type ResizeCallback, type Size } from 're-resizable'
 import { mergeRefs } from '~/src/utils'
-import { CATEGORY_HEADER_FADE, categoryColorClass } from '~/src/lib/category-colors'
+import { CATEGORY_HEADER_FADE, categoryColorClass } from '~/src/lib/board/category-colors'
 
 import {
   CATEGORY_BODY_INITIAL_WIDTH,

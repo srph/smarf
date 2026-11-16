@@ -7,7 +7,7 @@ import { Icon } from '~/src/components/icon/icon'
 import { Menu } from '~/src/components/menu/menu'
 import { PlainButton } from '~/src/components/plain-button/plain-button'
 import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
-import { displayName } from '~/src/lib/user'
+import { displayName } from '~/src/lib/auth/user'
 import avatar from '~/src/assets/images/avatar.png'
 
 // The brand marks fill their box, so they sit a step smaller than heroicons to look the same weight.

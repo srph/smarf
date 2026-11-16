@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { http } from '~/src/lib/http'
+import { http } from '~/src/lib/api/http'
 import { boardKeys } from '~/src/queries/query-keys'
 import { type Board, type Category, type ID } from '~/src/types/api'
 import { ORDER_BUFFER } from '~/src/contexts/board-list/constants'

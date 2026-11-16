@@ -9,7 +9,7 @@ import {
   CATEGORY_HERO_X_TOTAL_PADDING,
   CATEGORY_TRAY_BORDER
 } from '~/src/contexts/board-list/constants'
-import { CATEGORY_HEADER_FADE, categoryColorClass } from '~/src/lib/category-colors'
+import { CATEGORY_HEADER_FADE, categoryColorClass } from '~/src/lib/board/category-colors'
 import { type StartCategory } from './starts/start'
 
 type Variant = 'ghost' | 'preview'

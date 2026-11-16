@@ -3,7 +3,7 @@ import { cn } from 'cn'
 import { CheckIcon } from '@heroicons/react/16/solid'
 import { XMarkIcon } from '@heroicons/react/20/solid'
 import { Icon } from '~/src/components/icon/icon'
-import { CATEGORY_COLORS, CATEGORY_FADE_LAYER, categoryColorClass } from '~/src/lib/category-colors'
+import { CATEGORY_COLORS, CATEGORY_FADE_LAYER, categoryColorClass } from '~/src/lib/board/category-colors'
 import { type CategoryColor } from '~/src/types/api'
 
 interface Props {

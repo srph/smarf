@@ -1,5 +1,5 @@
 import { config } from '~/src/config'
-import { getToken } from './token'
+import { getToken } from '~/src/lib/auth/token'
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
 

@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { type Draft } from 'immer'
 import { arrayMove } from '@dnd-kit/sortable'
-import { http } from '~/src/lib/http'
+import { http } from '~/src/lib/api/http'
 import { useBoardCache } from '~/src/queries/use-board-cache'
 import { type Board, type ID, type Slug } from '~/src/types/api'
 import { getCategoryHeight, getHeroOrder } from '~/src/contexts/board-list/utils'

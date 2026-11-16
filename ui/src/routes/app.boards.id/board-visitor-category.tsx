@@ -8,7 +8,7 @@ import {
   CATEGORY_TRAY_BORDER
 } from '~/src/contexts/board-list/constants'
 import { cn } from 'cn'
-import { CATEGORY_HEADER_FADE, categoryColorClass } from '~/src/lib/category-colors'
+import { CATEGORY_HEADER_FADE, categoryColorClass } from '~/src/lib/board/category-colors'
 import { type Category } from '~/src/types/api'
 
 interface Props {

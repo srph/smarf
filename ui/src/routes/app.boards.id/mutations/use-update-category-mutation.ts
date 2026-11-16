@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { http } from '~/src/lib/http'
+import { http } from '~/src/lib/api/http'
 import { useBoardCache } from '~/src/queries/use-board-cache'
 import { type CategoryColor, type ID, type Slug } from '~/src/types/api'
 

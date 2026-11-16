@@ -1,5 +1,5 @@
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import { http } from '~/src/lib/http'
+import { http } from '~/src/lib/api/http'
 import { type Hero } from '~/src/types/api'
 
 /** Every hero, sorted by name. The list never changes while the app is open, so it's fetched once. */

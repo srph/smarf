@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { cn } from 'cn'
 import { LabelSwap } from '~/src/components/label-swap/label-swap'
 import { Spinner } from '~/src/components/spinner/spinner'
-import { discordAuthorizeUrl, randomState, savePendingLogin } from '~/src/lib/discord'
+import { discordAuthorizeUrl, randomState, savePendingLogin } from '~/src/lib/auth/discord'
 
 interface Props {
   /** The page to go back to once signed in. */

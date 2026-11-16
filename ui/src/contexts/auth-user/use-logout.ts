@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
-import { clearToken } from '~/src/lib/token'
+import { clearToken } from '~/src/lib/auth/token'
 
 /** Forget the token and everything cached for this user, then go to the login page. */
 function useLogout() {

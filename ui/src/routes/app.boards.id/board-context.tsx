@@ -7,7 +7,7 @@ import { PageSpinner } from '~/src/components/page-spinner/page-spinner'
 import { Spacer } from '~/src/components/spacer/spacer'
 import { useAuthUser } from '~/src/contexts/auth-user/auth-user-provider'
 import { useLatestValue } from '~/src/hooks/use-latest-value'
-import { HttpError } from '~/src/lib/http'
+import { HttpError } from '~/src/lib/api/http'
 import { type Board, type Slug } from '~/src/types/api'
 import { useBoardQuery } from './queries/use-board-query'
 

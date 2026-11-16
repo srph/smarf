@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import { http } from '~/src/lib/http'
-import { setToken } from '~/src/lib/token'
+import { http } from '~/src/lib/api/http'
+import { setToken } from '~/src/lib/auth/token'
 
 interface DiscordLoginVariables {
   /** The code Discord sent back. It works once. */
