@@ -5,7 +5,8 @@ import { Icon } from '~/src/components/icon/icon'
 interface Props {
   name: string
   onCancel: () => void
-  onConfirm: () => void
+  // Gets the Delete button's centre in client coordinates, for the poof.
+  onConfirm: (at: { x: number; y: number }) => void
 }
 
 /**
@@ -67,7 +68,10 @@ const BoardWorkspaceCategoryDeleteConfirm: React.FC<Props> = ({ name, onCancel, 
         </button>
         <button
           type="button"
-          onClick={onConfirm}
+          onClick={(evt) => {
+            const rect = evt.currentTarget.getBoundingClientRect()
+            onConfirm({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+          }}
           className="h-6 cursor-pointer rounded-md bg-red-600 px-2 text-xs font-bold text-white hover:bg-red-500 focus-visible:ring-focus-danger">
           Delete
         </button>

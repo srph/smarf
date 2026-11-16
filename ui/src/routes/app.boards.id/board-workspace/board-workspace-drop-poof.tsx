@@ -14,7 +14,8 @@ interface Props {
 const ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]
 
 /**
- * A poof where a hero was dropped off every category to remove it: dots fly out and fade.
+ * A poof where a hero was dropped off every category to remove it, or from a deleted category's Delete button: dots
+ * fly out and fade.
  * Fixed to the page through a portal, so it sits on the drop point whatever the workspace clips or scrolls.
  * Callers skip it when the OS asks for reduced motion.
  */

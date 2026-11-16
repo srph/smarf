@@ -68,10 +68,13 @@ const BoardWorkspace: React.FC = () => {
     clearDraft()
   }
 
-  // A poof for each hero dropped off every category, until its animation ends.
+  // A poof for each hero dropped off every category and each category deleted, until its animation ends.
   const [poofs, setPoofs] = useState<{ id: number; x: number; y: number }[]>([])
   const nextPoofId = useRef(0)
   const reduceMotion = useReducedMotion()
+  const addPoof = (at: { x: number; y: number }) => {
+    if (!reduceMotion) setPoofs((p) => [...p, { id: nextPoofId.current++, ...at }])
+  }
 
   // Dropped off every category: remove the hero from where it started on the cached board.
   const handleHeroRemove = (start: HeroPosition, at: { x: number; y: number } | null) => {
@@ -79,7 +82,7 @@ const BoardWorkspace: React.FC = () => {
     const variables = savedBoard && removeHeroVariables(savedBoard, start)
     if (variables) removeHero(variables)
     clearDraft()
-    if (variables && at && !reduceMotion) setPoofs((p) => [...p, { id: nextPoofId.current++, ...at }])
+    if (variables && at) addPoof(at)
   }
 
   // While dragging a category: show its position as a draft (saved on drop).
@@ -178,6 +181,7 @@ const BoardWorkspace: React.FC = () => {
                   workspace={workspace}
                   draggingHeroId={activeId}
                   removingHeroId={removingId}
+                  onPoof={addPoof}
                 />
               )
             })}

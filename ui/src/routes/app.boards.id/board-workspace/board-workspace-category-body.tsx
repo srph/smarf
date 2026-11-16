@@ -41,9 +41,17 @@ interface Props {
   draggingHeroId: ID | null
   // The pivot id of a hero being dragged off every category (dropping it removes it), if any.
   removingHeroId: ID | null
+  // Plays the workspace's poof at a point on the page (client coordinates).
+  onPoof: (at: { x: number; y: number }) => void
 }
 
-const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, draggingHeroId, removingHeroId }) => {
+const BoardWorkspaceCategoryBody: React.FC<Props> = ({
+  category,
+  workspace,
+  draggingHeroId,
+  removingHeroId,
+  onPoof
+}) => {
   const { board, updateDraft, clearDraft } = useBoard()
 
   const { mutate: addHero } = useAddHeroMutation(board.id)
@@ -72,9 +80,11 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({ category, workspace, drag
   }, [isLeaving])
 
   // The delete drops the category from the cache, which unmounts the card. So fade it out first, with the confirm still
-  // up, and delete after. With reduced motion there's nothing to wait for.
-  const handleConfirmDelete = () => {
+  // up, and delete after. Delete bursts with the same poof as a hero dropped off every category. With reduced motion
+  // there's nothing to wait for (and the workspace skips the poof).
+  const handleConfirmDelete = (at: { x: number; y: number }) => {
     setIsLeaving(true)
+    onPoof(at)
     const reducedMotion =
       typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
     setTimeout(() => deleteCategory(category.id), reducedMotion ? 0 : EXIT_MS)

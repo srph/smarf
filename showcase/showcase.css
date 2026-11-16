@@ -1524,6 +1524,14 @@ svg {
   color: #fff;
 }
 
+.dc-poof {
+  z-index: 2;
+}
+
+.dc-poof i:nth-child(odd) {
+  background: #ff6467;
+}
+
 /* Hold to delete: graphite metal that fills with red metal while it's held */
 .hd .panel-head {
   margin-bottom: 8px;

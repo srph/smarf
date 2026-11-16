@@ -559,6 +559,21 @@ const reelScene = (tl, from) => {
     cur.click(3 * BEAT)
     cur.hide(1.3)
     tl.to(find('.dc'), { scale: 0.92, opacity: 0, filter: 'blur(8px)', duration: 0.3, ease: 'power2.in' }, at(1.27))
+
+    // Delete bursts with the app's poof: a dot every 45°, red and grey in turn, flying out from the button and fading.
+    // It sits beside the card, not in it, so it doesn't fade and blur with it.
+    const poof = make('div', 'poof dc-poof', '<i></i>'.repeat(8))
+    find('.shot-ui').append(poof)
+    gsap.set(poof, on(find('.dc-del')))
+    $$('i', poof).forEach((dot, index) => {
+      const angle = (index / 8) * Math.PI * 2 - Math.PI / 2
+      tl.fromTo(
+        dot,
+        { x: Math.cos(angle) * 6, y: Math.sin(angle) * 6, scale: 1, opacity: 1 },
+        { x: Math.cos(angle) * 30, y: Math.sin(angle) * 30, scale: 0.3, opacity: 0, duration: 0.6, ease: 'power3.out', immediateRender: false },
+        at(3 * BEAT)
+      )
+    })
   })
 
   // Hold to delete: the graphite button fills with red metal while it's held, then the board goes.

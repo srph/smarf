@@ -190,6 +190,10 @@ describe('board workspace', () => {
     // It fades out still asking, rather than flashing back to the normal card first.
     expect(within(supports).getByRole('alertdialog', { name: 'Delete Supports?' })).toBeInTheDocument()
 
+    // The same poof as a hero dropped off every category, cleared once it's played.
+    expect(document.querySelector('[data-drop-poof]')).not.toBeNull()
+    await waitFor(() => expect(document.querySelector('[data-drop-poof]')).toBeNull(), { timeout: 2000 })
+
     await waitFor(() => expect(screen.queryByDisplayValue('Supports')).not.toBeInTheDocument())
     await waitFor(() => expect(db.categories.map((c) => c.name)).not.toContain('Supports'))
   })
