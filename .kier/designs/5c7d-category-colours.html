@@ -145,7 +145,7 @@
   .pop { position: absolute; z-index: 20; padding: 8px; border-radius: 12px; border: 1px solid var(--z700); background: var(--z900); box-shadow: 0 20px 40px -12px rgba(0,0,0,.7); animation: rise .2s var(--ease) both; }
 
   /* The fade the delete confirm uses, in the card's colour (A and C) */
-  :is(.v-a, .v-c) .has-c .head::before, .has-c .strip::before { content: ""; position: absolute; inset: 1px 1px -12px 1px; z-index: -1; border-radius: 11px 11px 0 0; pointer-events: none;
+  :is(.v-a, .v-c, .v-c2) .has-c .head::before, .has-c .strip::before { content: ""; position: absolute; inset: 1px 1px -12px 1px; z-index: -1; border-radius: 11px 11px 0 0; pointer-events: none;
     background: linear-gradient(to right, color-mix(in oklab, var(--c) 35%, transparent), color-mix(in oklab, var(--c) 10%, transparent) 45%, transparent 80%); }
 
   /* B: the colour falls from the header into the tray; a dot by the name picks it */
@@ -165,6 +165,11 @@
   .strip .sw svg { width: 12px; height: 12px; }
   .strip .sw:focus-visible { box-shadow: 0 0 0 2px var(--z800), 0 0 0 4px var(--indigo4); }
   .sw-name { margin-left: auto; font-size: 12px; color: var(--z300); animation: rise .32s var(--ease) 60ms both; }
+
+  /* C2: C with an icon for the trigger and a cancel button in place of the colour's name */
+  .strip .ibtn { opacity: 1; margin-left: auto; }
+  .v-c2 .strip { padding-right: 5px; }
+  .states .sep { margin-left: 12px; }
 
   /* D: a gradient rim and a corner glow; colour lives in a menu with Delete */
   .v-d .has-c::after { content: ""; position: absolute; inset: 0; border-radius: 12px; padding: 1.5px; pointer-events: none;
@@ -232,6 +237,15 @@
     </div>
   </section>
 
+  <section class="variation" data-id="C2" data-name="C with a colour icon and a cancel button" data-v="c2" data-cap="In situ: click the colour icon beside the trash, then hover the colours">
+    <div class="v-head"><span class="v-id">C2</span><h2>C with a colour icon and a cancel button</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The icon stays neutral, so colour shows once, in the fade.</div>
+      <div class="note good">A visible way out, where the trash was.</div>
+      <div class="note bad">Shares A's red clash.</div>
+    </div>
+  </section>
+
   <section class="variation" data-id="D" data-name="A gradient rim and corner glow, colour in a menu" data-v="d" data-cap="In situ: hover a card, click the dots">
     <div class="v-head"><span class="v-id">D</span><h2>A gradient rim and corner glow, colour in a menu</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="notes">
@@ -247,7 +261,7 @@
     <div class="cards">
       <div class="card"><b>Explore</b>Explore from A: fade strength and direction, or a solid metal band like Hold to delete.</div>
       <div class="card"><b>Remix</b>Remix C: swap red for rose so no card can pass for a delete confirm.</div>
-      <div class="card"><b>Settle</b>Settle on C if the preview matters; on A for the smallest change.</div>
+      <div class="card"><b>Settle</b>Settle on C2 with the icon you prefer; on A for the smallest change.</div>
     </div>
   </section>
 </main>
@@ -260,6 +274,10 @@ const P = {
   bars2: '<path fill-rule="evenodd" d="M2 6.75A.75.75 0 0 1 2.75 6h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 6.75Zm0 6.5a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd"/>',
   trash: '<path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clip-rule="evenodd"/>',
   plus: '<path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"/>',
+  swatch: '<path fill-rule="evenodd" d="M3.5 2A1.5 1.5 0 0 0 2 3.5V15a3 3 0 1 0 6 0V3.5A1.5 1.5 0 0 0 6.5 2h-3Zm11.753 6.99L9.5 14.743V6.257l1.51-1.51a1.5 1.5 0 0 1 2.122 0l2.121 2.121a1.5 1.5 0 0 1 0 2.122ZM8.364 18H16.5a1.5 1.5 0 0 0 1.5-1.5v-3a1.5 1.5 0 0 0-1.5-1.5h-2.136l-6 6ZM5 16a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>',
+  brush: '<path d="M15.993 1.385a1.87 1.87 0 0 1 2.623 2.622l-4.03 5.27a12.749 12.749 0 0 1-4.237 3.562 4.508 4.508 0 0 0-3.188-3.188 12.75 12.75 0 0 1 3.562-4.236l5.27-4.03ZM6 11a3 3 0 0 0-3 3 .5.5 0 0 1-.72.45.75.75 0 0 0-1.035.931A4.001 4.001 0 0 0 9 14.004V14a3.01 3.01 0 0 0-1.66-2.685A2.99 2.99 0 0 0 6 11Z"/>',
+  dropper: '<path fill-rule="evenodd" d="M12.1 3.667a3.502 3.502 0 1 1 6.782 1.738 3.487 3.487 0 0 1-.907 1.57 3.495 3.495 0 0 1-1.617.919L16 7.99V10a.75.75 0 0 1-.22.53l-.25.25a.75.75 0 0 1-1.06 0l-.845-.844L7.22 16.34A2.25 2.25 0 0 1 5.629 17H5.12a.75.75 0 0 0-.53.22l-1.56 1.56a.75.75 0 0 1-1.061 0l-.75-.75a.75.75 0 0 1 0-1.06l1.56-1.561a.75.75 0 0 0 .22-.53v-.508c0-.596.237-1.169.659-1.59l6.405-6.406-.844-.845a.75.75 0 0 1 0-1.06l.25-.25A.75.75 0 0 1 10 4h2.01l.09-.333ZM4.72 13.84l6.405-6.405 1.44 1.439-6.406 6.405a.75.75 0 0 1-.53.22H5.12c-.258 0-.511.044-.75.129a2.25 2.25 0 0 0 .129-.75v-.508a.75.75 0 0 1 .22-.53Z" clip-rule="evenodd"/>',
+  x: '<path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"/>',
   dots: '<path d="M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/>'
 };
 const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
@@ -293,6 +311,11 @@ const BOARD = [
 const swatches = (cur, hov) => COLORS.map((k) =>
   `<button class="sw ${k.hex ? '' : 'none'} ${k.key === (cur || '') ? 'sel' : ''} ${hov != null && k.key === hov ? 'f-hover' : ''}" data-color="${k.key}" title="${k.name}" aria-label="${k.name}" ${k.hex ? `style="--c:${k.hex}"` : ''}>${k.hex && k.key === cur ? CHECK : ''}</button>`).join('');
 
+// C2's trigger icon, switchable from its canvas.
+const C2_ICONS = [{ key: 'swatch', name: 'Swatch' }, { key: 'brush', name: 'Paint brush' }, { key: 'dropper', name: 'Eye dropper' }];
+let c2Icon = 'swatch';
+const inPlace = (v) => v === 'c' || v === 'c2';
+
 // st: card (hovered), open (picking), del (confirming), preview (C: a swatch being hovered)
 function cardHTML(v, c, st = {}) {
   const shown = v === 'now' ? null : colour(st.preview != null ? st.preview : c.color);
@@ -301,9 +324,11 @@ function cardHTML(v, c, st = {}) {
   const glyph = '<span class="glyph"></span>';
   const dot = v === 'b' ? `<button class="dot ${on}" data-pick="${c.id}" title="Colour">${glyph}</button>` : '';
   const pick = v === 'a' || v === 'c' ? `<button class="ibtn ${on}" data-pick="${c.id}" title="Colour">${glyph}</button>`
+    : v === 'c2' ? `<button class="ibtn ${on}" data-pick="${c.id}" title="Colour">${icon(c2Icon, 16)}</button>`
     : v === 'd' ? `<button class="ibtn ${on}" data-pick="${c.id}" title="More">${icon('dots')}</button>` : '';
   const trash = v === 'd' ? '' : `<button class="ibtn trash" data-del="${c.id}" title="Delete category">${icon('trash', 16)}</button>`;
-  const strip = v === 'c' && st.open ? `<div class="strip"><div class="sws">${swatches(c.color, st.preview)}</div><span class="sw-name">${shown.name}</span></div>` : '';
+  const strip = inPlace(v) && st.open ? `<div class="strip"><div class="sws">${swatches(c.color, st.preview)}</div>${v === 'c'
+    ? `<span class="sw-name">${shown.name}</span>` : `<button class="ibtn" data-cancel title="Cancel" aria-label="Cancel">${icon('x', 16)}</button>`}</div>` : '';
   const confirm = st.del ? `<div class="confirm"><span class="tip">${icon('trash', 16)}</span><p><span>Delete</span> <b>${c.name}</b>?</p>
     <span class="cbtns"><button class="cbtn" data-cancel>Cancel</button><button class="cbtn del" data-confirm="${c.id}">Delete</button></span></div>` : '';
   const cells = c.heroes.map((s) => `<div class="cell hero"><div class="portrait"><img src="${thumb(s)}" alt="" draggable="false"></div></div>`).join('')
@@ -318,7 +343,7 @@ function cardHTML(v, c, st = {}) {
 // A, B and D open a popover under their trigger; D's is a menu that also holds Delete.
 function placePop(app, v, c) {
   const t = app.querySelector(`[data-pick="${c.id}"]`);
-  if (!t || v === 'c' || v === 'now') return;
+  if (!t || inPlace(v) || v === 'now') return;
   app.insertAdjacentHTML('beforeend', v === 'd'
     ? `<div class="pop more"><div class="lbl">Colour</div><div class="sws">${swatches(c.color)}</div><hr><button class="mrow" data-del="${c.id}">${icon('trash', 16)}Delete category</button></div>`
     : `<div class="pop"><div class="sws">${swatches(c.color)}</div></div>`);
@@ -340,7 +365,7 @@ const STATES = [
 function renderStage(app, v, s) {
   const cats = STAGE.map((c) => ({ ...c, color: s.plain ? null : c.color }));
   // C previews the hovered swatch on the card: here Violet, over a card that is Red.
-  const st = v === 'c' && s.st.open ? { ...s.st, preview: 'violet' } : s.st;
+  const st = inPlace(v) && s.st.open ? { ...s.st, preview: 'violet' } : s.st;
   app.innerHTML = cats.map((c, i) => cardHTML(v, c, i === 0 ? st : {})).join('');
   if (s.st.open) placePop(app, v, cats[0]);
 }
@@ -374,6 +399,19 @@ sections.forEach((sec) => {
     if (open && open.kind === 'pick') placePop(board, v, find(open.id));
   };
 
+  // C2: choose the trigger's icon.
+  if (v === 'c2') {
+    const lbl = document.createElement('span'); lbl.className = 'sep'; lbl.textContent = 'Icon'; row.appendChild(lbl);
+    const ibtns = C2_ICONS.map((ic) => {
+      const b = document.createElement('button'); b.textContent = ic.name; b.setAttribute('aria-pressed', String(ic.key === c2Icon));
+      b.addEventListener('click', () => {
+        c2Icon = ic.key; ibtns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        btns.find((x) => x.getAttribute('aria-pressed') === 'true').click(); draw();
+      });
+      row.appendChild(b); return b;
+    });
+  }
+
   // Layout needs the frames in the page before the popovers measure.
   requestAnimationFrame(() => { const want = new URLSearchParams(location.search).get('state'); // ?state=Picking opens every stage in that state
     (btns[states.findIndex((s) => (want ? s.key === want : s.initial))] || btns[0]).click(); draw(); });
@@ -393,7 +431,8 @@ sections.forEach((sec) => {
   const preview = (catEl, k) => {
     catEl.classList.toggle('has-c', !!k.hex);
     if (k.hex) catEl.style.setProperty('--c', k.hex);
-    catEl.querySelector('.sw-name').textContent = k.name;
+    const name = catEl.querySelector('.sw-name');
+    if (name) name.textContent = k.name;
   };
   board.addEventListener('mouseover', (e) => {
     const sw = e.target.closest('.strip [data-color]');
