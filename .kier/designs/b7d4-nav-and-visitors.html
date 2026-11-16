@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nav and Visitors</title>
+<link rel="stylesheet" href="https://use.typekit.net/qbq1ozm.css">
+<style>
+  /* ---------- Page chrome (neutral reading surface) ---------- */
+  :root { --bg: #f5f5f4; --card: #fff; --ink: #1c1917; --mute: #78716c; --line: #e7e5e4; --good: #15803d; --good-bg: #f0fdf4; --bad: #b91c1c; --bad-bg: #fef2f2; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 16px 96px; }
+  @media (min-width: 1360px) { .wrap { margin-left: max(200px, calc((100vw - 1100px) / 2)); } }
+
+  .brief h1 { font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 56px; }
+  .chip { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--mute); }
+  .chip b { display: block; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+
+  .variation { margin-bottom: 72px; scroll-margin-top: 24px; }
+  .v-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .v-id { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 7px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .v-head h2 { font-size: 18px; margin: 0; flex: 1; }
+  .pick { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .pick:hover, .pick[aria-expanded="true"] { border-color: #a8a29e; }
+  .pick:focus-visible, .menu button:focus-visible, .states button:focus-visible, .minimap button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .menu[hidden] { display: none; }
+  .menu button { text-align: left; font: inherit; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; cursor: pointer; }
+  .menu button:hover { border-color: #a8a29e; }
+  .menu b { display: block; font-size: 13px; }
+  .menu span { font-size: 12px; color: var(--mute); }
+  @media (max-width: 640px) { .menu { grid-template-columns: 1fr; } }
+  .copied { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 13px; }
+  .copied[hidden] { display: none; }
+  .copied code, .copied input { flex: 1; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; color: var(--ink); min-width: 0; }
+  .copied em { font-style: normal; color: var(--good); font-weight: 600; white-space: nowrap; }
+
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12px; color: var(--mute); }
+  .states button { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .states button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .frame { border: 1px solid var(--line); border-radius: 12px; overflow: auto; background: #18181b; }
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; margin-top: 10px; }
+  .note { border-radius: 9px; padding: 8px 12px; font-size: 13px; border: 1px solid; }
+  .note.good { background: var(--good-bg); border-color: #bbf7d0; }
+  .note.bad { background: var(--bad-bg); border-color: #fecaca; }
+  .note::before { font-weight: 700; margin-right: 6px; }
+  .note.good::before { content: "Good"; color: var(--good); }
+  .note.bad::before { content: "Bad"; color: var(--bad); }
+
+  .further h2 { font-size: 22px; margin: 0 0 12px; }
+  .further .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .further .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 14px; }
+  .further .card b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--mute); margin-bottom: 4px; }
+
+  .minimap { position: fixed; left: 16px; top: 50%; transform: translateY(-50%); z-index: 50; display: none; }
+  @media (min-width: 1360px) { .minimap { display: block; } }
+  .minimap ul { list-style: none; margin: 0; padding: 8px; border-radius: 10px; border: 1px solid transparent; }
+  .minimap:hover ul { background: var(--card); border-color: var(--line); }
+  .minimap button { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 5px 0; cursor: pointer; font: inherit; font-size: 12px; color: var(--mute); width: 100%; text-align: left; }
+  .minimap .line { flex: none; width: 14px; height: 2px; border-radius: 2px; background: #d6d3d1; transition: width .15s, background .15s; }
+  .minimap li.active .line { width: 26px; background: var(--ink); }
+  .minimap .lbl { display: none; white-space: nowrap; max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+  .minimap:hover .lbl { display: inline; }
+  .minimap li.active .lbl { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Smarf mockup ---------- */
+  .app {
+    --z50:#fafafa; --z200:#e4e4e7; --z300:#d4d4d8; --z400:#a1a1aa; --z500:#71717a; --z600:#52525b; --z700:#3f3f46; --z800:#27272a; --z900:#18181b; --z950:#09090b;
+    --p100: oklch(93% 0.034 272.788); --p200: oklch(87% 0.065 274.039); --p300: oklch(78.5% 0.115 274.713); --p400: oklch(67.3% 0.182 276.935); --p500: oklch(58.5% 0.233 277.117); --p600: oklch(51.1% 0.262 276.966); --p700: oklch(45.7% 0.24 277.023); --p950: oklch(25.7% 0.09 281.288);
+    --raised: #1c1c20;
+    position: relative; min-width: 1040px; height: 460px; overflow: hidden; display: flex; flex-direction: column; isolation: isolate;
+    background: var(--z900); color: var(--z50); font: 14px/20px 'Interstate', ui-sans-serif, system-ui, sans-serif; user-select: none; -webkit-user-select: none;
+  }
+  .app * { box-sizing: border-box; }
+  :where(.app) :where(button, a) { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-decoration: none; text-align: inherit; }
+  .app svg { display: block; flex: none; }
+  .app :is(a, button):focus-visible { outline: none; box-shadow: 0 0 0 2px var(--z900), 0 0 0 4px var(--p400); }
+
+  /* Shared pieces */
+  .logo { display: flex; align-items: center; gap: 12px; border-radius: 12px; flex: none; }
+  .badge { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; border: 1px solid color-mix(in oklch, var(--p200) 40%, transparent);
+    background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%); box-shadow: inset 0 1px 1px rgb(255 255 255 / .5); filter: drop-shadow(0 0 10px oklch(58.5% 0.233 277.117 / .55)); }
+  .badge img { width: 20px; height: 20px; }
+  .wm { padding-top: 4px; font-size: 20px; line-height: 1; font-weight: 900; letter-spacing: .025em; text-transform: uppercase; }
+  .logo.sm { gap: 10px; } .logo.sm .badge { width: 32px; height: 32px; } .logo.sm .badge img { width: 18px; height: 18px; } .logo.sm .wm { font-size: 18px; }
+
+  .avt { border-radius: 9999px; flex: none; }
+  .avatar { display: block; border: 2px solid var(--z700); border-radius: 9999px; padding: 6px; transition: border-color .2s; }
+  .avatar img { display: block; width: 40px; height: 40px; border-radius: 9999px; }
+  .avatar.md { padding: 3px; } .avatar.md img { width: 30px; height: 30px; }
+  .avt:hover .avatar, .app[data-open] .avt .avatar { border-color: var(--z500); }
+  .app[data-open] .avt.on .avatar { border-color: var(--p500); }
+
+  .oav { width: var(--s, 28px); height: var(--s, 28px); border-radius: 9999px; flex: none; display: grid; place-items: center; font-weight: 800; font-size: calc(var(--s, 28px) * .45); color: #fff;
+    background: linear-gradient(160deg, #2dd4bf, #0f766e); box-shadow: inset 0 1px 0 rgb(255 255 255 / .3); }
+  .who { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .who b { font-weight: 600; } .who span { color: var(--z400); }
+  .vo { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 6px; background: rgb(255 255 255 / .06); color: var(--z400); font-size: 12px; flex: none; white-space: nowrap; }
+
+  .btnp, .btnc { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px 0 8px; border-radius: 8px; font-weight: 700; white-space: nowrap; transition: background-color .2s; flex: none; }
+  .btnp { background: var(--p500); } .btnp:hover { background: var(--p600); } .btnp svg { color: var(--p200); }
+  .btnc { border: 1px solid var(--z700); } .btnc:hover { background: var(--z800); } .btnc svg { color: var(--z400); }
+  .btnp.dc svg, .btnc.dc svg { color: #fff; }
+  .metal { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 8px; font-weight: 700; color: #fff; white-space: nowrap; flex: none;
+    border: 1px solid color-mix(in oklab, var(--p200) 40%, transparent) !important;
+    background: linear-gradient(180deg, var(--p300) 0%, var(--p400) 42%, var(--p500) 58%, var(--p400) 100%) !important;
+    box-shadow: 0 4px 6px -1px color-mix(in oklab, var(--p500) 45%, transparent), inset 0 1px 1px rgb(255 255 255 / .5);
+    text-shadow: 0 1px 1px color-mix(in oklab, var(--p950) 50%, transparent); transition: filter .25s, translate .2s; }
+  .metal:hover { filter: brightness(1.1); } .metal:active { translate: 0 1px; }
+  .metal.busy { filter: brightness(.9) saturate(.75); cursor: progress; }
+  .metal.lg { height: 46px; padding: 0 20px 0 16px; border-radius: 12px; }
+
+  /* Page skeletons */
+  .body { position: relative; flex: 1; min-height: 0; }
+  .body.dots { background-image: radial-gradient(circle, var(--z500) 1.5px, transparent 1.5px), radial-gradient(circle, color-mix(in oklab, var(--z800), var(--z700) 40%) 1px, transparent 1px);
+    background-size: 64px 64px, 16px 16px; background-position: 0 0, 8px 8px; }
+  .sc { position: absolute; border-radius: 12px; background: rgb(39 39 42 / .8); box-shadow: 0 10px 15px -3px rgb(0 0 0 / .25), 0 0 0 1px rgb(0 0 0 / .5), inset 0 0 0 1px rgb(255 255 255 / .08); }
+  .sc .h { height: 36px; display: flex; align-items: center; padding: 0 12px; }
+  .sc .h i, .home i { display: block; height: 10px; border-radius: 5px; background: var(--z700); }
+  .sc .t { display: flex; flex-wrap: wrap; padding: 3px; border: 1px solid rgb(255 255 255 / .08); border-radius: 8px 8px 12px 12px; background: var(--z900); }
+  .sc .t b { width: 80px; height: 45px; margin: 4px; border-radius: 4px; background: var(--z800); }
+  .home { padding: 48px 32px 0; }
+  .home h3 { margin: 0 0 20px; font-size: 20px; font-weight: 700; }
+  .brow { height: 56px; border: 1px solid var(--z800); border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 14px; padding: 0 16px; }
+  .brow .d { width: 8px; height: 8px; border-radius: 9999px; background: var(--z700); flex: none; }
+
+  /* The owner's dock (unchanged; context only) */
+  .dockwrap { position: absolute; left: 0; right: 0; bottom: 20px; display: flex; justify-content: center; align-items: flex-end; gap: 8px; z-index: 5; }
+  .dock { display: flex; align-items: center; height: 46px; padding: 0 4px; gap: 2px; border-radius: 12px; border: 1px solid rgb(255 255 255 / .1); background: rgb(39 39 42 / .6);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7), 0 0 0 1px rgb(0 0 0 / .5); backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); white-space: nowrap; }
+  .sw { display: flex; align-items: center; gap: 8px; width: 194px; height: 36px; padding: 0 6px 0 12px; border-radius: 8px; background: rgb(255 255 255 / .04); font-weight: 600; }
+  .sw .g { width: 8px; height: 8px; border-radius: 50%; background: #00c950; flex: none; } .sw .n { flex: 1; } .sw svg { color: var(--z500); }
+  .ib { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--z400); transition: background-color .15s, color .15s; }
+  .ib:hover { background: rgb(255 255 255 / .09); color: var(--z50); }
+
+  /* Account menus */
+  .um { position: absolute; z-index: 30; display: none; }
+  .app[data-open] .um { display: block; animation: pop .18s cubic-bezier(.3, .7, .2, 1) both; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-6px) scale(.98); } }
+  .um.raised { width: 240px; padding: 6px; border-radius: 12px; background: var(--raised); border: 1px solid rgb(255 255 255 / .09);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / .5), 0 24px 48px -12px rgb(0 0 0 / .75), inset 0 1px 0 rgb(255 255 255 / .06); }
+  .um.raised .uh { display: flex; align-items: center; gap: 12px; padding: 8px 10px 10px; }
+  .um.raised .uh img { width: 32px; height: 32px; border-radius: 9999px; }
+  .um.raised .uh small { display: block; font-size: 12px; color: var(--z400); line-height: 16px; }
+  .um.raised hr { border: 0; height: 1px; background: rgb(255 255 255 / .07); margin: 6px -6px; }
+  .um.raised a { display: flex; align-items: center; gap: 12px; height: 36px; padding: 0 10px; border-radius: 8px; color: var(--z200); transition: background-color .1s; }
+  .um.raised a svg { color: var(--z500); }
+  .um.raised a:hover { background: rgb(255 255 255 / .06); color: var(--z50); } .um.raised a:hover svg { color: var(--p300); }
+  .um.raised a.red:hover { background: rgb(239 68 68 / .12); color: #fca5a5; } .um.raised a.red:hover svg { color: #f87171; }
+  .um.old { width: 240px; overflow: hidden; border-radius: 12px; border: 1px solid var(--z700); background: var(--z900); }
+  .um.old .uh { display: flex; align-items: center; gap: 16px; padding: 16px; border-bottom: 1px solid var(--z700); }
+  .um.old .uh img { width: 32px; height: 32px; border-radius: 9999px; outline: 2px solid var(--z700); outline-offset: 4px; margin: 6px; }
+  .um.old .uh small { display: block; font-size: 12px; color: var(--z400); }
+  .um.old a { display: flex; align-items: center; gap: 16px; padding: 16px; transition: background .2s; }
+  .um.old a:not(:last-child) { border-bottom: 1px solid var(--z700); }
+  .um.old a svg { color: var(--z400); } .um.old a:hover { background: var(--z700); }
+
+  /* Now */
+  .n0 { flex: none; border-bottom: 1px solid var(--z800); }
+  .stripe { height: 4px; background: linear-gradient(90deg, var(--p600), var(--p400)); }
+  .n0 .in { display: flex; align-items: center; justify-content: space-between; padding: 24px 32px; }
+  .r { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+  .bn0 { flex: none; height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 32px; border-bottom: 1px solid var(--z800); background: rgb(9 9 11 / .7); }
+  .vsep { width: 1px; height: 24px; background: var(--z800); margin: 0 4px; flex: none; }
+
+  /* A: one slim bar */
+  .na { position: relative; flex: none; height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 32px; border-bottom: 1px solid var(--z800); background: rgb(9 9 11 / .7); }
+  .na::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg, var(--p600), var(--p400)); }
+  .na .r { gap: 12px; }
+
+  /* B: breadcrumb */
+  .crumbs { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .sl { color: var(--z700); font-size: 26px; font-weight: 300; line-height: 1; flex: none; }
+  .crumb { display: flex; align-items: center; gap: 8px; color: var(--z300); white-space: nowrap; }
+  .crumb.cur { color: var(--z50); font-weight: 700; font-size: 16px; }
+  .crumb.you img { width: 24px; height: 24px; border-radius: 9999px; }
+  .n0 .r.tight { gap: 16px; }
+
+  /* C: ribbon */
+  .rib { flex: none; height: 36px; display: flex; align-items: center; gap: 10px; padding: 0 32px; color: #fff; font-size: 13px;
+    background: linear-gradient(90deg, var(--p700), var(--p500)); box-shadow: inset 0 -1px 0 rgb(255 255 255 / .12); }
+  .rib svg { color: var(--p200); }
+  .rib span { color: var(--p100); } .rib b { color: #fff; }
+  .rib .rbtn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 6px; font-weight: 700; font-size: 13px;
+    background: rgb(255 255 255 / .14); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .2); transition: background-color .15s; }
+  .rib .rbtn:hover { background: rgb(255 255 255 / .22); }
+  .rib .rbtn svg { color: #fff; }
+  .nc { flex: none; border-bottom: 1px solid var(--z800); }
+  .nc .in { display: flex; align-items: center; padding: 14px 32px; }
+  .nc .r { gap: 16px; }
+
+  /* D: visitor dock */
+  .acct { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 10px 0 4px; border-radius: 9999px; border: 1px solid var(--z800); transition: background-color .15s, border-color .15s; flex: none; }
+  .acct img { width: 30px; height: 30px; border-radius: 9999px; }
+  .acct b { font-weight: 600; } .acct svg { color: var(--z500); }
+  .acct:hover { background: var(--z800); }
+  .app[data-open] .acct { border-color: var(--p500); }
+  /* D2: the bare avatar, with a 30% black inset edge drawn over the photo */
+  .pav { position: relative; display: block; border-radius: 9999px; flex: none; transition: box-shadow .2s, filter .2s; }
+  .pav img { display: block; width: 36px; height: 36px; border-radius: 9999px; }
+  .pav::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgb(0 0 0 / .3); pointer-events: none; }
+  .pav:hover { filter: brightness(1.08); }
+  .app[data-open] .pav { box-shadow: 0 0 0 2px var(--z900), 0 0 0 4px var(--p500); }
+  .vdock { display: flex; align-items: center; gap: 12px; height: 58px; padding: 0 6px 0 12px; border-radius: 14px; border: 1px solid rgb(255 255 255 / .1); background: rgb(39 39 42 / .6);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / .7), 0 0 0 1px rgb(0 0 0 / .5); backdrop-filter: blur(16px) saturate(1.5); -webkit-backdrop-filter: blur(16px) saturate(1.5); white-space: nowrap; }
+  .vdock .tx { display: flex; flex-direction: column; line-height: 18px; margin-right: 12px; }
+  .vdock .tx b { font-weight: 600; }
+  .vdock .acts { display: flex; align-items: center; gap: 4px; }
+  .ib.done { color: #4ade80; }
+  /* D2b: one line, the owner dock's height */
+  .vdock.line { height: 46px; gap: 10px; padding: 0 4px 0 14px; border-radius: 12px; }
+  .vdock.line > svg { color: var(--z500); }
+  .vdock.line .sent { color: var(--z400); margin-right: 8px; }
+  .vdock.line .sent b { color: var(--z50); font-weight: 600; }
+  .vdock .tx small { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--z400); }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="brief">
+    <h1>Visitors get two stacked bars; signed-out visitors get no nav</h1>
+    <div class="chips">
+      <div class="chip"><b>Signed in</b>Home, your board, someone else's.</div>
+      <div class="chip"><b>Signed out</b>A public board, read-only.</div>
+      <div class="chip"><b>Keep</b>Owner and Copy in reach.</div>
+      <div class="chip"><b>Look</b>Today's app, no new style.</div>
+    </div>
+  </header>
+
+  <div id="vars"></div>
+
+  <section class="further">
+    <h2>Further Actions</h2>
+    <div class="cards">
+      <div class="card"><b>Explore</b>Explore from A: centre the owner in the bar.</div>
+      <div class="card"><b>Remix</b>Remix C: move its Copy into the nav.</div>
+      <div class="card"><b>Settle</b>Settle on D2b if one line reads clearly enough.</div>
+    </div>
+  </section>
+</main>
+<nav class="minimap" aria-label="Variations"><ul id="mm"></ul></nav>
+
+<script>
+const FILE = '.kier/designs/b7d4-nav-and-visitors.html';
+const ASSETS = 'b7d4-assets/';
+
+/* ---------- Icons: heroicons v2, 20/solid ---------- */
+const E = (d) => `<path fill-rule="evenodd" clip-rule="evenodd" d="${d}"/>`;
+const N = (d) => `<path d="${d}"/>`;
+const P = {
+  squaresPlus: N('M2 4.25A2.25 2.25 0 0 1 4.25 2h2.5A2.25 2.25 0 0 1 9 4.25v2.5A2.25 2.25 0 0 1 6.75 9h-2.5A2.25 2.25 0 0 1 2 6.75v-2.5ZM2 13.25A2.25 2.25 0 0 1 4.25 11h2.5A2.25 2.25 0 0 1 9 13.25v2.5A2.25 2.25 0 0 1 6.75 18h-2.5A2.25 2.25 0 0 1 2 15.75v-2.5ZM11 4.25A2.25 2.25 0 0 1 13.25 2h2.5A2.25 2.25 0 0 1 18 4.25v2.5A2.25 2.25 0 0 1 15.75 9h-2.5A2.25 2.25 0 0 1 11 6.75v-2.5ZM15.25 11.75a.75.75 0 0 0-1.5 0v2h-2a.75.75 0 0 0 0 1.5h2v2a.75.75 0 0 0 1.5 0v-2h2a.75.75 0 0 0 0-1.5h-2v-2Z'),
+  home: E('M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z'),
+  adjust: N('M17 2.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM17 15.75a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5ZM3.75 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 .75-.75ZM4.5 2.75a.75.75 0 0 0-1.5 0v5.5a.75.75 0 0 0 1.5 0v-5.5ZM10 11a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0v-5.5A.75.75 0 0 1 10 11ZM10.75 2.75a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0v-1.5ZM10 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM3.75 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM16.25 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z'),
+  bolt: E('M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z'),
+  arrowLeft: E('M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z'),
+  eye: N('M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z') + E('M.664 10.59a1.651 1.651 0 0 1 0-1.186A10.004 10.004 0 0 1 10 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0 1 10 17c-4.257 0-7.893-2.66-9.336-6.41ZM14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z'),
+  dup: N('M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z') + N('M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z'),
+  chevUD: E('M10.53 3.47a.75.75 0 0 0-1.06 0L6.22 6.72a.75.75 0 0 0 1.06 1.06L10 5.06l2.72 2.72a.75.75 0 1 0 1.06-1.06l-3.25-3.25Zm-4.31 9.81 3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 1 0-1.06-1.06L10 14.94l-2.72-2.72a.75.75 0 0 0-1.06 1.06Z'),
+  chevD: E('M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z'),
+  star: E('M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z'),
+  link: N('M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z') + N('M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z'),
+  dots: N('M3 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM8.5 10a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM15.5 8.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z'),
+  check: E('M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z'),
+  share: E('M13.75 7h-3V3.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0L6.2 4.74a.75.75 0 0 0 1.1 1.02l1.95-2.1V7h-3A2.25 2.25 0 0 0 4 9.25v7.5A2.25 2.25 0 0 0 6.25 19h7.5A2.25 2.25 0 0 0 16 16.75v-7.5A2.25 2.25 0 0 0 13.75 7Zm-3 0h-1.5v5.25a.75.75 0 0 0 1.5 0V7Z'),
+  plus: N('M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z')
+};
+const icon = (n, s = 20) => `<svg viewBox="0 0 20 20" width="${s}" height="${s}" fill="currentColor" aria-hidden="true">${P[n]}</svg>`;
+const discord = (s = 18) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03ZM8.02 15.331c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.332-.956 2.418-2.157 2.418Zm7.975 0c-1.183 0-2.157-1.086-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.332-.946 2.418-2.157 2.418Z"/></svg>`;
+
+/* ---------- Data ---------- */
+const BOARD = 'Ranked picks';
+const OWNER = 'Ezra';
+const ME = { name: 'Kier', handle: '@carebeyan', avatar: ASSETS + 'avatar.png' };
+const CATS = [
+  { x: 32, y: 48, n: 5, w: 536, h: 64 }, { x: 608, y: 48, n: 3, w: 360, h: 80 },
+  { x: 32, y: 192, n: 4, w: 448, h: 56 }, { x: 520, y: 192, n: 3, w: 448, h: 40 }
+];
+const STATES = [
+  { id: 'home', label: 'Home' },
+  { id: 'mine', label: 'Your board' },
+  { id: 'visit', label: `${OWNER}'s board` },
+  { id: 'out', label: 'Signed out' }
+];
+
+/* ---------- Pieces ---------- */
+const logo = (sm) => `<a class="logo ${sm ? 'sm' : ''}" title="Home"><span class="badge"><img src="${ASSETS}logo-mark.svg" alt=""></span><span class="wm">Smarf</span></a>`;
+const avatar = (sz = '') => `<button class="avt" data-um title="Account menu"><span class="avatar ${sz}"><img src="${ME.avatar}" alt=""></span></button>`;
+const oav = (s = 28) => `<span class="oav" style="--s:${s}px">${OWNER[0]}</span>`;
+const viewOnly = () => `<span class="vo">${icon('eye', 12)}View only</span>`;
+const who = () => `<p class="who" style="margin:0"><b>${BOARD}</b> <span>by ${OWNER}</span></p>`;
+const newBoard = (cls = 'btnp') => `<button class="${cls}">${icon('squaresPlus')}New Board</button>`;
+const copyMetal = (cls = '', label = 'Copy to my boards', ic = 'dup') => `<button class="metal ${cls}" data-copy>${icon(ic, 16)}<span data-l="${label}">${label}</span></button>`;
+const signIn = (cls = 'btnp') => `<button class="${cls} dc">${discord()}Sign in</button>`;
+
+function body(s, extra = '') {
+  if (s === 'home') {
+    const rows = [190, 140, 230, 120].map((w) => `<div class="brow"><span class="d"></span><i style="width:${w}px"></i><i style="width:64px;margin-left:auto;background:var(--z800)"></i></div>`).join('');
+    return `<div class="body"><div class="home"><h3>Your Boards</h3>${rows}</div>${extra}</div>`;
+  }
+  const cats = CATS.map((c) => `<div class="sc" style="left:${c.x}px;top:${c.y}px"><div class="h"><i style="width:${c.h}px"></i></div><div class="t" style="width:${c.w}px">${'<b></b>'.repeat(c.n)}</div></div>`).join('');
+  const dock = s === 'mine' ? `<div class="dockwrap"><div class="dock"><button class="sw"><span class="g"></span><span class="n">${BOARD}</span>${icon('chevUD', 16)}</button>
+    <button class="ib" title="Favorite">${icon('star')}</button><button class="ib" title="Share">${icon('link')}</button><button class="ib" title="More">${icon('dots')}</button></div>
+    <button class="metal lg">${icon('plus')}New category</button></div>` : '';
+  return `<div class="body dots">${cats}${dock}${extra}</div>`;
+}
+
+const visitorDock = () => `<div class="dockwrap"><div class="vdock">${oav(32)}<span class="tx"><b>${BOARD}</b><small>by ${OWNER} · ${icon('eye', 12)}View only</small></span>${copyMetal()}</div></div>`;
+
+/* ---------- Variations: each returns the canvas for a state ---------- */
+const VARS = [
+  {
+    id: 'Now', name: 'Tall nav, then a banner under it for visitors', menu: 'old',
+    notes: [['good', 'Sticky banner keeps Copy in view.'], ['bad', 'Visitors get two bars: 169px before the board.'], ['bad', 'Signed out, there is no Sign in.']],
+    render(s) {
+      const banner = (out) => `<div class="bn0">${out ? logo() + '<span class="vsep"></span>' : ''}${oav()}${who()}${viewOnly()}<div class="r">${copyMetal()}</div></div>`;
+      if (s === 'out') return banner(true) + body(s);
+      const nav = `<div class="n0"><div class="stripe"></div><div class="in">${logo()}<div class="r">${newBoard()}${avatar()}</div></div></div>`;
+      return nav + (s === 'visit' ? banner(false) : '') + body(s);
+    }
+  },
+  {
+    id: 'A', name: 'One slim bar that changes with the page', menu: 'raised',
+    notes: [['good', 'One 64px bar everywhere; visitors gain 105px.'], ['good', 'Owner and Copy join the existing bar.'], ['bad', 'No New Board on others\' boards.'], ['bad', 'Thin stripe, small avatar: quieter brand.']],
+    render(s) {
+      const v = s === 'visit' || s === 'out';
+      const ctx = v ? `<span class="vsep"></span>${oav()}${who()}${viewOnly()}` : '';
+      const right = s === 'out' ? copyMetal() + signIn('btnc') : v ? copyMetal() + avatar('md') : newBoard('btnc') + avatar('md');
+      return `<div class="na">${logo(true)}${ctx}<div class="r">${right}</div></div>` + body(s);
+    }
+  },
+  {
+    id: 'B', name: 'Breadcrumbs: Smarf / owner / board', menu: 'raised',
+    notes: [['good', 'Yours and theirs read the same; only the owner changes.'], ['good', 'Keeps the stripe and tall nav.'], ['bad', 'Copy scrolls away with the tall nav.'], ['bad', 'The owner crumb hints at a profile page.']],
+    render(s) {
+      const sl = '<span class="sl">/</span>';
+      let crumbs = logo();
+      if (s === 'home') crumbs += sl + `<span class="crumb cur">Your Boards</span>`;
+      if (s === 'mine') crumbs += sl + `<span class="crumb you"><img src="${ME.avatar}" alt="">${ME.name}</span>` + sl + `<span class="crumb cur">${BOARD}</span>`;
+      if (s === 'visit' || s === 'out') crumbs += sl + `<span class="crumb">${oav(24)}${OWNER}</span>` + sl + `<span class="crumb cur">${BOARD}</span>` + viewOnly();
+      const right = s === 'out' ? copyMetal() + signIn() : s === 'visit' ? copyMetal() + avatar() : newBoard() + avatar();
+      return `<div class="n0"><div class="stripe"></div><div class="in"><div class="crumbs">${crumbs}</div><div class="r tight">${right}</div></div></div>` + body(s);
+    }
+  },
+  {
+    id: 'C', name: 'The stripe grows into a visitor ribbon', menu: 'raised',
+    notes: [['good', 'You can\'t miss that it\'s someone else\'s.'], ['good', 'Signed out gets a full nav with Sign in.'], ['bad', 'Still two bars, though the ribbon is half as tall.'], ['bad', 'The indigo band competes with the metal.']],
+    render(s) {
+      const v = s === 'visit' || s === 'out';
+      const rib = v ? `<div class="rib">${icon('eye', 16)}<span>You're viewing <b>${BOARD}</b> by <b>${OWNER}</b>. Only ${OWNER} can edit it.</span><button class="rbtn" data-copy>${icon('dup', 14)}<span>Copy to my boards</span></button></div>` : '<div class="stripe"></div>';
+      const right = s === 'out' ? signIn() : newBoard() + avatar('md');
+      return rib + `<div class="nc"><div class="in">${logo()}<div class="r">${right}</div></div></div>` + body(s);
+    }
+  },
+  {
+    id: 'D', name: 'Same nav everywhere; visitors get a dock', menu: 'raised',
+    notes: [['good', 'The visitor dock sits where the owner\'s does.'], ['good', 'The nav never changes.'], ['good', 'The pill names who is signed in.'], ['bad', 'Whose board it is sits at the bottom.']],
+    render(s) {
+      const v = s === 'visit' || s === 'out';
+      const acct = `<button class="acct" data-um title="Account menu"><img src="${ME.avatar}" alt=""><b>${ME.name}</b>${icon('chevD', 16)}</button>`;
+      const right = s === 'out' ? signIn('btnc') : newBoard('btnc') + acct;
+      return `<div class="na">${logo(true)}<div class="r">${right}</div></div>` + body(s, v ? visitorDock() : '');
+    }
+  },
+  {
+    id: 'D2', name: 'D with a bare avatar, Share and Copy', menu: 'raised',
+    notes: [['good', 'The bare avatar reads crisp; its inset edge keeps light photos from bleeding.'], ['good', 'Share and Copy each do one job, side by side.'], ['bad', 'Next to Share, "Copy" could still read as copying the link.']],
+    render(s) {
+      const v = s === 'visit' || s === 'out';
+      const pav = `<button class="pav" data-um title="Account menu"><img src="${ME.avatar}" alt=""></button>`;
+      const right = s === 'out' ? signIn('btnc') : newBoard('btnc') + pav;
+      const dock = `<div class="dockwrap"><div class="vdock">${oav(32)}<span class="tx"><b>${BOARD}</b><small>by ${OWNER} · ${icon('eye', 12)}View only</small></span><span class="acts"><button class="ib" data-share title="Share" aria-label="Share">${icon('share')}</button>${copyMetal('', 'Copy')}</span></div></div>`;
+      return `<div class="na">${logo(true)}<div class="r">${right}</div></div>` + body(s, v ? dock : '');
+    }
+  },
+  {
+    id: 'D2b', name: 'D2 with a one-line sentence, like C', menu: 'raised',
+    notes: [['good', 'One line matches the owner\'s 46px dock height.'], ['good', 'The sentence says plainly who can edit.'], ['bad', 'Wider dock; a long board name will need truncating.']],
+    render(s) {
+      const v = s === 'visit' || s === 'out';
+      const pav = `<button class="pav" data-um title="Account menu"><img src="${ME.avatar}" alt=""></button>`;
+      const right = s === 'out' ? signIn('btnc') : newBoard('btnc') + pav;
+      const dock = `<div class="dockwrap"><div class="vdock line">${icon('eye', 16)}<span class="sent">You're viewing <b>${BOARD}</b> by <b>${OWNER}</b>. Only ${OWNER} can edit it.</span><span class="acts"><button class="ib" data-share title="Share" aria-label="Share">${icon('share')}</button>${copyMetal('', 'Copy')}</span></div></div>`;
+      return `<div class="na">${logo(true)}<div class="r">${right}</div></div>` + body(s, v ? dock : '');
+    }
+  }
+];
+
+/* ---------- Account menu ---------- */
+const MENU = [['home', 'Home'], ['adjust', 'Account Settings'], ['bolt', 'About & Changelog'], ['arrowLeft', 'Log out']];
+function accountMenu(kind) {
+  if (kind === 'old') return `<div class="um old"><div class="uh"><img src="${ME.avatar}" alt=""><div><b>${ME.name} (${ME.handle})</b></div></div>${MENU.map(([i, l]) => `<a>${icon(i)}${l}</a>`).join('')}</div>`;
+  const items = MENU.map(([i, l], k) => (k === 3 ? '<hr>' : '') + `<a class="${k === 3 ? 'red' : ''}">${icon(i, 16)}${l}</a>`).join('');
+  return `<div class="um raised"><div class="uh"><img src="${ME.avatar}" alt=""><div><b>${ME.name}</b><small>${ME.handle}</small></div></div><hr>${items}</div>`;
+}
+
+/* ---------- Build the page ---------- */
+let state = 'visit';
+const root = document.getElementById('vars');
+const verbs = [
+  ['Explore from this', 'New variations in this direction', (v) => `Explore from ${v.id} in ${FILE}`],
+  ['Remix this', 'Fork it and apply your changes', (v) => `Remix ${v.id} in ${FILE}: `],
+  ['Settle on this', 'Make it the direction from here', (v) => `Settle on ${v.id} in ${FILE}`]
+];
+
+VARS.forEach((v) => {
+  const sec = document.createElement('section');
+  sec.className = 'variation';
+  sec.id = 'v-' + v.id;
+  sec.innerHTML = `
+    <div class="v-head"><span class="v-id">${v.id}</span><h2>${v.name}</h2><button class="pick" aria-haspopup="true" aria-expanded="false">Pick</button></div>
+    <div class="menu" hidden>${verbs.map(([t, h], i) => `<button data-verb="${i}"><b>${t}</b><span>${h}</span></button>`).join('')}</div>
+    <div class="copied" hidden></div>
+    <div class="states">${STATES.map((st) => `<button data-state="${st.id}">${st.label}</button>`).join('')}</div>
+    <div class="frame"><div class="app"></div></div>
+    <div class="notes">${v.notes.map(([k, t]) => `<div class="note ${k}">${t}</div>`).join('')}</div>`;
+  root.appendChild(sec);
+  v.el = sec;
+});
+
+function renderAll() {
+  VARS.forEach((v) => {
+    const app = v.el.querySelector('.app');
+    app.removeAttribute('data-open');
+    app.innerHTML = v.render(state) + accountMenu(v.menu);
+    v.el.querySelectorAll('[data-state]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.state === state));
+  });
+}
+renderAll();
+
+/* State toggles sync every canvas, so the variations compare side by side. */
+root.addEventListener('click', (e) => {
+  const st = e.target.closest('[data-state]');
+  if (st) { state = st.dataset.state; renderAll(); }
+});
+
+/* ---------- Mockup interactions: account menu and Copy ---------- */
+function closeMenus(except) {
+  document.querySelectorAll('.app[data-open]').forEach((a) => {
+    if (a === except) return;
+    a.removeAttribute('data-open');
+    a.querySelectorAll('[data-um].on').forEach((t) => t.classList.remove('on'));
+  });
+}
+document.addEventListener('click', (e) => {
+  const trig = e.target.closest('.app [data-um]');
+  const app = e.target.closest('.app');
+  if (trig) {
+    const open = app.hasAttribute('data-open');
+    closeMenus();
+    if (!open) {
+      const a = app.getBoundingClientRect(), t = trig.getBoundingClientRect();
+      const um = app.querySelector('.um');
+      um.style.top = (t.bottom - a.top + 10) + 'px';
+      um.style.right = (a.right - t.right) + 'px';
+      app.setAttribute('data-open', '');
+      trig.classList.add('on');
+    }
+    return;
+  }
+  if (!e.target.closest('.um')) closeMenus();
+  const sh = e.target.closest('.app [data-share]');
+  if (sh && !sh.classList.contains('done')) {
+    sh.classList.add('done'); sh.title = 'Link copied'; sh.innerHTML = icon('check');
+    setTimeout(() => { sh.classList.remove('done'); sh.title = 'Share'; sh.innerHTML = icon('share'); }, 1400);
+  }
+  const cp = e.target.closest('.app [data-copy]');
+  if (cp && !cp.classList.contains('busy')) {
+    const lbl = cp.querySelector('span');
+    cp.classList.add('busy'); lbl.textContent = 'Copying…';
+    setTimeout(() => { cp.classList.remove('busy'); lbl.textContent = lbl.dataset.l || 'Copy to my boards'; }, 1400);
+  }
+});
+
+/* ---------- Pick menus ---------- */
+function closePicks(except) {
+  document.querySelectorAll('.variation').forEach((s) => {
+    if (s === except) return;
+    s.querySelector('.menu').hidden = true;
+    s.querySelector('.pick').setAttribute('aria-expanded', 'false');
+  });
+}
+VARS.forEach((v) => {
+  const sec = v.el, btn = sec.querySelector('.pick'), menu = sec.querySelector('.menu'), out = sec.querySelector('.copied');
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menu.hidden;
+    closePicks(sec);
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+    if (open) menu.querySelector('button').focus();
+  });
+  menu.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-verb]');
+    if (!b) return;
+    e.stopPropagation();
+    const prompt = verbs[+b.dataset.verb][2](v);
+    menu.hidden = true; btn.setAttribute('aria-expanded', 'false');
+    out.hidden = false;
+    try {
+      await navigator.clipboard.writeText(prompt);
+      out.innerHTML = `<code></code><em>Copied</em>`;
+      out.querySelector('code').textContent = prompt;
+    } catch {
+      out.innerHTML = `<input readonly aria-label="Prompt to copy">`;
+      const inp = out.querySelector('input');
+      inp.value = prompt; inp.focus(); inp.select();
+    }
+  });
+});
+document.addEventListener('click', (e) => { if (!e.target.closest('.menu, .pick')) closePicks(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const openSec = [...document.querySelectorAll('.variation')].find((s) => !s.querySelector('.menu').hidden);
+  closePicks(); closeMenus();
+  if (openSec) openSec.querySelector('.pick').focus();
+});
+
+/* ---------- Minimap ---------- */
+const mm = document.getElementById('mm');
+VARS.forEach((v) => {
+  const li = document.createElement('li');
+  li.innerHTML = `<button><span class="line"></span><span class="lbl">${v.id} · ${v.name}</span></button>`;
+  li.querySelector('button').addEventListener('click', () => v.el.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  mm.appendChild(li);
+  v.li = li;
+});
+function syncMinimap() {
+  let best = VARS[0], bestD = Infinity;
+  VARS.forEach((v) => {
+    const d = Math.abs(v.el.getBoundingClientRect().top - 24);
+    if (d < bestD) { bestD = d; best = v; }
+  });
+  VARS.forEach((v) => v.li.classList.toggle('active', v === best));
+}
+addEventListener('scroll', syncMinimap, { passive: true });
+syncMinimap();
+</script>
+</body>
+</html>
