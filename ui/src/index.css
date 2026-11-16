@@ -19,6 +19,9 @@
   --color-primary-900: oklch(35.9% 0.144 278.697);
   --color-primary-950: oklch(25.7% 0.09 281.288);
 
+  /* Menu and Popover's solid popups: a step lighter than the page (zinc-900), so they lift off the board. */
+  --color-raised: #1c1c20;
+
   /* ButtonLoader: fast out, long settle, for the width tween and the blur swap. */
   --ease-morph: cubic-bezier(0.3, 0.7, 0.2, 1);
 

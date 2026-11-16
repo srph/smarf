@@ -472,7 +472,7 @@ describe('board workspace', () => {
       const supports = await findCategory('Supports')
       await user.click(within(supports).getByRole('button', { name: 'Add hero' }))
 
-      await waitFor(() => expect(screen.getByPlaceholderText('Search...')).toHaveFocus())
+      await waitFor(() => expect(screen.getByRole('textbox', { name: 'Search heroes' })).toHaveFocus())
       await user.keyboard('[Escape]')
       await waitFor(() => expect(screen.queryByTitle('Select Lion')).not.toBeInTheDocument())
     })
