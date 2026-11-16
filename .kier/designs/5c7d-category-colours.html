@@ -171,6 +171,10 @@
   .v-c2 .strip { padding-right: 5px; }
   .states .sep { margin-left: 12px; }
 
+  /* C2b: C2 with the grip in translucent white, so it takes on the fade under it */
+  .v-c2b .grip { color: rgb(255 255 255 / .3); }
+  .v-c2b .cat:is(:hover, .f-card) .grip { color: rgb(255 255 255 / .7); }
+
   /* D: a gradient rim and a corner glow; colour lives in a menu with Delete */
   .v-d .has-c::after { content: ""; position: absolute; inset: 0; border-radius: 12px; padding: 1.5px; pointer-events: none;
     background: linear-gradient(135deg, var(--c) 0%, color-mix(in oklab, var(--c) 45%, transparent) 30%, transparent 68%);
@@ -246,6 +250,15 @@
     </div>
   </section>
 
+  <section class="variation" data-id="C2b" data-name="C2 with a translucent white grip" data-v="c2" data-mod="c2b" data-cap="In situ: compare the grips on coloured and uncoloured cards, at rest and on hover">
+    <div class="v-head"><span class="v-id">C2b</span><h2>C2 with a translucent white grip</h2><button class="pick" aria-expanded="false">Pick</button></div>
+    <div class="notes">
+      <div class="note good">The grip picks up each card's colour instead of sitting on it as grey.</div>
+      <div class="note good">On an uncoloured card it looks almost as it does now.</div>
+      <div class="note bad">The colour and trash icons are still solid grey on hover.</div>
+    </div>
+  </section>
+
   <section class="variation" data-id="D" data-name="A gradient rim and corner glow, colour in a menu" data-v="d" data-cap="In situ: hover a card, click the dots">
     <div class="v-head"><span class="v-id">D</span><h2>A gradient rim and corner glow, colour in a menu</h2><button class="pick" aria-expanded="false">Pick</button></div>
     <div class="notes">
@@ -261,7 +274,7 @@
     <div class="cards">
       <div class="card"><b>Explore</b>Explore from A: fade strength and direction, or a solid metal band like Hold to delete.</div>
       <div class="card"><b>Remix</b>Remix C: swap red for rose so no card can pass for a delete confirm.</div>
-      <div class="card"><b>Settle</b>Settle on C2 with the icon you prefer; on A for the smallest change.</div>
+      <div class="card"><b>Settle</b>Settle on C2b with the icon you prefer; on A for the smallest change.</div>
     </div>
   </section>
 </main>
@@ -378,7 +391,8 @@ sections.forEach((sec) => {
 
   const row = document.createElement('div'); row.className = 'states'; row.setAttribute('role', 'group'); row.setAttribute('aria-label', 'State');
   const stageFrame = document.createElement('div'); stageFrame.className = 'frame';
-  const stage = document.createElement('div'); stage.className = `app stage v-${v}`; stageFrame.appendChild(stage);
+  const mod = sec.dataset.mod ? ` v-${sec.dataset.mod}` : '';
+  const stage = document.createElement('div'); stage.className = `app stage v-${v}${mod}`; stageFrame.appendChild(stage);
   const btns = states.map((s) => {
     const b = document.createElement('button'); b.textContent = v === 'now' ? s.nowKey : s.key; b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', () => { btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderStage(stage, v, s); });
@@ -387,7 +401,7 @@ sections.forEach((sec) => {
 
   const cap = document.createElement('p'); cap.className = 'cap'; cap.textContent = sec.dataset.cap;
   const boardFrame = document.createElement('div'); boardFrame.className = 'frame';
-  const board = document.createElement('div'); board.className = `app insitu v-${v}`; boardFrame.appendChild(board);
+  const board = document.createElement('div'); board.className = `app insitu v-${v}${mod}`; boardFrame.appendChild(board);
   sec.insertBefore(row, notes); sec.insertBefore(stageFrame, notes); sec.insertBefore(cap, notes); sec.insertBefore(boardFrame, notes);
 
   /* In situ: a live board. Hover is real; the picker recolours, the trash confirms. */
@@ -404,11 +418,14 @@ sections.forEach((sec) => {
     const lbl = document.createElement('span'); lbl.className = 'sep'; lbl.textContent = 'Icon'; row.appendChild(lbl);
     const ibtns = C2_ICONS.map((ic) => {
       const b = document.createElement('button'); b.textContent = ic.name; b.setAttribute('aria-pressed', String(ic.key === c2Icon));
-      b.addEventListener('click', () => {
-        c2Icon = ic.key; ibtns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-        btns.find((x) => x.getAttribute('aria-pressed') === 'true').click(); draw();
-      });
+      b.dataset.icon = ic.key;
+      b.addEventListener('click', () => { c2Icon = ic.key; document.dispatchEvent(new Event('c2icon')); });
       row.appendChild(b); return b;
+    });
+    // Every C2 canvas shares the choice, so each redraws when it changes.
+    document.addEventListener('c2icon', () => {
+      ibtns.forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.icon === c2Icon)));
+      btns.find((x) => x.getAttribute('aria-pressed') === 'true').click(); draw();
     });
   }
 
