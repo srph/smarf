@@ -388,7 +388,7 @@ const buildReel = () => {
     2.9,
     `<div class="glass hd"><div class="panel">
       <div class="panel-head"><h3><span class="light">Delete</span> 7.41 meta</h3><span>${icon('x')}</span></div>
-      <p>This permanently deletes its 6 categories and 33 heroes.</p>
+      <p>This will permanently delete this board. Are you sure?</p>
       <div class="panel-foot"><span class="btn-quiet">Cancel</span><span class="hold"><span class="hold-fill"></span><span class="hold-hl"></span><span class="hold-l1">Hold to delete</span><span class="hold-l2"><i class="spin"></i>Deleting…</span></span></div>
     </div></div>`
   )
