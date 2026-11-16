@@ -535,7 +535,7 @@ const reelScene = (tl, from) => {
     tl.to(card, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(2.2)' }, at(BEAT + 0.08))
   })
 
-  // Delete a category: red fades in over its header, the trash tips, the question rises, then the card goes.
+  // Delete a category: red fades in over its header, the trash tips, the question rises, then the card poofs away.
   cut('remove', 4 * BEAT, ({ at, on, cur, find }) => {
     const confirm = find('.dc-confirm')
     const bin = find('.dc-ic')
@@ -558,10 +558,10 @@ const reelScene = (tl, from) => {
     cur.move(0.78, on(find('.dc-del')), 0.26)
     cur.click(3 * BEAT)
     cur.hide(1.3)
-    tl.to(find('.dc'), { scale: 0.92, opacity: 0, filter: 'blur(8px)', duration: 0.3, ease: 'power2.in' }, at(1.27))
+    tl.set(find('.dc'), { autoAlpha: 0 }, at(3 * BEAT))
 
-    // Delete bursts with the app's poof: a dot every 45°, red and grey in turn, flying out from the button and fading.
-    // It sits beside the card, not in it, so it doesn't fade and blur with it.
+    // The card goes at once and Delete bursts with the app's poof in its place: a dot every 45°, red and grey in turn,
+    // flying out from the button and fading. It sits beside the card, not in it, so it outlasts the card.
     const poof = make('div', 'poof dc-poof', '<i></i>'.repeat(8))
     find('.shot-ui').append(poof)
     gsap.set(poof, on(find('.dc-del')))

@@ -30,9 +30,6 @@ import {
 } from '~/src/contexts/board-list/constants'
 import { Bars2Icon, PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
 
-// How long a deleted card takes to fade out. Matches the card's duration-240.
-const EXIT_MS = 240
-
 interface Props {
   category: Category
   // Resizing stops at the workspace's right edge.
@@ -69,25 +66,16 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({
   const trashRef = useRef<HTMLButtonElement>(null)
 
   // Backing out hands focus back to the trash. Stable, since the confirm listens for Escape and outside clicks with it.
-  // Set once Delete is pressed: the card fades out, still showing the confirm, then the delete runs.
-  const [isLeaving, setIsLeaving] = useState(false)
-
   const handleCancelDelete = useCallback(() => {
-    // Too late once it's leaving; backing out now would flash the normal card before it goes.
-    if (isLeaving) return
     setIsConfirmingDelete(false)
     trashRef.current?.focus({ preventScroll: true })
-  }, [isLeaving])
+  }, [])
 
-  // The delete drops the category from the cache, which unmounts the card. So fade it out first, with the confirm still
-  // up, and delete after. Delete bursts with the same poof as a hero dropped off every category. With reduced motion
-  // there's nothing to wait for (and the workspace skips the poof).
+  // The delete drops the category from the cache, which unmounts the card at once. The poof (the same one as a hero
+  // dropped off every category) bursts from Delete in its place; the workspace skips it with reduced motion.
   const handleConfirmDelete = (at: { x: number; y: number }) => {
-    setIsLeaving(true)
     onPoof(at)
-    const reducedMotion =
-      typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    setTimeout(() => deleteCategory(category.id), reducedMotion ? 0 : EXIT_MS)
+    deleteCategory(category.id)
   }
 
   const [isResizing, setIsResizing] = useState(false)
@@ -157,9 +145,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({
             ? 'ring-2 ring-primary-500 inset-ring-white/15'
             : isConfirmingDelete
               ? 'ring-1 ring-black/50 inset-ring-red-500/30'
-              : 'ring-1 ring-black/50 inset-ring-white/8 hover:inset-ring-white/15',
-          isLeaving &&
-            'pointer-events-none scale-96 opacity-0 transition-[box-shadow,opacity,scale] duration-240 motion-reduce:transition-none'
+              : 'ring-1 ring-black/50 inset-ring-white/8 hover:inset-ring-white/15'
         )}
         // Heroes grey out while the card asks to be deleted (group-data-deleting: in the hero tile).
         data-deleting={isConfirmingDelete || undefined}

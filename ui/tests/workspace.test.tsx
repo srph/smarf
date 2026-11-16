@@ -187,15 +187,11 @@ describe('board workspace', () => {
     await user.click(within(supports).getByTitle('Delete category'))
     await user.click(await screen.findByRole('button', { name: 'Delete' }))
 
-    // It fades out still asking, rather than flashing back to the normal card first.
-    expect(within(supports).getByRole('alertdialog', { name: 'Delete Supports?' })).toBeInTheDocument()
-
-    // The same poof as a hero dropped off every category, cleared once it's played.
+    // The card goes at once, and the same poof as a hero dropped off every category plays in its place, then clears.
+    expect(supports).not.toBeInTheDocument()
     expect(document.querySelector('[data-drop-poof]')).not.toBeNull()
-    await waitFor(() => expect(document.querySelector('[data-drop-poof]')).toBeNull(), { timeout: 2000 })
-
-    await waitFor(() => expect(screen.queryByDisplayValue('Supports')).not.toBeInTheDocument())
     await waitFor(() => expect(db.categories.map((c) => c.name)).not.toContain('Supports'))
+    await waitFor(() => expect(document.querySelector('[data-drop-poof]')).toBeNull(), { timeout: 2000 })
   })
 
   it('backs out of deleting a category on Escape and hands focus back to the trash', async () => {
