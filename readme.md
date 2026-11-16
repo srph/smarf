@@ -1,4 +1,4 @@
-![Thumbnail](readme-thumb.png)
+![Smarf: your Dota 2 hero grid, in the browser](readme-thumb.png)
 
 ## Smarf
 
