@@ -18,9 +18,7 @@ const LoginRoute = () => {
       <PageTitle title="Sign in" />
       <DiscordButton state={discordState} returnTo={returnTo} />
       {/* Absolute, so it sits at the foot of the auth layout, not in the column. */}
-      {config.showcase.videoUrl && (
-        <ShowcaseFilm videoUrl={config.showcase.videoUrl} discordState={discordState} returnTo={returnTo} />
-      )}
+      <ShowcaseFilm videoUrl={config.showcase.videoUrl} discordState={discordState} returnTo={returnTo} />
     </>
   )
 }

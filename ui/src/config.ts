@@ -17,8 +17,8 @@ const config = {
   },
 
   showcase: {
-    /** The showcase film (showcase/smarf-showcase.mp4, hosted elsewhere). Unset hides the login page's link to it. */
-    videoUrl: import.meta.env.VITE_SHOWCASE_URL || null
+    /** The showcase film, a 720p copy of showcase/smarf-showcase.mp4 in public/. */
+    videoUrl: '/showcase.mp4'
   }
 }
 

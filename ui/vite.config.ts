@@ -30,8 +30,7 @@ export default defineConfig({
     include: ['tests/**/*.test.{ts,tsx}'],
     env: {
       VITE_API_URL: 'http://smarf.test/api',
-      VITE_DISCORD_CLIENT_ID: 'test-discord-client',
-      VITE_SHOWCASE_URL: 'http://smarf.test/showcase.mp4'
+      VITE_DISCORD_CLIENT_ID: 'test-discord-client'
     }
   }
 })

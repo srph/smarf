@@ -209,7 +209,7 @@ describe('auth', () => {
 
       await user.click(await tourButton())
       const film = await screen.findByRole('dialog', { name: /Welcome to Smarf/ })
-      expect(film.querySelector('video')).toHaveAttribute('src', 'http://smarf.test/showcase.mp4')
+      expect(film.querySelector('video')).toHaveAttribute('src', '/showcase.mp4')
 
       await user.click(within(film).getByRole('button', { name: 'Close' }))
       await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
