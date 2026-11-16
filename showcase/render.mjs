@@ -7,6 +7,7 @@
     node render.mjs --fps 30 --out a.mp4
     node render.mjs --stills 2,12.5,40   PNGs of those seconds, into stills/
     node render.mjs --audio track.mp3    with music: trimmed to the film, faded in and out
+    node render.mjs --volume 0.5         the music's level (default 0.35)
 
   A music.mp3 in this folder is used when --audio isn't given (it isn't committed; mind its licence).
 
@@ -30,6 +31,9 @@ const out = option('--out', join(here, 'smarf-showcase.mp4'))
 const stills = option('--stills', null)
 const audio = option('--audio', existsSync(join(here, 'music.mp3')) ? join(here, 'music.mp3') : null)
 const chrome = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+// The track is mastered at about -9 LUFS, far louder than most of what plays before and after it. 0.35 (-9 dB)
+// brings it to about -18 LUFS. showcase.js plays it at the same level on the live page.
+const volume = Number(option('--volume', 0.35))
 const debugPort = 9333
 
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml' }
@@ -137,8 +141,8 @@ try {
     const ffmpeg = spawn(
       'ffmpeg',
       ['-y', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'png', '-i', '-'].concat(
-        // The music fades in over half a second, and out over the last two and a half.
-        audio ? ['-i', audio, '-af', `afade=t=in:d=0.5,afade=t=out:st=${(duration - 2.5).toFixed(2)}:d=2.5`] : [],
+        // The music fades in over two seconds, and out over the last two and a half.
+        audio ? ['-i', audio, '-af', `volume=${volume},afade=t=in:d=2,afade=t=out:st=${(duration - 2.5).toFixed(2)}:d=2.5`] : [],
         audio ? ['-c:a', 'aac', '-b:a', '256k', '-t', duration.toFixed(3)] : [],
         ['-c:v', 'libx264', '-preset', 'slow', '-crf', '16', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out]
       ),

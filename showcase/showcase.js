@@ -1068,6 +1068,8 @@ const start = async () => {
   // A music.mp3 beside this page plays along, to try a track against the film before rendering it in. Browsers
   // only start sound after a click or a key, so it joins at the first one.
   const music = RECORD ? null : new Audio('music.mp3')
+  // The level render.mjs mixes it at.
+  if (music) music.volume = 0.35
   const syncMusic = () => {
     if (!music || music.error) return
     const playing = !tl.paused() && tl.time() < duration
