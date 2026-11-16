@@ -7,6 +7,8 @@ import {
   CATEGORY_HERO_X_TOTAL_PADDING,
   CATEGORY_TRAY_BORDER
 } from '~/src/contexts/board-list/constants'
+import { cn } from 'cn'
+import { CATEGORY_HEADER_FADE, categoryColorClass } from '~/src/lib/category-colors'
 import { type Category } from '~/src/types/api'
 
 interface Props {
@@ -17,12 +19,23 @@ interface Props {
 const BoardVisitorCategory: React.FC<Props> = ({ category }) => (
   <section
     aria-label={category.name}
-    className="absolute top-0 left-0 inline-block rounded-xl bg-zinc-800/80 shadow-lg ring-1 inset-ring ring-black/50 inset-ring-white/8 backdrop-blur-sm"
+    className={cn(
+      'absolute top-0 left-0 inline-block rounded-xl bg-zinc-800/80 shadow-lg ring-1 inset-ring ring-black/50 inset-ring-white/8 backdrop-blur-sm',
+      category.color && categoryColorClass[category.color]
+    )}
+    data-color={category.color ?? undefined}
     style={{ transform: `translate3d(${category.x_position}px, ${category.y_position}px, 0)` }}>
-    <h2 className="flex h-9 items-center px-3 font-semibold whitespace-nowrap">{category.name}</h2>
+    <h2
+      className={cn(
+        'relative isolate flex h-9 items-center px-3 font-semibold whitespace-nowrap',
+        category.color && CATEGORY_HEADER_FADE
+      )}>
+      {category.name}
+    </h2>
 
+    {/* `relative`, so the tray paints over the fade's last 12px, which then only shows at its rounded top corners. */}
     <ul
-      className="flex flex-wrap rounded-t-lg rounded-b-xl border border-white/8 bg-zinc-900"
+      className="relative flex flex-wrap rounded-t-lg rounded-b-xl border border-white/8 bg-zinc-900"
       style={{ padding: CATEGORY_HERO_CONTAINER_TOTAL_PADDING / 2 - CATEGORY_TRAY_BORDER, width: category.width }}>
       {category.heroes.map((hero) => (
         <li key={hero.pivot.id} className="shrink-0" style={{ padding: CATEGORY_HERO_X_TOTAL_PADDING / 2 }}>

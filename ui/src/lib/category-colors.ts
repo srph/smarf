@@ -28,11 +28,17 @@ const categoryColorClass: Record<CategoryColor, string> = {
 }
 
 /**
- * A card header's fade in its category's colour, as its `before:` layer. It sits where the delete confirm's red does:
- * 1px inside the card so the rim still shows, and 12px down under the hero tray so it fills the tray's rounded top
- * corners. The header needs `relative isolate`, and the card (or the header) a categoryColorClass.
+ * The fade in a category's colour, as an element's `before:` layer, under its content. The element needs
+ * `relative isolate` (or to be positioned some other way), a categoryColorClass on it or above it, and to say where
+ * the layer sits (`before:inset-0`).
  */
-const CATEGORY_HEADER_FADE =
-  'before:pointer-events-none before:absolute before:inset-x-px before:top-px before:-bottom-3 before:-z-10 before:rounded-t-[calc(var(--radius-xl)-1px)] before:bg-category-fade'
+const CATEGORY_FADE_LAYER =
+  'before:pointer-events-none before:absolute before:-z-10 before:rounded-t-[calc(var(--radius-xl)-1px)] before:bg-category-fade'
 
-export { CATEGORY_COLORS, CATEGORY_HEADER_FADE, categoryColorClass }
+/**
+ * The fade on a card's header. It sits where the delete confirm's red does: 1px inside the card so the rim still
+ * shows, and 12px down under the hero tray so it fills the tray's rounded top corners.
+ */
+const CATEGORY_HEADER_FADE = `${CATEGORY_FADE_LAYER} before:inset-x-px before:top-px before:-bottom-3`
+
+export { CATEGORY_COLORS, CATEGORY_FADE_LAYER, CATEGORY_HEADER_FADE, categoryColorClass }

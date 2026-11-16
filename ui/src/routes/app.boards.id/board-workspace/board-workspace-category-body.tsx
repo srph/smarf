@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { cn } from 'cn'
-import { Category, Hero, ID } from '~/src/types/api'
+import { Category, CategoryColor, Hero, ID } from '~/src/types/api'
 import { Icon } from '~/src/components/icon/icon'
 import { BoardWorkspaceHeroSelector } from './board-workspace-hero-selector'
 import { BoardWorkspaceCategoryHero } from './board-workspace-category-hero'
@@ -15,9 +15,11 @@ import { useDeleteCategoryMutation } from '../mutations/use-delete-category-muta
 import { getCategoryHeight } from '~/src/contexts/board-list/utils'
 import { BoardWorkspaceCategoryTitle } from './board-workspace-category-title'
 import { BoardWorkspaceCategoryDeleteConfirm } from './board-workspace-category-delete-confirm'
+import { BoardWorkspaceCategoryColorPicker } from './board-workspace-category-color-picker'
 
 import { Resizable, type ResizeCallback, type Size } from 're-resizable'
 import { mergeRefs } from '~/src/utils'
+import { CATEGORY_HEADER_FADE, categoryColorClass } from '~/src/lib/category-colors'
 
 import {
   CATEGORY_BODY_INITIAL_WIDTH,
@@ -28,7 +30,7 @@ import {
   CATEGORY_HERO_X_TOTAL_PADDING,
   CATEGORY_TRAY_BORDER
 } from '~/src/contexts/board-list/constants'
-import { Bars2Icon, PlusIcon, TrashIcon } from '@heroicons/react/20/solid'
+import { Bars2Icon, PlusIcon, SwatchIcon, TrashIcon } from '@heroicons/react/20/solid'
 
 interface Props {
   category: Category
@@ -77,6 +79,29 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({
     onPoof(at)
     deleteCategory(category.id)
   }
+
+  const [isPickingColor, setIsPickingColor] = useState(false)
+
+  // The swatch the colour picker has hovered or focused, shown on the card but not saved. `undefined` is none.
+  const [previewColor, setPreviewColor] = useState<CategoryColor | null>()
+
+  const colorRef = useRef<HTMLButtonElement>(null)
+
+  // Closing hands focus back to the swatch button. Stable, since the picker listens for Escape and outside clicks
+  // with it.
+  const closeColorPicker = useCallback(() => {
+    setIsPickingColor(false)
+    setPreviewColor(undefined)
+    colorRef.current?.focus({ preventScroll: true })
+  }, [])
+
+  const handleSelectColor = (color: CategoryColor | null) => {
+    if (color !== category.color) updateCategory({ id: category.id, color })
+    closeColorPicker()
+  }
+
+  // The colour the card shows: the picker's preview while there is one, else the saved colour.
+  const shownColor = previewColor !== undefined ? previewColor : category.color
 
   const [isResizing, setIsResizing] = useState(false)
 
@@ -141,6 +166,7 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({
         {...attributes}
         className={cn(
           'group absolute inline-block rounded-xl bg-zinc-800/80 shadow-lg inset-ring backdrop-blur-sm transition-shadow focus-visible:ring-focus',
+          shownColor && categoryColorClass[shownColor],
           isActive
             ? 'ring-2 ring-primary-500 inset-ring-white/15'
             : isConfirmingDelete
@@ -149,25 +175,51 @@ const BoardWorkspaceCategoryBody: React.FC<Props> = ({
         )}
         // Heroes grey out while the card asks to be deleted (group-data-deleting: in the hero tile).
         data-deleting={isConfirmingDelete || undefined}
+        data-color={shownColor ?? undefined}
         style={{ transform: `translate3d(${category.x_position}px, ${category.y_position}px, 0)` }}>
-        <div className="relative flex h-9 items-center gap-2 pr-1.5 pl-2 focus-gap-zinc-800">
+        {/* A coloured card fades its colour across the header, under everything in it. */}
+        <div
+          className={cn(
+            'relative isolate flex h-9 items-center gap-2 pr-1.5 pl-2 focus-gap-zinc-800',
+            shownColor && CATEGORY_HEADER_FADE
+          )}>
           <div
             ref={setDraggableNodeRef}
             {...listeners}
             title="Move category"
-            className="cursor-grab text-zinc-600 transition-colors group-hover:text-zinc-300">
+            // Translucent white, not grey, so it takes on the header's colour.
+            className="cursor-grab text-white/30 transition-colors group-hover:text-white/70">
             <Icon icon={Bars2Icon} size={20} />
           </div>
           <BoardWorkspaceCategoryTitle value={category.name} onChange={handleUpdateCategoryName} />
+
+          <button
+            ref={colorRef}
+            type="button"
+            title="Colour"
+            aria-label="Colour"
+            onClick={() => setIsPickingColor(true)}
+            className="ml-auto grid size-7 cursor-pointer place-items-center rounded-md text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-zinc-50 focus-visible:opacity-100 focus-visible:ring-focus">
+            <Icon icon={SwatchIcon} size={16} />
+          </button>
 
           <button
             ref={trashRef}
             type="button"
             title="Delete category"
             onClick={() => setIsConfirmingDelete(true)}
-            className="ml-auto grid size-7 cursor-pointer place-items-center rounded-md text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100 focus-visible:ring-focus">
+            className="-ml-1.5 grid size-7 cursor-pointer place-items-center rounded-md text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/8 hover:text-red-400 focus-visible:opacity-100 focus-visible:ring-focus">
             <Icon icon={TrashIcon} size={16} />
           </button>
+
+          {isPickingColor && (
+            <BoardWorkspaceCategoryColorPicker
+              value={category.color}
+              onPreview={setPreviewColor}
+              onSelect={handleSelectColor}
+              onCancel={closeColorPicker}
+            />
+          )}
 
           {isConfirmingDelete && (
             <BoardWorkspaceCategoryDeleteConfirm

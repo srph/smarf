@@ -107,6 +107,14 @@ describe('visiting a public board', () => {
     expect(currentPath()).toBe(`/b/${board.id}`)
   })
 
+  it("shows each category's colour", async () => {
+    const board = seedBoard('Ranked', [{ name: 'S Tier', color: 'red' }, { name: 'Untested' }], { is_public: true })
+    renderApp(`/b/${board.id}`, { loggedIn: false })
+
+    expect(await screen.findByRole('region', { name: 'S Tier' })).toHaveAttribute('data-color', 'red')
+    expect(screen.getByRole('region', { name: 'Untested' })).not.toHaveAttribute('data-color')
+  })
+
   it('asks a signed-out visitor to log in to copy it', async () => {
     const board = seedBoard('Ranked', [{ name: 'Carries' }], { is_public: true })
     const { user } = renderApp(`/b/${board.id}`, { loggedIn: false })

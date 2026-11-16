@@ -4,6 +4,7 @@ import { delay, http, HttpResponse } from 'msw'
 import { API, server } from './support/handlers'
 import { db, heroNamesIn, seedBoard, type DbBoard } from './support/db'
 import { currentPath, renderApp, screen } from './support/render'
+import { type CategoryColor } from '~/src/types/api'
 import { findCategory, heroesShownIn } from './support/workspace'
 
 let board: DbBoard
@@ -16,6 +17,14 @@ beforeEach(() => {
 })
 
 const findBoard = () => db.boards.find((b) => b.id === board.id)
+
+/** A seeded category's saved colour. */
+const colorOf = (name: string) => db.categories.find((c) => c.name === name)?.color
+
+const setColor = (name: string, color: CategoryColor) => {
+  const category = db.categories.find((c) => c.name === name)
+  if (category) category.color = color
+}
 
 describe('board workspace', () => {
   it('shows the board, its categories, and their heroes', async () => {
@@ -206,6 +215,67 @@ describe('board workspace', () => {
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument())
     expect(trash).toHaveFocus()
     expect(db.categories.map((c) => c.name)).toContain('Supports')
+  })
+
+  it('colours a category from the swatches in its header, previewing each on the way', async () => {
+    const { user } = renderApp(`/b/${board.id}`)
+
+    const supports = await findCategory('Supports')
+    expect(supports).not.toHaveAttribute('data-color')
+    await user.click(within(supports).getByRole('button', { name: 'Colour' }))
+
+    // The saved choice (none yet) takes focus.
+    const swatches = within(supports).getByRole('group', { name: 'Category colour' })
+    await waitFor(() => expect(within(swatches).getByRole('button', { name: 'None' })).toHaveFocus())
+    expect(within(swatches).getByRole('button', { name: 'None' })).toHaveAttribute('aria-pressed', 'true')
+
+    // Hovering a swatch shows it on the card without saving it.
+    await user.hover(within(swatches).getByRole('button', { name: 'Violet' }))
+    expect(supports).toHaveAttribute('data-color', 'violet')
+    expect(colorOf('Supports')).toBeNull()
+
+    await user.click(within(swatches).getByRole('button', { name: 'Amber' }))
+    expect(supports).toHaveAttribute('data-color', 'amber')
+    expect(within(supports).queryByRole('group')).not.toBeInTheDocument()
+    expect(within(supports).getByRole('button', { name: 'Colour' })).toHaveFocus()
+    await waitFor(() => expect(colorOf('Supports')).toBe('amber'))
+    // A recolour is its own save: the name is left alone.
+    expect(db.categories.map((c) => c.name)).toContain('Supports')
+  })
+
+  it('backs out of colouring on Escape or the X, with nothing saved', async () => {
+    setColor('Supports', 'red')
+    const { user } = renderApp(`/b/${board.id}`)
+
+    const supports = await findCategory('Supports')
+    expect(supports).toHaveAttribute('data-color', 'red')
+    const trigger = within(supports).getByRole('button', { name: 'Colour' })
+
+    await user.click(trigger)
+    await user.hover(within(supports).getByRole('button', { name: 'Blue' }))
+    expect(supports).toHaveAttribute('data-color', 'blue')
+    await user.keyboard('[Escape]')
+    expect(within(supports).queryByRole('group')).not.toBeInTheDocument()
+    expect(supports).toHaveAttribute('data-color', 'red')
+    expect(trigger).toHaveFocus()
+
+    await user.click(trigger)
+    await user.click(within(supports).getByRole('button', { name: 'Cancel' }))
+    expect(within(supports).queryByRole('group')).not.toBeInTheDocument()
+    expect(colorOf('Supports')).toBe('red')
+  })
+
+  it('clears a category colour with None', async () => {
+    setColor('Supports', 'red')
+    const { user } = renderApp(`/b/${board.id}`)
+
+    const supports = await findCategory('Supports')
+    await user.click(within(supports).getByRole('button', { name: 'Colour' }))
+    expect(within(supports).getByRole('button', { name: 'Red' })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(within(supports).getByRole('button', { name: 'None' }))
+
+    expect(supports).not.toHaveAttribute('data-color')
+    await waitFor(() => expect(colorOf('Supports')).toBeNull())
   })
 
   it('adds a hero from the hero selector', async () => {
