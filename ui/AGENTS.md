@@ -2,82 +2,74 @@
 
 React front-end for Smarf: the board list, and the board workspace where users drag heroes between resizable categories.
 
-React 19, TypeScript 7, Vite 8, Tailwind CSS 4, React Router 8 (data router, `createBrowserRouter`), TanStack Query 5, Base UI for popovers and menus, and dnd-kit for drag and drop. Node 26 is pinned in `.nvmrc`.
+React 19, TypeScript 7 (strict), Vite 8, Tailwind CSS 4, React Router 8, TanStack Query 5, Base UI and dnd-kit. Node 26 is pinned in `.nvmrc`.
 
 ## Commands
 
 ```bash
-npm install
-npm start           # Vite dev server, http://mbp.boga-parore.ts.net:13000 (or `make start:web` from the root)
+npm start           # Vite dev server on port 13000 (or `make start:web` from the root)
 npm run build       # production build to dist/
-npm run typecheck   # tsc --noEmit, strict mode (Vite doesn't type-check)
-npm run lint        # Oxlint (.oxlintrc.json)
-npm run format      # Prettier (.prettierrc); format:check to only check
-npm test            # Vitest integration tests (npm run test:watch to watch)
+npm run typecheck   # tsc --noEmit (Vite doesn't type-check)
+npm run lint        # Oxlint
+npm run format      # Prettier
+npm test            # Vitest (npm run test:watch to watch)
 ```
 
-Before committing, `typecheck`, `lint`, `format:check` and `test` should all pass.
+## Verification
 
-`.env` holds `VITE_API_URL` and `VITE_DISCORD_CLIENT_ID` (public; the same Discord app as the API's). Vite bundles every `VITE_` variable into the client, so never give a secret that prefix.
+Before committing, all of these pass:
 
-Sign-in is Discord-only. The login page links to Discord (`lib/discord.ts` builds the URL and keeps its `state` and the return path in localStorage); Discord sends the visitor back to `/login/discord`, which checks `state` and posts the code to `auth/discord` for a token.
+```bash
+npm run typecheck
+npm run lint
+npm run format:check
+npm test
+```
 
 ## Structure
 
 ```
-index.html        Vite entry
-public/           copied as-is: favicons, _redirects (Netlify), showcase.mp4 (the login page's film), og-image.png (the link preview; re-render it from .kier/designs/9e4a-og-image-tier-list.html?render=A2k)
 src/
-├── app.tsx       route table + providers; index.tsx only mounts it
-├── assets/       images imported by components
-├── components/   shared UI primitives (button/, input/, popover/, page-title/, ...)
-├── contexts/     auth-user (current user, logout), board-list (layout constants and math), query (QueryProvider)
-├── hooks/        generic hooks (use-debounced-effect.ts, use-delayed-state.ts, ...)
-├── lib/         http.ts (fetch wrapper for the API), token.ts (auth token cookie), discord.ts (Discord sign-in link and state), blur-swap.ts (classes for two states swapping in place), category-colors.ts (the colours a category can take, and the classes that fade one across a card's header)
-├── queries/      React Query hooks (queries and mutations) used by more than one route, a folder per domain (auth/, boards/, heroes/)
-├── routes/       one folder per route; `.` marks nesting (app.boards.id = /b/:boardSlug); a route's own hooks go in its queries/ and mutations/
-├── types/        API and board-operation types
-├── config.ts     reads env vars
-└── index.css     Tailwind entry: `@theme` (font, `primary-*` colors), base styles, `--z-*` stacking order
-tests/
-├── *.test.tsx    integration tests: render the whole App at a URL against a fake API
-└── support/      MSW handlers + in-memory db, render helper, fake layout for drag-and-drop
+├── app.tsx       route table and providers
+├── components/   shared UI primitives, a folder each
+├── contexts/     current user, board layout constants, query provider
+├── hooks/        generic hooks
+├── lib/          fetch wrapper, auth token, small helpers
+├── queries/      query and mutation hooks shared by routes, a folder per domain
+├── routes/       a folder per route; `.` marks nesting (app.boards.id = /b/:boardSlug)
+├── types/        API and board types
+├── config.ts     env vars (read them only here)
+└── index.css     Tailwind theme, focus rings, stacking order
+tests/            integration tests against a fake API (support/)
+public/           copied as-is
 ```
 
 ## Naming
 
-- **Files and folders are kebab-case:** `components/search-input/search-input.tsx`, `hooks/use-interval.ts`. Route folders keep `.` for nesting (`app.boards.id`). Oxlint enforces this for filenames (`unicorn/filename-case`).
-- **No barrel files (`index.ts`).** Import the file that defines the thing: `~/src/components/button/button`, not `~/src/components`. `src/index.tsx` is the Vite entry, not a barrel.
-- **Exports stay PascalCase/camelCase, named after the file:** `boards-id-route.tsx` → `BoardsIdRoute`, `use-login.ts` → `useLogin`.
-- **Shared components get a folder of their own:** `components/time-ago/time-ago.tsx`.
+- Files and folders are kebab-case; exports are named after the file (`use-login.ts` → `useLogin`).
+- No barrel files. Import the file that defines the thing.
+- Keep components route-local until a second route needs them, then move them to `components/<name>/`.
 
-## Testing
+## Data
 
-- Tests render `<App />` at a URL (`renderApp('/b/123')`) and talk to an in-memory fake of the Laravel API (`tests/support/handlers.ts`, `db.ts`). Seed data with `seedBoard()`; assert on what the user sees and on `db`.
-- When the API changes, update the fake handlers to match.
-- Drag and drop runs with `installFakeLayout()` (jsdom has no layout): heroes through dnd-kit's keyboard controls, categories through `user.pointer`. Resizing isn't covered; check it in a browser.
-- Drive drags with user-event so React renders between steps. dnd-kit applies moves after React renders, so a drag that finishes before any render (raw events in one `act`, or a browser tool's instant drag) drops without moving. Real drags are fine.
-- Vitest loads packages with Node's rules, not the way the Vite dev server does. A CommonJS import that works in tests can still break in `npm start`, so do a quick browser check after dependency changes.
+- One hook per request. Shared hooks live in `src/queries/<domain>/`; a route's own go in its `queries/` and `mutations/` folders.
+- Build query keys with the key factories (`boardKeys.list()`) and cache plain data: unwrap the response in `queryFn`, derive views with `select`.
+- Destructure and rename (`const { data: boards, status: boardsStatus } = useBoardsQuery()`), then handle `pending`, `error` and success.
 
-## Best practices
+## Optimistic updates
 
-- One hook per request: `useBoardsQuery` (a `queryOptions` factory passed to `useQuery`), `useFavoriteBoardMutation`. Hooks used by more than one route, queries and mutations alike, live in `src/queries/<domain>/`; hooks used by one route live in that route's `queries/` (queries) or `mutations/` (mutations) folder.
-- Build query keys with the key factories (`boardKeys.list()`), and cache plain data: unwrap the API's `{ boards: [...] }` in `queryFn`. Derive views with `select`, defined at module level.
-- Destructure and rename (`const { data: boards, status: boardsStatus } = useBoardsQuery()`), then handle `pending` (`PageSpinner`), `error` (`ErrorState` with Try again), and success. `data` is typed as defined once the other two are handled.
-- A mutation hook owns its cache work: write the optimistic change in `onMutate`, and give one board's saves ``scope: { id: `board:${id}` }`` so they reach the API in order. UI side effects (navigating, closing a popover) go in the `mutate(vars, { onSuccess })` call.
-- Board saves (`routes/app.boards.id/mutations`, plus `useFavoriteBoardMutation`) treat the cached board as the source of truth. Each spreads `useBoardCache(boardSlug)`'s `optimisticSaveOptions` (or `saveOptions` when nothing changes before the server answers) and writes its change with `update()` in `onMutate`. That gives every save the board's `mutationKey` (the toolbar's Saved / Couldn't save reads it) and `scope` (one at a time, in order), and refetches the board after a failed save once its queue is empty.
-- Keep `onMutate` synchronous up to the cache write (no `await` before `update()`): it then runs inside `mutate()`, so a drag or resize can clear its draft right after `mutate()` without the board flickering. Don't add a MutationCache-level `onMutate`, which would put an `await` first.
-- A drag or resize in progress is a draft: `BoardProvider`'s `updateDraft` copies the cached board and changes the copy, which is shown instead until `clearDraft()`. Nothing saves mid-drag. On drop, call the mutation once (from where the drag started on the cached board to where it ended), then `clearDraft()`; on cancel, just `clearDraft()`. Hero drags share `applyMoveHero` between the preview and the mutation. `BoardProvider` calls `useBoardQuery` itself, next to the draft, so that re-render reads the cache fresh; reading the board from a parent's prop would show the old position for a frame.
-- Build popovers and menus on Base UI (`@base-ui/react`) through `components/menu` and `components/popover` (solid, raised off the page: the hero picker, the account menu) or `components/glass-menu` and `components/glass-popover` (frosted, off the board toolbar's dock). Each mirrors Base UI's parts (`Menu.Root`, `Menu.Trigger`, `Menu.Item`...) with styles copied in, not shared; `Popup` wraps the Portal and Positioner and takes their position props. Add width and one-offs with `className` and Tailwind's `data-*` variants (`data-popup-open:`, `data-highlighted:`); `cn` (shadcn's, with tailwind-merge built in) lets a `className` class replace a built-in one it conflicts with.
-- A category's colour is a key (`red`, or null for none), the same list as the API's `Category::COLORS`. To show one, put its `categoryColorClass` on the card and `CATEGORY_HEADER_FADE` on the header: the class only sets `--category-color`, which `bg-category-fade` and `bg-category-metal` read. Add a colour in both lists and in `CategoryColor`.
-- Keep components route-local until a second route needs them, then move them to `components/`.
-- Import icons from `@heroicons/react/20/solid` and pass the component: `<Icon icon={TrashIcon} />`. An icon shown at 16px or smaller whose lines look thin can come from `@heroicons/react/16/solid` instead, which is drawn for that size (the share card's checks do).
-- Style with Tailwind classes on the element, not wrapper components named after a style. Join conditional classes with `cn` (`import { cn } from 'cn'`). Prettier sorts the classes.
-- Write class names out in full: Tailwind only generates classes it finds as literal strings. Pick from a map (`{ primary: 'bg-primary-500' }`) instead of building `bg-${color}`.
-- Values known only at runtime (positions, widths, sizes from `contexts/board-list/constants.ts` that the drag math also uses) go in `style`.
-- TypeScript is strict. Prefer a null check over `!`; when `!` is right (for example a route param the route guarantees), say why in a comment.
-- Lint suppressions (`// oxlint-disable-next-line rule`) need a comment saying why.
-- Stay on Tailwind's scales: spacing in 4px steps, `zinc` for neutrals, `primary-*` for the brand color, the default palette for the rest. Avoid arbitrary values (`p-[13px]`); snap to the nearest step. Stacking order uses the `--z-*` variables in `index.css` (`z-(--z-popover)`).
-- Corner radius goes by height. Hero portraits are `rounded-sm` (4px); anything under 32px tall (`h-6`, `size-7`, tooltips, the category title) is `rounded-md`; controls 32 to 40px tall (`h-8` to `h-10`: buttons, inputs, menu rows) are `rounded-lg`; anything 44px or taller and every surface (popups, panels, cards, the toolbar, board rows) is `rounded-xl`. Dots and avatars are `rounded-full`. Don't use bare `rounded`. A surface whose rows have hover backgrounds also gets `overflow-hidden` so they don't poke past its corners.
-- Read env vars only in `config.ts`.
-- Export types with `export { type Foo }`. Vite compiles each file on its own, so a bare type re-export breaks the build.
+The cached board is the source of truth, and every board save changes it before the API answers.
+
+- **Where:** board saves are in `routes/app.boards.id/mutations/`, plus `queries/boards/use-favorite-board-mutation.ts`. Their shared options come from `useBoardCache(boardSlug)` in `queries/boards/use-board-cache.ts`.
+- **How:** each save spreads `optimisticSaveOptions` and writes its change with `update()` in `onMutate`, with no `await` before it. The shared options give every save the board's `mutationKey` (the toolbar's Saved / Couldn't save reads it) and its `scope`, so saves reach the API one at a time, in order. After a failed save, the board refetches once the queue is empty.
+- **Drags and resizes** are drafts: `BoardProvider` (`routes/app.boards.id/board-context.tsx`) shows a changed copy of the board until `clearDraft()`. Nothing saves mid-drag. On drop, call the mutation once, then `clearDraft()`; on cancel, just `clearDraft()`.
+
+## Styling
+
+- Tailwind classes on the element, joined with `cn`. Write class names in full (pick from a map, never `bg-${color}`); runtime values go in `style`.
+- `zinc` for neutrals and `primary-*` (indigo) for the brand and every accent: hover, focus, active, selection. Never sky.
+- Focus: `focus-visible:ring-focus`, an indigo ring with a gap. Use `ring-focus-danger` on destructive buttons and `ring-focus-field` with `border-primary-400` on text fields. A surface that isn't the page colour sets the gap with `focus-gap-*` (`focus-gap-zinc-800`).
+- Corner radius goes by height: `rounded-md` under 32px, `rounded-lg` for 32–40px controls, `rounded-xl` for 44px and up and every surface. Hero portraits are `rounded-sm`. No bare `rounded`.
+- Stay on Tailwind's scales (spacing in 4px steps, no arbitrary values). Stack with the `--z-*` variables (`z-(--z-popover)`).
+- Menus and popovers are Base UI, through `components/menu` and `components/popover` (solid) or `components/glass-menu` and `components/glass-popover` (frosted).
+- Icons come from `@heroicons/react/20/solid`, through `<Icon icon={TrashIcon} />`.
