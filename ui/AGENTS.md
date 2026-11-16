@@ -56,6 +56,12 @@ public/           copied as-is
 - Build query keys with the key factories (`boardKeys.list()`) and cache plain data: unwrap the response in `queryFn`, derive views with `select`.
 - Destructure and rename (`const { data: boards, status: boardsStatus } = useBoardsQuery()`), then handle `pending`, `error` and success.
 
+## Testing
+
+- Tests render the whole `<App />` at a URL (`renderApp('/b/123')`) against an in-memory fake of the API (`tests/support/`). Seed with `seedBoard()`; assert on what the user sees and on `db`.
+- When the API changes, update the fake handlers to match.
+- Drags run with `installFakeLayout()` and user-event. Resizing isn't covered, and Vitest loads packages differently from the dev server, so check those in a browser.
+
 ## Optimistic updates
 
 The cached board is the source of truth, and every board save changes it before the API answers.
