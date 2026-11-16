@@ -16,6 +16,7 @@ const newCategory = (board: Board): Category => {
   return {
     id: uuid(),
     name: 'Untitled',
+    color: null,
     heroes: [],
     x_position: 0,
     y_position: board.categories.length ? getLowestCategoryBottom(board) + CATEGORY_SPACING : 0,

@@ -179,6 +179,30 @@
 }
 
 /*
+  A category's colour, as the fade the delete confirm uses for its red: strong at the left, gone by 80%. Reads
+  --category-color, which a categoryColorClass (lib/category-colors.ts) sets on the card.
+*/
+@utility bg-category-fade {
+  background-image: linear-gradient(
+    to right,
+    color-mix(in oklab, var(--category-color) 35%, transparent),
+    color-mix(in oklab, var(--category-color) 10%, transparent) 45%,
+    transparent 80%
+  );
+}
+
+/* A colour picker's swatch: --category-color as a bead of the app's metal, lit at the top. */
+@utility bg-category-metal {
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--category-color), white 32%) 0%,
+    var(--category-color) 44%,
+    color-mix(in oklab, var(--category-color), black 24%) 58%,
+    var(--category-color) 100%
+  );
+}
+
+/*
   A fill wiped in from the left: transition clip-path between clip-wipe-empty and clip-wipe-full. The front edge is
   rounded like a rounded-lg button's inner corners (8px less its 1px border).
 */

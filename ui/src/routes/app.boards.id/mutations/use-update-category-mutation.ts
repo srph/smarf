@@ -1,14 +1,16 @@
 import { useMutation } from '@tanstack/react-query'
 import { http } from '~/src/lib/http'
 import { useBoardCache } from '~/src/queries/boards/use-board-cache'
-import { type ID } from '~/src/types/api'
+import { type CategoryColor, type ID } from '~/src/types/api'
 
 interface UpdateCategoryVariables {
   id: ID
-  name: string
+  // Send only what changes: a rename and a recolour are separate saves. A null colour clears it.
+  name?: string
+  color?: CategoryColor | null
 }
 
-/** Rename a category. */
+/** Rename or recolour a category. */
 const useUpdateCategoryMutation = (boardId: ID) => {
   const { optimisticSaveOptions, update } = useBoardCache(boardId)
 
@@ -16,10 +18,10 @@ const useUpdateCategoryMutation = (boardId: ID) => {
     ...optimisticSaveOptions,
     mutationFn: (variables: UpdateCategoryVariables) =>
       http(`categories/${variables.id}`, { method: 'PUT', body: variables }),
-    onMutate: ({ id, name }) =>
+    onMutate: ({ id, ...changes }) =>
       update((board) => {
         const category = board.categories.find((c) => c.id === id)
-        if (category) category.name = name
+        if (category) Object.assign(category, changes)
       })
   })
 }

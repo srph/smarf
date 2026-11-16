@@ -23,9 +23,14 @@ export interface HeroAttributeGroup {
   heroes: Hero[]
 }
 
+/** The colours a category's card can take. Keep in step with the API's Category::COLORS. */
+export type CategoryColor = 'red' | 'orange' | 'amber' | 'emerald' | 'cyan' | 'blue' | 'violet' | 'pink'
+
 export interface Category {
   id: ID
   name: string
+  // Null is the plain grey card.
+  color: CategoryColor | null
   heroes: HeroCategoryPivot[]
   x_position: number
   y_position: number

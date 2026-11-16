@@ -1,9 +1,11 @@
 import { CATEGORY_HEADER_HEIGHT } from '~/src/contexts/board-list/constants'
 import { getCategoryHeight } from '~/src/contexts/board-list/utils'
-import { type Category, type Hero } from '~/src/types/api'
+import { type Category, type CategoryColor, type Hero } from '~/src/types/api'
 
 /** A category a start lays out: what POST /boards takes, with whole heroes so the previews can show them. */
-type StartCategory = Pick<Category, 'name' | 'x_position' | 'y_position' | 'width' | 'height'> & { heroes: Hero[] }
+type StartCategory = Pick<Category, 'name' | 'color' | 'x_position' | 'y_position' | 'width' | 'height'> & {
+  heroes: Hero[]
+}
 
 /** A way to start a new board. `layout` places its categories once the hero list has loaded. */
 interface Start {
@@ -21,9 +23,14 @@ type ResolvedStart = Omit<Start, 'layout' | 'glow'> & { glow: Hero | undefined; 
 /** The space between a start's categories. */
 const START_GAP = 12
 
-/** A category `width` wide at (x, y), as tall as its heroes need. */
-const startCategory = (name: string, heroes: Hero[], { width, x, y }: { width: number; x: number; y: number }) => ({
+/** A category `width` wide at (x, y), as tall as its heroes need. Grey unless it's given a colour. */
+const startCategory = (
+  name: string,
+  heroes: Hero[],
+  { width, x, y, color = null }: { width: number; x: number; y: number; color?: CategoryColor | null }
+): StartCategory => ({
   name,
+  color,
   heroes,
   x_position: x,
   y_position: y,

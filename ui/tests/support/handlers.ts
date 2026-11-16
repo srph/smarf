@@ -91,6 +91,7 @@ export const handlers = [
         id: nextId('category'),
         board_id: board.id,
         name: c.name,
+        color: c.color ?? null,
         x_position: c.x_position,
         y_position: c.y_position,
         width: c.width,
@@ -186,6 +187,7 @@ export const handlers = [
       id: nextId('category'),
       board_id: board.id,
       name: body.name,
+      color: null,
       x_position: body.x_position,
       y_position: body.y_position,
       width: body.width,
@@ -201,7 +203,9 @@ export const handlers = [
     const category = ownedCategory(request, params.id as string)
     if (!category) return HttpResponse.json({}, { status: 404 })
     const body = (await request.json()) as Json
-    category.name = body.name
+    // Like the API, change only what was sent; a null colour clears it.
+    if ('name' in body) category.name = body.name
+    if ('color' in body) category.color = body.color
     return HttpResponse.json({ category })
   }),
 

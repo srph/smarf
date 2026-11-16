@@ -1,6 +1,8 @@
 // In-memory stand-in for the Laravel API's data, shaped like its JSON responses.
 // Each test starts from `resetDb()`; tests can seed more with the helpers below.
 
+import { type CategoryColor } from '~/src/types/api'
+
 export interface DbHero {
   id: string
   name: string
@@ -19,6 +21,7 @@ export interface DbCategory {
   id: string
   board_id: string
   name: string
+  color: CategoryColor | null
   x_position: number
   y_position: number
   width: number
@@ -114,7 +117,14 @@ export function findHero(name: string) {
 /** Seed a board with categories, each listing hero names in order. */
 export function seedBoard(
   name: string,
-  categories: Array<{ name: string; heroes?: string[]; x?: number; y?: number; width?: number }>,
+  categories: Array<{
+    name: string
+    heroes?: string[]
+    x?: number
+    y?: number
+    width?: number
+    color?: CategoryColor
+  }>,
   opts: {
     is_favorite?: boolean
     favorited_at?: string
@@ -140,6 +150,7 @@ export function seedBoard(
       id: nextId('category'),
       board_id: board.id,
       name: c.name,
+      color: c.color ?? null,
       x_position: c.x ?? 0,
       y_position: c.y ?? i * 200,
       width: c.width ?? 300,
