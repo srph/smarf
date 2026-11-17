@@ -14,7 +14,7 @@ interface Props {
 }
 
 /**
- * A button label that swaps in place: `<LabelSwap>{pending ? 'Saving…' : 'Save'}</LabelSwap>`. Both labels share one
+ * A button label that swaps in place: `<LabelSwap>{pending ? 'Saving' : 'Save'}</LabelSwap>`. Both labels share one
  * grid cell while they swap, so the button keeps its size. The first label doesn't animate in. With the OS's
  * reduce-motion setting on, they only fade (MotionConfig in app.tsx).
  */

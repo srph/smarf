@@ -50,7 +50,7 @@ const DiscordButton = ({ returnTo, pending = false, label = 'Continue with Disco
         {/* While pending, the spinner gets more room: its rings sit inside its box. */}
         <span className={cn('flex items-center', pending ? 'gap-3' : 'gap-2')}>
           {pending ? <Spinner tone="primary" /> : <DiscordLogo />}
-          <span>{pending ? 'Signing in with Discord…' : label}</span>
+          <span>{pending ? 'Signing in with Discord' : label}</span>
         </span>
       </LabelSwap>
     </a>

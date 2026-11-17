@@ -25,7 +25,7 @@ const BoardToolbarMoreMenu: React.FC<Props> = ({ onDuplicate, onDelete, isDuplic
         <span className="text-zinc-400">
           <Icon icon={DocumentDuplicateIcon} size={16} />
         </span>
-        {isDuplicating ? 'Duplicating…' : 'Duplicate board'}
+        {isDuplicating ? 'Duplicating' : 'Duplicate board'}
       </GlassMenu.Item>
 
       <GlassMenu.Separator />

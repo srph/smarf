@@ -114,7 +114,7 @@ describe('auth', () => {
     server.use(http.post(`${API}/auth/discord`, () => new Promise(() => {})))
     returnFromDiscord({ code: DISCORD_CODE, state })
 
-    expect(await screen.findByText('Signing in with Discord…')).toBeInTheDocument()
+    expect(await screen.findByText('Signing in with Discord')).toBeInTheDocument()
     expect(window.location.search).toBe('')
   })
 

@@ -113,9 +113,9 @@ const BoardVisitorDock: React.FC = () => {
               <MetalButton
                 busy={isCopying}
                 onClick={handleCopy}
-                aria-label={isCopying ? 'Copying…' : 'Copy to my boards'}>
+                aria-label={isCopying ? 'Copying' : 'Copy to my boards'}>
                 <Icon icon={DocumentDuplicateIcon} size={16} />
-                {isCopying ? 'Copying…' : 'Copy'}
+                {isCopying ? 'Copying' : 'Copy'}
               </MetalButton>
             </BoardToolbarTooltip>
           </div>

@@ -50,7 +50,7 @@ const ButtonLoaderIcon: React.FC<React.PropsWithChildren> = ({ children }) => {
 }
 
 /**
- * The button's label. Pass whichever text fits the state, e.g. `{isPending ? 'Creating…' : 'Create'}`.
+ * The button's label. Pass whichever text fits the state, e.g. `{isPending ? 'Creating' : 'Create'}`.
  * When `busy` flips, the last text from the other state is kept so the two can cross-fade.
  */
 const ButtonLoaderText: React.FC<React.PropsWithChildren> = ({ children }) => {

@@ -23,7 +23,7 @@ interface Props {
  * label from MetalHoldButtonText:
  *
  *   <MetalHoldButton busy={isDeleting} onHold={deleteBoard}>
- *     <MetalHoldButtonText>{isDeleting ? 'Deleting…' : 'Hold to delete'}</MetalHoldButtonText>
+ *     <MetalHoldButtonText>{isDeleting ? 'Deleting' : 'Hold to delete'}</MetalHoldButtonText>
  *   </MetalHoldButton>
  */
 const MetalHoldButton: React.FC<Props> = ({ duration = 1200, busy = false, onHold, children }) => {
@@ -111,7 +111,7 @@ const MetalHoldButton: React.FC<Props> = ({ duration = 1200, busy = false, onHol
   )
 }
 
-/** The button's label. Pass whichever text fits, e.g. `{isDeleting ? 'Deleting…' : 'Hold to delete'}`; it swaps when `busy` flips, with a spinner while busy. */
+/** The button's label. Pass whichever text fits, e.g. `{isDeleting ? 'Deleting' : 'Hold to delete'}`; it swaps when `busy` flips, with a spinner while busy. */
 const MetalHoldButtonText: React.FC<React.PropsWithChildren> = ({ children }) => {
   const busy = use(BusyContext)
 

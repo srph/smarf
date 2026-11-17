@@ -48,7 +48,7 @@ const BoardToolbarDeletePanel: React.FC<Props> = ({ onClose }) => {
         </button>
 
         <MetalHoldButton busy={isDeleting} onHold={handleHold}>
-          <MetalHoldButtonText>{isDeleting ? 'Deleting…' : 'Hold to delete'}</MetalHoldButtonText>
+          <MetalHoldButtonText>{isDeleting ? 'Deleting' : 'Hold to delete'}</MetalHoldButtonText>
         </MetalHoldButton>
       </div>
     </div>
