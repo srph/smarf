@@ -8,6 +8,8 @@ interface ButtonProps {
   block?: boolean
   variant?: Variant
   icon?: IconComponent
+  /** The icon's colour; primary-200 by default. */
+  iconClassName?: string
   type?: 'button' | 'submit'
   disabled?: boolean
   /** Working on its action: disables the button but keeps it at full color, with a progress cursor. ButtonLoader shows the spinner. */
@@ -25,6 +27,7 @@ const variants: Record<Variant, string> = {
 const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({
   children,
   icon,
+  iconClassName = 'text-primary-200',
   variant = 'primary',
   type = 'button',
   onClick,
@@ -49,7 +52,7 @@ const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({
         variants[variant]
       )}>
       {icon ? (
-        <div className="mr-2 text-primary-200" data-button-icon>
+        <div className={cn('mr-2', iconClassName)} data-button-icon>
           <Icon icon={icon} />
         </div>
       ) : null}

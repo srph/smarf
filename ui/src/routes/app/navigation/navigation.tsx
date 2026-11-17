@@ -36,7 +36,7 @@ const Navigation: React.FC = () => {
             <div className="flex items-center gap-3">
               {/* Wrapped, like Sign in: Button fills its parent. Nothing is saved until a start is chosen on /b/new. */}
               <div>
-                <Button variant="clear" icon={SquaresPlusIcon} onClick={() => navigate('/b/new')}>
+                <Button variant="clear" icon={SquaresPlusIcon} iconClassName="text-zinc-400" onClick={() => navigate('/b/new')}>
                   New Board
                 </Button>
               </div>
