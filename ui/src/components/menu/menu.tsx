@@ -51,7 +51,7 @@ const Popup: React.FC<PopupProps> = ({
 )
 
 const item =
-  'flex h-9 cursor-pointer items-center gap-3 rounded-lg px-2.5 text-zinc-200 transition-colors duration-100 outline-none [&_svg]:text-zinc-500 [&_svg]:transition-colors data-disabled:cursor-progress data-disabled:opacity-60 data-highlighted:bg-white/6 data-highlighted:text-zinc-50 data-highlighted:[&_svg]:text-primary-300 focus-visible:inset-ring-2 focus-visible:inset-ring-primary-400'
+  'flex h-9 cursor-pointer items-center gap-3 rounded-lg px-2.5 text-zinc-200 outline-none [&_svg]:text-zinc-500 data-disabled:cursor-progress data-disabled:opacity-60 data-highlighted:bg-white/6 data-highlighted:text-zinc-50 data-highlighted:[&_svg]:text-primary-300 focus-visible:inset-ring-2 focus-visible:inset-ring-primary-400'
 
 type ItemProps = Omit<React.ComponentProps<typeof BaseMenu.Item>, 'className'> & { className?: string }
 
