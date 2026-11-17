@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Spinner } from '~/src/components/spinner/spinner'
 import { useBoard } from './board-context'
 import { useUpdateBoardMutation } from './mutations/use-update-board-mutation'
 import { BoardToolbarPanelClose } from './board-toolbar-panel'
-import { MetalButton } from './metal-button'
+import { MetalButton, MetalButtonText } from './metal-button'
 
 interface Props {
   onClose: () => void
@@ -62,8 +61,7 @@ const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
         </button>
 
         <MetalButton type="submit" disabled={!trimmed} busy={isPending}>
-          {isPending ? 'Saving…' : 'Save'}
-          {isPending && <Spinner />}
+          <MetalButtonText className="min-w-22">{isPending ? 'Saving…' : 'Save'}</MetalButtonText>
         </MetalButton>
       </div>
     </form>

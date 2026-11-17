@@ -1,5 +1,9 @@
-import React from 'react'
+import React, { createContext, use } from 'react'
 import { cn } from 'cn'
+import { LabelSwap } from '~/src/components/label-swap/label-swap'
+import { Spinner } from '~/src/components/spinner/spinner'
+
+const BusyContext = createContext(false)
 
 type Size = 'md' | 'lg'
 
@@ -10,7 +14,7 @@ interface Props extends Omit<React.ComponentProps<'button'>, 'className' | 'disa
    * and a tooltip can say why.
    */
   disabled?: boolean
-  /** Dims the metal and ignores clicks while its action runs. The caller swaps the label (Saving…, Adding…). */
+  /** Dims the metal and ignores clicks while its action runs. MetalButtonText swaps the label (Saving…, Adding…). */
   busy?: boolean
   /** On hover, a light follows the cursor and a sheen sweeps across once. For a primary action that invites clicks. */
   shine?: boolean
@@ -80,9 +84,36 @@ const MetalButton: React.FC<Props> = ({
         </>
       )}
 
-      <span className="relative flex items-center gap-2">{children}</span>
+      <span className="relative flex items-center gap-2">
+        <BusyContext value={busy}>{children}</BusyContext>
+      </span>
     </button>
   )
 }
 
-export { MetalButton }
+interface TextProps {
+  /** Reserves room for the wider label, so the button doesn't resize when they swap. */
+  className?: string
+  children: React.ReactNode
+}
+
+/**
+ * The button's label. Pass whichever text fits, e.g. `{isPending ? 'Saving…' : 'Save'}`; it swaps when `busy`
+ * flips, with a spinner while busy (MetalHoldButtonText's swap).
+ */
+const MetalButtonText: React.FC<TextProps> = ({ className, children }) => {
+  const busy = use(BusyContext)
+
+  return (
+    <span className={cn('block', className)}>
+      <LabelSwap swapKey={busy ? 'busy' : 'idle'}>
+        <span className="flex items-center justify-center gap-2">
+          {busy && <Spinner tone="primary" />}
+          {children}
+        </span>
+      </LabelSwap>
+    </span>
+  )
+}
+
+export { MetalButton, MetalButtonText }
