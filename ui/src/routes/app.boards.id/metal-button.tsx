@@ -14,7 +14,7 @@ interface Props extends Omit<React.ComponentProps<'button'>, 'className' | 'disa
    * and a tooltip can say why.
    */
   disabled?: boolean
-  /** Dims the metal and ignores clicks while its action runs. MetalButtonText swaps the label (Saving…, Adding…). */
+  /** Dims the metal and ignores clicks while its action runs. MetalButtonText swaps the label (Saving, Adding). */
   busy?: boolean
   /** On hover, a light follows the cursor and a sheen sweeps across once. For a primary action that invites clicks. */
   shine?: boolean
@@ -98,7 +98,7 @@ interface TextProps {
 }
 
 /**
- * The button's label. Pass whichever text fits, e.g. `{isPending ? 'Saving…' : 'Save'}`; it swaps when `busy`
+ * The button's label. Pass whichever text fits, e.g. `{isPending ? 'Saving' : 'Save'}`; it swaps when `busy`
  * flips, with a spinner while busy (MetalHoldButtonText's swap).
  */
 const MetalButtonText: React.FC<TextProps> = ({ className, children }) => {

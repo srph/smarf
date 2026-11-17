@@ -61,7 +61,7 @@ const BoardToolbarRenamePanel: React.FC<Props> = ({ onClose, onRenamed }) => {
         </button>
 
         <MetalButton type="submit" disabled={!trimmed} busy={isPending}>
-          <MetalButtonText className="min-w-22">{isPending ? 'Saving…' : 'Save'}</MetalButtonText>
+          <MetalButtonText className="min-w-22">{isPending ? 'Saving' : 'Save'}</MetalButtonText>
         </MetalButton>
       </div>
     </form>
